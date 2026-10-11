@@ -110,7 +110,7 @@
     "sharp": "^0.35.5",
     "solid-js": "^1.9.14",
     "source-map-js": "^1.2.2",
-    "undici": "^7.29.0"
+    "undici": "^7.29.1"
   },
   "workspaces": [
     "apps/*",
