@@ -41,7 +41,7 @@ explicit Founder / Product decision.
 
 **Use exactly these. Anything else requires explicit approval.**
 
-- **Monorepo:** Nx 23 + TanStack Config. TypeScript 6, **strict**.
+- **Monorepo:** Nx 23 + TanStack Config. TypeScript, **strict**, in two installs: TypeScript 7 compiles and typechecks (`tsc`, the `@typescript/native` alias), and TypeScript 6 stays as the `typescript` package (`@typescript/typescript6`, command `tsc6`) because typescript-eslint and Nx load its compiler API, which TypeScript 7 does not ship. The typecheck gate is TypeScript 7; TypeScript 6 only gives lint its type information. Never call `tsc6` in a target. Drop TypeScript 6 once typescript-eslint and `@nx/eslint` support 7.
 - **Apps:** TanStack Start (fullstack: SSR + typed server functions). Runtime: **Cloudflare Workers**.
 - **TanStack:** Router, Query (server state), Form (forms), Table (data grids), Virtual (long lists), Store (client UI state).
 - **Styling:** **Tailwind CSS v4 + DaisyUI** (shared in `libs/ui`).
