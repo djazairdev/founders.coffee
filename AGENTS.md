@@ -41,7 +41,7 @@ explicit Founder / Product decision.
 
 **Use exactly these. Anything else requires explicit approval.**
 
-- **Monorepo:** Nx 23 + TanStack Config. TypeScript 6, **strict**.
+- **Monorepo:** Nx 23 + TanStack Config. TypeScript, **strict**, in two installs: TypeScript 7 compiles and typechecks (`tsc`, the `@typescript/native` alias), and TypeScript 6 stays as the `typescript` package (`@typescript/typescript6`, command `tsc6`) because typescript-eslint and Nx load its compiler API, which TypeScript 7 does not ship. The typecheck gate is TypeScript 7; TypeScript 6 only gives lint its type information. Never call `tsc6` in a target. Drop TypeScript 6 once typescript-eslint and `@nx/eslint` support 7.
 - **Apps:** TanStack Start (fullstack: SSR + typed server functions). Runtime: **Cloudflare Workers**.
 - **TanStack:** Router, Query (server state), Form (forms), Table (data grids), Virtual (long lists), Store (client UI state).
 - **Styling:** **Tailwind CSS v4 + DaisyUI** (shared in `libs/ui`).
@@ -51,7 +51,7 @@ explicit Founder / Product decision.
 - **Cloudflare services:** D1, R2, Images, KV, Queues, Cron, Durable Objects, Workflows, Workers AI, Vectorize, Browser Rendering, Turnstile, Access/Zero Trust, Email (native), Analytics Engine, Web Analytics, Secrets Store, Smart Placement.
 - **Email:** Cloudflare Email (native) + React Email templates.
 - **Mobile:** installable Serwist PWA from `apps/ui`; PWA Builder may package that same PWA for stores. A separate native app is not committed scope.
-- **Testing:** Vitest + Playwright + Miniflare.
+- **Testing:** Vitest 5 + Playwright + Miniflare. Tests reach Miniflare through `@cloudflare/vitest-plugin`, the package `@cloudflare/vitest-pool-workers` became; the old name stopped at Vitest 4.
 
 **Forbidden stack:** NestJS, Prisma, Express, Next.js, Redux, raw `fetch` in components, Node-only libraries (unless `nodejs_compat`-verified), mock frameworks for Cloudflare bindings.
 

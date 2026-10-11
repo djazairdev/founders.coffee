@@ -42,8 +42,8 @@ This document is the current sequencing and status source. Status is evidence-ba
   cannot create a group, so each host had to bring one. CH-12 retired them on 2026-10-01, ahead of
   the chat opening in production (Founder / Product). WhatsApp was ruled out on 2026-09-29: its
   Groups API needs an Official Business Account and holds eight people.
-- TypeScript 6, public base locales `ar`/`fr`/`en`, Arabic-only RTL admin copy, and shared Zod
-  validation are canonical.
+- TypeScript 7 (with TypeScript 6 kept for the lint and Nx tooling that needs its API), public base
+  locales `ar`/`fr`/`en`, Arabic-only RTL admin copy, and shared Zod validation are canonical.
 - TanStack Form is optional; local React state is acceptable when it reuses the shared Zod contract.
 - AI lives at `@founders-coffee/core/ai`; delivery providers live in `libs/notifications`.
 - Community membership, events, participation, and ordinary hosting are free. Commercial hosted challenges are B2B services.

@@ -97,3 +97,4 @@ playwright-report/
 # Service-account keys are downloaded into the tree and must never be committed.
 *firebase-adminsdk*.json
 *-service-account*.json
+vitest.config.*.timestamp*
