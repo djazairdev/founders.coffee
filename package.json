@@ -97,6 +97,8 @@
     "lodash": "^4.18.1",
     "nanoid": "^3.3.18",
     "postcss": "^8.5.26",
+    "seroval": "^1.6.8",
+    "seroval-plugins": "^1.6.8",
     "sha.js": "^2.4.12",
     "sharp": "^0.35.3",
     "solid-js": "^1.9.14",
