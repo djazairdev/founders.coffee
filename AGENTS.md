@@ -51,7 +51,7 @@ explicit Founder / Product decision.
 - **Cloudflare services:** D1, R2, Images, KV, Queues, Cron, Durable Objects, Workflows, Workers AI, Vectorize, Browser Rendering, Turnstile, Access/Zero Trust, Email (native), Analytics Engine, Web Analytics, Secrets Store, Smart Placement.
 - **Email:** Cloudflare Email (native) + React Email templates.
 - **Mobile:** installable Serwist PWA from `apps/ui`; PWA Builder may package that same PWA for stores. A separate native app is not committed scope.
-- **Testing:** Vitest + Playwright + Miniflare.
+- **Testing:** Vitest 5 + Playwright + Miniflare. Tests reach Miniflare through `@cloudflare/vitest-plugin`, the package `@cloudflare/vitest-pool-workers` became; the old name stopped at Vitest 4.
 
 **Forbidden stack:** NestJS, Prisma, Express, Next.js, Redux, raw `fetch` in components, Node-only libraries (unless `nodejs_compat`-verified), mock frameworks for Cloudflare bindings.
 
