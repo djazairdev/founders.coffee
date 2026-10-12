@@ -73,6 +73,16 @@
       "@founders-coffee/source": "./src/profile/account-closure.ts",
       "types": "./src/profile/account-closure.ts",
       "default": "./src/profile/account-closure.ts"
+    },
+    "./action-tracking-http": {
+      "@founders-coffee/source": "./src/action-tracking-http.ts",
+      "types": "./src/action-tracking-http.ts",
+      "default": "./src/action-tracking-http.ts"
+    },
+    "./community-health-http": {
+      "@founders-coffee/source": "./src/community-health-http.ts",
+      "types": "./src/community-health-http.ts",
+      "default": "./src/community-health-http.ts"
     }
   },
   "dependencies": {

@@ -2,13 +2,14 @@ import { z } from 'zod';
 
 import {
   CALENDAR_TARGETS,
+  campaignSchema,
   localeSchema,
   marketCodeSchema,
 } from '@founders-coffee/core';
 import { eventCreateSchema, eventUpdateSchema } from '@founders-coffee/domain';
 
 export const eventCreateRequestSchema = z
-  .object({ event: eventCreateSchema })
+  .object({ event: eventCreateSchema, attribution: campaignSchema.optional() })
   .strict();
 
 export type EventCreateRequestInput = z.infer<typeof eventCreateRequestSchema>;

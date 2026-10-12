@@ -2,6 +2,7 @@ export { and, eq, sql } from 'drizzle-orm';
 
 export * from './schema.js';
 export * from './db.js';
+export * from './community-health.js';
 export * from './atomic.js';
 export * from './orders.js';
 export * from './event-calendar.js';

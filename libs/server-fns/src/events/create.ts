@@ -1,4 +1,4 @@
-import { type Locale, type Result } from '@founders-coffee/core';
+import { type Campaign, type Locale, type Result } from '@founders-coffee/core';
 import { type Db, type Event } from '@founders-coffee/db';
 import { type EventCreateInput } from '@founders-coffee/domain';
 import {
@@ -64,6 +64,7 @@ const recordEventCreated = (
   metrics: Metrics | null,
   telemetry: EventCreateTelemetry,
   locale: Locale,
+  attribution?: Campaign,
 ): void => {
   if (!metrics) {
     logger.warn('events_created_metric_unavailable', { ...telemetry });
@@ -74,6 +75,7 @@ const recordEventCreated = (
       market: telemetry.marketCode,
       city: telemetry.cityCode ?? undefined,
       locale,
+      ...(attribution ? { attribution } : {}),
     });
   } catch (error) {
     reportError(error, { operation: EVENTS_CREATED_METRIC });
@@ -97,6 +99,7 @@ export const createEventWithTelemetry = async (
   metrics: Metrics | null,
   hostId: string,
   input: EventCreateInput,
+  attribution?: Campaign,
 ): Promise<Result<Event>> => {
   const telemetry = telemetryFor(hostId, input);
   logger.info('event_create_requested', { ...telemetry });
@@ -119,7 +122,7 @@ export const createEventWithTelemetry = async (
     eventId: result.data.id,
     stateCode: result.data.stateCode,
   });
-  recordEventCreated(metrics, resolved, result.data.language);
+  recordEventCreated(metrics, resolved, result.data.language, attribution);
   await scheduleEventCloseoutPrompt(db, result.data);
   await scheduleCityWaitlistLaunch(db, result.data);
   return result;

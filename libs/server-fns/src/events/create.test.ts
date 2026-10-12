@@ -103,6 +103,32 @@ describe('createEventWithTelemetry (real D1)', () => {
     });
   });
 
+  it('attributes the confirmed creation without a second metric or any identifier', async () => {
+    const db = await setupDb();
+    const { metrics, trackEvent } = trackedMetrics();
+    const attribution = {
+      source: 'facebook',
+      medium: 'paid_social',
+      campaign: 'v90_founders_en_v2',
+    };
+    const result = await createEventWithTelemetry(
+      db,
+      testMapProvider,
+      metrics,
+      TEST_HOST_ID,
+      createInput(),
+      attribution,
+    );
+    expect(result.ok).toBe(true);
+    expect(trackEvent).toHaveBeenCalledOnce();
+    expect(trackEvent.mock.calls[0][1]).toEqual({
+      market: 'DZ',
+      city: '1',
+      locale: 'fr',
+      attribution,
+    });
+  });
+
   it('keeps host-authored free text and coordinates out of every log entry', async () => {
     const db = await setupDb();
     const { metrics } = trackedMetrics();

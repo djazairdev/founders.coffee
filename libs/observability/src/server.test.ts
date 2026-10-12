@@ -96,6 +96,31 @@ describe('metrics', () => {
     });
   });
 
+  it('keeps the old blob prefix and separates environment and campaign dimensions', () => {
+    expect(
+      buildDataPoint('rsvps_created', [1], {
+        market: 'DZ',
+        city: '1',
+        locale: 'ar',
+        environment: 'production',
+        attribution: {
+          source: 'facebook',
+          medium: 'paid_social',
+          campaign: 'v90',
+        },
+      }).blobs,
+    ).toEqual([
+      'rsvps_created',
+      '1',
+      'ar',
+      'production',
+      'facebook',
+      'paid_social',
+      'v90',
+      'server',
+    ]);
+  });
+
   it('trackCount carries the numeric value', () => {
     expect(
       buildDataPoint('payment_amount', [1250], { market: 'DZ' }).doubles,

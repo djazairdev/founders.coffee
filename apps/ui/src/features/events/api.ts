@@ -32,14 +32,18 @@ import {
 import type { Event } from '@founders-coffee/db';
 import type { Locale } from '@founders-coffee/core';
 
+import { browserCampaign } from '../actions/client';
+
 export const eventsApi = {
   getUpcomingEvents,
-  createEvent,
+  createEvent: (input: CreateEventInput) =>
+    createEvent({ data: { ...input.data, attribution: browserCampaign() } }),
   updateEvent,
   getEvent,
   getHostedEvents,
   getMyJoinedEvents,
-  createRsvp,
+  createRsvp: (input: RsvpInput) =>
+    createRsvp({ data: { ...input.data, attribution: browserCampaign() } }),
   cancelRsvp,
   cancelEvent,
   getHostMapContext,

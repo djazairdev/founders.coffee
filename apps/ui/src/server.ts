@@ -8,6 +8,10 @@ import { DURABLE_OBJECT_LOCATION_HINT } from '@founders-coffee/infra';
 import { strippingQueryValues } from '@founders-coffee/observability';
 import { runWithContext } from '@founders-coffee/observability/context';
 import { handleChatSocketRequest } from '@founders-coffee/server-fns/chat-socket';
+import {
+  ACTION_TRACKING_PATH,
+  handleActionTrackingRequest,
+} from '@founders-coffee/server-fns/action-tracking-http';
 import { handleClientLogsRequest } from '@founders-coffee/server-fns/client-logs-http';
 import {
   CSP_REPORT_PATH,
@@ -46,6 +50,8 @@ export interface UiEnv extends HandlerEnv {
   CSP_ENFORCED?: string;
   APP_ENVIRONMENT?: string;
   OTP_ECHO?: string;
+  ANALYTICS?: AnalyticsEngineDataset;
+  ACTION_ANALYTICS_ENABLED?: string;
 }
 
 /**
@@ -169,6 +175,9 @@ export default {
           ),
         ),
       );
+
+    if (url.pathname === ACTION_TRACKING_PATH)
+      return secure(await handleActionTrackingRequest(request, url, env));
 
     const cspReport = handleCspReportRequest(request, url);
     if (cspReport) return secure(await cspReport);

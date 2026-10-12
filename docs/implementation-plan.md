@@ -781,6 +781,23 @@ three recurring hosts, at least 60% host retention, and evidence of healthy repe
 Founder / Product must review that evidence and explicitly open any future phase. If the community
 loop fails, prioritize fixing or reconsidering it instead of starting a later product layer.
 
+## Acquisition tracking — AT-01 / P1-019 / CO-10 (12 October 2026)
+
+Founder / Product approved applying the djazair.dev first-party action-counting approach.
+AT-01 adds anonymous campaign-coded views/actions, SPA/auth navigation attribution,
+server-confirmed creation/RSVP metrics, test-environment separation, privacy disclosure,
+and a protected aggregate community report from existing attendance/closeout records.
+No tracking vendor, package, visitor identifier, persistent campaign cookie, Pixel or CAPI
+is added. Anonymous telemetry uses the existing browser-report exception (bounded same-origin
+reports, Durable Object rate limits, no challenge and no authoritative business writes).
+Click reports remain untrusted directional counts. Completed participation comes from D1.
+Campaign reporting preserves the agreed thirty-day validation measures. Ten completed
+meetups/month is a later consistency ambition; the separate eight-meetup product expansion
+gate above is unchanged. Production activation requires an authorized deployment
+and stored-event verification; this local implementation does not start ads.
+
+Local status: implementation and checks complete; [action tracking](./action-tracking.md) records semantics, privacy, report definitions and production verification. Tagged sign-in-to-RSVP journeys passed in ar/fr/en. Production deployment and ingestion remain unverified.
+
 ## 6. Phase P2 — challenge engine (future)
 
 **Status: Future.** This is not active or current-release scope. It may be reconsidered only after the

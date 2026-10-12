@@ -76,7 +76,9 @@ for (const locale of LOCALES) {
       page,
     }) => {
       test.setTimeout(150_000);
-      await page.goto(path);
+      await page.goto(
+        `${path}?utm_source=facebook&utm_medium=paid_social&utm_campaign=activation-check`,
+      );
       await pressJoinSignedOut(page, locale);
 
       await signIn(page, locale, meetup.memberEmail, 'login_email_continue');
@@ -84,6 +86,9 @@ for (const locale of LOCALES) {
         timeout: 60_000,
       });
 
+      expect(new URL(page.url()).searchParams.get('utm_campaign')).toBe(
+        'activation-check',
+      );
       await expect(
         page.getByRole('heading', { name: t(locale, 'rsvp_already') }),
         'on 2 October a reader pressed Join, signed in, came back to the same button and left without pressing it again',
