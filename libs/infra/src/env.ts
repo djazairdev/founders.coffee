@@ -15,6 +15,7 @@ export interface WorkerEnv {
 
   readonly APP_URL?: string;
   readonly APP_ENVIRONMENT?: string;
+  readonly ACTION_ANALYTICS_ENABLED?: string;
   readonly MAIL_FROM?: string;
 
   readonly MAPBOX_TOKEN?: string;

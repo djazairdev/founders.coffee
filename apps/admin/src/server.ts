@@ -1,5 +1,9 @@
 import '@founders-coffee/observability/server-init';
 import handler from '@tanstack/react-start/server-entry';
+import {
+  COMMUNITY_HEALTH_PATH,
+  handleCommunityHealthRequest,
+} from '@founders-coffee/server-fns/community-health-http';
 
 import { withSecurityHeaders } from '@founders-coffee/core';
 import { logger, strippingQueryValues } from '@founders-coffee/observability';
@@ -91,6 +95,10 @@ export default {
       path: url.pathname,
     });
 
+    if (url.pathname === COMMUNITY_HEALTH_PATH)
+      return secure(
+        await handleCommunityHealthRequest(request, env.DB, admin.context.role),
+      );
     return secure(await handler.fetch(request));
   }),
 } satisfies ExportedHandler<AdminWorkerEnv>;

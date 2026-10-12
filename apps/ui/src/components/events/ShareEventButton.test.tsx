@@ -59,7 +59,7 @@ describe('ShareEventButton', () => {
     expect(share.mock.calls[0]?.[0]).toEqual({
       title: TITLE,
       text: `Join me at ${TITLE}`,
-      url: `${window.location.origin}/en/e/25b03363854e4768887f4f96641e6667`,
+      url: `${window.location.origin}/en/e/25b03363854e4768887f4f96641e6667?utm_source=community&utm_medium=share&utm_campaign=local-meetups`,
     });
     expect(
       document.querySelector('dialog[open]'),

@@ -23,6 +23,7 @@
   "vars": {
     "APP_URL": "http://localhost:3000",
     "APP_ENVIRONMENT": "development",
+    "ACTION_ANALYTICS_ENABLED": "true",
     "MAIL_FROM": "no-reply@founders.coffee",
   },
   "send_email": [{ "name": "EMAIL" }],
@@ -84,6 +85,7 @@
       "vars": {
         "APP_URL": "https://staging.founders.coffee",
         "APP_ENVIRONMENT": "staging",
+        "ACTION_ANALYTICS_ENABLED": "true",
         "MAIL_FROM": "no-reply@founders.coffee",
         "CSP_ENFORCED": "true",
       },
@@ -134,6 +136,7 @@
       "vars": {
         "APP_URL": "https://founders.coffee",
         "APP_ENVIRONMENT": "production",
+        "ACTION_ANALYTICS_ENABLED": "true",
         "MAIL_FROM": "no-reply@founders.coffee",
         "CSP_ENFORCED": "true",
       },

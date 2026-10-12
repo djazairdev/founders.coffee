@@ -29,5 +29,9 @@ export const workerEnv = (): WorkerEnv => env as unknown as WorkerEnv;
  */
 export const workerMetrics = (): Metrics | null => {
   const analytics = workerEnv().ANALYTICS;
-  return analytics ? createMetrics(analytics) : null;
+  return analytics
+    ? createMetrics(analytics, {
+        environment: workerEnv().APP_ENVIRONMENT ?? 'unknown',
+      })
+    : null;
 };

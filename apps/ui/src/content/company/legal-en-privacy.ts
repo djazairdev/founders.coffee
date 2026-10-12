@@ -78,6 +78,9 @@ export const privacyEnglish: CompanyPageContent = translatedPage(
         'When you search for a venue or pick a point on the map, our server sends your search text or the point’s position, with the area being shown, to Mapbox to find matching places. We do not send your name or email with it.',
         'If you press “Locate me” on the map where you choose a gathering’s venue, your browser gives the page your location, if you allow it to, and the map moves there. Your browser then loads the map of that area from Mapbox and sends the map’s centre to our server so we can show you the places near it, as happens when you move the map yourself. We ask for your location only when you press the button, and we do not save it to your account.',
       ),
+      ...text(
+        'We also count landing, city and gathering views, hosting and RSVP actions, and use of sharing buttons. These first-party action records contain only action type, market, city code, language and validated campaign codes. They contain no account or visitor identifier, IP address, full URL or message text, and use no tracking cookies or browser storage. We suppress these reports when your browser sends Do Not Track or Global Privacy Control. Successful hosting and RSVP actions are counted after they are saved. Sharing-button use does not prove someone received the link. Community health reports use existing private attendance and closeout records and expose aggregates only.',
+      ),
       subheading('Messages and reports'),
       ...text(
         'We retain support messages, complaints, content reports, and our replies to follow up and document moderation decisions.',
@@ -231,5 +234,5 @@ export const privacyEnglish: CompanyPageContent = translatedPage(
       ),
     ),
   ],
-  '6 October 2026',
+  '12 October 2026',
 );

@@ -39,14 +39,14 @@ describe('eventShareUrl', () => {
     const url = eventShareUrl('ar', 'evt_25b03363854e4768887f4f96641e6667');
 
     expect(url).toBe(
-      `${window.location.origin}/ar/e/25b03363854e4768887f4f96641e6667`,
+      `${window.location.origin}/ar/e/25b03363854e4768887f4f96641e6667?utm_source=community&utm_medium=share&utm_campaign=local-meetups`,
     );
     expect(
       url,
       'the encoded form is what a messenger pastes, and that is the whole complaint',
     ).toBe(encodeURI(url));
-    expect(url.length).toBeLessThan(
-      `${window.location.origin}${encodeURI(ARABIC_EVENT_PATH)}`.length / 2,
+    expect(new URL(url).pathname.length).toBeLessThan(
+      encodeURI(ARABIC_EVENT_PATH).length / 2,
     );
   });
 
@@ -59,14 +59,14 @@ describe('eventShareUrl', () => {
 
     const url = eventShareUrl('ar', 'evt_25b03363854e4768887f4f96641e6667');
 
-    expect(url).not.toContain('utm_source');
+    expect(new URL(url).searchParams.get('utm_source')).toBe('community');
     expect(url).not.toContain('afterId');
     expect(url).not.toContain('#');
   });
 
   it('carries the language, so a link written in French opens in French', () => {
     expect(eventShareUrl('fr', 'evt_25b03363854e4768887f4f96641e6667')).toBe(
-      `${window.location.origin}/fr/e/25b03363854e4768887f4f96641e6667`,
+      `${window.location.origin}/fr/e/25b03363854e4768887f4f96641e6667?utm_source=community&utm_medium=share&utm_campaign=local-meetups`,
     );
   });
 });

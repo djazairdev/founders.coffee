@@ -1,3 +1,4 @@
+import { communityShareUrl, trackAction } from '../features/actions/client';
 import { eventShortPath } from '@founders-coffee/core';
 import type { Locale } from '@founders-coffee/i18n';
 
@@ -29,7 +30,9 @@ export type ShareOutcome = 'shared' | 'dismissed' | 'unavailable';
  * everyone the link reaches.
  */
 export const eventShareUrl = (locale: Locale, eventId: string): string =>
-  `${window.location.origin}${eventShortPath(locale, eventId)}`;
+  communityShareUrl(
+    `${window.location.origin}${eventShortPath(locale, eventId)}`,
+  );
 
 /**
  * Offer a page to the operating system's share sheet.
@@ -47,10 +50,12 @@ export const eventShareUrl = (locale: Locale, eventId: string): string =>
  * `unavailable`, which is the caller's signal to show the fallback.
  */
 export const shareNatively = async (data: ShareText): Promise<ShareOutcome> => {
+  trackAction('share_open');
   if (typeof navigator === 'undefined' || typeof navigator.share !== 'function')
     return 'unavailable';
   try {
     await navigator.share(data);
+    trackAction('share_complete');
     return 'shared';
   } catch (cause) {
     return cause instanceof Error && cause.name === 'AbortError'
@@ -74,6 +79,7 @@ export const copyLink = async (url: string): Promise<boolean> => {
     return false;
   try {
     await navigator.clipboard.writeText(url);
+    trackAction('share_copy');
     return true;
   } catch {
     return false;

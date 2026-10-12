@@ -19,7 +19,9 @@ export default defineConfig(async () => {
       mapboxCspWorker(),
       cloudflareTest({
         wrangler: { configPath: './wrangler.test.jsonc' },
-        miniflare: { bindings: { TEST_MIGRATIONS: migrations } },
+        miniflare: {
+          bindings: { TEST_MIGRATIONS: migrations, MAPBOX_TOKEN: '' },
+        },
       }),
     ],
     test: {

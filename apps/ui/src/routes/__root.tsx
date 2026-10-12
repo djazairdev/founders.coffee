@@ -3,8 +3,11 @@ import {
   Scripts,
   createRootRoute,
   useMatches,
+  retainSearchParams,
 } from '@tanstack/react-router';
 import { useEffect } from 'react';
+import { CAMPAIGN_KEYS, campaignSearchSchema } from '@founders-coffee/core';
+import { useActionTracking } from '../features/actions/hooks';
 
 import {
   detectLocale,
@@ -94,6 +97,7 @@ const RootDocument = ({ children }: { children: React.ReactNode }) => {
   const cityCode = useMatches({ select: cityCodeInView });
   const isOnFocusedTask = useMatches({ select: isFocusedTask });
   useClientObservability();
+  useActionTracking();
   useServiceWorker();
   useStoredLocale(locale);
   usePathLocale();
@@ -131,6 +135,8 @@ const RootDocument = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const Route = createRootRoute({
+  validateSearch: campaignSearchSchema,
+  search: { middlewares: [retainSearchParams([...CAMPAIGN_KEYS])] },
   beforeLoad: async ({ params }) => {
     const routeParams = params as {
       readonly locale?: string;

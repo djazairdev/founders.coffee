@@ -1,3 +1,4 @@
+import { isPrivateRequest } from '@founders-coffee/core';
 import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
@@ -85,6 +86,10 @@ export const createEvent = createServerFn({ method: 'POST', strict: false })
         workerMetrics(),
         session.user.id,
         data.event,
+        isPrivateRequest(getRequest().headers) ||
+          workerEnv().ACTION_ANALYTICS_ENABLED !== 'true'
+          ? undefined
+          : data.attribution,
       ),
     );
   });

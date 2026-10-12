@@ -1,3 +1,4 @@
+import { campaignReturnPath, trackAction } from '../../features/actions/client';
 import { useNavigate, useRouter } from '@tanstack/react-router';
 import { CalendarOff } from 'lucide-react';
 import { useState } from 'react';
@@ -82,12 +83,12 @@ export const RsvpSection = ({
     return { message: rsvp_error({}, { locale }), canRetry: true };
   };
 
-  const handleRsvp = () => {
+  const joinMeetup = () => {
     if (!isAuthenticated) {
       rememberJoinIntent(event.id);
       void navigate({
         ...localizedLogin(locale),
-        search: { redirect: window.location.pathname },
+        search: { redirect: campaignReturnPath(window.location.pathname) },
       });
       return;
     }
@@ -104,11 +105,16 @@ export const RsvpSection = ({
     );
   };
 
+  const handleRsvp = () => {
+    trackAction('rsvp_start');
+    joinMeetup();
+  };
+
   const boxRef = useJoinAfterSignIn({
     eventId: event.id,
     isSignedIn: isAuthenticated,
     canJoin: isOpen && !isGoing && !isCancelled && !isHost,
-    join: handleRsvp,
+    join: joinMeetup,
   });
 
   const handleCancel = () => {

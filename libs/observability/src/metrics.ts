@@ -1,7 +1,12 @@
+import type { Campaign } from '@founders-coffee/core';
+
 export interface MetricDimensions {
   readonly market?: string;
   readonly city?: string;
   readonly locale?: string;
+  readonly environment?: string;
+  readonly attribution?: Campaign;
+  readonly page?: string;
 }
 
 export interface Metrics {
@@ -26,7 +31,20 @@ export const buildDataPoint = (
 ): AnalyticsEngineDataPoint => ({
   indexes: [dims.market ?? 'global'],
   doubles,
-  blobs: [event, dims.city ?? '', dims.locale ?? ''],
+  blobs: [
+    event,
+    dims.city ?? '',
+    dims.locale ?? '',
+    ...(dims.environment === undefined
+      ? []
+      : [
+          dims.environment,
+          dims.attribution?.source ?? 'none',
+          dims.attribution?.medium ?? 'none',
+          dims.attribution?.campaign ?? 'none',
+          dims.page ?? 'server',
+        ]),
+  ],
 });
 
 /**
@@ -35,9 +53,16 @@ export const buildDataPoint = (
  * for the P1-019 dashboards (AGENTS.md §13). No env at module scope — pass the
  * binding (reached via `env.ANALYTICS` in the request) where you create the metrics.
  */
-export const createMetrics = (analytics: AnalyticsEngineDataset): Metrics => ({
+export const createMetrics = (
+  analytics: AnalyticsEngineDataset,
+  defaults: MetricDimensions = {},
+): Metrics => ({
   trackEvent: (event, dims = {}) =>
-    analytics.writeDataPoint(buildDataPoint(event, [1], dims)),
+    analytics.writeDataPoint(
+      buildDataPoint(event, [1], { ...defaults, ...dims }),
+    ),
   trackCount: (event, value, dims = {}) =>
-    analytics.writeDataPoint(buildDataPoint(event, [value], dims)),
+    analytics.writeDataPoint(
+      buildDataPoint(event, [value], { ...defaults, ...dims }),
+    ),
 });

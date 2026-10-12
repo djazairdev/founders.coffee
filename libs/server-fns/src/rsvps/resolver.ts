@@ -1,4 +1,11 @@
-import { AppError, err, id, ok, type Result } from '@founders-coffee/core';
+import {
+  type Campaign,
+  AppError,
+  err,
+  id,
+  ok,
+  type Result,
+} from '@founders-coffee/core';
 import {
   cancelRsvp as cancelRsvpRow,
   createRsvp as createRsvpRow,
@@ -9,6 +16,8 @@ import {
   type Db,
 } from '@founders-coffee/db';
 
+import type { Metrics } from '@founders-coffee/observability';
+import { recordRsvpCreated } from './metrics.js';
 import { tellChatRoom } from '../chat/room.js';
 import {
   enqueueHostRsvpCancellationNotice,
@@ -39,6 +48,8 @@ export const createRsvpResolver = async (
   opts: {
     eventId: string;
     userId: string;
+    metrics?: Metrics | null;
+    attribution?: Campaign;
   },
 ): Promise<Result<RsvpResult>> => {
   const event = await getEvent(db, opts.eventId);
@@ -80,6 +91,9 @@ export const createRsvpResolver = async (
       new AppError('already_rsvpd', 'You are already attending this event'),
     );
   }
+
+  if (event.hostId !== opts.userId)
+    recordRsvpCreated(opts.metrics, event, opts.attribution);
 
   const user = await getUser(db, opts.userId);
   if (user) {
