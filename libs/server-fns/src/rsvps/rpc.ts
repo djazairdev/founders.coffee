@@ -1,7 +1,14 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
+import { getRequest } from '@tanstack/react-start/server';
+import { workerEnv, workerMetrics } from '../env.js';
 
-import { appValidator, handleResult } from '@founders-coffee/core';
+import {
+  campaignSchema,
+  isPrivateRequest,
+  appValidator,
+  handleResult,
+} from '@founders-coffee/core';
 
 import { requireAuth } from '../authz.js';
 import { requirePermission } from '../auth-middleware.js';
@@ -9,8 +16,9 @@ import { getDb } from '../db.js';
 import { rateLimit } from '../rate-limit.js';
 import { cancelRsvpResolver, createRsvpResolver } from './resolver.js';
 
-const rsvpCreateSchema = z.object({
-  eventId: z.string().min(1),
+const rsvpCreateSchema = z.strictObject({
+  eventId: z.string().min(1).max(64),
+  attribution: campaignSchema.optional(),
 });
 
 const rsvpCancelSchema = z.object({
@@ -29,10 +37,15 @@ export const createRsvp = createServerFn({ method: 'POST', strict: false })
   .validator(appValidator(rsvpCreateSchema))
   .handler(async ({ context, data }) => {
     const session = requireAuth(context.session);
+    const canTrack =
+      workerEnv().ACTION_ANALYTICS_ENABLED === 'true' &&
+      !isPrivateRequest(getRequest().headers);
     return handleResult(
       createRsvpResolver(getDb(), {
         eventId: data.eventId,
         userId: session.user.id,
+        metrics: canTrack ? workerMetrics() : null,
+        attribution: canTrack ? data.attribution : undefined,
       }),
     );
   });

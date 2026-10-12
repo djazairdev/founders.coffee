@@ -88,6 +88,11 @@ export const RATE_BUDGETS = {
     },
   },
   telemetry: {
+    actions: {
+      action: 'anonymous_actions',
+      limit: 120,
+      windowMs: 10 * MINUTE_MS,
+    },
     clientLogs: {
       action: 'client_logs',
       limit: 30,

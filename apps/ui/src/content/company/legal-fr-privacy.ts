@@ -79,6 +79,9 @@ export const privacyFrench: CompanyPageContent = translatedPage(
         'Lorsque vous cherchez un lieu ou choisissez un point sur la carte, notre serveur envoie à Mapbox votre texte de recherche ou la position du point, avec la zone affichée, pour trouver les lieux correspondants. Nous n’y joignons ni votre nom ni votre e-mail.',
         'Si vous appuyez sur « Me localiser » sur la carte où vous choisissez le lieu d’une rencontre, votre navigateur donne votre position à la page, si vous l’y autorisez, et la carte s’y déplace. Votre navigateur charge alors depuis Mapbox la carte de cette zone et envoie le centre de la carte à notre serveur pour que nous vous montrions les lieux proches, comme lorsque vous déplacez la carte vous-même. Nous ne demandons votre position que lorsque vous appuyez sur le bouton, et nous ne l’enregistrons pas dans votre compte.',
       ),
+      ...text(
+        'Nous comptons aussi les vues des pages, les actions d’organisation et d’inscription et l’utilisation du partage. Ces relevés internes contiennent uniquement le type d’action, le pays, le code de ville, la langue et des codes de campagne validés : aucun identifiant de compte ou de visiteur, adresse IP, URL complète ou texte de message. Ils n’utilisent ni cookie de suivi ni stockage du navigateur. Nous désactivons ces relevés quand le navigateur transmet Do Not Track ou Global Privacy Control. Les actions réussies sont comptées après leur enregistrement. Un partage ne prouve pas la réception du lien. Les rapports de santé communautaire utilisent les registres privés de présence et de clôture existants et ne présentent que des agrégats.',
+      ),
       subheading('Messages et signalements'),
       ...text(
         'Ce que vous nous envoyez comme demandes d’aide, réclamations ou signalements de contenu, et nos réponses. Nous les conservons pour suivre la demande et documenter les décisions de modération.',
@@ -232,5 +235,5 @@ export const privacyFrench: CompanyPageContent = translatedPage(
       ),
     ),
   ],
-  '6 octobre 2026',
+  '12 octobre 2026',
 );

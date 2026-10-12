@@ -1,3 +1,4 @@
+import { campaignReturnPath } from '../features/actions/client';
 import { stripSearchParams } from '@tanstack/react-router';
 import { z } from 'zod';
 
@@ -58,7 +59,7 @@ export const authReturnPathSchema = sameOriginPathSchema.refine((path) => {
 
 export const safeAuthReturnPath = (value: unknown): string => {
   const parsed = authReturnPathSchema.safeParse(value);
-  return parsed.success ? parsed.data : '/';
+  return parsed.success ? campaignReturnPath(parsed.data) : '/';
 };
 
 export type SocialRedirect = {
