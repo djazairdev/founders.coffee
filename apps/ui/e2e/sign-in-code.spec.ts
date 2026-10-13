@@ -5,6 +5,7 @@ import { requestSignInCode } from './support/profile-auth';
 import { RUN_ID } from './support/run';
 
 const PHONE = { width: 390, height: 844 } as const;
+const SAFARI_18_INPUT_WIDTH = 1002;
 const EMAIL = `e2e-code-width-${RUN_ID}@e2e.invalid`;
 
 test.describe('Sign-in code on a phone', () => {
@@ -16,7 +17,7 @@ test.describe('Sign-in code on a phone', () => {
     await page.setViewportSize(PHONE);
     await page.goto('/en/login');
     await page.addStyleTag({
-      content: '#otp-field { field-sizing: fixed !important; }',
+      content: `#otp-field { field-sizing: fixed !important; width: ${SAFARI_18_INPUT_WIDTH}px !important; flex-shrink: 0 !important; }`,
     });
 
     const code = await requestSignInCode(
@@ -35,7 +36,7 @@ test.describe('Sign-in code on a phone', () => {
     );
     expect(
       reach,
-      'without field-sizing the input keeps its default width, as in Safari before 26',
+      'without field-sizing the input keeps the width Safari before 26 gives it',
     ).toBeGreaterThan(PHONE.width);
 
     const pageWidth = await page.evaluate(
