@@ -2,12 +2,9 @@ import {
   renderToString,
   renderToStaticMarkup,
   renderToReadableStream,
+  resume,
+  version,
 } from 'react-dom/server.browser';
-
-// @ts-expect-error — 'resume' is in the runtime module but absent from @types/react-dom
-import { resume } from 'react-dom/server.browser';
-// @ts-expect-error — 'version' is in the runtime module but absent from @types/react-dom
-import { version } from 'react-dom/server.browser';
 
 type ReactDOMServerLike = {
   renderToString: typeof renderToString;
