@@ -20,12 +20,14 @@ lives in the [implementation plan](./implementation-plan.md), never here.
 
 An [Nx](https://nx.dev) monorepo. Four Cloudflare Workers, twelve shared libraries.
 
-| App                | What it is                             | In this release           |
-| ------------------ | -------------------------------------- | ------------------------- |
-| `apps/ui`          | The public app — members and hosts     | Yes                       |
-| `apps/admin`       | Internal operations console            | Moderation and trust only |
-| `apps/worker-jobs` | Background delivery and scheduled work | Yes                       |
-| `apps/dashboard`   | Future sponsor portal                  | No                        |
+| App                | Nx project    | What it is                             | In this release           |
+| ------------------ | ------------- | -------------------------------------- | ------------------------- |
+| `apps/ui`          | `public`      | The public app — members and hosts     | Yes                       |
+| `apps/admin`       | `admin`       | Internal operations console            | Moderation and trust only |
+| `apps/worker-jobs` | `worker-jobs` | Background delivery and scheduled work | Yes                       |
+| `apps/dashboard`   | `dashboard`   | Future sponsor portal                  | No                        |
+
+Nx commands use the project name, not the folder: `npx nx run public:e2e` tests `apps/ui`.
 
 | Library              | Layer  | Responsibility                                         |
 | -------------------- | ------ | ------------------------------------------------------ |

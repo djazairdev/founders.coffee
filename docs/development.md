@@ -8,16 +8,19 @@ Node.js 22.
 
 ```sh
 npm ci
+cp apps/ui/.dev.vars.example apps/ui/.dev.vars
 npm run migrate:local
 npm run seed:local
 npm run ui:dev
 ```
 
-The public app runs at `http://localhost:3000`. Copy the relevant `.dev.vars.example` before
-exercising authentication, maps, or external providers. [`CONTRIBUTING.md`](../CONTRIBUTING.md#local-setup)
+The public app runs at `http://localhost:3000`. `apps/ui/.dev.vars` holds its local secrets, and
+the example works as it is: it sets a development auth secret and turns Turnstile off. Without the
+file, the endpoints that send a sign-in code answer 503. The operations console, `apps/admin`, has a
+`.dev.vars.example` of its own, needed only to run it. [`CONTRIBUTING.md`](../CONTRIBUTING.md#local-setup)
 has the full setup, including the features that need accounts of your own.
 
-`seed:local` fills the local database with the three launch markets, three accounts and three
+`seed:local` fills the local database with the three markets the site serves (Algeria, Egypt and Saudi Arabia), three accounts and three
 events, and is safe to re-run — every row yields to whatever is already there, so it never
 overwrites something you changed by hand. The events exist so that each operations path has
 something to run against: one has already ended and holds RSVPs, which is what the closeout and

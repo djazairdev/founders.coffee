@@ -1,6 +1,6 @@
 # AGENTS.md — Engineering Constitution for founders.coffee
 
-<!-- djazairdev-template: 1.5.0 -->
+<!-- djazairdev-template: 1.6.0 -->
 
 > **Read this before writing or modifying any code.** These are binding rules, not suggestions. They encode the locked architecture, the DRY/separation discipline, the security baseline, and the production-quality bar. When this file conflicts with older code, **this file wins** — fix the code.
 
@@ -8,7 +8,6 @@
 
 1. **This file** — _how_ we build (rules).
 2. [`docs/implementation-plan.md`](docs/implementation-plan.md) — _what_ ships and _when_ (phases, tickets, current platform state).
-3. Parent `~/CLAUDE.md` — repo tooling (code-review-graph MCP: use graph tools before grep/glob).
 
 Every code change maps to a ticket ID in the plan. No orphan work.
 
