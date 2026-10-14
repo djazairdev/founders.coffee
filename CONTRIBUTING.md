@@ -12,7 +12,10 @@ part in any project space means following the [Code of Conduct](./CODE_OF_CONDUC
 - **Report a bug** with the [bug form](https://github.com/djazairdev/founders.coffee/issues/new/choose).
   A clear reproduction is a contribution in itself.
 - **Fix wording or a translation.** The app speaks Arabic, French and English, and native speakers
-  catch what reviewers miss. Use the wording form, or edit `libs/i18n/messages/` directly.
+  catch what reviewers miss. Use the wording form, or edit `libs/i18n/messages/` directly, even in
+  the browser ([how](#a-small-fix-in-the-browser)). [`libs/i18n/glossary.json`](./libs/i18n/glossary.json)
+  lists a few words to avoid in each language, such as دردشة for a meetup's chat, with the word to
+  use instead; the tests fail on a message that uses one.
 - **Improve accessibility** for keyboards, screen readers and right-to-left layouts; see
   [ACCESSIBILITY.md](./ACCESSIBILITY.md).
 - **Pick up an issue** labelled
@@ -34,20 +37,25 @@ Security problems never go in a public issue, discussion or pull request: follow
 3. **Say you are taking it.** Comment on the issue, and wait for a maintainer to confirm before
    starting anything larger than a small fix. An issue still labelled `needs-triage` has not been
    accepted yet.
-4. **Read [AGENTS.md](./AGENTS.md).** It is the project's binding engineering rulebook, for people
-   and AI agents alike. [The conventions that bite](./docs/architecture.md#conventions-that-bite) lists
-   the rules that fail a build.
+4. **Read [the conventions that bite](./docs/architecture.md#conventions-that-bite)**, the short list
+   of rules that fail a build. [AGENTS.md](./AGENTS.md) is the full rulebook, for people and AI agents
+   alike: read it before a larger change.
 
 ## Local setup
 
 You need Node.js 22 (the version in `.nvmrc`, which `nvm use` picks up), npm and git. CI runs on
 Linux and the maintainers work on macOS; on Windows, use WSL 2.
 
+First [fork the repository](https://github.com/djazairdev/founders.coffee/fork) on GitHub. Then
+clone your fork, and start from `develop`, the branch pull requests go to. The commands take it from
+this repository, so they work even if your fork copied only `main`.
+
 ```sh
-git clone https://github.com/<your-user>/founders-coffee.git
-cd founders-coffee
+git clone https://github.com/<your-user>/founders.coffee.git
+cd founders.coffee
 git remote add upstream https://github.com/djazairdev/founders.coffee.git
-git switch develop
+git fetch upstream
+git switch -c develop upstream/develop
 npm ci
 cp apps/ui/.dev.vars.example apps/ui/.dev.vars
 npm run migrate:local
@@ -83,6 +91,10 @@ Three features need accounts of your own, and the app runs without them:
   git switch -c fix/rsvp-count upstream/develop
   ```
 
+  Push the branch to your fork with `git push -u origin fix/rsvp-count`, and open the pull request
+  from the link git prints. On GitHub, check that the base is `djazairdev/founders.coffee` and
+  `develop`.
+
 - **Keep to one concern.** One issue per pull request, as small as it can be.
 - **Write the tests with the change.** Vitest for logic and components; Vitest with Miniflare for
   server functions and repositories, against real local bindings. Cloudflare bindings are never
@@ -92,6 +104,13 @@ Three features need accounts of your own, and the app runs without them:
   Arabic, which reads right to left, as well as in French or English.
 - **Ask before adding anything.** A new dependency, Cloudflare service or external integration needs
   a maintainer's agreement in the issue first.
+
+### A small fix in the browser
+
+A wording fix needs no local setup. On GitHub, switch the branch menu above the file list to
+`develop`, open the file, and select the pencil to edit it. GitHub makes a fork for you and opens the
+pull request. If its base says `main`, select **Edit** next to the title and change the base to
+`develop`. CI checks the change like any other.
 
 ### Run the gates before you push
 
