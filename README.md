@@ -10,6 +10,8 @@
 other at free café and coworking meetups, host them, RSVP and come back. Live at
 [founders.coffee](https://founders.coffee), which also has pages for Egypt and Saudi Arabia.
 
+![The founders.coffee home page in Arabic: "Partnerships start with a coffee", a city search, and Algerian cities with their upcoming meetups](./docs/images/home-ar.png)
+
 ## Quick start
 
 Node.js 22.
