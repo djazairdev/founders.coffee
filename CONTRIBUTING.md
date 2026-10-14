@@ -148,8 +148,9 @@ Write `Fixes #123.` in the description: the issue then closes when the change re
 ## Review
 
 - Fill in the pull request template. A maintainer is asked for a review automatically.
-- **CI on a pull request from a fork waits until a maintainer approves the run.** That is a safety
-  setting, not a judgement on your change.
+- **On your first pull request, CI waits until a maintainer approves the run.** That is a safety
+  setting, not a judgement on your change. Once a pull request of yours has been merged, CI runs on
+  your next ones straight away.
 - We reply to every newcomer's pull request within 7 days, even if only to say when we'll review it.
   A review or a merge may take longer.
 - Answer review comments with new commits rather than a force-push, so the conversation stays
