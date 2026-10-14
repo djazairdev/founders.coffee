@@ -52,7 +52,7 @@ your phone, or check it with assistive technology ([ACCESSIBILITY.md](./ACCESSIB
 - [Suggest an improvement](https://github.com/djazairdev/founders.coffee/issues/new?template=feature_request.yml), or 👍 the
   [improvements](https://github.com/djazairdev/founders.coffee/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement+sort%3Areactions-%2B1-desc)
   you want most
-- [Propose a new project](https://github.com/djazairdev/djazair.dev/discussions/categories/ideas)
+- [Propose a new project](https://github.com/orgs/djazairdev/discussions/categories/ideas)
 - Help with your account or a meetup: [SUPPORT.md](./SUPPORT.md)
 - Follow djazairdev on [Facebook](https://www.facebook.com/djazairdev) and
   [X](https://x.com/djazairdev) for news
