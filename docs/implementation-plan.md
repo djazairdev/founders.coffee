@@ -50,7 +50,7 @@ This document is the current sequencing and status source. Status is evidence-ba
 - The current release is community-building only: free local events, repeat participation, hosts,
   trust/moderation, and the PWA operations required to run that loop.
 - Hackathons, sponsorship products, talent, payments, and expansion are future work. Existing
-  foundations may remain, but none is a current launch requirement or an authorized next task.
+  foundations may remain, but none is a current requirement or an authorized next task.
 
 ## 2. Repository and data flow
 
@@ -119,7 +119,7 @@ Route loaders may wire server functions directly. Runtime imports from presentat
 | P0-020 | Complete | GitHub Actions verification and environment deployments        | Format, sync, typecheck, lint, test, build, Miniflare integration, migration compatibility, rollback-state capture, Worker deployment, production SEO smoke, and release publication are green in production. `rollback.yml` refuses Worker versions the manifest cannot clear.                  |
 | P0-021 | Partial  | Miniflare and Playwright harness                               | Critical-flow E2E remains a local/staging release gate; E2E is excluded from CI by current decision                                                                                                                                                                                              |
 
-## 5. Phase P1 — community launch
+## 5. Phase P1 — community
 
 | ID     | Status   | Scope                                                                | Remaining evidence or work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | ------ | -------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -741,7 +741,7 @@ not repeated.
    promoted before CH-11's.
 8. **Deliver community-health evidence:** implement `CO-10/P1-019` metrics repositories, dashboards,
    alerts, retention snapshots, denominators, and as-of evidence.
-9. **Run the operational launch rehearsal:** complete `CO-11/P1-021/P1-023` across all checkpoints,
+9. **Run the operational rehearsal:** complete `CO-11/P1-021/P1-023` across all checkpoints,
    locales, directions, roles, mobile/desktop surfaces, and recovery paths.
 10. **Finish PWA verification:** complete `P1-020` offline behavior, Lighthouse budgets, and PWA
     Builder checks.
@@ -775,7 +775,7 @@ new-market expansion remain outside this order behind the community validation g
 
 ### Community validation gate
 
-Technical P1 completion does not authorize P2–P4. After launch, operate the Algiers community until
+Technical P1 completion does not authorize P2–P4. With the site live, operate the Algiers community until
 it demonstrates at least eight completed events per month for three consecutive months, at least
 three recurring hosts, at least 60% host retention, and evidence of healthy repeat participation.
 Founder / Product must review that evidence and explicitly open any future phase. If the community

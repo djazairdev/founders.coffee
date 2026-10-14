@@ -6,9 +6,9 @@
 [![Good first issues](https://img.shields.io/github/issues/djazairdev/founders.coffee/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/djazairdev/founders.coffee/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 [![Improvements](https://img.shields.io/github/issues/djazairdev/founders.coffee/enhancement?label=improvements&color=a2eeef)](https://github.com/djazairdev/founders.coffee/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement+sort%3Areactions-%2B1-desc)
 
-**An Arabic-first platform for informal local founder meetups.** Founders in Algeria, Egypt and
-Saudi Arabia find each other at free café and coworking meetups, host them, RSVP and come back.
-Live at [founders.coffee](https://founders.coffee).
+**An Arabic-first platform for informal local founder meetups.** Founders in Algeria find each
+other at free café and coworking meetups, host them, RSVP and come back. Live at
+[founders.coffee](https://founders.coffee), which also has pages for Egypt and Saudi Arabia.
 
 ## Quick start
 

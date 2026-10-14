@@ -64,4 +64,4 @@ History comes from the available two-year operational records. Closed accounts, 
 
 ## Release verification
 
-Before production use: pass the repository checks; deploy through the normal release process; confirm real tagged landing, host and RSVP reports in the production dataset; verify privacy opt-out; confirm edge rules admit bounded anonymous reports; and check that the private closeout/attendance feature is enabled and usable before promising completion/retention reporting. No paid ad should be launched as part of this procedure.
+Before production use: pass the repository checks; deploy through the normal release process; confirm real tagged landing, host and RSVP reports in the production dataset; verify privacy opt-out; confirm edge rules admit bounded anonymous reports; and check that the private closeout/attendance feature is enabled and usable before promising completion/retention reporting. This procedure starts no paid ad.

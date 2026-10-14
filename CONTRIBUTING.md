@@ -1,7 +1,7 @@
 # Contributing to founders.coffee
 
-Thank you for helping. founders.coffee is a live service: founders in Algeria, Egypt and Saudi
-Arabia sign in to it and meet through it. So every change goes through the same review and the same
+Thank you for helping. founders.coffee is a live service: founders in Algeria sign in to it and
+meet through it. So every change goes through the same review and the same
 gates, whoever writes it.
 
 This guide covers how to propose a change, set up the project, and get a pull request merged. Taking
