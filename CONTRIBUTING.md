@@ -34,9 +34,11 @@ Security problems never go in a public issue, discussion or pull request: follow
 2. **Check that it is in scope.** The current release builds the local meetup community only.
    Hackathons, sponsorship, talent, payments and new markets are future phases: propose them with the
    [feature form](https://github.com/djazairdev/founders.coffee/issues/new?template=feature_request.yml), not as code.
-3. **Say you are taking it.** Comment on the issue, and wait for a maintainer to confirm before
-   starting anything larger than a small fix. An issue still labelled `needs-triage` has not been
-   accepted yet.
+3. **Take it.** Comment `/take` on the issue to have it assigned to you, and start straight away:
+   you don't need to wait for a maintainer. If someone already has it, the bot says who, so pick
+   another one. Comment `/drop` if you stop; a maintainer may free an issue that has had no pull
+   request or update for 7 days. An issue still labelled `needs-triage` has not been accepted yet,
+   so its work may not be merged.
 4. **Read [the conventions that bite](./docs/architecture.md#conventions-that-bite)**, the short list
    of rules that fail a build. [AGENTS.md](./AGENTS.md) is the full rulebook, for people and AI agents
    alike: read it before a larger change.
