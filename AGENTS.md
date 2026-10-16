@@ -7,19 +7,23 @@
 ## 0. Authoritative references (in order)
 
 1. **This file** — _how_ we build (rules).
-2. [`docs/implementation-plan.md`](docs/implementation-plan.md) — _what_ ships and _when_ (phases, tickets, current platform state).
+2. [`docs/product-vision.md`](docs/product-vision.md) — _why_ and _what next_ (layers, decisions V1–V15, stages B–E).
+3. [`docs/implementation-plan.md`](docs/implementation-plan.md) — _what_ ships and _when_ (phases, tickets, current platform state), with
+   [`docs/stage-b-plan.md`](docs/stage-b-plan.md) for the Stage B tickets.
 
-Every code change maps to a ticket ID in the plan. No orphan work.
+Every code change maps to a ticket ID in these plans. No orphan work.
 
 The `FR-*`/`NFR-*` requirements register and the standalone plans it fed (SRS, release
 strategy, validation, and the per-feature remediation plans) were consolidated away; they are
 readable in history at `964f514`. Nothing in the source tree cites an `FR-*` or `NFR-*` ID, so
-the plan above is the only live specification — if it does not say it, it is not decided.
+the files above are the only live specification — if they do not say it, it is not decided.
 
-The current release is community-building only. Free local events, repeat participation, hosts,
-trust, and the supporting PWA operations are current scope. Challenges, sponsorship products,
-talent, payments, and expansion are future work gated by demonstrated community density and an
-explicit Founder / Product decision.
+Current scope is the community (free local events, repeat participation, hosts, trust and the PWA
+operations behind them) and Stage B of the product vision: event types, online and hybrid events,
+organisations, and hackathons with registration, teams, submissions and judging, as ticketed in
+the Stage B plan. Sponsorship products, talent introductions, projects, payments and expansion
+belong to later stages and are not built until their stage opens. New markets still wait for the
+density gate (V5).
 
 ---
 
@@ -151,7 +155,7 @@ If you need data in a component that the current hook doesn't provide → add/ex
 
 - **Money:** ALWAYS the `Money` value object from `libs/core` — `{ amount_minor: number (integer), currency: string (ISO 4217) }`. **Never** a bare number. **Never** floating-point math on money. All arithmetic in integer minor units.
 - **Schemas first:** define a Zod schema for every entity/command; infer TS types (`z.infer`). Shared primitives (Money, id, pagination, market code) live in [`libs/core/src/validation.ts`](libs/core/src/validation.ts); per-domain schemas live in `libs/domain/src/<domain>/schemas.ts`. The schema is the single contract shared by `api.ts`, server functions, and forms (DRY). Server functions validate input via `createServerFn().validator(appValidator(schema))` — invalid input throws `AppError('validation_failed')` (the §7 throw boundary).
-- **Geo/market scoping:** market-facing records carry `market_code` and, where geographic, `state_code`/`city_code` from creation. The global user identity and its profile/account preferences are location-free under FR-A1/FR-A3; never infer or require residence. Events, activity, notifications and host trust retain their actual market/geographic scope. `market_code` references D1; state/city codes reference the versioned server-side geography datasets. No global activity queries that silently cross markets.
+- **Geo/market scoping:** market-facing records carry `market_code` and, where geographic, `state_code`/`city_code` from creation. The global user identity and its profile/account preferences are location-free; never infer or require residence. Events, activity, notifications and host trust retain their actual market/geographic scope. `market_code` references D1; state/city codes reference the versioned server-side geography datasets. No global activity queries that silently cross markets.
 - **Time:** store UTC; render in the city/market timezone via `libs/i18n`. Never store localized times.
 - **IDs:** from the `libs/core` id factory — consistent format, no ad-hoc UUIDs in different styles.
 - **Enums/status:** as string union types backed by Zod enums; status transitions live in `libs/domain` (e.g., Order: `pending → paid → refunded`).
@@ -218,7 +222,7 @@ without rendering or requiring a browser challenge.
 - **Secrets:** `wrangler secret` / Secrets Store only. Never committed. `.env` for local dev only; `.env.example` sanitized.
 - **Headers:** secure-headers middleware; strict CSP with nonces; HTTPS-only; cookies `Secure; HttpOnly; SameSite=Lax`.
 - **Uploads:** worker-mediated to R2; MIME + size validation; images served through Cloudflare Images transforms. No raw HTML injection of uploads.
-- **OWASP Top-10:** addressed per NFR-4.
+- **OWASP Top-10:** addressed by the rules in this section and §16.
 
 ---
 
@@ -284,7 +288,7 @@ These are non-negotiable platform-specific rules; several correct common mistake
 
 ## 14. Performance rules
 
-- **Budget:** event listing/detail server functions respond ≤ 300ms (p95) at MVP load (NFR-1).
+- **Budget:** event listing/detail server functions respond ≤ 300ms (p95) at MVP load.
 - **Workers are edge + short-lived:** no in-memory state across requests (use Durable Objects / KV / D1 for state).
 - **Caching:** KV for hot config/flags; Cache API where appropriate. Invalidate deliberately.
 - **Frontend:** code-split via TanStack Router; virtualize long lists; prefetch route data.
@@ -293,7 +297,7 @@ These are non-negotiable platform-specific rules; several correct common mistake
 
 ## 15. Git, commits & PRs
 
-- **One ticket per PR.** PR title/description references the ticket ID and the `FR-*`/`NFR-*` it implements.
+- **One ticket per PR.** The PR description references the ticket ID and closes its issue (`Fixes #123.`).
 - **Conventional commits** (`feat:`, `fix:`, `chore:`, `refactor:`, `test:`), scoped to the domain (`feat(events): …`).
 - **CI must be green:** typecheck, lint, **boundary checks**, and unit + integration tests
   (Miniflare). The current explicit decision keeps E2E outside CI and requires it locally/on staging
@@ -334,7 +338,7 @@ These are non-negotiable platform-specific rules; several correct common mistake
 - [ ] Errors via the throw boundary (`AppError` after `handleResult`); structured logs on server paths.
 - [ ] Tests written and passing (Miniflare/Playwright — real platform).
 - [ ] Lint, typecheck, and **Nx boundary checks** pass.
-- [ ] Maps to a ticket ID and `FR-*`/`NFR-*`.
+- [ ] Maps to a ticket ID and its issue.
 - [ ] No secrets, no `console.*`, no dead code.
 
 ---

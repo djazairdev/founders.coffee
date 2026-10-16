@@ -29,7 +29,8 @@ one-time sign-in code is printed in the dev server's log.
 
 Everything else is in [`docs/`](./docs/): [the architecture](./docs/architecture.md), [local
 development and the quality gates](./docs/development.md), [environments and
-releases](./docs/releases.md), and [the implementation plan](./docs/implementation-plan.md).
+releases](./docs/releases.md), [the product vision](./docs/product-vision.md), [the implementation
+plan](./docs/implementation-plan.md) and [the Stage B plan](./docs/stage-b-plan.md).
 [`AGENTS.md`](./AGENTS.md) holds the binding engineering rules.
 
 ## Make your first contribution

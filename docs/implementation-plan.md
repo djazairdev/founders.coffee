@@ -7,7 +7,7 @@
 | Version      | 3.0                                                                                                                                                                                                                                                                              |
 | Status       | Active                                                                                                                                                                                                                                                                           |
 | Owner        | Engineering                                                                                                                                                                                                                                                                      |
-| Last updated | 2026-10-12                                                                                                                                                                                                                                                                       |
+| Last updated | 2026-10-16                                                                                                                                                                                                                                                                       |
 | Derived from | [SRS v1.7](https://github.com/djazairdev/founders.coffee/blob/964f5143d65e040a025cfb0a2df64a7d8cea8553/docs/srs.md) and [community-first release strategy](https://github.com/djazairdev/founders.coffee/blob/964f5143d65e040a025cfb0a2df64a7d8cea8553/docs/release-strategy.md) |
 
 This document is the current sequencing and status source. Status is evidence-based:
@@ -16,7 +16,7 @@ This document is the current sequencing and status source. Status is evidence-ba
 - **Partial** — useful implementation exists, but acceptance or operational work remains.
 - **Blocked** — unsafe to call complete; a named defect or prerequisite must be resolved first.
 - **Planned** — no production implementation yet.
-- **Future** — intentionally outside the current release and blocked from active delivery until the community validation gate and explicit Founder / Product approval.
+- **Future** — intentionally outside current scope until its stage of the [product vision](./product-vision.md) opens (new markets: until the density gate is met) and Founder / Product approves it.
 
 ## 1. Canonical product and architecture decisions
 
@@ -47,10 +47,11 @@ This document is the current sequencing and status source. Status is evidence-ba
 - TanStack Form is optional; local React state is acceptable when it reuses the shared Zod contract.
 - AI lives at `@founders-coffee/core/ai`; delivery providers live in `libs/notifications`.
 - Community membership, events, participation, and ordinary hosting are free. Commercial hosted challenges are B2B services.
-- The current release is community-building only: free local events, repeat participation, hosts,
-  trust/moderation, and the PWA operations required to run that loop.
-- Hackathons, sponsorship products, talent, payments, and expansion are future work. Existing
-  foundations may remain, but none is a current requirement or an authorized next task.
+- Current scope is the community loop (free local events, repeat participation, hosts,
+  trust/moderation and the PWA operations behind it) and Stage B of the
+  [product vision](./product-vision.md), ticketed in the [Stage B plan](./stage-b-plan.md).
+- Sponsorship products, talent, projects, payments and expansion follow in Stages C to E of the
+  product vision, each opened when the previous one ships (V5). Existing foundations may remain.
 
 ## 2. Repository and data flow
 
@@ -133,10 +134,10 @@ Route loaders may wire server functions directly. Runtime imports from presentat
 | P1-008 | Partial  | Immediate idempotent RSVP and cancellation                           | Full-capacity atomicity is fixed and proven by AR-04: a rejected RSVP writes nothing, a duplicate returns the typed `already_rsvpd`, and counter and attendee rows are asserted to agree. RSVP is session-bound, so it uses authz and rate limiting without a browser Turnstile challenge. A Join pressed while signed out is completed when sign-in brings the reader back, within 30 minutes (2026-10-03)                                                                                                                                             |
 | P1-009 | Partial  | PWA push primary, email fallback, SMS same-day cancellation          | CO-02 is deployed; ND-01/ND-02 prove service-worker push and email fallback on staging. CO-06 and CO-07 add attendee follow-up and repeat-host support locally; production promotion and CO-08 host, correction, and operations delivery remain                                                                                                                                                                                                                                                                                                         |
 | P1-010 | Partial  | Live event Durable Object/WebSocket experience                       | Verify session expiry (checked at each heartbeat alarm, so within 45 s, and before each state-changing message), heartbeat cleanup, and cancellation behavior                                                                                                                                                                                                                                                                                                                                                                                           |
-| P1-011 | Future   | Disclosed sponsorship surfaces                                       | Post-community gate; not part of the current release                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| P1-012 | Future   | Sponsor media through R2/Images                                      | Post-community gate; not part of the current release                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| P1-011 | Future   | Disclosed sponsorship surfaces                                       | Stage C of the product vision; not part of the current release                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| P1-012 | Future   | Sponsor media through R2/Images                                      | Stage C of the product vision; not part of the current release                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | P1-013 | Planned  | Community moderation, host trust, and essential operations           | CO-04 delivered the correlated admin auth shell and staging verification; CO-08/09 still own event operations, weekly review, corrections, trust, moderation (the meetup chat's report review included, moved from CH-08), and audit                                                                                                                                                                                                                                                                                                                    |
-| P1-014 | Future   | Admin manual payment confirmation and audit                          | Post-community gate; not part of the current release                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| P1-014 | Future   | Admin manual payment confirmation and audit                          | Stage D of the product vision; not part of the current release                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | P1-015 | Future   | Semantic event search                                                | Reconsider only when event density makes semantic search materially useful                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | P1-016 | Complete | Host tools assigned to `apps/ui`; dashboard sponsor-only             | No separate host dashboard will be built                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | P1-017 | Complete | App middleware, D1 injection, auth mount, i18n, observability wiring | Production admin correlation, session wiring, and CSRF-origin verification are recorded under P0-004/P1-017                                                                                                                                                                                                                                                                                                                                                                                                                                             |
@@ -758,8 +759,9 @@ not repeated.
 14. **Close documentation:** `TOOL-01` resolved the Nx-wide i18n source-import graph error and
     Nx-wide lint is green; keep deployment evidence synchronized with the SEO and notification plans.
 
-Future sponsorship, challenges, talent, payments, semantic search, browser-generated OG images, and
-new-market expansion remain outside this order behind the community validation gate.
+Hackathons follow the [Stage B plan](./stage-b-plan.md). Sponsorship, talent, payments, semantic
+search and browser-generated OG images stay outside this order until their stage opens; new markets
+wait for the density gate.
 
 ### P1 exit criteria
 
@@ -775,11 +777,12 @@ new-market expansion remain outside this order behind the community validation g
 
 ### Community validation gate
 
-Technical P1 completion does not authorize P2–P4. With the site live, operate the Algiers community until
-it demonstrates at least eight completed events per month for three consecutive months, at least
-three recurring hosts, at least 60% host retention, and evidence of healthy repeat participation.
-Founder / Product must review that evidence and explicitly open any future phase. If the community
-loop fails, prioritize fixing or reconsidering it instead of starting a later product layer.
+Since the product vision (decision V5, 16 October 2026), this gate no longer holds back the
+hackathon engine, sponsorship or projects: those follow the stages of the vision. It still decides
+when a new market or city becomes `active`: at least eight completed events per month for three
+consecutive months, at least three recurring hosts, at least 60% host retention, and evidence of
+healthy repeat participation, reviewed by Founder / Product. If the community loop fails, fix it
+before adding a later product layer.
 
 ## Acquisition tracking — AT-01 / P1-019 / CO-10 (12 October 2026)
 
@@ -798,32 +801,26 @@ and stored-event verification; this local implementation does not start ads.
 
 Local status: implementation and checks complete; [action tracking](./action-tracking.md) records semantics, privacy, report definitions and production verification. Tagged sign-in-to-RSVP journeys passed in ar/fr/en. Production deployment and ingestion remain unverified.
 
-## 6. Phase P2 — challenge engine (future)
+## 6. Stages B to E — hackathons, sponsors, projects, money
 
-**Status: Future.** This is not active or current-release scope. It may be reconsidered only after the
-community validation gate and explicit Founder / Product approval. If opened, it remains
-feature-flagged and uses Workflows/DO alarms plus Queues for lifecycle work—never global D1 polling.
+Phases P2 to P4 are replaced by the stages of the [product vision](./product-vision.md) (§6),
+agreed on 16 October 2026:
 
-Deliver challenge creation, registration, teams, submissions, judging, results, integrity controls, and manual local-currency payouts. Community participation is free; commercial hosted challenges are paid B2B services.
+- **Stage B — the first hackathon** (now to late January 2027): **Active.** Event types, online and
+  hybrid events, organisations, and hackathons with registration, teams, submissions, judging and
+  results. Its tickets (`B-FND-01` to `B-LCH-06`) and their issues are in the
+  [Stage B plan](./stage-b-plan.md).
+- **Stage C — sponsors and the full engine** (February to April 2027): **Future.** Sponsor
+  dashboard and pages, opt-in talent introductions, co-hosts, blind judging, certificates.
+- **Stage D — projects and hosted challenges** (from May 2027): **Future.**
+- **Stage E — money and expansion:** **Future.** Cash prizes and automated payouts after a
+  compliance review; new markets after the density gate.
 
-## 7. Phase P3 — sponsorship and talent (future)
-
-**Status: Future.** This is not active or current-release scope. Reconsider it only after the community
-validation gate and explicit Founder / Product approval; no future sponsorship implementation is
-authorized by this roadmap.
-
-- `apps/dashboard` becomes the sponsor-only portal.
-- Disclosed sponsorship, measurement, and reporting remain mandatory.
-- Talent introductions require explicit, revocable participant consent.
-- A standalone project showcase is not committed scope.
-
-## 8. Phase P4 — automated payments and expansion (future)
-
-**Status: Future.** Payment automation and additional-market operations require the community validation gate, explicit Founder / Product approval, and the relevant compliance review. The current configured markets are DZ, EG, and SA; adding another market requires a separate geography, operations, and compliance decision.
+Each later stage gets its own plan when the previous one has shipped.
 
 ## 9. Continuous gates
 
-- Every change maps to a ticket and SRS requirement.
+- Every change maps to a ticket and its issue.
 - Run `nx sync:check`, typecheck, lint, unit/integration tests, and relevant Playwright tests.
 - Test Cloudflare bindings through Miniflare; provider-interface fakes are allowed only for external services or bindings Miniflare cannot emulate.
 - Audit `ar`, `fr`, `en`, RTL/LTR, accessibility, security, performance, and observability per feature.
