@@ -145,11 +145,13 @@ Each stage ships, is used, and is reviewed before the next one starts. The evide
 | Registration        | Eligibility, code of conduct, capacity and waitlist, in-person or online attendance                                             | HACK-004                  |
 | Teams               | Create, invite link, request to join, _Looking for a team_, size limits, captain                                                | HACK-005                  |
 | Submissions         | Links, description, screenshots, AI and original-work statements, server-side deadline, versions                                | HACK-006, HACK-007        |
-| Schedule            | Phase changes and reminders driven by a Durable Object alarm per hackathon                                                      | HACK-002, HACK-014 (part) |
-| Judging and results | Rubric, judge assignment, recusal, scoring, averages, tie-break, results page                                                   | HACK-008 to HACK-011      |
+| Schedule            | Phases computed from the dates; reminders through the existing Durable Object alarm per event                                   | HACK-002, HACK-014 (part) |
+| Judging and results | Rubric, judges, recusal, scoring, averages, tie-break, results page                                                             | HACK-008 to HACK-011      |
 | Prizes              | Award records and delivery tracking for credits and codes; no payments                                                          | HACK-012 (no money)       |
-| Safety              | Permissions on every server function, reports and disqualification, Turnstile and rate limits                                   | HACK-015, HACK-019        |
+| Safety              | Permissions on every server function, reports and disqualification, rate limits                                                 | HACK-015, HACK-019        |
 | Tests               | The full flow in Miniflare and Playwright                                                                                       | HACK-020                  |
+
+The [Stage B plan](./stage-b-plan.md) splits this into tickets. Screenshots, prize delivery tracking and a few others are in its _can follow_ milestone and may move to Stage C if the date is tight.
 
 **Evidence to review after it:** registrations and how many came; teams that submitted; judges who finished; follow-ups at one week and one month; partner feedback.
 
@@ -225,9 +227,9 @@ Registrations and sign-ups are never reported as outcomes. Open-source work is c
 
 ## 11. What changes elsewhere
 
-When this file is merged:
+With this file:
 
-- **[Implementation plan](./implementation-plan.md):** P2–P4 point here; Stage B tickets are added.
+- **[Implementation plan](./implementation-plan.md):** P2–P4 are replaced by the stages in §6, and the [Stage B plan](./stage-b-plan.md) holds the Stage B tickets.
 - **[CONTRIBUTING](../CONTRIBUTING.md) and [AGENTS.md](../AGENTS.md):** hackathons, sponsors and projects move into scope, stage by stage.
 - **[Architecture](./architecture.md):** `apps/dashboard` is the sponsor dashboard from Stage C.
 
