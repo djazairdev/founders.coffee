@@ -33,8 +33,9 @@ Security problems never go in a public issue, discussion or pull request: follow
    closed, however good the code.
 2. **Check that it is in scope.** We build the local meetup community and
    [Stage B](./docs/stage-b-plan.md) of the [product vision](./docs/product-vision.md): event types,
-   online events, organisations and hackathons. Issues labelled `stage: B` are ready to take.
-   Sponsorship, talent, projects, payments and new markets come in later stages: propose them with the
+   online events, organisations, hackathons, portfolio profiles, project pages from hackathon entries
+   and certificates. Issues labelled `stage: B` are ready to take. Sponsorship, talent, projects for
+   every member, payments and new markets come in later stages: propose them with the
    [feature form](https://github.com/djazairdev/founders.coffee/issues/new?template=feature_request.yml), not as code.
 3. **Take it.** Comment `/take` on the issue to have it assigned to you, and start straight away:
    you don't need to wait for a maintainer. If someone already has it, the bot says who, so pick
