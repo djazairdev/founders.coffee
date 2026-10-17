@@ -7,7 +7,7 @@
 | Last updated | 2026-10-16                                                                |
 | Derived from | [Product vision](./product-vision.md), §6 Stage B and decisions V1 to V15 |
 
-This file turns Stage B of the [product vision](./product-vision.md) into 140 small tickets. Each ticket is one pull request and one GitHub issue. The goal is a hackathon in Algiers: registration opens on Monday 4 January 2027, kickoff on Friday 22 January, submissions close on Friday 29 January and the demo day is Saturday 30 January.
+This file turns Stage B of the [product vision](./product-vision.md) into 140 small tickets. Each ticket is one pull request and one GitHub issue. The goal is an online hackathon open to every Algerian city (V15): registration opens on Monday 4 January 2027, kickoff on Friday 22 January, submissions close on Friday 29 January and the demo day is Saturday 30 January.
 
 129 tickets are in the milestone **Stage B: first hackathon**, due on 15 December 2026 so January can be spent on staging rehearsals, partners and the call for participants. 11 tickets are in **Stage B: can follow**: useful, not needed for the first date. 35 are good first issues and 7 are done by a maintainer.
 
@@ -38,7 +38,7 @@ An audit of `develop` on 16 October 2026:
 | B2  | The phase is **computed** from dates (`phaseAt`), never stored. Every deadline is checked on the server, in the same statement as the write.                        | No job has to move a hackathon from one phase to the next, so none can fail to.                                      |
 | B3  | Reminders use the existing `NotificationScheduleDO`, keyed by the event.                                                                                            | AGENTS.md §11.5: Durable Object alarms, never a cron that scans D1.                                                  |
 | B4  | Events gain a `draft` status; every public read path ignores drafts.                                                                                                | A hackathon stays a draft until an admin approves it.                                                                |
-| B5  | Events gain a `format` (in person, online, hybrid) and a meeting link that only organisers and attendees see.                                                       | V3: hackathons are hybrid by default.                                                                                |
+| B5  | Events gain a `format` (in person, online, hybrid) and a meeting link that only organisers and attendees see.                                                       | V3 and V15: the first hackathon is online, later ones hybrid by default.                                             |
 | B6  | Organisations use **Better Auth's organization plugin** (§3).                                                                                                       | Members, roles, invitations by email and permission checks without new tables.                                       |
 | B7  | `event_organisers` links events to organisations as lead or co-host; the _Hosted by founders.coffee_, _Co-hosted_ and _Community_ labels come from it.              | One rule for labels; co-hosts in Stage C need no migration.                                                          |
 | B8  | Hackathon teams are our own tables, not Better Auth teams.                                                                                                          | Participants aren't members of the organising organisation.                                                          |
@@ -172,13 +172,13 @@ Flags, permissions, audit, metrics and a privacy guard every other group uses.
 
 Announce the first hackathon now, and collect who wants to take part, before the product exists.
 
-| Ticket                          | Issue | What                                                             | Size | Depends on | Milestone       |
-| ------------------------------- | ----- | ---------------------------------------------------------------- | ---- | ---------- | --------------- |
-| <a id="b-ann-01"></a>B-ANN-01   | #293  | A "tell me when registration opens" list for the first hackathon | M    | #172       | First hackathon |
-| <a id="b-ann-02"></a>B-ANN-02 ★ | #294  | Announce the first hackathon on the Algeria page                 | S    | —          | First hackathon |
-| <a id="b-ann-03"></a>B-ANN-03   | #295  | The form on the announcement: tell me when registration opens    | S    | #293, #294 | First hackathon |
-| <a id="b-ann-04"></a>B-ANN-04 ⚙ | #296  | Add the hackathon interest list to the privacy policy            | S    | #293       | First hackathon |
-| <a id="b-ann-05"></a>B-ANN-05   | #297  | Email the interest list when registration opens                  | S    | #293, #237 | First hackathon |
+| Ticket                          | Issue | What                                                                 | Size | Depends on | Milestone       |
+| ------------------------------- | ----- | -------------------------------------------------------------------- | ---- | ---------- | --------------- |
+| <a id="b-ann-01"></a>B-ANN-01   | #293  | A "tell me when registration opens" list for the first hackathon     | M    | #172       | First hackathon |
+| <a id="b-ann-02"></a>B-ANN-02 ★ | #294  | Announce the first hackathon on the Algeria page and every city page | S    | —          | First hackathon |
+| <a id="b-ann-03"></a>B-ANN-03   | #295  | The form on the announcement: tell me when registration opens        | S    | #293, #294 | First hackathon |
+| <a id="b-ann-04"></a>B-ANN-04 ⚙ | #296  | Add the hackathon interest list to the privacy policy                | S    | #293       | First hackathon |
+| <a id="b-ann-05"></a>B-ANN-05   | #297  | Email the interest list when registration opens                      | S    | #293, #237 | First hackathon |
 
 ### Organisations
 
