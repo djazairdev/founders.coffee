@@ -7,7 +7,7 @@
 | Version      | 3.0                                                                                                                                                                                                                                                                              |
 | Status       | Active                                                                                                                                                                                                                                                                           |
 | Owner        | Engineering                                                                                                                                                                                                                                                                      |
-| Last updated | 2026-10-16                                                                                                                                                                                                                                                                       |
+| Last updated | 2026-10-17                                                                                                                                                                                                                                                                       |
 | Derived from | [SRS v1.7](https://github.com/djazairdev/founders.coffee/blob/964f5143d65e040a025cfb0a2df64a7d8cea8553/docs/srs.md) and [community-first release strategy](https://github.com/djazairdev/founders.coffee/blob/964f5143d65e040a025cfb0a2df64a7d8cea8553/docs/release-strategy.md) |
 
 This document is the current sequencing and status source. Status is evidence-based:
@@ -50,7 +50,7 @@ This document is the current sequencing and status source. Status is evidence-ba
 - Current scope is the community loop (free local events, repeat participation, hosts,
   trust/moderation and the PWA operations behind it) and Stage B of the
   [product vision](./product-vision.md), ticketed in the [Stage B plan](./stage-b-plan.md).
-- Sponsorship products, talent, projects, payments and expansion follow in Stages C to E of the
+- Sponsorship products, talent, projects for every member, payments and expansion follow in Stages C to E of the
   product vision, each opened when the previous one ships (V5). Existing foundations may remain.
 
 ## 2. Repository and data flow
@@ -221,8 +221,11 @@ open. The migration is `0038_account_closure.sql`. Miniflare coverage lives in
 
 ### Public profile (P1-004)
 
-The public profile answers one question: should I show up to coffee with this person? It is not a
-portfolio.
+The public profile answers two questions: should I show up to coffee with this person, and what
+have they built? Since 17 October 2026 it is also a builder's portfolio (product vision V16 to V18,
+built in the [Stage B plan](./stage-b-plan.md) as `B-PRF-*`, `B-PRJ-*` and `B-CRT-*`): skills,
+links, what the member is _open to_, their projects and their hackathon record, each published by
+its own switch that starts off.
 
 **What it shows.** The display name, photo, and introduction are public whenever they are set. So
 are, with no toggle, the month the account was created, because an account age its owner could hide
@@ -250,8 +253,10 @@ age, so a longer claim would shrink as they retire.
 members meeting strangers in DZ, EG, and SA. These boundaries change only through an explicit
 decision about member safety, never as a side effect of a growth or SEO ticket (#92):
 
-1. **The profile stays `noindex`.** Public means reachable with the link, not on the open web:
-   `/u/$userId` keeps `X-Robots-Tag: noindex` and `Cache-Control: private, no-store`.
+1. **Search engines only by choice.** Public means reachable with the link. `/u/$userId` keeps
+   `X-Robots-Tag: noindex` and `Cache-Control: private, no-store` unless its owner turns on _show my
+   profile in search engines_, which starts off (V17, `B-PRF-04`). Until that ships, every profile
+   is `noindex`.
 2. **No followers or following.** A follower graph publishes who knows whom, which cannot be
    withdrawn once seen, and ranks people by popularity.
 3. **No direct messages.** Messages from a cold profile are a harassment surface, so a profile
@@ -261,12 +266,16 @@ decision about member safety, never as a side effect of a growth or SEO ticket (
    members, and a member who cancels leaves it. The meetup Telegram groups (P1-025, #15), which did
    this job too and let members message each other on Telegram, were retired by CH-12 on
    2026-10-01.
-4. **No resume, employers, or verified credentials.** This is not a hiring product.
+4. **A portfolio, not a hiring product.** Skills, links, _open to_ (jobs, internships,
+   co-founding), projects and a hackathon record with verifiable certificates are allowed, each
+   behind its own switch (V16). No employer history, CV upload, salary or recruiter tools, and
+   _open to_ never lets anyone contact a member outside an event or an introduction they accepted.
 5. **No public posts or feed.** Moderating them across three countries and three languages serves no
    part of the core question.
 6. **No no-show counts, ratios, or reliability scores.** `event_attendance` records no-shows, and
    none of it is published: a profile shows positive counts only, never a denominator.
-7. **Social proof attaches to events, not people.** Nothing rates a person.
+7. **Social proof attaches to events, not people.** Nothing rates a person. A hackathon record
+   lists what a member took part in, placed in or judged; results rank entries, never the person.
 8. **No trust status.** A market's verdict on a host, `host_trust` (`unreviewed`, `verified` or
    `restricted`), stays an operations decision and never appears on the profile: a verified mark
    would be a moderator's rating of a person, and a restricted one a public blacklist. What the
@@ -811,8 +820,9 @@ agreed on 16 October 2026:
   results. Its tickets (`B-FND-01` to `B-LCH-06`) and their issues are in the
   [Stage B plan](./stage-b-plan.md).
 - **Stage C — sponsors and the full engine** (February to April 2027): **Future.** Sponsor
-  dashboard and pages, opt-in talent introductions, co-hosts, blind judging, certificates.
-- **Stage D — projects and hosted challenges** (from May 2027): **Future.**
+  dashboard and pages, opt-in talent introductions, co-hosts, blind judging.
+- **Stage D — projects for every member and hosted challenges** (from May 2027): **Future.** Project
+  pages themselves start in Stage B, from hackathon entries.
 - **Stage E — money and expansion:** **Future.** Cash prizes and automated payouts after a
   compliance review; new markets after the density gate.
 

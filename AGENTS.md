@@ -20,8 +20,9 @@ the files above are the only live specification — if they do not say it, it is
 
 Current scope is the community (free local events, repeat participation, hosts, trust and the PWA
 operations behind them) and Stage B of the product vision: event types, online and hybrid events,
-organisations, and hackathons with registration, teams, submissions and judging, as ticketed in
-the Stage B plan. Sponsorship products, talent introductions, projects, payments and expansion
+organisations, hackathons with registration, teams, submissions and judging, portfolio profiles,
+project pages from hackathon entries and certificates, as ticketed in the Stage B plan. Sponsorship
+products, talent introductions, projects for every member, payments and expansion
 belong to later stages and are not built until their stage opens. New markets still wait for the
 density gate (V5).
 
