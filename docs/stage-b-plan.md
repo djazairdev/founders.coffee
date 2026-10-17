@@ -7,9 +7,9 @@
 | Last updated | 2026-10-16                                                                |
 | Derived from | [Product vision](./product-vision.md), §6 Stage B and decisions V1 to V15 |
 
-This file turns Stage B of the [product vision](./product-vision.md) into 124 small tickets. Each ticket is one pull request and one GitHub issue. The goal is a hackathon in Algiers: registration opens on Monday 4 January 2027, kickoff on Friday 22 January, submissions close on Friday 29 January and the demo day is Saturday 30 January.
+This file turns Stage B of the [product vision](./product-vision.md) into 125 small tickets. Each ticket is one pull request and one GitHub issue. The goal is a hackathon in Algiers: registration opens on Monday 4 January 2027, kickoff on Friday 22 January, submissions close on Friday 29 January and the demo day is Saturday 30 January.
 
-112 tickets are in the milestone **Stage B: first hackathon**, due on 15 December 2026 so January can be spent on staging rehearsals, partners and the call for participants. 12 tickets are in **Stage B: can follow**: useful, not needed for the first date. 31 are good first issues and 7 are done by a maintainer.
+113 tickets are in the milestone **Stage B: first hackathon**, due on 15 December 2026 so January can be spent on staging rehearsals, partners and the call for participants. 12 tickets are in **Stage B: can follow**: useful, not needed for the first date. 31 are good first issues and 7 are done by a maintainer.
 
 ## 1. What we have today
 
@@ -138,13 +138,13 @@ Each wave needs only tickets from earlier waves. Tickets in the same wave can be
 | 10   | B-ANN-05 (#297), B-HKN-16 (#227), B-HKN-18 (#229), B-HKN-19 (#235), B-HKN-20 (#236), B-HKN-24 (#242), B-REG-06 (#245), B-REG-08 (#248), B-SUB-06 (#261), B-SUB-07 (#262), B-SUB-08 (#263), B-JDG-04 (#266), B-OPS-02 (#276), B-SAFE-01 (#278) · can follow: B-HKN-22 (#240), B-SUB-09 (#264) |
 | 11   | B-JDG-05 (#267), B-JDG-06 (#268), B-SAFE-02 (#279), B-LCH-02 (#286), B-LCH-03 (#287)                                                                                                                                                                                                         |
 | 12   | B-JDG-07 (#269), B-JDG-09 (#271) · can follow: B-JDG-08 (#270)                                                                                                                                                                                                                               |
-| 13   | B-JDG-10 (#272), B-JDG-11 (#273), B-SAFE-03 (#280), B-SAFE-04 (#281), B-SAFE-05 (#282) · can follow: B-PRZ-01 (#274), B-OPS-03 (#277)                                                                                                                                                        |
+| 13   | B-JDG-10 (#272), B-JDG-11 (#273), B-JDG-12 (#299), B-SAFE-03 (#280), B-SAFE-04 (#281), B-SAFE-05 (#282) · can follow: B-PRZ-01 (#274), B-OPS-03 (#277)                                                                                                                                       |
 | 14   | B-SAFE-06 (#283), B-LCH-04 (#288), B-LCH-05 (#289) · can follow: B-PRZ-02 (#275)                                                                                                                                                                                                             |
 | 15   | B-LCH-06 (#290)                                                                                                                                                                                                                                                                              |
 
 ## 10. Tickets
 
-124 tickets: 112 in **Stage B: first hackathon** (due 15 December 2026) and 12 in **Stage B: can follow**, which may move to Stage C if the date is tight. Each ticket is one pull request. The issue holds the details: what done means, where to start and what you need to know.
+125 tickets: 113 in **Stage B: first hackathon** (due 15 December 2026) and 12 in **Stage B: can follow**, which may move to Stage C if the date is tight. Each ticket is one pull request. The issue holds the details: what done means, where to start and what you need to know.
 
 Labels on every issue: `enhancement` or `documentation`, `stage: B`, `accepted`, a size, its areas, and one of `good first issue`, `help wanted` or `maintainer`.
 
@@ -316,6 +316,7 @@ Judges, recusal, scores, ranking and frozen results.
 | <a id="b-jdg-09"></a>B-JDG-09   | #271  | Publish the results                           | M    | #265, #267, #175 | First hackathon |
 | <a id="b-jdg-10"></a>B-JDG-10   | #272  | Results on the hackathon page                 | M    | #271, #263       | First hackathon |
 | <a id="b-jdg-11"></a>B-JDG-11 ★ | #273  | Judging and results notifications             | S    | #234, #271, #177 | First hackathon |
+| <a id="b-jdg-12"></a>B-JDG-12   | #299  | Show each team the judges' feedback           | S    | #271, #254       | First hackathon |
 
 ### Prizes
 
