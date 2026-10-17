@@ -7,9 +7,9 @@
 | Last updated | 2026-10-16                                                                |
 | Derived from | [Product vision](./product-vision.md), §6 Stage B and decisions V1 to V15 |
 
-This file turns Stage B of the [product vision](./product-vision.md) into 119 small tickets. Each ticket is one pull request and one GitHub issue. The goal is a hackathon in Algiers: registration opens on Monday 4 January 2027, kickoff on Friday 22 January, submissions close on Friday 29 January and the demo day is Saturday 30 January.
+This file turns Stage B of the [product vision](./product-vision.md) into 124 small tickets. Each ticket is one pull request and one GitHub issue. The goal is a hackathon in Algiers: registration opens on Monday 4 January 2027, kickoff on Friday 22 January, submissions close on Friday 29 January and the demo day is Saturday 30 January.
 
-107 tickets are in the milestone **Stage B: first hackathon**, due on 15 December 2026 so January can be spent on staging rehearsals, partners and the call for participants. 12 tickets are in **Stage B: can follow**: useful, not needed for the first date. 30 are good first issues and 6 are done by a maintainer.
+112 tickets are in the milestone **Stage B: first hackathon**, due on 15 December 2026 so January can be spent on staging rehearsals, partners and the call for participants. 12 tickets are in **Stage B: can follow**: useful, not needed for the first date. 31 are good first issues and 7 are done by a maintainer.
 
 ## 1. What we have today
 
@@ -46,6 +46,7 @@ An audit of `develop` on 16 October 2026:
 | B10 | Prizes have a provider name and an optional indicative value as `Money`; only prizes confirmed in writing are public.                                  | V2. Stage C links prizes to sponsors; Stage E pays cash prizes.                                                      |
 | B11 | Organisers record what maintainers did with each open-source pull request (submitted, reviewed, merged).                                               | Reading GitHub automatically is an external integration that needs its own approval.                                 |
 | B12 | No new dependency. One new Cloudflare resource at most: an R2 bucket for screenshots (B-SUB-09), only if the maintainer approves it.                   | AGENTS.md §1.8.                                                                                                      |
+| B13 | The first hackathon is announced on the Algeria page **now**, with a list for people who want to hear when registration opens (B-ANN-01 to B-ANN-05).  | Visitors need a concrete reason to come back. The list also measures demand before January.                          |
 
 ## 3. Organisations with Better Auth
 
@@ -76,6 +77,7 @@ New tables, all with erasure (B-FND-07) and retention (B-SAFE-05) handled:
 | `hackathon_results`                                                                              | Frozen ranks and totals                                                                                        | B-JDG-09             |
 | `hackathon_prize_awards`                                                                         | Who won what, and delivery                                                                                     | B-PRZ-01             |
 | `hackathon_reports`                                                                              | Reports about entries and teams                                                                                | B-SAFE-01            |
+| `hackathon_interest`                                                                             | Emails of people who want to hear when registration opens                                                      | B-ANN-01             |
 
 Changed: `events` gains `kind`, `format`, `meeting_url`, `tags` and the `draft` status, and its venue fields become optional for online events (a table rebuild, B-EVT-08). `session` gains `activeOrganizationId`.
 
@@ -122,27 +124,27 @@ Comment `/take` on the issue to have it assigned to you, as [CONTRIBUTING](../CO
 
 Each wave needs only tickets from earlier waves. Tickets in the same wave can be built at the same time.
 
-| Wave | Tickets                                                                                                                                                                                                                                                                     |
-| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | B-FND-01 (#172), B-FND-02 (#173), B-FND-03 (#174), B-FND-04 (#175), B-FND-05 (#176), B-FND-06 (#177), B-FND-07 (#178), B-ORG-03 (#181), B-EVT-01 (#191), B-HKN-02 (#213), B-HKN-23 (#241), B-I18N-01 (#284)                                                                 |
-| 2    | B-ORG-01 (#179), B-EVT-02 (#192), B-REG-02 (#238), B-TEAM-02 (#249), B-SUB-02 (#257)                                                                                                                                                                                        |
-| 3    | B-ORG-02 (#180), B-ORG-07 (#185), B-ORG-12 (#190), B-EVT-03 (#193), B-EVT-04 (#194), B-EVT-08 (#198), B-EVT-14 (#204), B-EVT-15 (#205), B-EVT-17 (#207), B-REG-05 (#244) · can follow: B-EVT-06 (#196)                                                                      |
-| 4    | B-ORG-04 (#182), B-EVT-09 (#199), B-EVT-11 (#201), B-EVT-16 (#206), B-EVT-18 (#208), B-EVT-19 (#209), B-HKN-01 (#212) · can follow: B-EVT-05 (#195), B-EVT-07 (#197), B-EVT-21 (#211)                                                                                       |
-| 5    | B-ORG-05 (#183), B-ORG-06 (#184), B-ORG-08 (#186), B-EVT-10 (#200), B-EVT-12 (#202), B-EVT-13 (#203), B-HKN-03 (#214), B-HKN-05 (#216), B-HKN-06 (#217), B-REG-01 (#230)                                                                                                    |
-| 6    | B-ORG-09 (#187), B-ORG-10 (#188), B-HKN-04 (#215), B-HKN-11 (#222), B-TEAM-01 (#231), B-REG-03 (#239), B-JDG-02 (#265), B-LCH-01 (#285) · can follow: B-ORG-11 (#189), B-EVT-20 (#210)                                                                                      |
-| 7    | B-HKN-07 (#218), B-HKN-12 (#223), B-HKN-13 (#224), B-HKN-15 (#226), B-SUB-01 (#232), B-REG-04 (#243), B-REG-07 (#246), B-TEAM-03 (#250)                                                                                                                                     |
-| 8    | B-HKN-08 (#219), B-HKN-10 (#221), B-JDG-01 (#233), B-TEAM-04 (#251), B-TEAM-05 (#252), B-TEAM-06 (#253), B-SUB-03 (#258)                                                                                                                                                    |
-| 9    | B-HKN-09 (#220), B-HKN-14 (#225), B-HKN-17 (#228), B-JDG-03 (#234), B-HKN-21 (#237), B-OPS-01 (#247), B-TEAM-07 (#254), B-TEAM-08 (#255), B-TEAM-09 (#256), B-SUB-04 (#259), B-SUB-05 (#260)                                                                                |
-| 10   | B-HKN-16 (#227), B-HKN-18 (#229), B-HKN-19 (#235), B-HKN-20 (#236), B-HKN-24 (#242), B-REG-06 (#245), B-REG-08 (#248), B-SUB-06 (#261), B-SUB-07 (#262), B-SUB-08 (#263), B-JDG-04 (#266), B-OPS-02 (#276), B-SAFE-01 (#278) · can follow: B-HKN-22 (#240), B-SUB-09 (#264) |
-| 11   | B-JDG-05 (#267), B-JDG-06 (#268), B-SAFE-02 (#279), B-LCH-02 (#286), B-LCH-03 (#287)                                                                                                                                                                                        |
-| 12   | B-JDG-07 (#269), B-JDG-09 (#271) · can follow: B-JDG-08 (#270)                                                                                                                                                                                                              |
-| 13   | B-JDG-10 (#272), B-JDG-11 (#273), B-SAFE-03 (#280), B-SAFE-04 (#281), B-SAFE-05 (#282) · can follow: B-PRZ-01 (#274), B-OPS-03 (#277)                                                                                                                                       |
-| 14   | B-SAFE-06 (#283), B-LCH-04 (#288), B-LCH-05 (#289) · can follow: B-PRZ-02 (#275)                                                                                                                                                                                            |
-| 15   | B-LCH-06 (#290)                                                                                                                                                                                                                                                             |
+| Wave | Tickets                                                                                                                                                                                                                                                                                      |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | B-FND-01 (#172), B-FND-02 (#173), B-FND-03 (#174), B-FND-04 (#175), B-FND-05 (#176), B-FND-06 (#177), B-FND-07 (#178), B-ANN-02 (#294), B-HKN-02 (#213), B-ORG-03 (#181), B-EVT-01 (#191), B-HKN-23 (#241), B-I18N-01 (#284)                                                                 |
+| 2    | B-ANN-01 (#293), B-EVT-02 (#192), B-ORG-01 (#179), B-REG-02 (#238), B-TEAM-02 (#249), B-SUB-02 (#257)                                                                                                                                                                                        |
+| 3    | B-ANN-03 (#295), B-ANN-04 (#296), B-EVT-15 (#205), B-EVT-17 (#207), B-ORG-02 (#180), B-EVT-14 (#204), B-ORG-07 (#185), B-ORG-12 (#190), B-EVT-03 (#193), B-EVT-04 (#194), B-EVT-08 (#198), B-REG-05 (#244) · can follow: B-EVT-06 (#196)                                                     |
+| 4    | B-HKN-01 (#212), B-ORG-04 (#182), B-EVT-09 (#199), B-EVT-11 (#201), B-EVT-16 (#206), B-EVT-18 (#208), B-EVT-19 (#209) · can follow: B-EVT-05 (#195), B-EVT-07 (#197), B-EVT-21 (#211)                                                                                                        |
+| 5    | B-HKN-06 (#217), B-HKN-03 (#214), B-HKN-05 (#216), B-ORG-05 (#183), B-ORG-06 (#184), B-ORG-08 (#186), B-EVT-10 (#200), B-EVT-12 (#202), B-EVT-13 (#203), B-REG-01 (#230)                                                                                                                     |
+| 6    | B-HKN-04 (#215), B-ORG-09 (#187), B-ORG-10 (#188), B-HKN-11 (#222), B-TEAM-01 (#231), B-REG-03 (#239), B-JDG-02 (#265), B-LCH-01 (#285) · can follow: B-ORG-11 (#189), B-EVT-20 (#210)                                                                                                       |
+| 7    | B-HKN-07 (#218), B-HKN-12 (#223), B-HKN-13 (#224), B-HKN-15 (#226), B-SUB-01 (#232), B-REG-04 (#243), B-REG-07 (#246), B-TEAM-03 (#250)                                                                                                                                                      |
+| 8    | B-HKN-08 (#219), B-HKN-10 (#221), B-JDG-01 (#233), B-TEAM-04 (#251), B-TEAM-05 (#252), B-TEAM-06 (#253), B-SUB-03 (#258)                                                                                                                                                                     |
+| 9    | B-HKN-21 (#237), B-HKN-09 (#220), B-HKN-14 (#225), B-HKN-17 (#228), B-JDG-03 (#234), B-OPS-01 (#247), B-TEAM-07 (#254), B-TEAM-08 (#255), B-TEAM-09 (#256), B-SUB-04 (#259), B-SUB-05 (#260)                                                                                                 |
+| 10   | B-ANN-05 (#297), B-HKN-16 (#227), B-HKN-18 (#229), B-HKN-19 (#235), B-HKN-20 (#236), B-HKN-24 (#242), B-REG-06 (#245), B-REG-08 (#248), B-SUB-06 (#261), B-SUB-07 (#262), B-SUB-08 (#263), B-JDG-04 (#266), B-OPS-02 (#276), B-SAFE-01 (#278) · can follow: B-HKN-22 (#240), B-SUB-09 (#264) |
+| 11   | B-JDG-05 (#267), B-JDG-06 (#268), B-SAFE-02 (#279), B-LCH-02 (#286), B-LCH-03 (#287)                                                                                                                                                                                                         |
+| 12   | B-JDG-07 (#269), B-JDG-09 (#271) · can follow: B-JDG-08 (#270)                                                                                                                                                                                                                               |
+| 13   | B-JDG-10 (#272), B-JDG-11 (#273), B-SAFE-03 (#280), B-SAFE-04 (#281), B-SAFE-05 (#282) · can follow: B-PRZ-01 (#274), B-OPS-03 (#277)                                                                                                                                                        |
+| 14   | B-SAFE-06 (#283), B-LCH-04 (#288), B-LCH-05 (#289) · can follow: B-PRZ-02 (#275)                                                                                                                                                                                                             |
+| 15   | B-LCH-06 (#290)                                                                                                                                                                                                                                                                              |
 
 ## 10. Tickets
 
-119 tickets: 107 in **Stage B: first hackathon** (due 15 December 2026) and 12 in **Stage B: can follow**, which may move to Stage C if the date is tight. Each ticket is one pull request. The issue holds the details: what done means, where to start and what you need to know.
+124 tickets: 112 in **Stage B: first hackathon** (due 15 December 2026) and 12 in **Stage B: can follow**, which may move to Stage C if the date is tight. Each ticket is one pull request. The issue holds the details: what done means, where to start and what you need to know.
 
 Labels on every issue: `enhancement` or `documentation`, `stage: B`, `accepted`, a size, its areas, and one of `good first issue`, `help wanted` or `maintainer`.
 
@@ -159,6 +161,18 @@ Flags, permissions, audit, metrics and a privacy guard every other group uses.
 | <a id="b-fnd-05"></a>B-FND-05   | #176  | Define the Stage B metrics in Analytics Engine                                         | S    | —          | First hackathon |
 | <a id="b-fnd-06"></a>B-FND-06   | #177  | Add a Hackathons notification category with its own preference                         | S    | —          | First hackathon |
 | <a id="b-fnd-07"></a>B-FND-07 ★ | #178  | Fail a test when a table with a user reference is missing from account closure         | S    | —          | First hackathon |
+
+### Announcement
+
+Announce the first hackathon now, and collect who wants to take part, before the product exists.
+
+| Ticket                          | Issue | What                                                             | Size | Depends on | Milestone       |
+| ------------------------------- | ----- | ---------------------------------------------------------------- | ---- | ---------- | --------------- |
+| <a id="b-ann-01"></a>B-ANN-01   | #293  | A "tell me when registration opens" list for the first hackathon | M    | #172       | First hackathon |
+| <a id="b-ann-02"></a>B-ANN-02 ★ | #294  | Announce the first hackathon on the Algeria page                 | S    | —          | First hackathon |
+| <a id="b-ann-03"></a>B-ANN-03   | #295  | The form on the announcement: tell me when registration opens    | S    | #293, #294 | First hackathon |
+| <a id="b-ann-04"></a>B-ANN-04 ⚙ | #296  | Add the hackathon interest list to the privacy policy            | S    | #293       | First hackathon |
+| <a id="b-ann-05"></a>B-ANN-05   | #297  | Email the interest list when registration opens                  | S    | #293, #237 | First hackathon |
 
 ### Organisations
 
