@@ -150,6 +150,7 @@ Route loaders may wire server functions directly. Runtime imports from presentat
 | P1-024 | Partial  | SEO discoverability and search-engine operations                     | SEO-01 through SEO-11 and GEO-01 through GEO-05 are implemented and locally or staging verified. Remaining SEO-12 Search Console operations stay tracked in the [SEO Implementation Plan](https://github.com/djazairdev/founders.coffee/blob/964f5143d65e040a025cfb0a2df64a7d8cea8553/docs/seo-implementation-plan.md). Market landing pages name each market's country in hreflang (`ar-DZ` to `en-SA`), with bare languages and `x-default` on Algeria's, and `og:locale` follows the market (2026-09-29); robots.txt refuses Awario (2026-10-02)     |
 | P1-025 | Retired  | Meetup Telegram groups through the Bot API                           | Deployed with v0.14.0 and on in production since v0.15.0 (`@FoundersCoffeeBot`); production held no connected group on 2026-09-29. Replaced by the meetup chat (P1-026, 2026-09-29) and retired by CH-12 on 2026-10-01, ahead of the chat opening in production (Founder / Product)                                                                                                                                                                                                                                                                     |
 | P1-026 | Planned  | Meetup chat for the host and everyone going                          | CH-01 through CH-12 in [Meetup chat](#meetup-chat-p1-026); its decisions were confirmed on 2026-09-29                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| P1-027 | Planned  | Optional host approval for a meetup ("Request to join")              | HA-01 through HA-06 in [Host approval](#host-approval-for-meetups-p1-027); three decisions are open (#318)                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ### City waitlist notice (#107)
 
@@ -691,6 +692,54 @@ account):
 
 Record the date, the commit and each step's result under this section.
 
+### Host approval for meetups (P1-027)
+
+Proposed on 2026-10-18 and tracked in #318. A host can turn on **Approve who joins** for one of
+their meetups. Members then see **Request to join** instead of Join, and the host approves or
+declines each request. Every other meetup keeps P1-008's immediate RSVP, which stays the default.
+It serves hosts who want a curated table and cafés with limited space; every approval step costs
+some joins, so while density is the goal it stays opt-in.
+
+**Behaviour.**
+
+- **Host:** a switch on the meetup, off by default. A **Requests** list on the host's meetup page
+  shows each requester's public profile with **Approve** and **Decline**. A push tells the host of
+  each new request, limited so a busy meetup does not flood them.
+- **Member:** the button reads **Request to join**, then **Request sent** with a note that the
+  host approves registrations. Approval makes the member `going`, with everything that brings: the
+  chat, reminders and the guest count, plus a push saying so. A decline shows as "Not this time".
+- **Profile rules 6 to 8 hold:** no reason is stored for a decline, and nothing about a request
+  or a decline appears on a profile or in a count.
+
+**Rules.**
+
+- A seat is taken only on approval, through the same atomic capacity statement an RSVP uses
+  (`UPDATE … WHERE rsvps < capacity`), so a full meetup cannot be over-approved.
+- Requests still pending when the meetup starts lapse.
+- Only `going` members are chat members and get reminders. `chat-membership.ts` already admits
+  `status = 'going'` alone, so a pending request never opens the chat.
+- Approve and decline are host-only server functions with declared permissions and rate limits; a
+  request is session-bound like an RSVP, with no browser challenge.
+
+**Tickets.**
+
+| ID    | Scope                                                                                                                      |
+| ----- | -------------------------------------------------------------------------------------------------------------------------- |
+| HA-01 | Migration and schemas: `events.requires_approval`, `requested` and `declined` beside `going` in `RSVP_STATUSES`, Zod first |
+| HA-02 | Domain and repositories: request, approve, decline and lapse, with the atomic seat on approval                             |
+| HA-03 | Server functions: authz per action, rate budgets, typed `AppError`s, structured logs                                       |
+| HA-04 | Host switch in the wizard and edit form; the host's Requests list; the member's request states; ar, fr and en, RTL and LTR |
+| HA-05 | Notifications for a new request, an approval and a decline; Analytics Engine events for request, approve and decline       |
+| HA-06 | Tests: domain units, Miniflare integration, and a Playwright request → approve → chat-access flow                          |
+
+A new migration also moves the pinned head in `tools/deploy/release-state.test.mjs`.
+
+**Open decisions (Founder / Product).** Building waits for these.
+
+1. Off by default, per meetup: proposed yes.
+2. Every host gets the switch, or only hosts with a track record.
+3. A silent decline with no reason: proposed yes.
+
 ### Enum contract consolidation
 
 The enum audit identified repeated finite-value declarations across the core, database, domain,
@@ -767,6 +816,9 @@ not repeated.
     step 3.
 14. **Close documentation:** `TOOL-01` resolved the Nx-wide i18n source-import graph error and
     Nx-wide lint is green; keep deployment evidence synchronized with the SEO and notification plans.
+
+`P1-027` host approval (#318) is planned but outside this order until its three open decisions
+are made.
 
 Hackathons follow the [Stage B plan](./stage-b-plan.md). Sponsorship, talent, payments, semantic
 search and browser-generated OG images stay outside this order until their stage opens; new markets
