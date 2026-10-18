@@ -119,7 +119,7 @@ Agreed by Founder / Product on 2026-10-16. A change to any of them is a pull req
 | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | V1  | Start with the product (Stage B), not with hackathons run by hand: a hackathon needs prizes and a credible page from the first one.                                                                  |
 | V2  | Prizes are partner credits, tools, subscriptions and opportunities, confirmed in writing before they're announced. No money moves through the platform until Stage E.                                |
-| V3  | Hackathons are hybrid by default; online-only is supported.                                                                                                                                          |
+| V3  | Hackathons are hybrid by default; online-only is supported. The first one is online (V15).                                                                                                           |
 | V4  | The founders.coffee team and approved organisations create hackathons first; other hosts later.                                                                                                      |
 | V5  | The challenge engine is built without waiting for the meetup density gate. Stages follow each other as they're delivered. The density gate still decides when a new market or city becomes `active`. |
 | V6  | Talent introductions stay, opt-in only, as part of the sponsor offer. They are never recruiting fees.                                                                                                |
@@ -131,7 +131,7 @@ Agreed by Founder / Product on 2026-10-16. A change to any of them is a pull req
 | V12 | Winners are chosen by named judges with a published rubric and conflict-of-interest recusal.                                                                                                         |
 | V13 | Teams and submissions live on founders.coffee.                                                                                                                                                       |
 | V14 | Each organiser sets the hackathon's AI policy; every submission discloses its AI use.                                                                                                                |
-| V15 | The first hackathon on founders.coffee takes place in late January 2027.                                                                                                                             |
+| V15 | The first hackathon on founders.coffee takes place in late January 2027, **online**, open to participants in every Algerian city.                                                                    |
 | V16 | The profile is a builder's portfolio: skills, links, _open to_, projects and a hackathon record, each published by its own switch.                                                                   |
 | V17 | Each member chooses whether their profile appears in search engines; it starts off. Project pages are indexed when their team agrees.                                                                |
 | V18 | The profile still has no direct messages, no followers, no ratings or scores of people, and no public posts or feed.                                                                                 |
@@ -191,7 +191,7 @@ The [Stage B plan](./stage-b-plan.md) splits this into tickets. Screenshots, pri
 
 ## 7. The first hackathon
 
-A working plan for late January 2027. Dates are targets; the team confirms them in November.
+A working plan for late January 2027: online, open to participants in every Algerian city (V15). Dates are targets; the team confirms them in November.
 
 | When                    | What                                                                                                                                            |
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -199,9 +199,9 @@ A working plan for late January 2027. Dates are targets; the team confirms them 
 | November                | Event types, online events, labels; hackathon data model and pages                                                                              |
 | By 15 December          | Teams, submissions and judging on staging; partner prizes confirmed in writing; OpenAI's hackathon support applied for (at least a month ahead) |
 | Monday 4 January 2027   | Hackathon published, registration opens, with only confirmed prizes                                                                             |
-| Friday 22 January       | Kickoff, online and in person; build week starts                                                                                                |
+| Friday 22 January       | Kickoff, online; build week starts                                                                                                              |
 | Friday 29 January       | Submission deadline                                                                                                                             |
-| Saturday 30 January     | Demo day in Algiers, streamed; judging and results                                                                                              |
+| Saturday 30 January     | Demo day online; judging and results                                                                                                            |
 | Early and late February | One-week and one-month follow-ups                                                                                                               |
 
 Proposed tracks: one founder problem, one partner technology, and the open-source track with djazair.dev projects.
