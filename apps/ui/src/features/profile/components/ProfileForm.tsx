@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 
+import type { ProfileLinkKind } from '@founders-coffee/core';
+
 import {
   discard_changes,
-  profile_link_invalid,
   profile_name_invalid,
   profile_photo_label,
   profile_photo_card_subtitle,
@@ -16,6 +17,7 @@ import { Button, useToast } from '@founders-coffee/ui';
 
 import type { UserProfile } from '../api';
 import { profileErrorMessage } from '../errors';
+import { linkFieldText } from '../portfolio-labels';
 import { usePhotoUploadAvailability, useUpdateProfile } from '../hooks';
 import {
   commandFrom,
@@ -27,6 +29,7 @@ import { ProfileDetailFields } from './ProfileDetailFields';
 import { ProfileIntroFields } from './ProfileIntroFields';
 import { ProfilePhotoField } from './ProfilePhotoField';
 import { ProfileFeedback } from './ProfileFeedback';
+import type { LinkInputs } from './ProfileLinksFields';
 import { ProfileVisibilityChip } from './ProfileVisibilityChip';
 
 export const ProfileForm = ({
@@ -44,8 +47,10 @@ export const ProfileForm = ({
   const [base, setBase] = useState<UserProfile>(saved);
   const [error, setError] = useState<string | null>(null);
   const [invalidField, setInvalidField] = useState<string | null>(null);
+  const [invalidLink, setInvalidLink] = useState<ProfileLinkKind | null>(null);
   const inFlight = useRef(false);
   const nameRef = useRef<HTMLInputElement>(null);
+  const linkInputs = useRef<LinkInputs>({});
   const mutation = useUpdateProfile();
   const photos = usePhotoUploadAvailability();
   const feedback = useToast();
@@ -63,12 +68,15 @@ export const ProfileForm = ({
     return () => reportDirty.current?.(false);
   }, [isDirty]);
 
-  const change = (patch: Partial<ProfileDraft>) =>
+  const change = (patch: Partial<ProfileDraft>) => {
+    if (patch.links) setInvalidLink(null);
     setDraft((current) => ({ ...current, ...patch }));
+  };
 
   const adopt = (next: UserProfile) => {
     setBase(next);
     setDraft(draftFrom(next));
+    setInvalidLink(null);
   };
 
   const applyPhoto = (photoAssetId: string | null) => {
@@ -85,12 +93,15 @@ export const ProfileForm = ({
     if (inFlight.current) return;
     const built = commandFrom(draft, base.revision);
     if (!built.ok) {
+      const linkKind = built.linkKind ?? null;
       setInvalidField(built.field);
+      setInvalidLink(linkKind);
       reportError(
-        built.field === 'links'
-          ? profile_link_invalid({}, { locale })
+        linkKind
+          ? linkFieldText(linkKind, locale).invalid
           : profile_name_invalid({}, { locale }),
       );
+      if (linkKind) linkInputs.current[linkKind]?.focus();
       if (built.field === 'displayName') nameRef.current?.focus();
       return;
     }
@@ -166,6 +177,8 @@ export const ProfileForm = ({
             locale={locale}
             draft={draft}
             isDisabled={mutation.isPending}
+            invalidLink={invalidLink}
+            linkInputs={linkInputs}
             onChange={change}
           />
         </section>
