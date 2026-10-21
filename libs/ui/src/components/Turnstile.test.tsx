@@ -10,6 +10,7 @@ type RenderOptions = {
   action?: string;
   appearance?: 'always' | 'execute' | 'interaction-only';
   language: Locale;
+  size?: 'normal' | 'flexible' | 'compact';
   callback: (token: string) => void;
   'error-callback': () => void;
   'expired-callback': () => void;
@@ -40,6 +41,7 @@ describe('Turnstile', () => {
     cleanup();
     resetScriptState();
     vi.clearAllMocks();
+    vi.restoreAllMocks();
     Reflect.deleteProperty(window, 'turnstile');
   });
 
@@ -70,6 +72,32 @@ describe('Turnstile', () => {
     expect(onToken).toHaveBeenLastCalledWith(null);
     expect(turnstile.reset).toHaveBeenCalledWith('widget-1');
   });
+
+  it.each([
+    [288, 'compact'],
+    [299, 'compact'],
+    [300, 'flexible'],
+    [640, 'flexible'],
+  ] as const)(
+    'fits a %ipx container with the %s widget, since the flexible one is never narrower than 300px',
+    async (width, size) => {
+      vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(
+        width,
+      );
+
+      render(
+        <Turnstile
+          sitekey="site-key"
+          appearance="interaction-only"
+          language="en"
+          onToken={vi.fn()}
+        />,
+      );
+
+      await waitFor(() => expect(turnstile.render).toHaveBeenCalledOnce());
+      expect(turnstile.render.mock.calls[0]?.[1]).toMatchObject({ size });
+    },
+  );
 
   it.each(['error-callback', 'timeout-callback'] as const)(
     'clears the token and resets the widget after %s',
