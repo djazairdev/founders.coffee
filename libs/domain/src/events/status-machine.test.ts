@@ -23,4 +23,19 @@ describe('events status machine', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe('invalid_event_transition');
   });
+
+  it('publishes or cancels a draft', () => {
+    expect(canTransition('draft', 'published')).toBe(true);
+    expect(canTransition('draft', 'cancelled')).toBe(true);
+    const result = transition('draft', 'published');
+    expect(result.ok && result.data).toBe('published');
+  });
+
+  it('never sends an event back to draft', () => {
+    for (const from of ['draft', 'published', 'cancelled'] as const) {
+      expect(canTransition(from, 'draft')).toBe(false);
+      const result = transition(from, 'draft');
+      expect(!result.ok && result.error.code).toBe('invalid_event_transition');
+    }
+  });
 });

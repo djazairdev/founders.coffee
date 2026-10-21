@@ -26,7 +26,7 @@ export const listOverdueCloseouts = (
     .where(
       and(
         eq(events.marketCode, opts.marketCode),
-        sql`${events.status} != 'cancelled'`,
+        eq(events.status, 'published'),
         sql`${events.endsAt} IS NOT NULL`,
         lt(events.endsAt, new Date(opts.now.getTime() - 24 * 60 * 60 * 1000)),
         isNull(eventCloseouts.eventId),
@@ -92,7 +92,7 @@ export const listEventsMissingCloseoutPrompt = (
     .leftJoin(eventCloseouts, eq(eventCloseouts.eventId, events.id))
     .where(
       and(
-        sql`${events.status} != 'cancelled'`,
+        eq(events.status, 'published'),
         sql`${events.endsAt} IS NOT NULL`,
         gte(events.endsAt, opts.endedAfter),
         lt(events.endsAt, opts.endsBefore),

@@ -9,6 +9,7 @@ import {
 export type { EventStatus } from '@founders-coffee/core';
 
 const TRANSITIONS: Record<EventStatus, readonly EventStatus[]> = {
+  draft: ['published', 'cancelled'],
   published: ['cancelled'],
   cancelled: ['published'],
 };

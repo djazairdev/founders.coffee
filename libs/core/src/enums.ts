@@ -22,7 +22,7 @@ export const MARKET_STATES = ['dark', 'open', 'active'] as const;
 export type MarketState = (typeof MARKET_STATES)[number];
 export const marketStateSchema = z.enum(MARKET_STATES);
 
-export const EVENT_STATUSES = ['published', 'cancelled'] as const;
+export const EVENT_STATUSES = ['draft', 'published', 'cancelled'] as const;
 export type EventStatus = (typeof EVENT_STATUSES)[number];
 export const eventStatusSchema = z.enum(EVENT_STATUSES);
 
