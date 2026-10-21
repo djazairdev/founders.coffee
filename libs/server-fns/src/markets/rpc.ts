@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
 
-import { handleResult } from '@founders-coffee/core';
+import { eventKindSchema, handleResult } from '@founders-coffee/core';
 
 import { getDb } from '../db.js';
 import {
@@ -16,6 +16,7 @@ const landingPaginationSchema = z
   .object({
     afterStartsAt: z.number().int().positive().optional(),
     afterId: z.string().trim().min(1).max(64).optional(),
+    kind: eventKindSchema.optional(),
   })
   .refine(
     ({ afterStartsAt, afterId }) =>

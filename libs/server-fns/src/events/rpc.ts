@@ -3,7 +3,11 @@ import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
 
-import { appValidator, handleResult } from '@founders-coffee/core';
+import {
+  appValidator,
+  eventKindSchema,
+  handleResult,
+} from '@founders-coffee/core';
 import { reportError } from '@founders-coffee/observability';
 
 import { requireAuth } from '../authz.js';
@@ -202,6 +206,7 @@ export const getUpcomingEvents = createServerFn({ strict: false })
       marketCode: z.string().optional(),
       cityCode: z.string().optional(),
       hostId: z.string().max(64).optional(),
+      kind: eventKindSchema.optional(),
       afterStartsAt: z.number().optional(),
       afterId: z.string().optional(),
       limit: z.number().int().min(1).max(100).default(20),

@@ -1,4 +1,10 @@
-import { AppError, err, ok, type Result } from '@founders-coffee/core';
+import {
+  AppError,
+  err,
+  ok,
+  type EventKind,
+  type Result,
+} from '@founders-coffee/core';
 import { events as eventsDomain } from '@founders-coffee/domain';
 import {
   getEvent,
@@ -118,6 +124,7 @@ export const listEvents = async (
     marketCode?: string;
     cityCode?: string;
     hostId?: string;
+    kind?: EventKind;
     afterStartsAt?: number;
     afterId?: string;
     limit?: number;
@@ -128,6 +135,7 @@ export const listEvents = async (
     marketCode: opts.marketCode,
     cityCode: opts.cityCode,
     hostId: opts.hostId,
+    kind: opts.kind,
     afterStartsAt: opts.afterStartsAt
       ? new Date(opts.afterStartsAt)
       : undefined,
