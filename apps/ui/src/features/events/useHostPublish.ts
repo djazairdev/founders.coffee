@@ -12,7 +12,11 @@ import {
   type HostCreateDraft,
 } from './host-create-draft';
 import { hostPublishFailure } from './host-create-errors';
-import { useCreateEvent, useInvalidateCreatedEvent } from './hooks';
+import {
+  useCreateEvent,
+  useCreateOrganisationEvent,
+  useInvalidateCreatedEvent,
+} from './hooks';
 
 export type EventCreateCommand = EventCreateRequestInput['event'];
 
@@ -37,6 +41,7 @@ export const useHostPublish = ({
   const navigate = useNavigate();
   const router = useRouter();
   const createEventMutation = useCreateEvent();
+  const createOrganisationEventMutation = useCreateOrganisationEvent();
   const invalidateCreatedEvent = useInvalidateCreatedEvent();
   const [publishing, setPublishing] = useState(false);
   const publishInFlight = useRef(false);
@@ -85,13 +90,24 @@ export const useHostPublish = ({
     void navigate(localizedEvent(locale, market.slug, created.slug));
   };
 
-  const publish = async (event: EventCreateCommand) => {
+  /** Publish the event as the member, or as the organisation they chose to host it as. */
+  const create = (event: EventCreateCommand, organisationId: string | null) =>
+    organisationId
+      ? createOrganisationEventMutation.mutateAsync({
+          data: { organisationId, event },
+        })
+      : createEventMutation.mutateAsync({ data: { event } });
+
+  const publish = async (
+    event: EventCreateCommand,
+    organisationId: string | null = null,
+  ) => {
     if (publishInFlight.current) return;
     publishInFlight.current = true;
     setPublishing(true);
     setPublishError(null);
     try {
-      handleSuccess(await createEventMutation.mutateAsync({ data: { event } }));
+      handleSuccess(await create(event, organisationId));
     } catch (error) {
       handleFailure(error);
     } finally {

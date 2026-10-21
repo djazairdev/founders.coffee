@@ -19,6 +19,7 @@ import {
   type UpdateEventInput,
   type CreatedEvent,
   type CreateEventInput,
+  type CreateOrganisationEventInput,
   type EventFeedPage,
   type HostedEventPage,
   type HostMapContext,
@@ -163,6 +164,20 @@ export const useRepeatEventTemplate = (eventId: string, enabled = true) =>
 export const useCreateEvent = () =>
   useMutation<CreatedEvent, Error, CreateEventInput>({
     mutationFn: (input) => eventsApi.createEvent(input),
+  });
+
+export const useCreateOrganisationEvent = () =>
+  useMutation<CreatedEvent, Error, CreateOrganisationEventInput>({
+    mutationFn: (input) => eventsApi.createOrganisationEvent(input),
+  });
+
+/** The organisations the signed-in member belongs to, read only once they are signed in. */
+export const useMyOrganisations = (isSignedIn: boolean) =>
+  useQuery({
+    queryKey: ['organisations', 'mine'],
+    queryFn: () => eventsApi.listMyOrganisations(),
+    enabled: isSignedIn,
+    staleTime: 60_000,
   });
 
 /** Refresh every cached view that now has to show the newly created event (EC-08). */

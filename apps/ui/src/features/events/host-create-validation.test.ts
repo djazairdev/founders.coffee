@@ -31,6 +31,7 @@ const validDraft: HostCreateDraft = {
   description: 'A complete founder meetup description.',
   kind: 'meetup' as const,
   chosenLanguages: null,
+  hostAs: null,
 };
 
 describe('host create validation', () => {

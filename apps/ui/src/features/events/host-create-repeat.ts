@@ -53,5 +53,6 @@ export const repeatDraftFrom = (
     description: template.description,
     kind: template.kind,
     chosenLanguages: languagesFrom(template),
+    hostAs: null,
   };
 };

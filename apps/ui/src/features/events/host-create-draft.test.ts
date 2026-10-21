@@ -26,6 +26,7 @@ const draft: HostCreateDraft = {
   description: 'A complete founder meetup description.',
   kind: 'workshop',
   chosenLanguages: ['ar', 'fr'],
+  hostAs: null,
 };
 
 describe('host create draft', () => {
@@ -45,6 +46,23 @@ describe('host create draft', () => {
   it('keeps a choice of none, rather than losing the whole draft over it', () => {
     writeHostCreateDraft('DZ', { ...draft, chosenLanguages: [] });
     expect(readHostCreateDraft('DZ')?.chosenLanguages).toEqual([]);
+  });
+
+  it('keeps the organisation the event is hosted as, and none in an older draft', () => {
+    writeHostCreateDraft('DZ', { ...draft, hostAs: 'org_codeclub' });
+    expect(readHostCreateDraft('DZ')?.hostAs).toBe('org_codeclub');
+
+    window.sessionStorage.setItem(
+      'fc:event-draft:DZ',
+      JSON.stringify({
+        version: 6,
+        savedAt: Date.now(),
+        marketCode: 'DZ',
+        ...draft,
+        hostAs: undefined,
+      }),
+    );
+    expect(readHostCreateDraft('DZ')?.hostAs).toBeNull();
   });
 
   it('restores a draft saved before a meetup could have several languages', () => {
@@ -162,6 +180,7 @@ describe('AR: a draft this module wrote is always readable', () => {
     description: 'A complete protected meetup for founders.',
     kind: 'meetup' as const,
     chosenLanguages: null,
+    hostAs: null,
   };
 
   it('survives a venue search value longer than the schema allows', () => {

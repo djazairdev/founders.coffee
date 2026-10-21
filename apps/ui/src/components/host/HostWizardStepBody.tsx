@@ -4,6 +4,7 @@ import type { Locale } from '@founders-coffee/i18n';
 
 import type { useHostCreateWizard } from '../../features/events/useHostCreateWizard';
 import { EventKindField } from '../events/EventKindField';
+import { EventHostAsField } from '../events/EventHostAsField';
 import { HostDetailsStep } from './HostDetailsStep';
 import { HostScheduleStep } from './HostScheduleStep';
 import { HostVenueLine } from './HostVenueLine';
@@ -88,6 +89,14 @@ export const HostWizardStepBody = ({
 
     {wizard.step === 3 && (
       <div className="grid gap-5">
+        {wizard.organisations.length > 0 && (
+          <EventHostAsField
+            locale={locale}
+            organisations={wizard.organisations}
+            value={wizard.hostAs}
+            onChange={wizard.setHostAs}
+          />
+        )}
         <EventKindField
           locale={locale}
           value={wizard.kind}
