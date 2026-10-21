@@ -15,6 +15,7 @@ import {
 import {
   createEventIfRouteAvailable,
   getMarketByCode,
+  getOrganisation,
   type Db,
   type Event,
   type NewEvent,
@@ -109,7 +110,8 @@ export const eventSlugCandidates = (
  * Validate + create a new event. Generates the id + slug, requires an enabled visible D1 market,
  * resolves canonical geo state/city, verifies the venue, and inserts the complete free-event row.
  * Given a lead organisation, already authorised by `requireOrganisationPermission`, it names that
- * organisation as the event's lead in the same batch (B-EVT-17).
+ * organisation as the event's lead in the same batch (B-EVT-17). An organisation leads events only
+ * in its own market; any other answers `forbidden` before anything is written.
  */
 export const createEventResolverWithId = async (
   db: Db,
@@ -134,6 +136,18 @@ export const createEventResolverWithId = async (
         new AppError(
           'event_creation_disabled',
           'Event creation is currently disabled in this market',
+        ),
+      );
+    }
+    if (
+      leadOrganisationId &&
+      (await getOrganisation(db, leadOrganisationId))?.marketCode !==
+        market.code
+    ) {
+      return err(
+        new AppError(
+          'forbidden',
+          'An organisation leads events only in its own market',
         ),
       );
     }
