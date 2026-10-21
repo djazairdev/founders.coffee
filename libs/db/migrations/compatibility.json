@@ -50,5 +50,6 @@
   "0048_portfolio_fields": "compatible",
   "0049_organization_plugin": "compatible",
   "0050_event_organisers": "compatible",
-  "0051_platform_organisation": "compatible"
+  "0051_platform_organisation": "compatible",
+  "0052_organisation_owner_left": "compatible"
 }
