@@ -1,7 +1,14 @@
 import { env } from 'cloudflare:workers';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { createDb, eq, member, organization, seed } from '@founders-coffee/db';
+import {
+  createDb,
+  eq,
+  member,
+  organization,
+  PLATFORM_ORGANISATION,
+  seed,
+} from '@founders-coffee/db';
 
 import { authEnv, signIn } from './auth.fixtures.js';
 import { createAuth } from './auth.js';
@@ -70,7 +77,9 @@ describe('the organisation plugin (B-ORG-01, real D1)', () => {
         expect(response.status, path).toBe(404);
       }
     }
-    expect(await createDb(env.DB).select().from(organization)).toEqual([]);
+    expect(
+      await createDb(env.DB).select({ id: organization.id }).from(organization),
+    ).toEqual([{ id: PLATFORM_ORGANISATION.id }]);
   });
 
   it('creates an organisation through auth.api as pending, with our fields and its creator as owner', async () => {

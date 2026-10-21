@@ -1,7 +1,7 @@
 import type { Db } from './db.js';
 import { batch } from './atomic.js';
-import { markets } from './schema.js';
-import type { NewMarket } from './schema.js';
+import { markets, organization } from './schema.js';
+import type { NewMarket, NewOrganization } from './schema.js';
 
 export const SEED_MARKETS: readonly NewMarket[] = [
   {
@@ -66,8 +66,21 @@ export const SEED_MARKETS: readonly NewMarket[] = [
   },
 ];
 
+export const PLATFORM_ORGANISATION: NewOrganization = {
+  id: 'org_founders_coffee',
+  name: 'founders.coffee',
+  slug: 'founders-coffee',
+  kind: 'platform',
+  status: 'approved',
+  marketCode: 'DZ',
+  description:
+    'founders.coffee runs free meetups and hackathons for founders and builders.',
+  websiteUrl: 'https://founders.coffee',
+};
+
 /**
- * Idempotently seed launch markets into D1. `ON CONFLICT DO NOTHING` — safe to re-run.
+ * Idempotently seed launch markets into D1, then the platform organisation that leads the events
+ * *Hosted by founders.coffee* (B-ORG-07). `ON CONFLICT DO NOTHING` — safe to re-run.
  * Runs in one atomic `db.batch()` round-trip (AGENTS.md §11).
  */
 export const seed = async (db: Db): Promise<void> => {
@@ -75,5 +88,6 @@ export const seed = async (db: Db): Promise<void> => {
     ...SEED_MARKETS.map((market) =>
       db.insert(markets).values(market).onConflictDoNothing(),
     ),
+    db.insert(organization).values(PLATFORM_ORGANISATION).onConflictDoNothing(),
   ]);
 };
