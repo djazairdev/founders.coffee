@@ -13,16 +13,29 @@ const statements = {
   push: ['manage'],
   operations: ['read'],
   metrics: ['read'],
-  moderation: ['event', 'user'],
+  hackathon: ['read', 'register'],
+  team: ['create', 'join'],
+  submission: ['create'],
+  judging: ['score'],
+  hackathon_report: ['create'],
+  moderation: ['event', 'user', 'organisation', 'hackathon', 'submission'],
   closeout: ['override'],
   host_trust: ['update'],
   audit: ['read'],
 } as const;
 
+const PARTICIPANT = {
+  hackathon: ['read', 'register'],
+  team: ['create', 'join'],
+  submission: ['create'],
+  judging: ['score'],
+  hackathon_report: ['create'],
+} as const;
+
 const OPERATOR = {
   operations: ['read'],
   metrics: ['read'],
-  moderation: ['event', 'user'],
+  moderation: ['event', 'user', 'organisation', 'hackathon', 'submission'],
   host_trust: ['update'],
   audit: ['read'],
 } as const;
@@ -37,6 +50,7 @@ export const roles = {
     sponsorship: ['read'],
     profile: ['read', 'update'],
     push: ['manage'],
+    ...PARTICIPANT,
   }),
   host: ac.newRole({
     event: ['create', 'read'],
@@ -45,10 +59,12 @@ export const roles = {
     sponsorship: ['read'],
     profile: ['read', 'update'],
     push: ['manage'],
+    ...PARTICIPANT,
   }),
   sponsor_contact: ac.newRole({
     event: ['read'],
     rsvp: ['read'],
+    hackathon: ['read'],
     sponsorship: ['read'],
     profile: ['read', 'update'],
     push: ['manage'],
@@ -60,6 +76,7 @@ export const roles = {
     sponsorship: ['read'],
     profile: ['read', 'update'],
     push: ['manage'],
+    ...PARTICIPANT,
     ...OPERATOR,
   }),
   admin: ac.newRole({
@@ -70,6 +87,7 @@ export const roles = {
     sponsorship: ['read'],
     profile: ['read', 'update'],
     push: ['manage'],
+    ...PARTICIPANT,
     ...OPERATOR,
     closeout: ['override'],
   }),
@@ -97,6 +115,12 @@ export const ADMIN_APP_PERMISSION = { operations: ['read'] } as const;
  * reads operations and metrics, moderates events and users, sets host trust, and reads the audit
  * trail. Only an admin may override a closeout — that rewrites the record of whether a gathering
  * happened, which is the evidence every other number is derived from.
+ *
+ * The hackathon grants say only what a signed-in member may try: read and register for a hackathon,
+ * create or join a team, submit, score, report. Who owns what (the organiser of this hackathon, the
+ * captain of this team, a judge invited to it) is decided by the resolvers and by
+ * `requireOrganisationPermission`, never by a role. A moderator's `organisation`, `hackathon` and
+ * `submission` moderation, like every other moderation action, is withheld from members.
  */
 export const roleAllows = (
   role: string | null | undefined,
