@@ -75,6 +75,7 @@ const hostedEvent = {
   rsvps: 3,
   language: 'fr',
   kind: 'meetup',
+  runBy: { kind: 'community' },
 } as never;
 
 const pastMeetup = (id: string, isOnRecord: boolean) =>

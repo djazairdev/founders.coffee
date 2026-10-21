@@ -5,6 +5,7 @@ import {
   type Db,
 } from '@founders-coffee/db';
 
+import { readEventOrganisers } from './feed.js';
 import {
   attachCityNames,
   type EventFeedItemBase,
@@ -59,13 +60,12 @@ export const listHostedEventPage = async (
     }),
   ]);
   const page = rows.slice(0, limit);
-  const onRecord = await hostedMeetupsOnRecord(
-    db,
-    opts.hostId,
-    page.map((row) => row.id),
-    new Date(),
-  );
-  const items = attachCityNames(page).map((item) => ({
+  const pageIds = page.map((row) => row.id);
+  const [onRecord, organisers] = await Promise.all([
+    hostedMeetupsOnRecord(db, opts.hostId, pageIds, new Date()),
+    readEventOrganisers(db, pageIds),
+  ]);
+  const items = attachCityNames(page, undefined, organisers).map((item) => ({
     ...item,
     isOnRecord: onRecord.has(item.id),
   }));

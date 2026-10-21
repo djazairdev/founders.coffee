@@ -75,6 +75,7 @@ const PUBLIC_EVENT_FIELDS = [
   'goingCount',
   'hostName',
   'hostPhotoAssetId',
+  'runBy',
   'viewerRsvp',
 ] as const;
 

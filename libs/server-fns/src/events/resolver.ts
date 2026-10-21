@@ -11,7 +11,11 @@ import {
   type Event,
 } from '@founders-coffee/db';
 
-import { attachCityNames, type EventFeedItemBase } from './feed.js';
+import {
+  attachCityNames,
+  readEventOrganisers,
+  type EventFeedItemBase,
+} from './feed.js';
 
 export { attachCityNames } from './feed.js';
 export type { EventFeedItem, EventFeedItemBase } from './feed.js';
@@ -131,12 +135,18 @@ export const listEvents = async (
     limit: limit + 1,
   });
   const pageRows = rows.slice(0, limit);
-  const hostRows = await listPublicEventHosts(
-    db,
-    pageRows.map((row) => row.hostId),
-  );
+  const [hostRows, organisers] = await Promise.all([
+    listPublicEventHosts(
+      db,
+      pageRows.map((row) => row.hostId),
+    ),
+    readEventOrganisers(
+      db,
+      pageRows.map((row) => row.id),
+    ),
+  ]);
   const hostMap = new Map(hostRows.map((host) => [host.userId, host]));
-  const items = attachCityNames(pageRows, hostMap);
+  const items = attachCityNames(pageRows, hostMap, organisers);
   const hasMore = rows.length > limit;
   const last = items[items.length - 1];
   return {

@@ -97,7 +97,7 @@ export const readEventPage = async (
   if (!event.ok) return event;
   return ok({
     market: market.data,
-    event: await eventDetail(db, event.data, viewerId),
+    event: await eventDetail(db, event.data, viewerId, rows.data.organisers),
     host: hostCard(event.data.hostId, rows.data.host),
     viewerId: viewerId ?? null,
   });

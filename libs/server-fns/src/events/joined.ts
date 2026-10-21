@@ -4,6 +4,7 @@ import {
   type Db,
 } from '@founders-coffee/db';
 
+import { readEventOrganisers } from './feed.js';
 import { attachCityNames, type EventFeedPage } from './resolver.js';
 
 export interface JoinedEventPage extends EventFeedPage {
@@ -48,7 +49,15 @@ export const listJoinedEventPage = async (
       marketCode: opts.marketCode,
     }),
   ]);
-  const items = attachCityNames(rows.slice(0, limit));
+  const page = rows.slice(0, limit);
+  const items = attachCityNames(
+    page,
+    undefined,
+    await readEventOrganisers(
+      db,
+      page.map((row) => row.id),
+    ),
+  );
   const last = items[items.length - 1];
   return {
     items,

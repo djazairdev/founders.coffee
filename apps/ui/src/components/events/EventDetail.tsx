@@ -38,7 +38,9 @@ import type { EventPhase } from '../../features/events/live-window';
 import type { UseEventLiveResult } from '../../features/events/useEventLive';
 import { localizedCity } from '../../lib/locale-routing';
 import { EventHostCard } from './EventHostCard';
+import { EventCoHosts } from './EventCoHosts';
 import { EventKindBadge } from './EventKindBadge';
+import { EventRunByBadge } from './EventRunByBadge';
 import { EventLocationMap } from './EventLocationMap';
 import { EventRsvpBox } from './EventRsvpBox';
 import { ShareEventButton } from './ShareEventButton';
@@ -137,6 +139,7 @@ export const EventDetail = ({
       <header className="rounded-box bg-base-200 p-5 sm:p-8">
         <div className="flex flex-wrap items-center gap-2">
           <EventKindBadge kind={event.kind} locale={locale} />
+          <EventRunByBadge runBy={event.runBy} locale={locale} />
           <span className="inline-flex items-center gap-1.5 text-body-sm text-neutral">
             <MapPin className="size-4 text-secondary" aria-hidden="true" />
             <span dir="auto">{cityName}</span>
@@ -145,6 +148,7 @@ export const EventDetail = ({
         <h1 className="mt-4 font-display text-h3 font-semibold text-balance md:text-h2">
           <bdi>{event.title}</bdi>
         </h1>
+        <EventCoHosts runBy={event.runBy} locale={locale} className="mt-3" />
         {event.description ? (
           <p className="mt-4 max-w-3xl whitespace-pre-line text-body-lg leading-relaxed text-neutral">
             <IsolatedLines text={event.description} />

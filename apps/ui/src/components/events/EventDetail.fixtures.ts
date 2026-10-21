@@ -96,4 +96,5 @@ export const event = {
   stateNameAr: 'الجزائر',
   stateNameFr: 'Alger',
   meetingLink: null,
+  runBy: { kind: 'community' },
 } satisfies EventDetailItem;

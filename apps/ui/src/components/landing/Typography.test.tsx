@@ -106,6 +106,7 @@ const event: EventFeedItem = {
   goingCount: 2,
   hostName: 'Host Name',
   hostPhotoAssetId: null,
+  runBy: { kind: 'community' },
 };
 
 afterEach(cleanup);
