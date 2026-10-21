@@ -10,6 +10,8 @@ export const ORGANISATION_KINDS = [
 export type OrganisationKind = (typeof ORGANISATION_KINDS)[number];
 export const organisationKindSchema = z.enum(ORGANISATION_KINDS);
 
+export const organisationIdSchema = z.string().trim().min(1).max(128);
+
 export const ORGANISATION_STATUSES = [
   'pending',
   'approved',
