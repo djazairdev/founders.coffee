@@ -1,9 +1,8 @@
 import { createAuth } from '@founders-coffee/auth';
-import { createCloudflareEmailProvider } from '@founders-coffee/email';
 
 import { getAuthEnv } from '../auth.js';
 import { getDb } from '../db.js';
-import { workerEnv } from '../env.js';
+import { emailProviderFromEnv } from '../email-from-env.js';
 import { createInvitationSender } from './invitation-email.js';
 
 /**
@@ -14,12 +13,8 @@ import { createInvitationSender } from './invitation-email.js';
  * the browser bundle must never import.
  */
 export const invitationAuth = () => {
-  const env = workerEnv();
   const db = getDb();
-  const provider =
-    env.EMAIL && env.MAIL_FROM
-      ? createCloudflareEmailProvider(env.EMAIL as SendEmail, env.MAIL_FROM)
-      : null;
+  const provider = emailProviderFromEnv();
   return {
     db,
     auth: createAuth(getAuthEnv(), {

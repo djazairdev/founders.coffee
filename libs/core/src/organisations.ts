@@ -29,3 +29,5 @@ export const ORGANISATION_INVITATION_STATUSES = [
 ] as const;
 export type OrganisationInvitationStatus =
   (typeof ORGANISATION_INVITATION_STATUSES)[number];
+
+export const ADMIN_ACCESS_SUBJECT_HEADER = 'x-founders-access-subject';

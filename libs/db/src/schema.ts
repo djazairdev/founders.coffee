@@ -245,7 +245,8 @@ export type NewVerification = typeof verification.$inferInsert;
  * tables (B-ORG-01). The plugin's own columns keep its names; ours follow them. An organisation
  * starts `pending` and is approved by an operator before it can run anything. `owner_left_at` is
  * when its last owner closed their account (B-ORG-12), which puts it in the admin queue until an
- * owner is named again.
+ * owner is named again. `reviewed_at` and `review_note` are the last operator decision on it and the
+ * note given with it, which its owners read (B-ORG-06).
  */
 export const organization = sqliteTable(
   'organization',
@@ -266,6 +267,8 @@ export const organization = sqliteTable(
     description: text('description').notNull(),
     websiteUrl: text('website_url'),
     ownerLeftAt: integer('owner_left_at', { mode: 'timestamp' }),
+    reviewNote: text('review_note'),
+    reviewedAt: integer('reviewed_at', { mode: 'timestamp' }),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),

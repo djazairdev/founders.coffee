@@ -20,3 +20,12 @@ export {
   isOrganisationActive,
   transitionOrganisation,
 } from './status-machine.js';
+export {
+  decideOrganisationStatus,
+  ORGANISATION_DECISIONS,
+  ORGANISATION_REJECTION_NOTE_MIN_LENGTH,
+  ORGANISATION_REVIEW_NOTE_MAX_LENGTH,
+  organisationDecisionSchema,
+  type OrganisationDecision,
+  type OrganisationDecisionInput,
+} from './decisions.js';

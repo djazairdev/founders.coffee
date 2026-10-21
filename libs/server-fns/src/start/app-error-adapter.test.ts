@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { AppError } from '@founders-coffee/core';
 import { appErrorCode } from '@founders-coffee/core';
 
-import { appErrorSerializationAdapter } from './app-error-adapter';
+import { appErrorSerializationAdapter } from './app-error-adapter.js';
 
 const adapter = appErrorSerializationAdapter;
 

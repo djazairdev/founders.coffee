@@ -167,7 +167,7 @@ describe('release state validation', () => {
       latestMigration(
         fileURLToPath(new URL('../../libs/db/migrations', import.meta.url)),
       ),
-    ).toBe('0057_hackathon_criteria');
+    ).toBe('0058_organisation_review');
   });
 });
 

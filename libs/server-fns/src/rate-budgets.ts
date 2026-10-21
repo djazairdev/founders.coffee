@@ -38,6 +38,11 @@ export const RATE_BUDGETS = {
       limit: 10,
       windowMs: 10 * MINUTE_MS,
     },
+    organisationDecision: {
+      action: 'decide_organisation',
+      limit: 60,
+      windowMs: 10 * MINUTE_MS,
+    },
   },
   read: {
     publicProfile: {
@@ -154,8 +159,10 @@ export type RateBudgetCategory = keyof typeof RATE_BUDGETS;
  * it permits.
  *
  * `edit` covers cheap owner writes. An organisation application is one of them, held to three an
- * hour: it lands in an admin's review queue, and a member applies for an organisation rarely. `read` covers unauthenticated reads that are cheap per call but
- * enumerable in bulk. `otp` holds the two halves of a contact change: sending a code costs an SMS or
+ * hour: it lands in an admin's review queue, and a member applies for an organisation rarely. An
+ * operator's decision on one is held to sixty in ten minutes: enough to clear a long queue, too few
+ * for a stolen operator session to flip every organisation at once. `read` covers unauthenticated
+ * reads that are cheap per call but enumerable in bulk. `otp` holds the two halves of a contact change: sending a code costs an SMS or
  * an email and is bounded tightly, while submitting one is cheap but must not become an oracle, so it
  * is bounded loosely. Together they are the reason a stolen session cannot walk a member's contact
  * details out of the account. Better Auth's own limiter is off (see `createAuth`), so these budgets
