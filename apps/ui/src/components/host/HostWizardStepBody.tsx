@@ -107,11 +107,13 @@ export const HostWizardStepBody = ({
           title={wizard.title}
           description={wizard.description}
           languages={wizard.languages}
+          tags={wizard.tags}
           constraints={wizard.view.constraints}
           errors={wizard.fieldErrors}
           onTitleChange={wizard.setTitle}
           onDescriptionChange={wizard.setDescription}
           onLanguagesChange={wizard.setLanguages}
+          onTagsChange={wizard.setTags}
         />
       </div>
     )}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import type { Topic } from '@founders-coffee/core';
 import type { Locale } from '@founders-coffee/i18n';
 
 import {
@@ -49,6 +50,7 @@ export const useHostCreateDraftState = ({
     MeetupLanguage[] | null
   >(null);
   const [hostAs, setHostAs] = useState<string | null>(null);
+  const [tags, setTags] = useState<Topic[]>([]);
   const [hasRestoredDraft, setHasRestoredDraft] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
   const repeat =
@@ -66,6 +68,7 @@ export const useHostCreateDraftState = ({
     kind,
     chosenLanguages,
     hostAs,
+    tags,
   };
 
   useEffect(() => {
@@ -80,6 +83,7 @@ export const useHostCreateDraftState = ({
       setKind(next.kind);
       setChosenLanguages(next.chosenLanguages);
       setHostAs(next.hostAs);
+      setTags(next.tags);
     };
     setIsRepeat(repeat !== null);
     const restored = repeat
@@ -112,6 +116,7 @@ export const useHostCreateDraftState = ({
         kind,
         chosenLanguages,
         hostAs,
+        tags,
       },
       repeat?.sourceEventId,
     );
@@ -130,6 +135,7 @@ export const useHostCreateDraftState = ({
     kind,
     chosenLanguages,
     hostAs,
+    tags,
   ]);
 
   return {
@@ -146,5 +152,6 @@ export const useHostCreateDraftState = ({
     setKind,
     setChosenLanguages,
     setHostAs,
+    setTags,
   };
 };

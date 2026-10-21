@@ -41,6 +41,7 @@ import { EventHostCard } from './EventHostCard';
 import { EventCoHosts } from './EventCoHosts';
 import { EventKindBadge } from './EventKindBadge';
 import { EventRunByBadge } from './EventRunByBadge';
+import { EventTopics } from './EventTopics';
 import { EventLocationMap } from './EventLocationMap';
 import { EventRsvpBox } from './EventRsvpBox';
 import { ShareEventButton } from './ShareEventButton';
@@ -154,6 +155,7 @@ export const EventDetail = ({
             <IsolatedLines text={event.description} />
           </p>
         ) : null}
+        <EventTopics locale={locale} tags={event.tags} className="mt-4" />
         <div className="mt-6 flex flex-wrap gap-2.5">
           <span className="inline-flex items-center gap-2 rounded-full bg-base-100 px-3 py-2 text-body-sm font-medium">
             <CalendarDays

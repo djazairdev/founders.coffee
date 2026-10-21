@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { venueKindSchema } from '@founders-coffee/core';
+import { venueKindSchema, type Topic } from '@founders-coffee/core';
 import { events, profile } from '@founders-coffee/domain';
 
 import {
@@ -52,6 +52,7 @@ const hostCreateDraftSchema = z.object({
     .nullable()
     .default(null),
   hostAs: z.string().min(1).max(HOST_AS_MAX_LENGTH).nullable().default(null),
+  tags: events.eventTagsSchema.default([]).catch([]),
 });
 
 export type HostCreateDraft = {
@@ -66,6 +67,7 @@ export type HostCreateDraft = {
   kind: HostEventKind;
   chosenLanguages: MeetupLanguage[] | null;
   hostAs: string | null;
+  tags: Topic[];
 };
 
 const draftKey = (marketCode: string): string => `fc:event-draft:${marketCode}`;
@@ -110,6 +112,7 @@ export const readHostCreateDraft = (
       kind: parsed.data.kind,
       chosenLanguages: parsed.data.chosenLanguages,
       hostAs: parsed.data.hostAs,
+      tags: parsed.data.tags,
     };
   } catch {
     return null;
@@ -146,6 +149,7 @@ export const writeHostCreateDraft = (
           draft.hostAs && draft.hostAs.length <= HOST_AS_MAX_LENGTH
             ? draft.hostAs
             : null,
+        tags: [...new Set(draft.tags)].slice(0, events.EVENT_TAG_LIMIT),
       }),
     );
   } catch {

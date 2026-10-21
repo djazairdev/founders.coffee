@@ -326,6 +326,8 @@
   "host_desc_label": "Meetup description",
   "host_languages_label": "Languages",
   "host_languages_hint": "The languages of the conversation, not the language of the site interface. You can pick more than one.",
+  "event_topics_label": "Topics",
+  "host_topics_hint": "Up to five, to help interested members find you",
   "host_kind_label": "Type",
   "host_as_label": "Host as",
   "host_as_myself": "Myself",

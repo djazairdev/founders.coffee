@@ -439,6 +439,8 @@
   "host_desc_label": "Description de la rencontre",
   "host_languages_label": "Langues",
   "host_languages_hint": "Les langues de la conversation, pas celle de l’interface du site. Vous pouvez en choisir plusieurs.",
+  "event_topics_label": "Thèmes",
+  "host_topics_hint": "Jusqu’à cinq, pour aider les membres intéressés à vous trouver",
   "host_kind_label": "Type",
   "host_as_label": "Organiser en tant que",
   "host_as_myself": "Moi-même",

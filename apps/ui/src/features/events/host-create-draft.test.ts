@@ -27,6 +27,7 @@ const draft: HostCreateDraft = {
   kind: 'workshop',
   chosenLanguages: ['ar', 'fr'],
   hostAs: null,
+  tags: [],
 };
 
 describe('host create draft', () => {
@@ -63,6 +64,47 @@ describe('host create draft', () => {
       }),
     );
     expect(readHostCreateDraft('DZ')?.hostAs).toBeNull();
+  });
+
+  it('keeps the topics chosen, and writes only what it can read back', () => {
+    writeHostCreateDraft('DZ', { ...draft, tags: ['design', 'investing'] });
+    expect(readHostCreateDraft('DZ')?.tags).toEqual(['design', 'investing']);
+
+    writeHostCreateDraft('DZ', {
+      ...draft,
+      tags: [
+        'design',
+        'design',
+        'product',
+        'community',
+        'investing',
+        'partnerships',
+        'cofounders',
+      ],
+    });
+    expect(readHostCreateDraft('DZ')?.tags).toEqual([
+      'design',
+      'product',
+      'community',
+      'investing',
+      'partnerships',
+    ]);
+  });
+
+  it('drops unreadable topics rather than the whole draft, and reads none from an older one', () => {
+    for (const tags of [['karaoke'], 'design', undefined]) {
+      window.sessionStorage.setItem(
+        'fc:event-draft:DZ',
+        JSON.stringify({
+          ...draft,
+          tags,
+          version: 6,
+          savedAt: Date.now(),
+          marketCode: 'DZ',
+        }),
+      );
+      expect(readHostCreateDraft('DZ')).toEqual({ ...draft, tags: [] });
+    }
   });
 
   it('restores a draft saved before a meetup could have several languages', () => {
@@ -181,6 +223,7 @@ describe('AR: a draft this module wrote is always readable', () => {
     kind: 'meetup' as const,
     chosenLanguages: null,
     hostAs: null,
+    tags: [],
   };
 
   it('survives a venue search value longer than the schema allows', () => {
