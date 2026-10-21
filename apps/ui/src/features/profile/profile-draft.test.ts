@@ -4,9 +4,9 @@ import type { UserProfile } from './api';
 import {
   commandFrom,
   draftFrom,
-  firstLinkUrl,
   isDraftDirty,
-  withFirstLink,
+  linkUrlOf,
+  withLink,
 } from './profile-draft';
 
 const saved: UserProfile = {
@@ -96,12 +96,16 @@ describe('profile draft', () => {
     const built = commandFrom(
       {
         ...draftFrom(saved),
-        links: withFirstLink([], 'http://insecure.example'),
+        links: withLink([], 'website', 'http://insecure.example'),
       },
       3,
     );
 
-    expect(built).toMatchObject({ ok: false, field: 'links' });
+    expect(built).toMatchObject({
+      ok: false,
+      field: 'links',
+      linkKind: 'website',
+    });
   });
 
   it('withdraws a publication whose field is emptied', () => {
@@ -137,34 +141,84 @@ describe('profile draft', () => {
     });
   });
 
-  it('edits the first link from the single link field, reading its kind from the address', () => {
+  it('gives each kind of link its own field, kept in the fields’ order', () => {
     const website = { kind: 'website', url: 'https://example.com' } as const;
-    const links = withFirstLink([website], 'https://www.github.com/amina');
+    const links = withLink([website], 'github', 'https://github.com/amina');
 
     expect(links).toEqual([
-      { kind: 'github', url: 'https://www.github.com/amina' },
+      { kind: 'github', url: 'https://github.com/amina' },
+      website,
     ]);
-    expect(firstLinkUrl({ ...draftFrom(saved), links })).toBe(
-      'https://www.github.com/amina',
-    );
-    expect(withFirstLink(links, 'https://dz.linkedin.com/in/amina')).toEqual([
-      { kind: 'linkedin', url: 'https://dz.linkedin.com/in/amina' },
+    expect(linkUrlOf(links, 'github')).toBe('https://github.com/amina');
+    expect(linkUrlOf(links, 'linkedin')).toBe('');
+    expect(withLink(links, 'github', '')).toEqual([website]);
+    expect(withLink(links, 'website', 'https://example.org')).toEqual([
+      { kind: 'github', url: 'https://github.com/amina' },
+      { kind: 'website', url: 'https://example.org' },
     ]);
-    expect(withFirstLink(links, '')).toEqual([]);
-    expect(firstLinkUrl(draftFrom(saved))).toBe('');
   });
 
-  it('keeps the links after the first when the field changes', () => {
-    const github = { kind: 'github', url: 'https://github.com/amina' } as const;
-    const linkedin = {
-      kind: 'linkedin',
-      url: 'https://linkedin.com/in/amina',
-    } as const;
+  it('names the field whose address is not of its kind', () => {
+    const built = commandFrom(
+      {
+        ...draftFrom(saved),
+        links: withLink(
+          withLink([], 'website', 'https://example.com'),
+          'github',
+          'https://www.linkedin.com/in/amina',
+        ),
+      },
+      3,
+    );
 
-    expect(withFirstLink([github, linkedin], 'https://example.com')).toEqual([
-      { kind: 'website', url: 'https://example.com' },
-      linkedin,
-    ]);
-    expect(withFirstLink([github, linkedin], '')).toEqual([linkedin]);
+    expect(built).toMatchObject({
+      ok: false,
+      field: 'links',
+      linkKind: 'github',
+    });
+  });
+
+  it('calls a profile clean when its links were only stored in another order', () => {
+    const github = { kind: 'github', url: 'https://github.com/amina' } as const;
+    const website = { kind: 'website', url: 'https://example.com' } as const;
+    const stored = { ...saved, links: [website, github] };
+
+    expect(
+      isDraftDirty(
+        {
+          ...draftFrom(stored),
+          links: withLink(stored.links, 'github', github.url),
+        },
+        stored,
+      ),
+    ).toBe(false);
+  });
+
+  it('sends skills, links and open to with their publication', () => {
+    const built = commandFrom(
+      {
+        ...draftFrom(saved),
+        skills: ['backend', 'ai_ml'],
+        links: withLink([], 'linkedin', 'https://dz.linkedin.com/in/amina'),
+        openTo: ['co_founding'],
+        visibility: {
+          ...saved.visibility,
+          skills: true,
+          links: true,
+          openTo: true,
+        },
+      },
+      3,
+    );
+
+    expect(built).toMatchObject({
+      ok: true,
+      command: {
+        skills: ['backend', 'ai_ml'],
+        links: [{ kind: 'linkedin', url: 'https://dz.linkedin.com/in/amina' }],
+        openTo: ['co_founding'],
+        visibility: { skills: true, links: true, openTo: true },
+      },
+    });
   });
 });

@@ -1,14 +1,15 @@
+import type { RefObject } from 'react';
+
+import type { ProfileLinkKind } from '@founders-coffee/core';
 import {
   profile_attended_hint,
   profile_attended_label,
   profile_interests_hint,
   profile_interests_label,
   profile_languages_label,
-  profile_link_label,
-  profile_link_placeholder,
   type Locale,
 } from '@founders-coffee/i18n';
-import { ChipGroup, Input, toggleChip } from '@founders-coffee/ui';
+import { ChipGroup, toggleChip } from '@founders-coffee/ui';
 
 import {
   localeLabel,
@@ -16,23 +17,26 @@ import {
   topicLabel,
   TOPIC_OPTIONS,
 } from '../profile-labels';
-import {
-  firstLinkUrl,
-  withFirstLink,
-  type ProfileDraft,
-} from '../profile-draft';
+import type { ProfileDraft } from '../profile-draft';
 import { OptionalChip } from './OptionalChip';
+import { ProfileLinksFields, type LinkInputs } from './ProfileLinksFields';
+import { ProfileOpenToField } from './ProfileOpenToField';
+import { ProfileSkillsField } from './ProfileSkillsField';
 import { PublishToggle } from './PublishToggle';
 
 export const ProfileDetailFields = ({
   locale,
   draft,
   isDisabled,
+  invalidLink,
+  linkInputs,
   onChange,
 }: {
   locale: Locale;
   draft: ProfileDraft;
   isDisabled: boolean;
+  invalidLink: ProfileLinkKind | null;
+  linkInputs: RefObject<LinkInputs>;
   onChange: (patch: Partial<ProfileDraft>) => void;
 }) => {
   return (
@@ -70,6 +74,13 @@ export const ProfileDetailFields = ({
         />
       </div>
 
+      <ProfileSkillsField
+        locale={locale}
+        draft={draft}
+        isDisabled={isDisabled}
+        onChange={onChange}
+      />
+
       <div>
         <div className="mb-2 flex items-center justify-between gap-2">
           <span className="text-label">
@@ -102,38 +113,21 @@ export const ProfileDetailFields = ({
         />
       </div>
 
-      <div>
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <label htmlFor="profile-link" className="text-label">
-            {profile_link_label({}, { locale })}
-          </label>
-          <OptionalChip locale={locale} />
-        </div>
-        <Input
-          id="profile-link"
-          type="url"
-          inputMode="url"
-          dir="ltr"
-          maxLength={2048}
-          value={firstLinkUrl(draft)}
-          disabled={isDisabled}
-          placeholder={profile_link_placeholder({}, { locale })}
-          onChange={(event) =>
-            onChange({ links: withFirstLink(draft.links, event.target.value) })
-          }
-        />
-        <PublishToggle
-          locale={locale}
-          isPublic={draft.visibility.links}
-          isDisabled={isDisabled || draft.links.length === 0}
-          fieldLabel={profile_link_label({}, { locale })}
-          onChange={(isPublic) =>
-            onChange({
-              visibility: { ...draft.visibility, links: isPublic },
-            })
-          }
-        />
-      </div>
+      <ProfileOpenToField
+        locale={locale}
+        draft={draft}
+        isDisabled={isDisabled}
+        onChange={onChange}
+      />
+
+      <ProfileLinksFields
+        locale={locale}
+        draft={draft}
+        isDisabled={isDisabled}
+        invalidLink={invalidLink}
+        inputs={linkInputs}
+        onChange={onChange}
+      />
 
       <div>
         <div className="mb-2 flex items-center justify-between gap-2">

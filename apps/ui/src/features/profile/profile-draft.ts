@@ -1,3 +1,7 @@
+import {
+  PROFILE_LINK_KINDS,
+  type ProfileLinkKind,
+} from '@founders-coffee/core';
 import { profile } from '@founders-coffee/domain';
 
 import type { UserProfile } from './api';
@@ -6,6 +10,8 @@ export type ProfileDraft = Omit<
   UserProfile,
   'userId' | 'revision' | 'memberSince'
 >;
+
+export const SKILL_LIMIT = profile.PROFILE_SKILL_LIMIT;
 
 /** Start a draft from the saved profile, so Discard has something exact to restore. */
 export const draftFrom = (saved: UserProfile): ProfileDraft => ({
@@ -22,21 +28,30 @@ export const draftFrom = (saved: UserProfile): ProfileDraft => ({
   visibility: { ...saved.visibility },
 });
 
-/** The address the profile form's single link field edits: the first of the member's links. */
-export const firstLinkUrl = (draft: ProfileDraft): string =>
-  draft.links[0]?.url ?? '';
+/** The address the member gave for one kind of link, or an empty field when they gave none. */
+export const linkUrlOf = (
+  links: readonly profile.ProfileLink[],
+  kind: ProfileLinkKind,
+): string => links.find((link) => link.kind === kind)?.url ?? '';
 
 /**
- * The links with the first one replaced by what the member typed, its kind read from the address.
- * An empty field removes the first link and keeps the rest.
+ * The links with one kind's address replaced by what the member typed into that kind's field, in
+ * the fields' order. An empty field removes that kind. The kind is the field's, not one read from
+ * the address, so a LinkedIn address typed under GitHub reaches the schema as a GitHub link and is
+ * refused there, next to the field it was typed in.
  */
-export const withFirstLink = (
+export const withLink = (
   links: readonly profile.ProfileLink[],
+  kind: ProfileLinkKind,
   url: string,
-): profile.ProfileLink[] => [
-  ...(url ? [{ kind: profile.linkKindOf(url), url }] : []),
-  ...links.slice(1),
-];
+): profile.ProfileLink[] =>
+  PROFILE_LINK_KINDS.flatMap((each) => {
+    const value = each === kind ? url : linkUrlOf(links, each);
+    return value ? [{ kind: each, url: value }] : [];
+  });
+
+const linksByKind = (links: readonly profile.ProfileLink[]): string =>
+  PROFILE_LINK_KINDS.map((kind) => linkUrlOf(links, kind)).join();
 
 /**
  * Whether the draft still says what the saved profile says.
@@ -56,8 +71,7 @@ export const isDraftDirty = (
   draft.stage !== saved.stage ||
   draft.introduction !== saved.introduction ||
   draft.skills.join() !== saved.skills.join() ||
-  draft.links.map((link) => link.url).join() !==
-    saved.links.map((link) => link.url).join() ||
+  linksByKind(draft.links) !== linksByKind(saved.links) ||
   draft.openTo.join() !== saved.openTo.join() ||
   draft.interests.join() !== saved.interests.join() ||
   draft.spokenLanguages.join() !== saved.spokenLanguages.join() ||
@@ -79,7 +93,7 @@ export const commandFrom = (
   expectedRevision: number,
 ):
   | { ok: true; command: profile.UpdateProfileInput }
-  | { ok: false; field: string } => {
+  | { ok: false; field: string; linkKind?: ProfileLinkKind } => {
   const parsed = profile.updateProfileSchema.safeParse({
     displayName: draft.displayName,
     expectedRevision,
@@ -93,10 +107,15 @@ export const commandFrom = (
     openTo: draft.openTo,
     visibility: draft.visibility,
   });
-  return parsed.success
-    ? { ok: true, command: parsed.data }
-    : {
-        ok: false,
-        field: String(parsed.error.issues[0]?.path[0] ?? 'profile'),
-      };
+  if (parsed.success) return { ok: true, command: parsed.data };
+  const [field, index] = parsed.error.issues[0]?.path ?? [];
+  const linkKind =
+    field === 'links' && typeof index === 'number'
+      ? draft.links[index]?.kind
+      : undefined;
+  return {
+    ok: false,
+    field: String(field ?? 'profile'),
+    ...(linkKind ? { linkKind } : {}),
+  };
 };
