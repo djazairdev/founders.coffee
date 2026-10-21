@@ -104,7 +104,7 @@ export const pastEvent = async (
   db: Db,
   options: {
     endedHoursAgo?: number;
-    status?: 'published' | 'cancelled';
+    status?: 'draft' | 'published' | 'cancelled';
     withEndsAt?: boolean;
     hostId?: string;
     attendees?: readonly string[];

@@ -7,7 +7,7 @@ import { ownerProfileOf, publicProfileOf } from '../profile/projection.js';
 import type { PublicProfile } from '../profile/schemas.js';
 import type { EventDetailItem } from './attendance.js';
 import { eventDetail } from './detail.js';
-import { availableEvent } from './resolver.js';
+import { availableToReader } from './resolver.js';
 import type { EventPageRequestInput } from './schemas.js';
 
 export interface EventPage {
@@ -88,7 +88,12 @@ export const readEventPage = async (
   ]);
   if (!market.ok) return market;
   if (!rows.ok) return rows;
-  const event = availableEvent(rows.data.event, input.slug);
+  const event = await availableToReader(
+    db,
+    rows.data.event,
+    input.slug,
+    viewerId,
+  );
   if (!event.ok) return event;
   return ok({
     market: market.data,

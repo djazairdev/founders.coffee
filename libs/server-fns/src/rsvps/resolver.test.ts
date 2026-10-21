@@ -105,14 +105,14 @@ describe('createRsvpResolver (real D1)', () => {
     if (!result.ok) expect(result.error.code).toBe('event_not_found');
   });
 
-  it('returns event_not_available for an unpublished event', async () => {
+  it('answers a draft as a missing event, so its id gives nothing away', async () => {
     const eventId = await seedEvent(db, { status: 'draft' });
     const result = await createRsvpResolver(db, {
       eventId,
       userId: members[0].id,
     });
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe('event_not_available');
+    if (!result.ok) expect(result.error.code).toBe('event_not_found');
     expect((await state(db, eventId)).attendees).toBe(0);
   });
 

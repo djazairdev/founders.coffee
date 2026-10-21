@@ -58,7 +58,7 @@ export const createRsvpResolver = async (
   },
 ): Promise<Result<RsvpResult>> => {
   const event = await getEvent(db, opts.eventId);
-  if (!event) {
+  if (!event || event.status === 'draft') {
     return err(new AppError('event_not_found', 'Event not found'));
   }
   if (event.status !== 'published') {

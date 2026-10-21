@@ -135,8 +135,8 @@ export const getEvent = createServerFn({ strict: false })
   .handler(async ({ data }) => {
     privateNoStore();
     const db = getDb();
-    const event = await handleResult(resolveEvent(db, data));
     const session = await resolveSession(getRequest().headers);
+    const event = await handleResult(resolveEvent(db, data, session?.user?.id));
     return eventDetail(db, event, session?.user?.id);
   });
 

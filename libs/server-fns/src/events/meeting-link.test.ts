@@ -1,16 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import {
-  eq,
-  eventOrganisers,
-  events,
-  getEvent,
-  member,
-  organization,
-  user,
-  type Db,
-  type Event,
-} from '@founders-coffee/db';
+import { eq, events, getEvent, type Db, type Event } from '@founders-coffee/db';
 
 import { answerEventCalendar } from './calendar.js';
 import { readEventCard } from './card.js';
@@ -22,6 +12,7 @@ import { readEventPage } from './page.js';
 import { readPublicEventFeed } from './public-feed.js';
 import { attachAttendance } from './attendance.js';
 import { listEvents } from './resolver.js';
+import { coOrganise, organisation, signUp } from './organisers.fixtures.js';
 import { setupDb, TEST_HOST_ID } from './resolver.fixtures.js';
 import { GUEST_ID, hostAnEvent, inviteGuest } from './update.fixtures.js';
 
@@ -29,43 +20,6 @@ const LINK = 'https://meet.example.com/founders-online';
 const STRANGER_ID = 'usr_link_stranger1';
 const ORGANISER_ID = 'usr_link_organiser';
 const OUTSIDER_ID = 'usr_link_outsider1';
-
-const signUp = (db: Db, id: string) =>
-  db
-    .insert(user)
-    .values({
-      id,
-      name: id,
-      email: `${id}@test.coffee`,
-      emailVerified: true,
-      role: 'member',
-    })
-    .onConflictDoNothing()
-    .run();
-
-const organisation = async (db: Db, id: string, memberId: string) => {
-  await db
-    .insert(organization)
-    .values({
-      id,
-      name: `Organisation ${id}`,
-      slug: id,
-      kind: 'club',
-      status: 'approved',
-      marketCode: 'DZ',
-      description: 'Weekly coding evenings for students in Algiers.',
-    })
-    .onConflictDoNothing();
-  await db
-    .insert(member)
-    .values({
-      id: `mem_${id}`,
-      organizationId: id,
-      userId: memberId,
-      role: 'member',
-    })
-    .onConflictDoNothing();
-};
 
 /** An online meetup with a link, a member going, and an organisation organising it as co-host. */
 const onlineMeetup = async (db: Db): Promise<Event> => {
@@ -90,14 +44,7 @@ const onlineMeetup = async (db: Db): Promise<Event> => {
   );
   await organisation(db, 'org_link_cohost', ORGANISER_ID);
   await organisation(db, 'org_link_unrelated', OUTSIDER_ID);
-  await db
-    .insert(eventOrganisers)
-    .values({
-      eventId: event.id,
-      organisationId: 'org_link_cohost',
-      role: 'co_host',
-    })
-    .run();
+  await coOrganise(db, event.id, 'org_link_cohost');
   return event;
 };
 
