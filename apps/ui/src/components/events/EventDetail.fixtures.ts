@@ -95,4 +95,5 @@ export const event = {
   stateName: 'Alger',
   stateNameAr: 'الجزائر',
   stateNameFr: 'Alger',
+  meetingLink: null,
 } satisfies EventDetailItem;

@@ -99,6 +99,7 @@ const base = {
   stateName: 'Alger',
   stateNameAr: 'الجزائر',
   stateNameFr: 'Alger',
+  meetingLink: null,
 } satisfies EventDetailItem;
 
 const show = (event: EventDetailItem) => {
