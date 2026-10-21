@@ -42,3 +42,11 @@ export {
   isOpenSourceTrackUrl,
   type HackathonTrackInput,
 } from './tracks.js';
+export {
+  HACKATHON_CRITERIA_MAX,
+  HACKATHON_CRITERIA_MIN,
+  HACKATHON_WEIGHT_TOTAL,
+  hackathonCriterionSchema,
+  hackathonRubricSchema,
+  type HackathonCriterionInput,
+} from './criteria.js';

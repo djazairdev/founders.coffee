@@ -47,3 +47,11 @@ export const HACKATHON_TRACK_KINDS = [
 ] as const;
 export type HackathonTrackKind = (typeof HACKATHON_TRACK_KINDS)[number];
 export const hackathonTrackKindSchema = z.enum(HACKATHON_TRACK_KINDS);
+
+export const HACKATHON_CRITERION_SCALES = [5, 10] as const;
+export type HackathonCriterionScale =
+  (typeof HACKATHON_CRITERION_SCALES)[number];
+export const hackathonCriterionScaleSchema = z.union([
+  z.literal(5),
+  z.literal(10),
+]);
