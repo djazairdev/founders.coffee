@@ -60,6 +60,7 @@ describe('profile contracts', () => {
       skills: [],
       links: [],
       openTo: [],
+      indexable: false,
       visibility: {
         headline: false,
         stage: false,

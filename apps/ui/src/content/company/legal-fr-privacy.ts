@@ -37,9 +37,9 @@ export const privacyFrench: CompanyPageContent = translatedPage(
       ),
       subheading('Profil'),
       ...text(
-        'Votre profil peut comprendre une présentation, ce que vous construisez et son étape, vos centres d’intérêt, vos langues, votre lien professionnel et votre photo.',
-        'Votre nom, votre photo, votre présentation, votre mois d’inscription et le nombre de rencontres organisées apparaissent sur votre profil public. Ce que vous construisez et son étape, vos centres d’intérêt, vos langues, votre lien professionnel et le nombre de rencontres auxquelles vous avez participé n’apparaissent que si vous les publiez.',
-        'Chaque champ facultatif a son propre réglage de visibilité et commence masqué. Vous pouvez supprimer votre photo et votre présentation à tout moment. Votre profil public est accessible à toute personne qui en a le lien, et les pages de profil demandent aux moteurs de recherche de ne pas les indexer.',
+        'Votre profil peut comprendre une présentation, ce que vous construisez et son étape, vos centres d’intérêt, vos langues, vos compétences, vos liens (GitHub, LinkedIn et un site web), les opportunités qui vous intéressent (emploi, stage, cofondation) et votre photo.',
+        'Votre nom, votre photo, votre présentation, votre mois d’inscription et le nombre de rencontres organisées apparaissent sur votre profil public. Ce que vous construisez et son étape, vos centres d’intérêt, vos langues, vos compétences, vos liens, les opportunités qui vous intéressent et le nombre de rencontres auxquelles vous avez participé n’apparaissent que si vous les publiez.',
+        'Chaque champ facultatif a son propre réglage de visibilité et commence masqué. Vous pouvez supprimer votre photo et votre présentation à tout moment. Votre profil public est accessible à toute personne qui en a le lien. Les pages de profil demandent aux moteurs de recherche de ne pas les indexer, sauf si vous activez le réglage « Moteurs de recherche », lui aussi désactivé au départ. Tant qu’il est activé, votre page de profil figure dans notre plan du site et les moteurs de recherche peuvent l’afficher dans leurs résultats, avec seulement ce que vous y avez publié. Si vous le désactivez, la page leur demande de nouveau de ne pas l’indexer et quitte le plan du site ; un moteur de recherche peut mettre quelques jours à retirer une copie qu’il détient déjà.',
       ),
       subheading('Rencontres et inscriptions'),
       ...text(

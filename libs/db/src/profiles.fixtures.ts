@@ -19,6 +19,7 @@ export const profileChanges: MemberProfileChanges = {
   skills: ['frontend'],
   links: ['https://github.com/amina'],
   openTo: ['co_founding'],
+  profileIndexable: false,
   publishHeadline: false,
   publishStage: false,
   publishAttendedCount: false,

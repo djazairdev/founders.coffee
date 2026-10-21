@@ -254,10 +254,11 @@ age, so a longer claim would shrink as they retire.
 members meeting strangers in DZ, EG, and SA. These boundaries change only through an explicit
 decision about member safety, never as a side effect of a growth or SEO ticket (#92):
 
-1. **Search engines only by choice.** Public means reachable with the link. `/u/$userId` keeps
-   `X-Robots-Tag: noindex` and `Cache-Control: private, no-store` unless its owner turns on _show my
-   profile in search engines_, which starts off (V17, `B-PRF-04`). Until that ships, every profile
-   is `noindex`.
+1. **Search engines only by choice.** Public means reachable with the link. `/u/$userId` answers
+   `X-Robots-Tag: noindex` unless its owner turns on _show my profile in search results_, which
+   starts off (V17, `B-PRF-04`); then it has a canonical, `ProfilePage` JSON-LD with the published
+   links, and a sitemap entry. It stays `Cache-Control: private, no-store` either way, so turning
+   the switch off takes effect on the next request.
 2. **No followers or following.** A follower graph publishes who knows whom, which cannot be
    withdrawn once seen, and ranks people by popularity.
 3. **No direct messages.** Messages from a cold profile are a harassment surface, so a profile

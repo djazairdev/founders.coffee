@@ -28,6 +28,7 @@ export const classifyPath = (path) => {
   if (segments[1] === 'host' && segments[2] === 'create') return 'utility';
   if (segments.length === 2) return 'market';
   if (segments[2] === 'e' && segments.length === 4) return 'event';
+  if (segments[1] === 'u' && segments.length === 3) return 'profile';
   if (segments.length === 3) return 'city';
   if (segments[2] === 'host' && segments.length === 4) return 'utility';
   if (segments.length === 4 && segments[3] === 'host') return 'utility';

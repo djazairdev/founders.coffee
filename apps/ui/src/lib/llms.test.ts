@@ -19,6 +19,7 @@ const data: SitemapData = {
       updatedAt: new Date('2026-09-13T08:00:00.000Z'),
     },
   ],
+  profiles: [{ userId: 'usr_listed' }],
 };
 
 describe('llms discovery guide', () => {

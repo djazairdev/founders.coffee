@@ -66,4 +66,5 @@ export type {
   SitemapData,
   SitemapEvent,
   SitemapMarket,
+  SitemapProfile,
 } from './sitemap.js';

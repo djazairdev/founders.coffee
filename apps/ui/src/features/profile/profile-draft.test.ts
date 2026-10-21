@@ -23,6 +23,7 @@ const saved: UserProfile = {
   skills: [],
   links: [],
   openTo: [],
+  indexable: false,
   visibility: {
     headline: false,
     stage: false,

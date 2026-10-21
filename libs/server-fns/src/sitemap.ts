@@ -1,8 +1,9 @@
 import { createServerFn } from '@tanstack/react-start';
 
-import { geo, markets } from '@founders-coffee/domain';
+import { geo, markets, profile } from '@founders-coffee/domain';
 import {
   listCitiesWithUpcomingEvents,
+  listIndexableProfiles,
   listPublicEventSitemapRows,
   listMarkets,
   type Market,
@@ -23,10 +24,15 @@ export type SitemapEvent = {
   readonly updatedAt: Date;
 };
 
+export type SitemapProfile = {
+  readonly userId: string;
+};
+
 export type SitemapData = {
   readonly markets: readonly SitemapMarket[];
   readonly cities: readonly SitemapCity[];
   readonly events: readonly SitemapEvent[];
+  readonly profiles: readonly SitemapProfile[];
 };
 
 /**
@@ -61,9 +67,10 @@ export const getSitemapData = createServerFn({ strict: false }).handler(
     const marketByCode = new Map(
       visibleMarkets.map((market) => [market.code, market]),
     );
-    const [eventRows, cityRows] = await Promise.all([
+    const [eventRows, cityRows, profileRows] = await Promise.all([
       listPublicEventSitemapRows(db),
       listCitiesWithUpcomingEvents(db),
+      listIndexableProfiles(db),
     ]);
     const events = eventRows.flatMap((row) => {
       const market = marketByCode.get(row.marketCode);
@@ -82,6 +89,9 @@ export const getSitemapData = createServerFn({ strict: false }).handler(
       markets: visibleMarkets.map(({ slug }) => ({ slug })),
       cities: citiesWithSomethingToShow(cityRows, marketByCode),
       events,
+      profiles: profileRows
+        .filter((row) => profile.safeProfileDisplayName(row.name, row.email))
+        .map(({ userId }) => ({ userId })),
     };
   },
 );

@@ -21,6 +21,7 @@ import type { ProfileDraft } from '../profile-draft';
 import { OptionalChip } from './OptionalChip';
 import { ProfileLinksFields, type LinkInputs } from './ProfileLinksFields';
 import { ProfileOpenToField } from './ProfileOpenToField';
+import { ProfileSearchField } from './ProfileSearchField';
 import { ProfileSkillsField } from './ProfileSkillsField';
 import { PublishToggle } from './PublishToggle';
 
@@ -151,6 +152,13 @@ export const ProfileDetailFields = ({
           }
         />
       </div>
+
+      <ProfileSearchField
+        locale={locale}
+        draft={draft}
+        isDisabled={isDisabled}
+        onChange={onChange}
+      />
     </div>
   );
 };

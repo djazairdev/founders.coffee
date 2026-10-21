@@ -1,0 +1,1 @@
+ALTER TABLE `member_profiles` ADD `profile_indexable` integer DEFAULT false NOT NULL;

@@ -42,6 +42,12 @@ export type CanonicalRoute =
       readonly query?: string;
     }
   | {
+      readonly type: 'profile';
+      readonly userId: string;
+      readonly locale?: Locale;
+      readonly query?: string;
+    }
+  | {
       readonly type: 'company';
       readonly path: string;
       readonly locale?: Locale;
@@ -53,6 +59,7 @@ const canonicalSegments = (route: CanonicalRoute): string[] => {
   if (route.type === 'market') return [...locale, route.market];
   if (route.type === 'city') return [...locale, route.market, route.city];
   if (route.type === 'event') return [...locale, route.market, 'e', route.slug];
+  if (route.type === 'profile') return [...locale, 'u', route.userId];
   return [...locale, ...route.path.split(/[?#]/u, 1)[0].split('/')];
 };
 

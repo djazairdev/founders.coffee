@@ -14,6 +14,7 @@ export const savedProfile: UserProfile = {
   skills: [],
   links: [],
   openTo: [],
+  indexable: false,
   visibility: {
     headline: false,
     stage: false,

@@ -25,6 +25,7 @@ export const draftFrom = (saved: UserProfile): ProfileDraft => ({
   skills: [...saved.skills],
   links: saved.links.map((link) => ({ ...link })),
   openTo: [...saved.openTo],
+  indexable: saved.indexable,
   visibility: { ...saved.visibility },
 });
 
@@ -73,6 +74,7 @@ export const isDraftDirty = (
   draft.skills.join() !== saved.skills.join() ||
   linksByKind(draft.links) !== linksByKind(saved.links) ||
   draft.openTo.join() !== saved.openTo.join() ||
+  draft.indexable !== saved.indexable ||
   draft.interests.join() !== saved.interests.join() ||
   draft.spokenLanguages.join() !== saved.spokenLanguages.join() ||
   (Object.keys(draft.visibility) as (keyof ProfileDraft['visibility'])[]).some(
@@ -105,6 +107,7 @@ export const commandFrom = (
     skills: draft.skills,
     links: draft.links,
     openTo: draft.openTo,
+    indexable: draft.indexable,
     visibility: draft.visibility,
   });
   if (parsed.success) return { ok: true, command: parsed.data };

@@ -30,6 +30,7 @@ export const publicMemberProfileSchema = z.strictObject({
   skills: profileSkillsSchema,
   links: profileLinksSchema,
   openTo: profileOpenToListSchema,
+  indexable: z.boolean(),
   hostedCount: z.number().int().nonnegative(),
   attendedCount: z.number().int().nonnegative().nullable(),
 });
@@ -60,6 +61,7 @@ export const projectPublicProfile = (
   skills: profile.visibility.skills ? [...profile.skills] : [],
   links: profile.visibility.links ? [...profile.links] : [],
   openTo: profile.visibility.openTo ? [...profile.openTo] : [],
+  indexable: profile.indexable,
   hostedCount: record.hosted,
   attendedCount: profile.visibility.attendedCount ? record.attended : null,
 });
