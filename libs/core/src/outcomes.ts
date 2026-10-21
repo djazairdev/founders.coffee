@@ -128,6 +128,8 @@ export const HACKATHON_ERROR_CODES = [
   'not_team_member',
   'not_team_captain',
   'captain_must_transfer',
+  'track_not_in_hackathon',
+  'ai_tools_required',
 ] as const;
 export type HackathonErrorCode = (typeof HACKATHON_ERROR_CODES)[number];
 export const hackathonErrorCodeSchema = z.enum(HACKATHON_ERROR_CODES);
