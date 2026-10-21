@@ -121,6 +121,13 @@ export const HACKATHON_ERROR_CODES = [
   'registration_closed',
   'attendance_mode_unavailable',
   'not_eligible',
+  'teams_locked',
+  'not_registered',
+  'already_in_team',
+  'team_full',
+  'not_team_member',
+  'not_team_captain',
+  'captain_must_transfer',
 ] as const;
 export type HackathonErrorCode = (typeof HACKATHON_ERROR_CODES)[number];
 export const hackathonErrorCodeSchema = z.enum(HACKATHON_ERROR_CODES);
