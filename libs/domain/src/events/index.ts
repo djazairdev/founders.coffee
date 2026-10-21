@@ -24,6 +24,7 @@ export {
   publicEventDiscoverySchema,
   type EventCreateInput,
   type EventUpdateInput,
+  type MemberEventKind,
   type PublicEventDiscovery,
 } from './schemas.js';
 export {

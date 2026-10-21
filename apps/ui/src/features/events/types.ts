@@ -1,4 +1,4 @@
-import type { profile } from '@founders-coffee/domain';
+import { events, type profile } from '@founders-coffee/domain';
 
 import type {
   EventFeedItem,
@@ -12,6 +12,8 @@ export type EventDetailView = EventWithAttendance;
 export type HostMapViewport = HostMapContext;
 export type VenueSelection = VenueCandidate;
 export type MeetupLanguage = profile.SpokenLanguage;
+export type HostEventKind = events.MemberEventKind;
+export const HOST_EVENT_KINDS = events.MEMBER_EVENT_KINDS;
 export type VenueArea = {
   readonly kind: 'city' | 'market';
   readonly name: string;

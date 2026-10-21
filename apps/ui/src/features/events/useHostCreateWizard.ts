@@ -65,6 +65,7 @@ export const useHostCreateWizard = ({
     setEndsAt,
     setTitle,
     setDescription,
+    setKind,
     setChosenLanguages,
   } = useHostCreateDraftState({
     locale,
@@ -169,7 +170,7 @@ export const useHostCreateWizard = ({
       longitude: venue.longitude,
       startsAt,
       endsAt,
-      kind: 'meetup',
+      kind: draft.kind,
     });
   };
 
@@ -243,6 +244,7 @@ export const useHostCreateWizard = ({
       setDescription(value);
       setFieldErrors((current) => ({ ...current, description: undefined }));
     },
+    setKind,
     setSchedule,
     setScheduleError,
     selectVenue,

@@ -23,6 +23,7 @@ export const MEMBER_EVENT_KINDS = [
   'workshop',
 ] as const satisfies readonly EventKind[];
 export const memberEventKindSchema = z.enum(MEMBER_EVENT_KINDS);
+export type MemberEventKind = z.infer<typeof memberEventKindSchema>;
 
 const MINUTE_MS = 60_000;
 

@@ -24,6 +24,7 @@ const draft: HostCreateDraft = {
   endsAt: new Date('2099-01-15T19:00:00Z').getTime(),
   title: 'Founder meetup',
   description: 'A complete founder meetup description.',
+  kind: 'workshop',
   chosenLanguages: ['ar', 'fr'],
 };
 
@@ -54,6 +55,7 @@ describe('host create draft', () => {
         savedAt: Date.now(),
         marketCode: 'DZ',
         ...draft,
+        kind: undefined,
         chosenLanguages: undefined,
         language: 'en',
       }),
@@ -61,7 +63,35 @@ describe('host create draft', () => {
     expect(
       readHostCreateDraft('DZ'),
       'a host half way through a meetup when this shipped would have lost it, title and all',
-    ).toEqual({ ...draft, chosenLanguages: null });
+    ).toEqual({ ...draft, kind: 'meetup', chosenLanguages: null });
+  });
+
+  it('restores a draft saved before the type could be chosen, as a meetup', () => {
+    window.sessionStorage.setItem(
+      'fc:event-draft:DZ',
+      JSON.stringify({
+        version: 5,
+        savedAt: Date.now(),
+        marketCode: 'DZ',
+        ...draft,
+        kind: undefined,
+      }),
+    );
+    expect(readHostCreateDraft('DZ')).toEqual({ ...draft, kind: 'meetup' });
+  });
+
+  it('drops a draft naming a type the wizard does not offer', () => {
+    window.sessionStorage.setItem(
+      'fc:event-draft:DZ',
+      JSON.stringify({
+        version: 6,
+        savedAt: Date.now(),
+        marketCode: 'DZ',
+        ...draft,
+        kind: 'hackathon',
+      }),
+    );
+    expect(readHostCreateDraft('DZ')).toBeNull();
   });
 
   it('drops a draft naming a language nobody can choose', () => {
@@ -130,6 +160,7 @@ describe('AR: a draft this module wrote is always readable', () => {
     endsAt: new Date('2099-01-15T19:00:00Z').getTime(),
     title: 'Protected meetup',
     description: 'A complete protected meetup for founders.',
+    kind: 'meetup' as const,
     chosenLanguages: null,
   };
 

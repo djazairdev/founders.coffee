@@ -25,6 +25,7 @@ const REPEAT_TEMPLATE: RepeatEventTemplate = {
   latitude: 36.7538,
   longitude: 3.0588,
   languages: ['ar'],
+  kind: 'meetup',
 };
 
 describe('HostCreatePage EC-07 state', () => {

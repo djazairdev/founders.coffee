@@ -58,6 +58,7 @@ describe('readRepeatEventTemplate', () => {
       latitude: null,
       longitude: null,
       languages: ['fr'],
+      kind: 'meetup',
     });
     expect(result.data).not.toHaveProperty('startsAt');
     expect(result.data).not.toHaveProperty('endsAt');
@@ -80,6 +81,37 @@ describe('readRepeatEventTemplate', () => {
     });
 
     expect(result.ok && result.data.languages).toEqual(['ar', 'ber']);
+  });
+
+  it('repeats a workshop as a workshop, and no hackathon through the meetup wizard', async () => {
+    const workshop = await pastEvent(db);
+    const hackathon = await pastEvent(db);
+    await db
+      .update(events)
+      .set({ kind: 'workshop' })
+      .where(eq(events.id, workshop))
+      .run();
+    await db
+      .update(events)
+      .set({ kind: 'hackathon' })
+      .where(eq(events.id, hackathon))
+      .run();
+    await close(db, workshop);
+    await close(db, hackathon);
+
+    const repeated = await readRepeatEventTemplate(db, {
+      eventId: workshop,
+      actorId: HOST_ID,
+    });
+    const refused = await readRepeatEventTemplate(db, {
+      eventId: hackathon,
+      actorId: HOST_ID,
+    });
+
+    expect(repeated.ok && repeated.data.kind).toBe('workshop');
+    expect(refused.ok).toBe(false);
+    if (!refused.ok)
+      expect(refused.error.code).toBe('repeat_event_not_eligible');
   });
 
   it('refuses a template for another host', async () => {
