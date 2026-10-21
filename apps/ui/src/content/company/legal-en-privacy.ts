@@ -67,7 +67,7 @@ export const privacyEnglish: CompanyPageContent = translatedPage(
       ...text(
         'For each login session we store your **IP address**, browser description, and session expiry. We also keep technical logs of requests to our server.',
         'The purpose is limited to three things: keeping you signed in, detecting unauthorised sign-in attempts and abuse, and diagnosing faults.',
-        'We also use a human-verification service when you sign in and when you join a city waitlist; it receives your IP address for that purpose only.',
+        'We also use a human-verification service when you sign in, when you join a city waitlist, and when you ask to be told when hackathon registration opens; it receives your IP address for that purpose only.',
         'Every page also runs a Cloudflare script that detects automated programs: it examines technical characteristics of your browser and sets a security cookie, as detailed in the [Cookie policy](/cookies).',
         'We measure platform use with aggregate server counters (number of requests, gatherings published, failure rates), which are not attributed to anyone.',
         'We also use **Cloudflare Web Analytics** to measure visits: every page loads a script that sends Cloudflare the page address, the address of the page you came from, and load-speed measurements, along with your IP address and a description of your browser and device, as with any connection. We only see aggregate figures from it; it sets no cookie and does not recognise you from one visit to the next. **We do not use advertising trackers, and we do not sell data to anyone.**',
@@ -90,12 +90,17 @@ export const privacyEnglish: CompanyPageContent = translatedPage(
         'If you search for a city that has no upcoming gatherings, you can leave your email so we can tell you when its next gathering is published. We store the email, city, language, and request date, and do not require an account.',
         'This email is used for that purpose only: one notice when the city’s next gathering is published. It is not added to a marketing list or used for anything you did not ask for.',
       ),
+      subheading('Hackathon registration alert'),
+      ...text(
+        'If you ask to be told when registration opens for the first founders.coffee hackathon, we store your email, the country page you asked from, your language, and the request date. You do not need an account.',
+        'This email is used for that purpose only: one message when registration opens. It is not added to a marketing list or used for anything you did not ask for.',
+      ),
     ]),
     section('Legal basis for processing', [
       ...text('Each processing activity relies on a basis the law recognises:'),
       list([
         '**Performance of our contract:** your account, your public profile (your name, your photo and introduction if you add them, the month you joined, and the number of gatherings you hosted), publishing gatherings, RSVPs, the gathering chat, and reminders and alerts about a gathering you joined. These are not extra services but the core of what you signed up for.',
-        '**Your explicit consent:** publishing the optional profile fields that each have a visibility switch, enabling push or SMS notifications, and joining a city waitlist. You can withdraw consent at any time; withdrawal does not affect the lawfulness of what was done before.',
+        '**Your explicit consent:** publishing the optional profile fields that each have a visibility switch, enabling push or SMS notifications, joining a city waitlist, and asking to be told when hackathon registration opens. You can withdraw consent at any time; withdrawal does not affect the lawfulness of what was done before.',
         '**Legitimate interest:** platform security, abuse prevention and the review of reports, measuring platform use with aggregate figures not attributed to anyone, and attendance records as a way to protect the community from fake gatherings. We have balanced this interest against your rights, which is why we do not show attendance records publicly and let you correct them.',
         '**Legal obligation:** when a law requires us to retain or provide data.',
       ]),
@@ -161,6 +166,10 @@ export const privacyEnglish: CompanyPageContent = translatedPage(
           [
             'City waitlist email',
             'Until the notice is sent, then **12 months**, or immediately on request',
+          ],
+          [
+            'Hackathon registration alert email',
+            'Until registration opens and the message is sent, then **12 months**, or immediately on request',
           ],
           [
             'Messages and moderation reports',
@@ -234,5 +243,5 @@ export const privacyEnglish: CompanyPageContent = translatedPage(
       ),
     ),
   ],
-  '12 October 2026',
+  '21 October 2026',
 );
