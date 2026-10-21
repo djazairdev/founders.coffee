@@ -75,6 +75,7 @@ export const meetup = (
   goingCount: 2,
   hostName: 'Host Name',
   hostPhotoAssetId: null,
+  runBy: { kind: 'community' },
   ...overrides,
   languages: overrides.languages ?? [overrides.language ?? 'en'],
 });

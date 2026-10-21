@@ -57,6 +57,7 @@ const event = {
   stateNameAr: 'الجزائر',
   stateNameFr: 'Alger',
   meetingLink: null,
+  runBy: { kind: 'community' },
 } satisfies EventDetailItem;
 
 const ACROSS_TOWN: VenueSelection = {

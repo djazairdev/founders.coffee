@@ -53,3 +53,8 @@ export {
   type EventFormatFields,
   type EventFormatIssue,
 } from './format.js';
+export {
+  eventRunBy,
+  type EventOrganiserSummary,
+  type EventRunBy,
+} from './run-by.js';

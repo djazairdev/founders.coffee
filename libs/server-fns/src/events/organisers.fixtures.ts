@@ -4,6 +4,7 @@ import {
   organization,
   user,
   type Db,
+  type Organization,
 } from '@founders-coffee/db';
 
 /** A member account with this id, made once however often it is asked for. */
@@ -20,8 +21,13 @@ export const signUp = (db: Db, id: string) =>
     .onConflictDoNothing()
     .run();
 
-/** An approved organisation in Algeria with this member in it. */
-export const organisation = async (db: Db, id: string, memberId: string) => {
+/** An approved organisation in Algeria with this member in it, unless told otherwise. */
+export const organisation = async (
+  db: Db,
+  id: string,
+  memberId: string,
+  overrides: Partial<Pick<Organization, 'name' | 'kind' | 'status'>> = {},
+) => {
   await db
     .insert(organization)
     .values({
@@ -32,6 +38,7 @@ export const organisation = async (db: Db, id: string, memberId: string) => {
       status: 'approved',
       marketCode: 'DZ',
       description: 'Weekly coding evenings for students in Algiers.',
+      ...overrides,
     })
     .onConflictDoNothing();
   await db
@@ -45,9 +52,10 @@ export const organisation = async (db: Db, id: string, memberId: string) => {
     .onConflictDoNothing();
 };
 
-/** Name the organisation as a co-host of the event. */
-export const coOrganise = (db: Db, eventId: string, organisationId: string) =>
-  db
-    .insert(eventOrganisers)
-    .values({ eventId, organisationId, role: 'co_host' })
-    .run();
+/** Name the organisation as an organiser of the event, a co-host unless told otherwise. */
+export const coOrganise = (
+  db: Db,
+  eventId: string,
+  organisationId: string,
+  role: 'lead' | 'co_host' = 'co_host',
+) => db.insert(eventOrganisers).values({ eventId, organisationId, role }).run();

@@ -47,4 +47,5 @@ export const event: EventFeedItem = {
   goingCount: 0,
   hostName: null,
   hostPhotoAssetId: null,
+  runBy: { kind: 'community' },
 };

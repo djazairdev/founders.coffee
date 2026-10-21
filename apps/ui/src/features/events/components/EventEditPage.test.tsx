@@ -100,6 +100,7 @@ const base = {
   stateNameAr: 'الجزائر',
   stateNameFr: 'Alger',
   meetingLink: null,
+  runBy: { kind: 'community' },
 } satisfies EventDetailItem;
 
 const show = (event: EventDetailItem) => {

@@ -1,3 +1,4 @@
+import type { EventRunBy } from '@founders-coffee/domain';
 import type { Db } from '@founders-coffee/db';
 import { getRsvpsForEvents } from '@founders-coffee/db';
 
@@ -12,6 +13,7 @@ export type EventWithAttendance = PublicEvent & EventAttendance;
 
 export type EventDetailItem = EventWithAttendance & {
   readonly meetingLink: string | null;
+  readonly runBy: EventRunBy;
   readonly cityName: string;
   readonly cityNameAr: string;
   readonly cityNameFr: string;

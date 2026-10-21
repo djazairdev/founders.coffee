@@ -16,7 +16,9 @@ import type { EventFeedItem } from '@founders-coffee/server-fns';
 import { eventCityName } from '../../features/events/event-city-name';
 import { localizedEvent } from '../../lib/locale-routing';
 import { AvatarGroup } from './AvatarGroup';
+import { EventCoHosts } from './EventCoHosts';
 import { EventKindBadge } from './EventKindBadge';
+import { EventRunByBadge } from './EventRunByBadge';
 import { HostFace } from './HostFace';
 
 type EventCardProps = {
@@ -77,7 +79,10 @@ export const EventCard = ({
 
         <span className="flex min-w-0 flex-1 flex-col gap-1">
           <header className="flex flex-col items-start gap-1">
-            <EventKindBadge kind={event.kind} locale={locale} />
+            <span className="flex flex-wrap items-center gap-1.5">
+              <EventKindBadge kind={event.kind} locale={locale} />
+              <EventRunByBadge runBy={event.runBy} locale={locale} />
+            </span>
             <h3
               dir="auto"
               className="font-display text-body font-semibold leading-snug"
@@ -85,6 +90,7 @@ export const EventCard = ({
               {event.title}
             </h3>
           </header>
+          <EventCoHosts runBy={event.runBy} locale={locale} />
           {event.description?.trim() ? (
             <p dir="auto" className="line-clamp-1 text-body-sm text-neutral">
               {event.description}

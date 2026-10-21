@@ -86,6 +86,7 @@ const event = {
   stateNameAr: 'الجزائر',
   stateNameFr: 'Alger',
   meetingLink: null,
+  runBy: { kind: 'community' },
 } satisfies EventDetailItem;
 
 const show = (locale: Locale = 'en', item: EventDetailItem = event) =>

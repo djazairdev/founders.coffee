@@ -1,7 +1,7 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, sql, type SQL } from 'drizzle-orm';
 
 import type { Db } from './db.js';
-import { eventOrganisers, events, member } from './schema.js';
+import { eventOrganisers, events, member, organization } from './schema.js';
 
 /**
  * Name an organisation as the lead of an event, selected from the event's own row, so it is written
@@ -48,4 +48,42 @@ export const isEventOrganiser = async (
     )
     .limit(1);
   return row !== undefined;
+};
+
+/**
+ * The approved organisations that organise the events matching `which`, each with its kind and
+ * role, ordered by event and then by name. A pending, rejected or suspended organisation is left
+ * out, so an event is never shown as run by one the platform does not stand behind.
+ */
+const eventOrganisationsWhere = (db: Db, which: SQL) =>
+  db
+    .select({
+      eventId: eventOrganisers.eventId,
+      name: organization.name,
+      kind: organization.kind,
+      role: eventOrganisers.role,
+    })
+    .from(eventOrganisers)
+    .innerJoin(
+      organization,
+      eq(organization.id, eventOrganisers.organisationId),
+    )
+    .where(and(which, eq(organization.status, 'approved')))
+    .orderBy(asc(eventOrganisers.eventId), asc(organization.name));
+
+/**
+ * The organisations of one event, named by an id or by a subquery that yields one, so that a page
+ * can read them in the same batch as the event itself (B-EVT-19).
+ */
+export const eventOrganisationsQuery = (db: Db, eventId: SQL | string) =>
+  eventOrganisationsWhere(db, eq(eventOrganisers.eventId, eventId));
+
+/** The organisations of each of these events, in one read; an empty list reads nothing. */
+export const listEventOrganisations = async (
+  db: Db,
+  eventIds: readonly string[],
+) => {
+  const ids = [...new Set(eventIds)];
+  if (ids.length === 0) return [];
+  return eventOrganisationsWhere(db, inArray(eventOrganisers.eventId, ids));
 };
