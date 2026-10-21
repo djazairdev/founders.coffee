@@ -40,6 +40,7 @@ export * from './operations-feedback.js';
 export * from './operations-feedback-tally.js';
 export * from './operations-errors.js';
 export * from './operations-flag.js';
+export * from './market-flags.js';
 export * from './operations-retention.js';
 export * from './operations-trust.js';
 export * from './notification-failure.js';
