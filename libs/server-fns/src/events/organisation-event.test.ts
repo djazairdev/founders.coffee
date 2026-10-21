@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   eq,
   eventOrganisers,
+  events,
   organization,
   type Db,
 } from '@founders-coffee/db';
@@ -34,7 +35,11 @@ const organisersOf = (db: Db, eventId: string) =>
     .from(eventOrganisers)
     .where(eq(eventOrganisers.eventId, eventId));
 
-const approvedOrganisation = async (db: Db, organisationId: string) => {
+const approvedOrganisation = async (
+  db: Db,
+  organisationId: string,
+  marketCode = 'DZ',
+) => {
   await db
     .insert(organization)
     .values({
@@ -43,7 +48,7 @@ const approvedOrganisation = async (db: Db, organisationId: string) => {
       slug: organisationId,
       kind: 'club',
       status: 'approved',
-      marketCode: 'DZ',
+      marketCode,
       description: 'Weekly coding evenings for students in Algiers.',
     })
     .onConflictDoNothing();
@@ -94,6 +99,32 @@ describe('creating an event as an organisation (B-EVT-17, real D1)', () => {
       EVENTS_CREATED_METRIC,
       expect.objectContaining({ market: 'DZ', locale: 'fr' }),
     );
+  });
+
+  it('refuses an organisation from another market, and writes nothing', async () => {
+    const db = await setupDb();
+    await approvedOrganisation(db, 'org_cairo', 'EG');
+    const before = await db.select({ id: events.id }).from(events);
+
+    const result = await createEventWithTelemetry(
+      db,
+      testMapProvider,
+      null,
+      TEST_HOST_ID,
+      createInput({ title: 'Cairo club in Algiers' }),
+      undefined,
+      'org_cairo',
+    );
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe('forbidden');
+    expect(await db.select({ id: events.id }).from(events)).toEqual(before);
+    expect(
+      await db
+        .select()
+        .from(eventOrganisers)
+        .where(eq(eventOrganisers.organisationId, 'org_cairo')),
+    ).toEqual([]);
   });
 
   it('creates a community event, with no organiser, when none is named', async () => {
