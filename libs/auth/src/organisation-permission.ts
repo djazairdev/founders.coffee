@@ -21,6 +21,10 @@ type OrganisationRequest<R extends OrganisationResource> = {
   action: OrganisationAction<R>;
 };
 
+/** Whether Better Auth refused a request, as opposed to failing on its own (a 4xx `APIError`). */
+export const isAuthRefusal = (error: unknown): boolean =>
+  isAPIError(error) && error.statusCode < 500;
+
 const hasOrganisationPermission = async <R extends OrganisationResource>(
   request: OrganisationRequest<R>,
 ): Promise<boolean> => {
@@ -34,7 +38,7 @@ const hasOrganisationPermission = async <R extends OrganisationResource>(
     });
     return success;
   } catch (error) {
-    if (isAPIError(error) && error.statusCode < 500) return false;
+    if (isAuthRefusal(error)) return false;
     throw error;
   }
 };

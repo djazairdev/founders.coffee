@@ -2,6 +2,21 @@ import { organization } from 'better-auth/plugins';
 
 import { organisationAc, organisationRoles } from './organisation-access.js';
 
+export const INVITATION_LIFETIME_SECONDS = 7 * 24 * 60 * 60;
+
+export type OrganisationInvitationMail = {
+  readonly invitationId: string;
+  readonly email: string;
+  readonly role: string;
+  readonly organisationId: string;
+  readonly inviterName: string;
+  readonly expiresAt: Date;
+};
+
+export type OrganisationInvitationSender = (
+  invitation: OrganisationInvitationMail,
+) => Promise<void>;
+
 /**
  * Better Auth's organisation plugin, configured for organisers (B-ORG-01).
  *
@@ -10,12 +25,33 @@ import { organisationAc, organisationRoles } from './organisation-access.js';
  * the organiser's members. Our fields sit on the organisation row; `status` cannot be sent by a
  * caller, so every organisation starts `pending` until an operator approves it. Roles carry our
  * organising grants (B-ORG-02) beside Better Auth's own.
+ *
+ * An invitation lasts seven days, and only a member whose address is verified may accept or decline
+ * one (B-ORG-05). Better Auth makes no link and sends nothing itself: `sendInvitationEmail` is the
+ * caller's, given only what the email needs, and without it nothing is sent.
  */
-export const organisationPlugin = () =>
+export const organisationPlugin = (
+  sendInvitationEmail?: OrganisationInvitationSender,
+) =>
   organization({
     teams: { enabled: false },
     ac: organisationAc,
     roles: organisationRoles,
+    invitationExpiresIn: INVITATION_LIFETIME_SECONDS,
+    requireEmailVerificationOnInvitation: true,
+    ...(sendInvitationEmail
+      ? {
+          sendInvitationEmail: (data) =>
+            sendInvitationEmail({
+              invitationId: data.id,
+              email: data.email,
+              role: data.role,
+              organisationId: data.organization.id,
+              inviterName: data.inviter.user.name,
+              expiresAt: data.invitation.expiresAt,
+            }),
+        }
+      : {}),
     schema: {
       organization: {
         additionalFields: {
