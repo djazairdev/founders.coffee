@@ -66,3 +66,7 @@ export const requireEventCreateWafRule = createMiddleware({
 export const requireWaitlistTurnstile = requireTurnstile(
   TURNSTILE_ACTIONS.joinWaitlist,
 );
+
+export const requireHackathonInterestTurnstile = requireTurnstile(
+  TURNSTILE_ACTIONS.joinHackathonInterest,
+);

@@ -544,6 +544,41 @@ export type CityWaitlistRow = typeof cityWaitlist.$inferSelect;
 export type NewCityWaitlist = typeof cityWaitlist.$inferInsert;
 
 /**
+ * An address asking to hear when the first hackathon's registration opens in a market (B-ANN-01).
+ *
+ * One row per address and market, like the city waitlist, and kept the same way: until the notice
+ * goes out, then twelve months, so the partial index on `notified_at` is the one the daily
+ * retention sweep reads through. No account is needed and none is linked; account closure deletes
+ * the rows by address.
+ */
+export const hackathonInterest = sqliteTable(
+  'hackathon_interest',
+  {
+    id: text('id').primaryKey(),
+    email: text('email').notNull(),
+    marketCode: text('market_code')
+      .notNull()
+      .references(() => markets.code),
+    locale: text('locale', { enum: [...LOCALES] }).notNull(),
+    notifiedAt: integer('notified_at', { mode: 'timestamp' }),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    uniqueIndex('hackathon_interest_email_market_unique').on(
+      t.email,
+      t.marketCode,
+    ),
+    index('hackathon_interest_notified_index')
+      .on(t.notifiedAt)
+      .where(sql`notified_at IS NOT NULL`),
+  ],
+);
+
+export type HackathonInterestRow = typeof hackathonInterest.$inferSelect;
+
+/**
  * One notice round: a published meetup telling its city's waitlist that it is coming up (#107).
  *
  * Written with the meetup, and only while somebody in that market and city is still waiting, so a

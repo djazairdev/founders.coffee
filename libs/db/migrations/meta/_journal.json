@@ -330,6 +330,13 @@
       "when": 1792583080244,
       "tag": "0046_event_kind",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "6",
+      "when": 1792583706869,
+      "tag": "0047_hackathon_interest",
+      "breakpoints": true
     }
   ]
 }

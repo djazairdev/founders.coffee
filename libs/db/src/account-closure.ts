@@ -20,6 +20,7 @@ import {
   chatMembers,
   chatMessages,
   cityWaitlist,
+  hackathonInterest,
   eventFeedback,
   eventRsvps,
   events,
@@ -194,6 +195,9 @@ export const eraseClosedAccount = async (
     db
       .delete(cityWaitlist)
       .where(and(eq(cityWaitlist.email, closing.email), stillClosing)),
+    db
+      .delete(hackathonInterest)
+      .where(and(eq(hackathonInterest.email, closing.email), stillClosing)),
     db
       .update(user)
       .set({

@@ -26,6 +26,7 @@ import { processNotificationDue } from './jobs/notifications.js';
 import { sweepProfileAssets } from './jobs/profile-asset-sweep.js';
 import { backfillCloseoutPrompts } from './jobs/closeout-prompt-backfill.js';
 import { sweepChatRetention } from './jobs/chat-retention.js';
+import { sweepExpiredHackathonInterest } from './jobs/hackathon-interest-retention.js';
 import { backfillDidNotHappenNotices } from './jobs/did-not-happen-backfill.js';
 import { runReconcile } from './jobs/reconcile.js';
 import { sweepNotifications } from './jobs/notification-sweep.js';
@@ -166,6 +167,7 @@ export default {
           await sweepClosingAccounts(db, photos);
         }
         await sweepExpiredWaitlistEntries(db);
+        await sweepExpiredHackathonInterest(db);
         await sweepChatRetention(db);
       }
     },
