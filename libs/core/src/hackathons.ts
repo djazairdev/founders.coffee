@@ -30,3 +30,12 @@ export const HACKATHON_AI_POLICIES = [
 ] as const;
 export type HackathonAiPolicy = (typeof HACKATHON_AI_POLICIES)[number];
 export const hackathonAiPolicySchema = z.enum(HACKATHON_AI_POLICIES);
+
+export const HACKATHON_REVIEW_STATUSES = [
+  'draft',
+  'submitted',
+  'approved',
+  'rejected',
+] as const;
+export type HackathonReviewStatus = (typeof HACKATHON_REVIEW_STATUSES)[number];
+export const hackathonReviewStatusSchema = z.enum(HACKATHON_REVIEW_STATUSES);
