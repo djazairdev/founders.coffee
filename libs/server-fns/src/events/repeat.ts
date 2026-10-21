@@ -2,6 +2,7 @@ import {
   AppError,
   err,
   eventLanguages,
+  hasVenue,
   ok,
   type Result,
 } from '@founders-coffee/core';
@@ -58,6 +59,7 @@ export const readRepeatEventTemplate = async (
     );
   }
   if (
+    !hasVenue(event) ||
     event.status === 'cancelled' ||
     event.endsAt === null ||
     event.endsAt.getTime() > Date.now()

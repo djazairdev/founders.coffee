@@ -119,6 +119,26 @@ describe('event page metadata', () => {
     );
   });
 
+  it('names only the city of a meetup that has no venue, cancelled or not', () => {
+    const venueless = { ...SEARCH_EVENT.structuredEvent, venue: null };
+
+    expect(
+      content(searchHead({ structuredEvent: venueless }), 'description'),
+    ).toBe(
+      'Le dimanche 20 septembre à 11:00 · Alger. Rencontre Founders Coffee gratuite.',
+    );
+    expect(
+      content(
+        searchHead({
+          structuredEvent: { ...venueless, status: 'cancelled' },
+        }),
+        'description',
+      ),
+    ).toBe(
+      'Annulée. Elle était prévue le dimanche 20 septembre à 11:00 · Alger.',
+    );
+  });
+
   it('says the date in the market timezone, in the language of the page', () => {
     expect(
       content(searchHead({ locale: 'en', cityName: 'Algiers' }), 'description'),

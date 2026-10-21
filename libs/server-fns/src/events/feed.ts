@@ -2,8 +2,9 @@ import { geo, profile } from '@founders-coffee/domain';
 import type { Event, PublicEventHost } from '@founders-coffee/db';
 
 import type { EventAttendance } from './attendance.js';
+import { publicEvent, type PublicEvent } from './public-event.js';
 
-export type EventFeedItemBase = Event & {
+export type EventFeedItemBase = PublicEvent & {
   readonly cityName: string;
   readonly cityNameAr: string;
   readonly cityNameFr: string;
@@ -22,7 +23,7 @@ export const attachCityNames = (
     const city = geo.findCity(event.marketCode, event.cityCode);
     const host = hosts.get(event.hostId);
     return {
-      ...event,
+      ...publicEvent(event),
       cityName: city?.name ?? event.cityCode,
       cityNameAr: city?.nameAr ?? city?.name ?? event.cityCode,
       cityNameFr: city?.nameFr ?? city?.name ?? event.cityCode,

@@ -43,6 +43,7 @@ const EVENT_COLUMNS = [
   'createdAt',
   'description',
   'endsAt',
+  'format',
   'hostId',
   'id',
   'kind',
@@ -51,6 +52,7 @@ const EVENT_COLUMNS = [
   'latitude',
   'longitude',
   'marketCode',
+  'meetingUrl',
   'rsvps',
   'slug',
   'startsAt',
@@ -64,7 +66,7 @@ const EVENT_COLUMNS = [
 ] as const;
 
 const PUBLIC_EVENT_FIELDS = [
-  ...EVENT_COLUMNS,
+  ...EVENT_COLUMNS.filter((column) => column !== 'meetingUrl'),
   'cityName',
   'cityNameAr',
   'cityNameFr',

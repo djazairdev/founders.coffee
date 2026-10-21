@@ -57,3 +57,8 @@ export const hasVenueMoved = (
   );
   return distance >= VENUE_MOVE_MIN_METRES;
 };
+
+/** Whether an event names a place to meet. An online event has none, so nothing may name one. */
+export const hasVenue = <T extends { readonly venue: string | null }>(
+  event: T,
+): event is T & { readonly venue: string } => event.venue !== null;

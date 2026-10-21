@@ -5,7 +5,7 @@ export type CalendarEvent = {
   readonly title: string;
   readonly description: string;
   readonly language: Locale;
-  readonly venue: string;
+  readonly venue: string | null;
   readonly venueAddress: string | null;
   readonly latitude: number | null;
   readonly longitude: number | null;
@@ -75,8 +75,12 @@ const fold = (line: string): string => {
   return [...parts, current].join('\r\n ');
 };
 
-const locationOf = (event: CalendarEvent): string =>
-  event.venueAddress ? `${event.venue}, ${event.venueAddress}` : event.venue;
+const locationOf = (event: CalendarEvent): string | null => {
+  if (event.venue === null) return null;
+  return event.venueAddress
+    ? `${event.venue}, ${event.venueAddress}`
+    : event.venue;
+};
 
 const detailsOf = (description: string, url: string): string =>
   `${description}\n\n${url}`;
@@ -105,6 +109,7 @@ export const icsFor = (event: CalendarEvent): string => {
   const text = (name: string, value: string): string =>
     `${name};LANGUAGE=${event.language}:${escapeText(value)}`;
   const { latitude, longitude } = event;
+  const location = locationOf(event);
   const point =
     latitude !== null && longitude !== null
       ? [`GEO:${latitude.toFixed(6)};${longitude.toFixed(6)}`]
@@ -125,7 +130,7 @@ export const icsFor = (event: CalendarEvent): string => {
     'STATUS:CONFIRMED',
     text('SUMMARY', event.title),
     text('DESCRIPTION', detailsOf(event.description, event.url)),
-    `LOCATION:${escapeText(locationOf(event))}`,
+    ...(location === null ? [] : [`LOCATION:${escapeText(location)}`]),
     ...point,
     `URL:${event.url}`,
     'BEGIN:VALARM',
@@ -150,6 +155,7 @@ export const icsFor = (event: CalendarEvent): string => {
  */
 export const googleCalendarUrlFor = (event: CalendarEvent): string => {
   const dates = `${utcStamp(event.startsAt)}/${utcStamp(event.endsAt ?? event.startsAt)}`;
+  const location = locationOf(event);
   const params: ReadonlyArray<readonly [string, string]> = [
     ['action', 'TEMPLATE'],
     ['text', event.title],
@@ -160,7 +166,7 @@ export const googleCalendarUrlFor = (event: CalendarEvent): string => {
         event.url,
       ),
     ],
-    ['location', locationOf(event)],
+    ...(location === null ? [] : [['location', location] as const]),
     ['ctz', event.timezone],
   ];
   const query = params

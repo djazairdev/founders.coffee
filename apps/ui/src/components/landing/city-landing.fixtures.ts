@@ -61,6 +61,7 @@ export const meetup = (
   venueAddress: null,
   status: 'published',
   kind: 'meetup',
+  format: 'in_person',
   version: 1,
   createdAt: new Date(0),
   updatedAt: new Date(0),

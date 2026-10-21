@@ -37,7 +37,7 @@ export type EventLocationPatch = {
  * built from an unmoved pin is discarded before it reaches the wire.
  */
 export const storedPin = (event: EventDetailItem): VenueSelection | null =>
-  event.latitude !== null && event.longitude !== null
+  event.venue !== null && event.latitude !== null && event.longitude !== null
     ? {
         providerId: `event:${event.id}`,
         kind: 'address',
@@ -58,7 +58,7 @@ const storedLanguages = (event: EventDetailItem): MeetupLanguage[] => {
 export const draftFromEvent = (event: EventDetailItem): EventEditDraft => ({
   title: event.title,
   description: event.description,
-  venueName: event.venue,
+  venueName: event.venue ?? '',
   venue: storedPin(event),
   venueSearch: '',
   startsAt: new Date(event.startsAt).getTime(),

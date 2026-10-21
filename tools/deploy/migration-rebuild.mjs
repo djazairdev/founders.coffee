@@ -15,6 +15,12 @@ const rebuildDropPattern = /^DROP\s+TABLE\s+`?([A-Za-z0-9_]+)`?\s*;?$/iu;
 const rebuildRenamePattern =
   /^ALTER\s+TABLE\s+`?__new_([A-Za-z0-9_]+)`?\s+RENAME\s+TO\s+`?\1`?/iu;
 const rebuildSteps = ['created', 'copied', 'dropped', 'renamed'];
+const createPattern = /^CREATE\s+TABLE\s+`?([A-Za-z0-9_]+)`?/iu;
+const snapshotPattern =
+  /^CREATE\s+TABLE\s+`?([A-Za-z0-9_]+)`?\s+AS\s+SELECT\s+\*\s+FROM\s+`?([A-Za-z0-9_]+)`?\s*;?$/iu;
+const restorePattern =
+  /^INSERT\s+INTO\s+`?([A-Za-z0-9_]+)`?\s+SELECT\s+\*\s+FROM\s+`?([A-Za-z0-9_]+)`?\s*;?$/iu;
+const rowChangingActions = new Set(['cascade', 'set null', 'set default']);
 
 export const findIrreversibleStatements = (sql) =>
   irreversiblePatterns
@@ -98,27 +104,112 @@ const preservesColumns = ({ before, after, table }) => {
   });
 };
 
+/*
+ * Dropping a table runs an implicit DELETE first, and that DELETE fires the ON DELETE
+ * actions of every table referencing it, deferred foreign keys or not. These are the
+ * tables a rebuild of `table` would empty or rewrite, followed transitively.
+ */
+export const cascadeClosure = ({ before, table }) => {
+  const tables = Object.values(before.tables ?? {});
+  const reached = new Set();
+  const queue = [table];
+  while (queue.length > 0) {
+    const parent = queue.shift();
+    for (const child of tables) {
+      const changed = Object.values(child.foreignKeys ?? {}).some(
+        (key) =>
+          key.tableTo === parent &&
+          rowChangingActions.has(String(key.onDelete).toLowerCase()),
+      );
+      if (changed && !reached.has(child.name) && child.name !== table) {
+        reached.add(child.name);
+        queue.push(child.name);
+      }
+    }
+  }
+  return [...reached];
+};
+
+/*
+ * A table this migration creates holds nothing that existed before it, so dropping it
+ * loses nothing - unless it is a `CREATE TABLE copy AS SELECT * FROM X` snapshot, which
+ * must have been put back into X first. Returns where each snapshot was taken and
+ * restored, and which drops of scratch tables are explained.
+ */
+const readScratchTables = (statements) => {
+  const created = new Map();
+  const snapshots = new Map();
+  const explainedDrops = new Set();
+  statements.forEach((statement, index) => {
+    const snapshot = snapshotPattern.exec(statement);
+    if (snapshot) {
+      snapshots.set(snapshot[1], { source: snapshot[2], takenAt: index });
+    }
+    const create = createPattern.exec(statement);
+    if (create && !created.has(create[1])) created.set(create[1], index);
+    const restore = restorePattern.exec(statement);
+    const restored = restore && snapshots.get(restore[2]);
+    if (restored && restored.source === restore[1]) {
+      restored.restoredAt ??= index;
+    }
+    const dropped = rebuildDropPattern.exec(statement);
+    if (!dropped || !created.has(dropped[1])) return;
+    const copy = snapshots.get(dropped[1]);
+    if (!copy || copy.restoredAt !== undefined) explainedDrops.add(index);
+  });
+  return { snapshots, explainedDrops };
+};
+
+const keepsRowsAround = ({ statements, snapshots, before, table }) => {
+  const dropAt = statements.findIndex(
+    (statement) => rebuildDropPattern.exec(statement)?.[1] === table,
+  );
+  const renameAt = statements.findIndex(
+    (statement) => rebuildRenamePattern.exec(statement)?.[1] === table,
+  );
+  return cascadeClosure({ before, table }).every((child) =>
+    [...snapshots.values()].some(
+      (copy) =>
+        copy.source === child &&
+        copy.takenAt < dropAt &&
+        copy.restoredAt !== undefined &&
+        copy.restoredAt > renameAt,
+    ),
+  );
+};
+
 export const findIncompatibleStatements = ({
   sql,
   migration,
   migrationsDirectory,
 }) => {
   const change = loadSchemaChange({ migration, migrationsDirectory });
+  const statements = parseStatements(sql);
+  const { snapshots, explainedDrops } = readScratchTables(statements);
   const preserved = new Set(
     change
-      ? parseTableRebuilds(sql).filter((table) =>
-          preservesColumns({ ...change, table }),
+      ? parseTableRebuilds(sql).filter(
+          (table) =>
+            preservesColumns({ ...change, table }) &&
+            keepsRowsAround({
+              statements,
+              snapshots,
+              before: change.before,
+              table,
+            }),
         )
       : [],
   );
-  const explained = (statement) => {
+  const explained = (statement, index) => {
+    if (explainedDrops.has(index)) return true;
     const dropped = rebuildDropPattern.exec(statement);
     if (dropped && preserved.has(dropped[1])) return true;
     const renamed = rebuildRenamePattern.exec(statement);
     return Boolean(renamed && preserved.has(renamed[1]));
   };
-  return parseStatements(sql).filter(
-    (statement) =>
-      findIrreversibleStatements(statement).length > 0 && !explained(statement),
+  return statements.filter(
+    (statement, index) =>
+      findIrreversibleStatements(statement).length > 0 &&
+      !explained(statement, index),
   );
 };

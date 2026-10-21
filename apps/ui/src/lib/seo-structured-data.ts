@@ -16,7 +16,7 @@ export type StructuredEventData = {
   readonly createdAt: Date;
   readonly timezone: string;
   readonly status: EventStatus;
-  readonly venue: string;
+  readonly venue: string | null;
   readonly cityName: string;
   readonly regionName: string | null;
   readonly venueAddress: string | null;
@@ -92,7 +92,7 @@ export const eventJsonLd = (
     zonedIsoString(date.getTime(), event.timezone);
   const location: JsonLdObject = {
     '@type': 'Place',
-    name: event.venue,
+    ...(event.venue === null ? {} : { name: event.venue }),
     address: {
       '@type': 'PostalAddress',
       ...(event.venueAddress ? { streetAddress: event.venueAddress } : {}),

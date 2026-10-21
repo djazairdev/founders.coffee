@@ -87,4 +87,14 @@ describe('the Where block', () => {
       ]);
     },
   );
+
+  it.each(['ar', 'fr', 'en'] as const)(
+    'names only the city, with no empty venue line, where the event has no venue, on the %s page',
+    (locale) => {
+      show({ ...event, venue: null, venueAddress: null }, locale);
+      const rows = rowsUnder(WHERE[locale]);
+
+      expect(rows.map((row) => row.textContent)).toEqual([CITY[locale]]);
+    },
+  );
 });

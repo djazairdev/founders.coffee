@@ -1,4 +1,4 @@
-import { hasVenueMoved } from '@founders-coffee/core';
+import { hasVenue, hasVenueMoved } from '@founders-coffee/core';
 import {
   cancelNotificationsByTemplate,
   listGoingAttendees,
@@ -89,6 +89,7 @@ const rearmReminders = async (db: Db, event: Event): Promise<void> => {
     eventId: event.id,
     templateKeys: [...REARMED_TEMPLATES],
   });
+  if (!hasVenue(event)) return;
   for (const attendee of await listGoingAttendees(db, event.id)) {
     await enqueueRsvpNotifications(db, {
       eventId: event.id,
@@ -114,6 +115,7 @@ const announceToChat = async (
   db: Db,
   opts: { after: Event; notice: EventChangeTemplateKey | null },
 ): Promise<void> => {
+  if (!hasVenue(opts.after)) return;
   if (opts.notice === 'event_rescheduled')
     await postChatNotice(db, opts.after.id, rescheduledNotice(opts.after));
   else if (opts.notice === 'event_relocated')
@@ -149,7 +151,7 @@ export const announceUpdate = async (
 
   try {
     if (rewrite) await rearmReminders(db, opts.after);
-    if (!opts.notice) return 0;
+    if (!opts.notice || !hasVenue(opts.after)) return 0;
     return await enqueueEventChangeNotices(db, {
       eventId: opts.after.id,
       hostId: opts.after.hostId,

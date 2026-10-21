@@ -561,6 +561,8 @@
   "event_meta_description": "Join {title}, a Founders Coffee meetup in {city}.",
   "event_meta_summary": "{day} at {time} · {venue}, {city}. A free Founders Coffee meetup.",
   "event_meta_cancelled_summary": "Cancelled. It was planned for {day} at {time} · {venue}, {city}.",
+  "event_meta_city_summary": "{day} at {time} · {city}. A free Founders Coffee meetup.",
+  "event_meta_cancelled_city_summary": "Cancelled. It was planned for {day} at {time} · {city}.",
   "host_you_are_hosting": "You're hosting",
   "host_event_ended": "This meetup has ended.",
   "host_cancel_event": "Cancel this meetup",

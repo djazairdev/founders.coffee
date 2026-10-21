@@ -72,7 +72,7 @@ export const EventEditVenue = ({
         center={listCenter}
         searchValue={searchValue}
         venue={venue}
-        venueName={event.venue}
+        venueName={event.venue ?? ''}
         hideNameField
         boundedList
         isDisabled={!mapContext.data}
