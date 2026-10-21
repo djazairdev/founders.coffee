@@ -7,6 +7,8 @@ export interface MetricDimensions {
   readonly environment?: string;
   readonly attribution?: Campaign;
   readonly page?: string;
+  readonly hackathon?: string;
+  readonly track?: string;
 }
 
 export interface Metrics {
@@ -23,6 +25,10 @@ export interface Metrics {
  * P1-019 dashboards), blob1 = event name (WHERE blob1 = …), blob2/3 = city/locale,
  * doubles = the measured values. Exported (pure) so the shape is testable without
  * touching the binding.
+ *
+ * A Stage B outcome also carries blob9 = the hackathon's event id and blob10 = the track id or
+ * empty. They follow the eight columns every other row has, so the server columns are filled in
+ * (environment `unknown` when none was given) to keep blob9 in place.
  */
 export const buildDataPoint = (
   event: string,
@@ -35,15 +41,16 @@ export const buildDataPoint = (
     event,
     dims.city ?? '',
     dims.locale ?? '',
-    ...(dims.environment === undefined
+    ...(dims.environment === undefined && dims.hackathon === undefined
       ? []
       : [
-          dims.environment,
+          dims.environment ?? 'unknown',
           dims.attribution?.source ?? 'none',
           dims.attribution?.medium ?? 'none',
           dims.attribution?.campaign ?? 'none',
           dims.page ?? 'server',
         ]),
+    ...(dims.hackathon === undefined ? [] : [dims.hackathon, dims.track ?? '']),
   ],
 });
 
