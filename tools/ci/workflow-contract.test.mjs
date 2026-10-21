@@ -163,6 +163,17 @@ describe('pull request gate contract', () => {
     ).not.toContain("github.head_ref != 'develop'");
   });
 
+  it('skips long verification under FAST_CI only on develop, never for a fork or main', () => {
+    const FAST_CI =
+      "vars.FAST_CI == 'true' && ((github.event_name == 'pull_request' && github.base_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'push' && github.ref_name == 'develop'))";
+
+    expect(ciWorkflow.split(FAST_CI)).toHaveLength(4);
+    expect(ciWorkflow.match(/vars\.FAST_CI/gu)).toHaveLength(3);
+    expect(ciWorkflow).toContain(
+      'Fast CI must skip both long jobs, not run half of them.',
+    );
+  });
+
   it('checks a contributor title through the environment, never inside the script', () => {
     expect(titleWorkflow).toContain(
       'PULL_REQUEST_TITLE: ${{ github.event.pull_request.title }}',

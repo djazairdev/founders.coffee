@@ -46,6 +46,7 @@ jobs:
       always() &&
       needs.reuse-evidence.outputs.reuse != 'true' &&
       !(github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository)
+      && !(vars.FAST_CI == 'true' && ((github.event_name == 'pull_request' && github.base_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'push' && github.ref_name == 'develop')))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -105,6 +106,7 @@ jobs:
       always() &&
       needs.reuse-evidence.outputs.reuse != 'true' &&
       !(github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository)
+      && !(vars.FAST_CI == 'true' && ((github.event_name == 'pull_request' && github.base_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'push' && github.ref_name == 'develop')))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -159,6 +161,7 @@ jobs:
           REUSED: ${{ needs.reuse-evidence.outputs.reuse }}
           SOURCE_RUN_URL: ${{ needs.reuse-evidence.outputs.source_run_url }}
           SOURCE_TREE: ${{ needs.reuse-evidence.outputs.tree }}
+          FAST_CI: ${{ vars.FAST_CI == 'true' && ((github.event_name == 'pull_request' && github.base_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'push' && github.ref_name == 'develop')) }}
         run: |
           if [ "$REUSED" = "true" ]; then
             if [ "$REUSE_EVIDENCE" != "success" ] || [ "$QUALITY" != "skipped" ] || [ "$BUILD" != "skipped" ] || [ -z "$SOURCE_RUN_URL" ] || [ -z "$SOURCE_TREE" ]; then
@@ -178,6 +181,19 @@ jobs:
               echo "::error::The develop release pull request must not run duplicate checks."
               exit 1
             fi
+            exit 0
+          fi
+          if [ "$FAST_CI" = "true" ]; then
+            if [ "$QUALITY" != "skipped" ] || [ "$BUILD" != "skipped" ]; then
+              echo "::error::Fast CI must skip both long jobs, not run half of them."
+              exit 1
+            fi
+            {
+              echo "## Long verification skipped (FAST_CI)"
+              echo
+              echo "The repository variable FAST_CI is on: this develop pull request or staging deploy"
+              echo "ran without the long checks. Production deploys and release pull requests still run them."
+            } >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           if [ "$QUALITY" != "success" ] || [ "$BUILD" != "success" ]; then
