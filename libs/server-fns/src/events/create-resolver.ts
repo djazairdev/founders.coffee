@@ -148,6 +148,7 @@ export const createEventResolverWithId = async (
       language,
       languages: input.languages,
       kind: input.kind,
+      tags: input.tags,
       status: 'published',
     };
 

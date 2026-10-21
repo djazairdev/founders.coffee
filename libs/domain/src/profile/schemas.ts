@@ -7,6 +7,8 @@ import {
   profileOpenToSchema,
   profileSkillSchema,
   profileStageSchema,
+  topicSchema,
+  TOPICS,
   userIdSchema,
   type ProfileLinkKind,
 } from '@founders-coffee/core';
@@ -17,23 +19,8 @@ export type { ProfileStage } from '@founders-coffee/core';
 export const SPOKEN_LANGUAGES = ['ar', 'fr', 'en', 'es', 'de', 'ber'] as const;
 export const spokenLanguageSchema = z.enum(SPOKEN_LANGUAGES);
 export type SpokenLanguage = z.infer<typeof spokenLanguageSchema>;
-export const PROFILE_INTERESTS = [
-  'bootstrapping',
-  'product',
-  'design',
-  'engineering',
-  'finding_customers',
-  'community',
-  'investing',
-  'software_development',
-  'building_products',
-  'idea_validation',
-  'cofounders',
-  'partnerships',
-  'experience_sharing',
-  'learning_new_skills',
-] as const;
-export const profileInterestSchema = z.enum(PROFILE_INTERESTS);
+export const PROFILE_INTERESTS = TOPICS;
+export const profileInterestSchema = topicSchema;
 export type ProfileInterest = z.infer<typeof profileInterestSchema>;
 
 export const profileIdentitySchema = userIdSchema;

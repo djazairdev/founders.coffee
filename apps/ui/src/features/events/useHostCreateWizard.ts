@@ -171,6 +171,7 @@ export const useHostCreateWizard = ({
       startsAt,
       endsAt,
       kind: draft.kind,
+      tags: [],
     });
   };
 

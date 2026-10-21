@@ -92,6 +92,7 @@ const event: EventFeedItem = {
   venueAddress: null,
   status: 'published',
   kind: 'meetup',
+  tags: [],
   format: 'in_person',
   version: 1,
   createdAt: new Date(0),

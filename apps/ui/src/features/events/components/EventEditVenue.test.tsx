@@ -69,6 +69,7 @@ const event = {
   slug: 'founders-breakfast',
   status: 'published',
   kind: 'meetup',
+  tags: [],
   format: 'in_person',
   version: 3,
   createdAt: new Date('2026-09-01T00:00:00Z'),
