@@ -29,6 +29,7 @@ import {
   EVENT_KINDS,
   HACKATHON_AI_POLICIES,
   HACKATHON_REVIEW_STATUSES,
+  HACKATHON_TRACK_KINDS,
   EVENT_ORGANISER_ROLES,
   EVENT_STATUSES,
   FEEDBACK_RATINGS,
@@ -520,6 +521,54 @@ export const hackathons = sqliteTable(
 
 export type Hackathon = typeof hackathons.$inferSelect;
 export type NewHackathon = typeof hackathons.$inferInsert;
+
+/**
+ * What a hackathon's teams build (B-HKN-03): a founder's real problem, a partner's technology, or the
+ * open-source track. A partner technology track names its partner; an open-source track lists the
+ * repositories or djazair.dev Hub issues it is built from. `position` orders a hackathon's tracks.
+ */
+export const hackathonTracks = sqliteTable(
+  'hackathon_tracks',
+  {
+    id: text('id').primaryKey(),
+    eventId: text('event_id')
+      .notNull()
+      .references(() => hackathons.eventId, { onDelete: 'cascade' }),
+    kind: text('kind', { enum: [...HACKATHON_TRACK_KINDS] }).notNull(),
+    title: text('title').notNull(),
+    brief: text('brief').notNull(),
+    partnerName: text('partner_name'),
+    sourceUrls: text('source_urls', { mode: 'json' })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    position: integer('position').notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex('hackathon_tracks_position_unique').on(
+      table.eventId,
+      table.position,
+    ),
+    check(
+      'hackathon_tracks_partner_check',
+      sql`(${table.kind} = 'partner_technology') = (${table.partnerName} IS NOT NULL)`,
+    ),
+    check(
+      'hackathon_tracks_sources_check',
+      sql`(${table.kind} = 'open_source') = (${table.sourceUrls} <> '[]')`,
+    ),
+    check('hackathon_tracks_position_check', sql`${table.position} >= 0`),
+  ],
+);
+
+export type HackathonTrack = typeof hackathonTracks.$inferSelect;
+export type NewHackathonTrack = typeof hackathonTracks.$inferInsert;
 
 /** Event RSVP — one per user per event (UNIQUE constraint). */
 export const eventRsvps = sqliteTable(

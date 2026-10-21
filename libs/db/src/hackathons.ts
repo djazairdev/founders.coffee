@@ -3,6 +3,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import type { AttendanceMode, HackathonAiPolicy } from '@founders-coffee/core';
 
 import type { Db } from './db.js';
+import { bound } from './insert-select.js';
 import { events, hackathons, type Event, type Hackathon } from './schema.js';
 
 export type HackathonDetails = {
@@ -20,9 +21,6 @@ export type HackathonDetails = {
   readonly aiPolicyNote: string | null;
   readonly licenceNote: string | null;
 };
-
-/** A value bound into an `INSERT … SELECT`, named as the column it fills. */
-const bound = <T>(value: T, column: string) => sql<T>`${value}`.as(column);
 
 /** Seconds since the epoch, the unit every timestamp column stores. */
 const seconds = (date: Date): number => Math.floor(date.getTime() / 1000);
