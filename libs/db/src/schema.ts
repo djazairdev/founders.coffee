@@ -268,6 +268,7 @@ export const organization = sqliteTable(
 );
 
 export type Organization = typeof organization.$inferSelect;
+export type NewOrganization = typeof organization.$inferInsert;
 
 export const member = sqliteTable(
   'member',

@@ -49,5 +49,6 @@
   "0047_hackathon_interest": "compatible",
   "0048_portfolio_fields": "compatible",
   "0049_organization_plugin": "compatible",
-  "0050_event_organisers": "compatible"
+  "0050_event_organisers": "compatible",
+  "0051_platform_organisation": "compatible"
 }

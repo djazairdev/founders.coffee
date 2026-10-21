@@ -68,6 +68,28 @@ describe('the dev seed against a database the migrations built', () => {
     expect(count(db, 'account_preferences')).toBe(ACCOUNT_ROWS.length);
     expect(count(db, 'events')).toBe(3);
     expect(count(db, 'event_rsvps')).toBe(2);
+    expect(count(db, 'organization')).toBe(2);
+    expect(count(db, 'member')).toBe(1);
+  });
+
+  it('gives dev-host an approved club to organise, beside the approved platform', () => {
+    const db = seeded();
+
+    expect(
+      rows(db, 'select slug, kind, status from organization order by slug').map(
+        (row) => ({ ...row }),
+      ),
+    ).toEqual([
+      { slug: 'dev-code-club', kind: 'club', status: 'approved' },
+      { slug: 'founders-coffee', kind: 'platform', status: 'approved' },
+    ]);
+    expect(
+      rows(
+        db,
+        'select o.slug, m.role from member m join organization o on o.id = m.organization_id where m.user_id = ' +
+          literal(accountId('dev-host@dev.invalid')),
+      ).map((row) => ({ ...row })),
+    ).toEqual([{ slug: 'dev-code-club', role: 'owner' }]);
   });
 
   it('breaks no foreign key', () => {

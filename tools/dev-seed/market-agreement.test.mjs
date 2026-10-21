@@ -2,13 +2,24 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { MARKET_FEATURE_FLAGS, MARKET_ROWS } from './rows.mjs';
+import {
+  MARKET_FEATURE_FLAGS,
+  MARKET_ROWS,
+  PLATFORM_ORGANISATION_ROW,
+} from './rows.mjs';
 
 const SEED = path.resolve(
   import.meta.dirname,
   '..',
   '..',
   'libs/db/src/seed.ts',
+);
+
+const MIGRATION = path.resolve(
+  import.meta.dirname,
+  '..',
+  '..',
+  'libs/db/migrations/0051_platform_organisation.sql',
 );
 
 const COLUMN_TO_FIELD = {
@@ -65,5 +76,22 @@ describe('the markets the dev seed writes', () => {
         source.includes(`${flag}: ${value}`),
         `libs/db/src/seed.ts has no "${flag}: ${value}". communityOperations in particular gates the closeout and feedback paths this seed exists to make reachable, so a local database seeded with it off would refuse them for a reason nothing explains`,
       ).toBe(true);
+  });
+});
+
+describe('the platform organisation the dev seed writes', () => {
+  it('is the one libs/db seeds and migration 0051 inserts, value for value', () => {
+    const sources = {
+      'libs/db/src/seed.ts': seedSource(),
+      'migration 0051': readFileSync(MIGRATION, 'utf8'),
+    };
+
+    for (const [where, source] of Object.entries(sources))
+      for (const [column, value] of Object.entries(PLATFORM_ORGANISATION_ROW))
+        if (value !== null)
+          expect(
+            source.includes(`'${value}'`),
+            `${where} has no '${value}' for ${column}. The platform organisation is written in three places, the seed, the migration and the dev seed, and the three must agree`,
+          ).toBe(true);
   });
 });
