@@ -1,5 +1,7 @@
 import { and, desc, eq, gt, lt, or, sql } from 'drizzle-orm';
 
+import type { EventKind } from '@founders-coffee/core';
+
 import { batch } from './atomic.js';
 import { syncChatChannel } from './chat-channels.js';
 import type { Db } from './db.js';
@@ -86,6 +88,7 @@ export const listUpcomingEvents = async (
     marketCode?: string;
     cityCode?: string;
     hostId?: string;
+    kind?: EventKind;
     afterStartsAt?: Date;
     afterId?: string;
     limit?: number;
@@ -115,6 +118,7 @@ export const listUpcomingEvents = async (
         opts.marketCode ? eq(events.marketCode, opts.marketCode) : undefined,
         opts.cityCode ? eq(events.cityCode, opts.cityCode) : undefined,
         opts.hostId ? eq(events.hostId, opts.hostId) : undefined,
+        opts.kind ? eq(events.kind, opts.kind) : undefined,
       ),
     )
     .orderBy(events.startsAt, events.id)

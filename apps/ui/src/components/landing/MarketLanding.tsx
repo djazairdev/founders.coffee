@@ -1,3 +1,4 @@
+import type { EventKind } from '@founders-coffee/core';
 import type { Market } from '@founders-coffee/db';
 import type { geo } from '@founders-coffee/domain';
 import { type Locale } from '@founders-coffee/i18n';
@@ -22,6 +23,7 @@ type MarketLandingProps = {
   afterStartsAt?: number;
   afterId?: string;
   nextCursor?: EventFeedPage['nextCursor'];
+  type?: EventKind;
   trending: TrendingSection;
 };
 
@@ -33,6 +35,7 @@ export const MarketLanding = ({
   afterStartsAt,
   afterId,
   nextCursor,
+  type,
   trending,
 }: MarketLandingProps) => (
   <>
@@ -54,6 +57,7 @@ export const MarketLanding = ({
       afterStartsAt={afterStartsAt}
       afterId={afterId}
       nextCursor={nextCursor}
+      type={type}
     />
     <HowItWorks locale={locale} marketSlug={market.slug} />
   </>

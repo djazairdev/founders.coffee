@@ -1,6 +1,6 @@
 import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
 
-import { appErrorCode } from '@founders-coffee/core';
+import { appErrorCode, type EventKind } from '@founders-coffee/core';
 import { localizedName, type Locale } from '@founders-coffee/i18n';
 import {
   getMarketLanding,
@@ -18,9 +18,11 @@ import {
 } from '../content/company';
 import { DEFAULT_MARKET_SLUG } from '../features/markets/api';
 import {
+  landingCanonicalQuery,
+  landingSearchSchema,
+} from '../lib/event-type-filter';
+import {
   cursorPairOnly,
-  paginationQuery,
-  publicPaginationSearchSchema,
   type PublicPaginationSearch,
 } from '../lib/public-pagination';
 import { localizedLanding } from '../lib/locale-routing';
@@ -32,6 +34,7 @@ type LocalizedMarket = MarketWithCities & {
   readonly kind: 'market';
   readonly locale: Locale;
   readonly pagination: PublicPaginationSearch;
+  readonly type: EventKind | undefined;
   readonly markets: readonly MarketReference[];
 };
 
@@ -43,31 +46,30 @@ type LocalizedCompany = {
 
 type RouteData = LocalizedMarket | LocalizedCompany;
 
-const landingSearchSchema = publicPaginationSearchSchema;
-
 const localizedMarket = async (
   locale: Locale,
   marketKey: string,
   pagination: PublicPaginationSearch,
+  type: EventKind | undefined,
   markets: readonly MarketReference[],
 ): Promise<LocalizedMarket> => {
   try {
     const data = await getMarketLanding({
-      data: { key: marketKey, ...pagination },
+      data: { key: marketKey, ...pagination, kind: type },
     });
     if (marketKey !== data.market.slug) {
       throw redirect({
         ...localizedLanding(locale, data.market.slug),
-        search: pagination,
+        search: { ...pagination, type },
       });
     }
     if (!data.cursorValid) {
       throw redirect({
         ...localizedLanding(locale, data.market.slug),
-        search: {},
+        search: { type },
       });
     }
-    return { kind: 'market', locale, pagination, ...data, markets };
+    return { kind: 'market', locale, pagination, type, ...data, markets };
   } catch (error) {
     if (appErrorCode(error) === 'market_not_found') throw notFound();
     throw error;
@@ -87,6 +89,7 @@ const MarketRoute = () => {
         afterStartsAt={data.pagination.afterStartsAt}
         afterId={data.pagination.afterId}
         nextCursor={data.eventsNextCursor}
+        type={data.type}
         trending={data.trending}
       />
     );
@@ -107,16 +110,19 @@ export const Route = createFileRoute('/$locale/$market/')({
   loaderDeps: ({ search }) => ({
     afterStartsAt: search.afterStartsAt,
     afterId: search.afterId,
+    type: search.type,
   }),
   component: MarketRoute,
   loader: async ({ params, deps, context }): Promise<RouteData> => {
-    const pagination = cursorPairOnly(deps);
+    const { type, ...cursor } = deps;
+    const pagination = cursorPairOnly(cursor);
     if (isCompanyPageKey(params.market))
       return { kind: 'company', locale: context.locale, page: params.market };
     return localizedMarket(
       context.locale,
       params.market,
       pagination,
+      type,
       context.markets.map(({ code, slug }) => ({ code, slug })),
     );
   },
@@ -142,7 +148,7 @@ export const Route = createFileRoute('/$locale/$market/')({
           type: 'market',
           market: loaderData.market.slug,
           locale: loaderData.locale,
-          query: paginationQuery(loaderData.pagination),
+          query: landingCanonicalQuery(loaderData.pagination, loaderData.type),
         },
       });
     }
