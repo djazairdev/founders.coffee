@@ -19,3 +19,4 @@ export * as profile from './profile/index.js';
 export * as operations from './operations/index.js';
 export * as chat from './chat/index.js';
 export * as hackathons from './hackathons/index.js';
+export * as organisations from './organisations/index.js';
