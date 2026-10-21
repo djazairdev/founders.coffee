@@ -22,6 +22,7 @@ const PRIVATE_PATHS = [
   '/preferences',
   '/activity',
   '/algeria/host/create',
+  '/en/o/apply',
 ];
 const HTML_CONTENT_TYPE = 'text/html';
 const MAX_DYNAMIC_ROUTES = 25;
