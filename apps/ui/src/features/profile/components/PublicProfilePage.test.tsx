@@ -42,7 +42,9 @@ const publicProfile: PublicProfile = {
   stage: null,
   interests: [],
   spokenLanguages: [],
-  professionalLink: null,
+  skills: [],
+  links: [],
+  openTo: [],
   hostedCount: 0,
   attendedCount: null,
 };
@@ -183,7 +185,7 @@ describe('PublicProfilePage', () => {
           ...publicProfile,
           interests: ['product', 'community'],
           spokenLanguages: ['ar', 'fr'],
-          professionalLink: 'https://example.com/work',
+          links: [{ kind: 'website', url: 'https://example.com/work' }],
         }}
       />,
     );

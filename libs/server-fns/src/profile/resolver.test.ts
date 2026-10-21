@@ -69,7 +69,7 @@ describe('PF-03 profile resolvers against real D1', () => {
         displayName: 'أمينة',
         revision: 1,
         interests: [],
-        visibility: { professionalLink: false },
+        visibility: { links: false },
       },
     });
     const result = await readPublicProfile(db, userId);
@@ -85,7 +85,9 @@ describe('PF-03 profile resolvers against real D1', () => {
         introduction: null,
         interests: [],
         spokenLanguages: [],
-        professionalLink: null,
+        skills: [],
+        links: [],
+        openTo: [],
         hostedCount: 0,
         attendedCount: null,
       },
@@ -97,7 +99,9 @@ describe('PF-03 profile resolvers against real D1', () => {
       introduction: 'Public introduction',
       interests: ['community'],
       spokenLanguages: ['ar'],
-      professionalLink: 'https://example.com',
+      skills: ['backend'],
+      links: [{ kind: 'github', url: 'https://github.com/amina' }],
+      openTo: ['internships'],
     };
     expect((await saveOwnerProfile(db, userId, command(details))).ok).toBe(
       true,
@@ -116,7 +120,7 @@ describe('PF-03 profile resolvers against real D1', () => {
           command({
             ...details,
             expectedRevision: 1,
-            visibility: { professionalLink: true },
+            visibility: { skills: true, links: true, openTo: true },
           }),
         )
       ).ok,
@@ -124,7 +128,9 @@ describe('PF-03 profile resolvers against real D1', () => {
     expect(await readPublicProfile(db, userId)).toMatchObject({
       data: {
         introduction: 'Public introduction',
-        professionalLink: 'https://example.com',
+        skills: ['backend'],
+        links: [{ kind: 'github', url: 'https://github.com/amina' }],
+        openTo: ['internships'],
       },
     });
     expect(

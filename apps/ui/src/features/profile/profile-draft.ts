@@ -16,9 +16,27 @@ export const draftFrom = (saved: UserProfile): ProfileDraft => ({
   introduction: saved.introduction,
   interests: [...saved.interests],
   spokenLanguages: [...saved.spokenLanguages],
-  professionalLink: saved.professionalLink,
+  skills: [...saved.skills],
+  links: saved.links.map((link) => ({ ...link })),
+  openTo: [...saved.openTo],
   visibility: { ...saved.visibility },
 });
+
+/** The address the profile form's single link field edits: the first of the member's links. */
+export const firstLinkUrl = (draft: ProfileDraft): string =>
+  draft.links[0]?.url ?? '';
+
+/**
+ * The links with the first one replaced by what the member typed, its kind read from the address.
+ * An empty field removes the first link and keeps the rest.
+ */
+export const withFirstLink = (
+  links: readonly profile.ProfileLink[],
+  url: string,
+): profile.ProfileLink[] => [
+  ...(url ? [{ kind: profile.linkKindOf(url), url }] : []),
+  ...links.slice(1),
+];
 
 /**
  * Whether the draft still says what the saved profile says.
@@ -37,7 +55,10 @@ export const isDraftDirty = (
   draft.headline !== saved.headline ||
   draft.stage !== saved.stage ||
   draft.introduction !== saved.introduction ||
-  draft.professionalLink !== saved.professionalLink ||
+  draft.skills.join() !== saved.skills.join() ||
+  draft.links.map((link) => link.url).join() !==
+    saved.links.map((link) => link.url).join() ||
+  draft.openTo.join() !== saved.openTo.join() ||
   draft.interests.join() !== saved.interests.join() ||
   draft.spokenLanguages.join() !== saved.spokenLanguages.join() ||
   (Object.keys(draft.visibility) as (keyof ProfileDraft['visibility'])[]).some(
@@ -67,7 +88,9 @@ export const commandFrom = (
     introduction: draft.introduction,
     interests: draft.interests,
     spokenLanguages: draft.spokenLanguages,
-    professionalLink: draft.professionalLink,
+    skills: draft.skills,
+    links: draft.links,
+    openTo: draft.openTo,
     visibility: draft.visibility,
   });
   return parsed.success

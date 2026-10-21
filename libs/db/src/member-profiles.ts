@@ -21,12 +21,16 @@ export type MemberProfileChanges = Pick<
   | 'introduction'
   | 'interests'
   | 'spokenLanguages'
-  | 'professionalLink'
+  | 'skills'
+  | 'links'
+  | 'openTo'
   | 'publishHeadline'
   | 'publishStage'
   | 'publishInterests'
   | 'publishSpokenLanguages'
-  | 'publishProfessionalLink'
+  | 'publishSkills'
+  | 'publishLinks'
+  | 'publishOpenTo'
   | 'publishAttendedCount'
 >;
 
@@ -189,12 +193,16 @@ export const updateMemberProfile = async (
         introduction: changes.introduction,
         interests: changes.interests,
         spokenLanguages: changes.spokenLanguages,
-        professionalLink: changes.professionalLink,
+        skills: changes.skills,
+        links: changes.links,
+        openTo: changes.openTo,
         publishHeadline: changes.publishHeadline,
         publishStage: changes.publishStage,
         publishInterests: changes.publishInterests,
         publishSpokenLanguages: changes.publishSpokenLanguages,
-        publishProfessionalLink: changes.publishProfessionalLink,
+        publishSkills: changes.publishSkills,
+        publishLinks: changes.publishLinks,
+        publishOpenTo: changes.publishOpenTo,
         publishAttendedCount: changes.publishAttendedCount,
         revision: sql`${memberProfiles.revision} + 1`,
         updatedAt: now,

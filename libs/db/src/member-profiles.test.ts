@@ -208,7 +208,9 @@ describe('member profiles on real D1', () => {
           introduction: null,
           interests: [],
           spokenLanguages: [],
-          professionalLink: null,
+          skills: [],
+          links: [],
+          openTo: [],
         },
       }),
     ).toMatchObject({
@@ -216,7 +218,9 @@ describe('member profiles on real D1', () => {
       introduction: null,
       interests: [],
       spokenLanguages: [],
-      professionalLink: null,
+      skills: [],
+      links: [],
+      openTo: [],
     });
   });
 

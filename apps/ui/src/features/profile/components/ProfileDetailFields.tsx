@@ -16,7 +16,11 @@ import {
   topicLabel,
   TOPIC_OPTIONS,
 } from '../profile-labels';
-import type { ProfileDraft } from '../profile-draft';
+import {
+  firstLinkUrl,
+  withFirstLink,
+  type ProfileDraft,
+} from '../profile-draft';
 import { OptionalChip } from './OptionalChip';
 import { PublishToggle } from './PublishToggle';
 
@@ -111,21 +115,21 @@ export const ProfileDetailFields = ({
           inputMode="url"
           dir="ltr"
           maxLength={2048}
-          value={draft.professionalLink ?? ''}
+          value={firstLinkUrl(draft)}
           disabled={isDisabled}
           placeholder={profile_link_placeholder({}, { locale })}
           onChange={(event) =>
-            onChange({ professionalLink: event.target.value || null })
+            onChange({ links: withFirstLink(draft.links, event.target.value) })
           }
         />
         <PublishToggle
           locale={locale}
-          isPublic={draft.visibility.professionalLink}
-          isDisabled={isDisabled || !draft.professionalLink}
+          isPublic={draft.visibility.links}
+          isDisabled={isDisabled || draft.links.length === 0}
           fieldLabel={profile_link_label({}, { locale })}
           onChange={(isPublic) =>
             onChange({
-              visibility: { ...draft.visibility, professionalLink: isPublic },
+              visibility: { ...draft.visibility, links: isPublic },
             })
           }
         />

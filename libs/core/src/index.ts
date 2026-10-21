@@ -14,6 +14,7 @@ export * from './rooms.js';
 export * from './outcomes.js';
 export * from './organisations.js';
 export * from './hackathons.js';
+export * from './portfolio.js';
 export * from './validation.js';
 export * from './security-headers.js';
 export * from './geo.js';

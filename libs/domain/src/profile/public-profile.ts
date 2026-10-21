@@ -9,8 +9,10 @@ import {
   introductionSchema,
   memberSinceSchema,
   profileInterestSchema,
-  professionalLinkSchema,
   profileIdentitySchema,
+  profileLinksSchema,
+  profileOpenToListSchema,
+  profileSkillsSchema,
   profileStageSchema,
   type OwnerProfile,
 } from './schemas.js';
@@ -25,7 +27,9 @@ export const publicMemberProfileSchema = z.strictObject({
   introduction: introductionSchema,
   interests: z.array(profileInterestSchema).max(5),
   spokenLanguages: z.array(spokenLanguageSchema).max(6),
-  professionalLink: professionalLinkSchema,
+  skills: profileSkillsSchema,
+  links: profileLinksSchema,
+  openTo: profileOpenToListSchema,
   hostedCount: z.number().int().nonnegative(),
   attendedCount: z.number().int().nonnegative().nullable(),
 });
@@ -53,9 +57,9 @@ export const projectPublicProfile = (
   spokenLanguages: profile.visibility.spokenLanguages
     ? [...profile.spokenLanguages]
     : [],
-  professionalLink: profile.visibility.professionalLink
-    ? profile.professionalLink
-    : null,
+  skills: profile.visibility.skills ? [...profile.skills] : [],
+  links: profile.visibility.links ? [...profile.links] : [],
+  openTo: profile.visibility.openTo ? [...profile.openTo] : [],
   hostedCount: record.hosted,
   attendedCount: profile.visibility.attendedCount ? record.attended : null,
 });

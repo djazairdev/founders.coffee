@@ -57,13 +57,17 @@ describe('profile contracts', () => {
       introduction: null,
       interests: [],
       spokenLanguages: [],
-      professionalLink: null,
+      skills: [],
+      links: [],
+      openTo: [],
       visibility: {
         headline: false,
         stage: false,
         interests: false,
         spokenLanguages: false,
-        professionalLink: false,
+        skills: false,
+        links: false,
+        openTo: false,
         attendedCount: false,
       },
     });
@@ -133,7 +137,9 @@ describe('profile contracts', () => {
       stage: true,
       interests: true,
       spokenLanguages: true,
-      professionalLink: true,
+      skills: true,
+      links: true,
+      openTo: true,
       attendedCount: true,
     };
     expect(
@@ -144,7 +150,9 @@ describe('profile contracts', () => {
       stage: false,
       interests: false,
       spokenLanguages: false,
-      professionalLink: false,
+      skills: false,
+      links: false,
+      openTo: false,
       attendedCount: true,
     });
     const value = updateProfileSchema.parse({
@@ -155,7 +163,9 @@ describe('profile contracts', () => {
       introduction: 'Hello',
       interests: ['product'],
       spokenLanguages: ['ar', 'fr', 'en'],
-      professionalLink: 'https://example.com/member',
+      skills: ['data'],
+      links: [{ kind: 'website', url: 'https://example.com/member' }],
+      openTo: ['jobs'],
     });
     expect(value.visibility).toEqual(visibility);
   });
