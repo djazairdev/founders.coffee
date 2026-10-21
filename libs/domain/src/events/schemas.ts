@@ -112,39 +112,58 @@ export const eventScheduleSchema = z
   })
   .superRefine(addScheduleIssues);
 
+const eventCreateFields = {
+  marketCode: marketCodeSchema,
+  cityCode: z.string().trim().min(1).max(32).optional(),
+  title: eventTitleSchema,
+  description: eventDescriptionSchema,
+  venueName: eventVenueNameSchema.optional(),
+  venueAddress: eventVenueAddressSchema.optional(),
+  venueProviderId: z.string().trim().min(1).max(120).optional(),
+  latitude: z.number().finite().min(-90).max(90).optional(),
+  longitude: z.number().finite().min(-180).max(180).optional(),
+  startsAt: z.number().int().positive(),
+  endsAt: z.number().int().positive(),
+  languages: eventLanguagesSchema,
+  tags: eventTagsSchema.default([]),
+  format: eventFormatSchema.default('in_person'),
+  meetingUrl: eventMeetingUrlSchema.optional(),
+};
+
+export const EVENT_CREATE_FIELDS = eventCreateFields;
+
+type EventCreateCheck = z.infer<z.ZodObject<typeof eventCreateFields>> & {
+  readonly kind: EventKind;
+};
+
+/**
+ * Add the rules every new event is held to: its schedule for its type, its venue or link for its
+ * format, and the city an online event names in place of a venue.
+ */
+export const addEventCreateIssues = (
+  input: EventCreateCheck,
+  context: z.RefinementCtx,
+): void => {
+  addScheduleIssues(input, context);
+  addFormatIssues(
+    eventFormatIssues(input.format, input, CREATE_VENUE_FIELDS),
+    context,
+  );
+  if (!hasVenue(input.format) && input.cityCode === undefined)
+    context.addIssue({
+      code: 'custom',
+      message: 'An online event names its city',
+      path: ['cityCode'],
+    });
+};
+
 export const eventCreateSchema = z
   .object({
-    marketCode: marketCodeSchema,
-    cityCode: z.string().trim().min(1).max(32).optional(),
-    title: eventTitleSchema,
-    description: eventDescriptionSchema,
-    venueName: eventVenueNameSchema.optional(),
-    venueAddress: eventVenueAddressSchema.optional(),
-    venueProviderId: z.string().trim().min(1).max(120).optional(),
-    latitude: z.number().finite().min(-90).max(90).optional(),
-    longitude: z.number().finite().min(-180).max(180).optional(),
-    startsAt: z.number().int().positive(),
-    endsAt: z.number().int().positive(),
-    languages: eventLanguagesSchema,
+    ...eventCreateFields,
     kind: memberEventKindSchema.default('meetup'),
-    tags: eventTagsSchema.default([]),
-    format: eventFormatSchema.default('in_person'),
-    meetingUrl: eventMeetingUrlSchema.optional(),
   })
   .strict()
-  .superRefine((input, context) => {
-    addScheduleIssues(input, context);
-    addFormatIssues(
-      eventFormatIssues(input.format, input, CREATE_VENUE_FIELDS),
-      context,
-    );
-    if (!hasVenue(input.format) && input.cityCode === undefined)
-      context.addIssue({
-        code: 'custom',
-        message: 'An online event names its city',
-        path: ['cityCode'],
-      });
-  });
+  .superRefine(addEventCreateIssues);
 
 /**
  * Hold an edit to the schedule rules, and to naming a point completely or not at all.

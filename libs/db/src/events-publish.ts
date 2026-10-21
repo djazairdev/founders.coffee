@@ -4,6 +4,7 @@ import { batch } from './atomic.js';
 import { insertChatChannel } from './chat-channels.js';
 import type { Db } from './db.js';
 import { insertLeadOrganiser } from './event-organisers.js';
+import { insertHackathonDetails, type HackathonDetails } from './hackathons.js';
 import { events, type Event, type NewEvent } from './schema.js';
 
 /**
@@ -33,6 +34,35 @@ export const createEventIfRouteAvailable = async (
           }),
         ]
       : []),
+  ]);
+  return (created as Event[])[0];
+};
+
+/**
+ * Write a hackathon's draft (B-HKN-06) when its address is free in its market: its event, chat, lead
+ * organisation and details in one batch. The chat, the lead and the details each select from the
+ * event's row, so an address that was taken writes none of them, and the details are written only
+ * beside an event of kind `hackathon`. The event is a `draft`, so no reader sees it until it is
+ * published, and the details start their review as a `draft` too.
+ */
+export const createHackathonDraftIfRouteAvailable = async (
+  db: Db,
+  row: NewEvent,
+  leadOrganisationId: string,
+  details: HackathonDetails,
+): Promise<Event | undefined> => {
+  const [created] = await batch(db, [
+    db
+      .insert(events)
+      .values(row)
+      .onConflictDoNothing({ target: [events.marketCode, events.slug] })
+      .returning(),
+    insertChatChannel(db, { id: id('chn'), eventId: row.id }),
+    insertLeadOrganiser(db, {
+      eventId: row.id,
+      organisationId: leadOrganisationId,
+    }),
+    insertHackathonDetails(db, { eventId: row.id, details }),
   ]);
   return (created as Event[])[0];
 };

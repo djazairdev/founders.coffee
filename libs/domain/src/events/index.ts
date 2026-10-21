@@ -4,6 +4,8 @@ export {
   type EventStatus,
 } from './status-machine.js';
 export {
+  addEventCreateIssues,
+  EVENT_CREATE_FIELDS,
   EVENT_DESCRIPTION_MAX_LENGTH,
   EVENT_DESCRIPTION_MIN_LENGTH,
   EVENT_TAG_LIMIT,
