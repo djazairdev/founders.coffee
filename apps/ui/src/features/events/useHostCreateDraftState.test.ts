@@ -18,6 +18,7 @@ const template: RepeatEventTemplate = {
   latitude: 36.7538,
   longitude: 3.0588,
   languages: ['ar', 'fr'],
+  kind: 'meetup',
 };
 
 const hook = (locale: Locale, repeatTemplate?: RepeatEventTemplate | null) =>

@@ -14,6 +14,7 @@ const template: RepeatEventTemplate = {
   latitude: 36.7538,
   longitude: 3.0588,
   languages: ['ar'],
+  kind: 'meetup',
 };
 
 describe('repeatDraftFrom', () => {
@@ -34,8 +35,15 @@ describe('repeatDraftFrom', () => {
       endsAt: null,
       title: 'Founders breakfast',
       description: 'A relaxed breakfast for local founders.',
+      kind: 'meetup',
       chosenLanguages: ['ar'],
     });
+  });
+
+  it('repeats a workshop as a workshop', () => {
+    expect(repeatDraftFrom({ ...template, kind: 'workshop' }).kind).toBe(
+      'workshop',
+    );
   });
 
   it('holds the meetup in the languages the last one was held in', () => {

@@ -10,7 +10,7 @@ import {
 import { repeatDraftFrom } from './host-create-repeat';
 import { restoredDraftStep } from './host-create-validation';
 import type { RepeatEventTemplate } from './api';
-import type { MeetupLanguage, VenueSelection } from './types';
+import type { HostEventKind, MeetupLanguage, VenueSelection } from './types';
 
 /**
  * The half-written meetup itself: every field the wizard collects, restored on arrival and saved
@@ -44,6 +44,7 @@ export const useHostCreateDraftState = ({
   const [endsAt, setEndsAt] = useState<number | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [kind, setKind] = useState<HostEventKind>('meetup');
   const [chosenLanguages, setChosenLanguages] = useState<
     MeetupLanguage[] | null
   >(null);
@@ -61,6 +62,7 @@ export const useHostCreateDraftState = ({
     endsAt,
     title,
     description,
+    kind,
     chosenLanguages,
   };
 
@@ -73,6 +75,7 @@ export const useHostCreateDraftState = ({
       setEndsAt(next.endsAt);
       setTitle(next.title);
       setDescription(next.description);
+      setKind(next.kind);
       setChosenLanguages(next.chosenLanguages);
     };
     setIsRepeat(repeat !== null);
@@ -103,6 +106,7 @@ export const useHostCreateDraftState = ({
         endsAt,
         title,
         description,
+        kind,
         chosenLanguages,
       },
       repeat?.sourceEventId,
@@ -119,6 +123,7 @@ export const useHostCreateDraftState = ({
     endsAt,
     title,
     description,
+    kind,
     chosenLanguages,
   ]);
 
@@ -133,6 +138,7 @@ export const useHostCreateDraftState = ({
     setEndsAt,
     setTitle,
     setDescription,
+    setKind,
     setChosenLanguages,
   };
 };

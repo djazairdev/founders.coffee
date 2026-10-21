@@ -11,6 +11,7 @@ import {
   getEvent,
   type Db,
 } from '@founders-coffee/db';
+import { events as eventsDomain } from '@founders-coffee/domain';
 
 export interface RepeatEventTemplate {
   readonly sourceEventId: string;
@@ -23,6 +24,7 @@ export interface RepeatEventTemplate {
   readonly latitude: number | null;
   readonly longitude: number | null;
   readonly languages: readonly string[];
+  readonly kind: eventsDomain.MemberEventKind;
 }
 
 const ineligible = (): Result<RepeatEventTemplate> =>
@@ -62,6 +64,8 @@ export const readRepeatEventTemplate = async (
   ) {
     return ineligible();
   }
+  const kind = eventsDomain.memberEventKindSchema.safeParse(event.kind);
+  if (!kind.success) return ineligible();
   const closeout = await getCloseout(db, event.id);
   if (closeout?.outcome !== 'held') return ineligible();
 
@@ -76,5 +80,6 @@ export const readRepeatEventTemplate = async (
     latitude: event.latitude,
     longitude: event.longitude,
     languages: eventLanguages(event),
+    kind: kind.data,
   });
 };

@@ -3,6 +3,7 @@ import type { geo } from '@founders-coffee/domain';
 import type { Locale } from '@founders-coffee/i18n';
 
 import type { useHostCreateWizard } from '../../features/events/useHostCreateWizard';
+import { EventKindField } from '../events/EventKindField';
 import { HostDetailsStep } from './HostDetailsStep';
 import { HostScheduleStep } from './HostScheduleStep';
 import { HostVenueLine } from './HostVenueLine';
@@ -86,17 +87,24 @@ export const HostWizardStepBody = ({
     )}
 
     {wizard.step === 3 && (
-      <HostDetailsStep
-        locale={locale}
-        title={wizard.title}
-        description={wizard.description}
-        languages={wizard.languages}
-        constraints={wizard.view.constraints}
-        errors={wizard.fieldErrors}
-        onTitleChange={wizard.setTitle}
-        onDescriptionChange={wizard.setDescription}
-        onLanguagesChange={wizard.setLanguages}
-      />
+      <div className="grid gap-5">
+        <EventKindField
+          locale={locale}
+          value={wizard.kind}
+          onChange={wizard.setKind}
+        />
+        <HostDetailsStep
+          locale={locale}
+          title={wizard.title}
+          description={wizard.description}
+          languages={wizard.languages}
+          constraints={wizard.view.constraints}
+          errors={wizard.fieldErrors}
+          onTitleChange={wizard.setTitle}
+          onDescriptionChange={wizard.setDescription}
+          onLanguagesChange={wizard.setLanguages}
+        />
+      </div>
     )}
   </>
 );
