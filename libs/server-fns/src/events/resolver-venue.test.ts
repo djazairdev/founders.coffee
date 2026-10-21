@@ -4,7 +4,7 @@ import { ok } from '@founders-coffee/core';
 import { venues as venuesDomain } from '@founders-coffee/domain';
 
 import type { MapProvider } from '../maps/provider.js';
-import { createEventResolver } from './resolver.js';
+import { createEventResolver } from './create-resolver.js';
 import {
   createInput,
   setupDb,

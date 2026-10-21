@@ -25,6 +25,7 @@ import {
   CLOSEOUT_OUTCOMES,
   CURRENCY_CODES,
   EVENT_KINDS,
+  EVENT_ORGANISER_ROLES,
   EVENT_STATUSES,
   FEEDBACK_RATINGS,
   HOST_TRUST_STATUSES,
@@ -396,6 +397,36 @@ export const events = sqliteTable(
 
 export type Event = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;
+
+/**
+ * The organisations behind an event (B-EVT-17): at most one `lead`, the organisation it was created
+ * as, and any number of `co_host`s (B-EVT-20). An event with no row here is a community event. The
+ * row goes with its event or its organisation; the event itself stays when its organisation goes.
+ */
+export const eventOrganisers = sqliteTable(
+  'event_organisers',
+  {
+    eventId: text('event_id')
+      .notNull()
+      .references(() => events.id, { onDelete: 'cascade' }),
+    organisationId: text('organisation_id')
+      .notNull()
+      .references(() => organization.id, { onDelete: 'cascade' }),
+    role: text('role', { enum: [...EVENT_ORGANISER_ROLES] }).notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    primaryKey({ columns: [table.eventId, table.organisationId] }),
+    uniqueIndex('event_organisers_one_lead_unique')
+      .on(table.eventId)
+      .where(sql`role = 'lead'`),
+    index('event_organisers_organisation_index').on(table.organisationId),
+  ],
+);
+
+export type EventOrganiser = typeof eventOrganisers.$inferSelect;
 
 /** Event RSVP — one per user per event (UNIQUE constraint). */
 export const eventRsvps = sqliteTable(

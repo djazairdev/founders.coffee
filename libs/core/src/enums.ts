@@ -30,6 +30,9 @@ export const EVENT_KINDS = ['meetup', 'workshop', 'hackathon'] as const;
 export type EventKind = (typeof EVENT_KINDS)[number];
 export const eventKindSchema = z.enum(EVENT_KINDS);
 
+export const EVENT_ORGANISER_ROLES = ['lead', 'co_host'] as const;
+export type EventOrganiserRole = (typeof EVENT_ORGANISER_ROLES)[number];
+
 export const RSVP_STATUSES = ['going', 'waitlist', 'cancelled'] as const;
 export type RsvpStatus = (typeof RSVP_STATUSES)[number];
 export const rsvpStatusSchema = z.enum(RSVP_STATUSES);

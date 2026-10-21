@@ -10,12 +10,8 @@ import {
   syncChatChannel,
 } from './chat-channels.js';
 import { DAY_SECONDS, meetupRow, publishMeetup } from './chat.fixtures.js';
-import {
-  createEvent,
-  createEventIfRouteAvailable,
-  getEvent,
-  transitionEventStatus,
-} from './events.js';
+import { createEvent, getEvent, transitionEventStatus } from './events.js';
+import { createEventIfRouteAvailable } from './events-publish.js';
 import { updateEventIfCurrent } from './events-update.js';
 import type { Db } from './index.js';
 import { setupDb } from './rsvps.fixtures.js';

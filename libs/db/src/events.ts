@@ -1,9 +1,7 @@
 import { and, desc, eq, gt, lt, or, sql } from 'drizzle-orm';
 
-import { id } from '@founders-coffee/core';
-
 import { batch } from './atomic.js';
-import { insertChatChannel, syncChatChannel } from './chat-channels.js';
+import { syncChatChannel } from './chat-channels.js';
 import type { Db } from './db.js';
 import { eventEndsAt } from './events-end.js';
 import { visibleIdentity } from './profile-access.js';
@@ -50,28 +48,6 @@ const hostedEventScope = (hostId: string, marketCode?: string) =>
 export const createEvent = async (db: Db, row: NewEvent): Promise<Event> => {
   const result = await db.insert(events).values(row).returning();
   return result[0];
-};
-
-/**
- * Publish a meetup, with its chat, only when its address is free in its market.
- *
- * One batch: the meetup's insert gives way on a taken address, and the chat's insert selects from
- * the meetup's row, so an address that was taken writes neither and a published meetup always has
- * its chat (P1-026).
- */
-export const createEventIfRouteAvailable = async (
-  db: Db,
-  row: NewEvent,
-): Promise<Event | undefined> => {
-  const [created] = await batch(db, [
-    db
-      .insert(events)
-      .values(row)
-      .onConflictDoNothing({ target: [events.marketCode, events.slug] })
-      .returning(),
-    insertChatChannel(db, { id: id('chn'), eventId: row.id }),
-  ]);
-  return (created as Event[])[0];
 };
 
 /** Fetch an event by its primary key. */

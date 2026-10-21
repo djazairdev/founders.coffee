@@ -22,6 +22,7 @@ export type {
   EventCreateRequestInput,
   EventPageRequestInput,
   EventUpdateRequestInput,
+  OrganisationEventCreateRequestInput,
   PublicEventFeedRequestInput,
   RepeatEventRequestInput,
 } from './schemas.js';
@@ -40,6 +41,7 @@ export {
   getUpcomingEvents,
   updateEvent,
 } from './rpc.js';
+export { createOrganisationEvent } from './organisation-rpc.js';
 export type { HostedEventItem, HostedEventPage } from './hosted.js';
 export type { PublicEventFeedPage } from './public-feed.js';
 export type { RepeatEventTemplate } from './repeat.js';
