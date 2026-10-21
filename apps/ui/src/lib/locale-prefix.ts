@@ -4,7 +4,9 @@ const LOCALE_DIRECT = new Set([
   'closeout',
   'edit',
   'feedback',
+  'hackathon',
   'login',
+  'o',
   'onboarding',
   'profile',
   'u',
@@ -17,6 +19,8 @@ const LOCALE_DIRECT = new Set([
  * `$locale/$market`. `e` is in both, because `/algeria/e/{slug}` was the canonical address of a
  * meetup before the prefix existed and is still indexed under it, so a market in front of `e` is a
  * market and not noise. A contract test derives this set from the route tree so it cannot drift.
+ * `hackathon` and `o` are registered before their pages land, so a market in front of a hackathon
+ * or organisation screen is dropped from the first page that answers there.
  */
 export const isLocaleDirect = (segment: string): boolean =>
   LOCALE_DIRECT.has(segment);

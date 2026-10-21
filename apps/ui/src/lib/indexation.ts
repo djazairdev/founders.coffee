@@ -59,6 +59,10 @@ const PRIVATE_SCREEN =
   /^\/(?:[^/]+\/)?(?:closeout|edit|feedback|login|onboarding|profile|u\/[^/]+)(?:\/|$)/iu;
 const LEGACY_PRIVATE_ADDRESS = /^\/(?:account|activity|preferences)(?:\/|$)/iu;
 const HOST_WIZARD = /^\/(?:[^/]+\/){1,2}host\/create(?:\/|$)/iu;
+const HACKATHON_SCREEN =
+  /^\/(?:[^/]+\/)?hackathon\/[^/]+\/(?:manage|team|submit|judge)(?:\/|$)/iu;
+const ORGANISATION_SCREEN =
+  /^\/(?:[^/]+\/)?o\/(?:apply|invitations|[^/]+\/[^/]+)(?:\/|$)/iu;
 
 const tryDecodeURI = (text: string): string | undefined => {
   try {
@@ -106,9 +110,13 @@ export const routedPath = (pathname: string): string =>
  *
  * So the name counts first or second, never deeper: `/en/algeria/e/feedback` is a meetup whose slug
  * happens to name a screen, and it has to stay public. The legacy addresses only ever existed bare,
- * and the host wizard sits under a market. Case is ignored because the router ignores it, so
- * `/en/PROFILE` is the profile screen. The address is read as the router reads it, through
- * {@link routedPath}, so `/en/%70rofile` and `/en//profile` are the profile screen too.
+ * and the host wizard sits under a market. A hackathon's own screens — `manage`, `team`, `submit`
+ * and `judge` — sit under `hackathon/{eventId}`, while its public page is the event's. An
+ * organisation's public page is `o/{slug}` and nothing deeper, so `o/apply`, `o/invitations/…` and
+ * every address beneath a slug, such as `o/{slug}/manage`, are private: the domain reserves those
+ * names as slugs. Case is ignored because the router ignores it, so `/en/PROFILE` is the profile
+ * screen. The address is read as the router reads it, through {@link routedPath}, so
+ * `/en/%70rofile` and `/en//profile` are the profile screen too.
  *
  * This is the one list of private screens. The Worker's header floor, the service worker's cache and
  * the Early Hints policy all read it, so a screen is private to all three or to none. Each of them
@@ -120,7 +128,9 @@ export const isPrivatePath = (pathname: string): boolean => {
   return (
     PRIVATE_SCREEN.test(path) ||
     LEGACY_PRIVATE_ADDRESS.test(path) ||
-    HOST_WIZARD.test(path)
+    HOST_WIZARD.test(path) ||
+    HACKATHON_SCREEN.test(path) ||
+    ORGANISATION_SCREEN.test(path)
   );
 };
 
