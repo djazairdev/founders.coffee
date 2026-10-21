@@ -21,6 +21,8 @@ interface TurnstileApi {
   reset: (id: string) => void;
 }
 
+const FLEXIBLE_MIN_WIDTH_PX = 300;
+
 const SCRIPT_SRC =
   'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
 
@@ -89,7 +91,10 @@ export const Turnstile = ({
         action,
         appearance,
         language,
-        size: 'flexible',
+        size:
+          containerRef.current.clientWidth >= FLEXIBLE_MIN_WIDTH_PX
+            ? 'flexible'
+            : 'compact',
         callback: (token) => onTokenRef.current(token),
         'error-callback': resetWidget,
         'expired-callback': resetWidget,
