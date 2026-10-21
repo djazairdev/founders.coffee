@@ -100,7 +100,9 @@ export const EventDetail = ({
   const isCancelled = event.status === 'cancelled';
   const isGoing = event.viewerRsvp === 'going';
   const isChatAvailable = market.featureFlags.meetupChat === true;
-  const hasRsvpBox = isCancelled ? (isHost ? isChatAvailable : isGoing) : true;
+  const hasRsvpBox =
+    event.kind !== 'hackathon' &&
+    (isCancelled ? (isHost ? isChatAvailable : isGoing) : true);
 
   return (
     <article className="mx-auto max-w-5xl px-4 py-6 sm:py-8 md:px-8 md:py-10">

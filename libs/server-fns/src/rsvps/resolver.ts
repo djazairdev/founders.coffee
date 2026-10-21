@@ -42,6 +42,10 @@ export interface RsvpResult {
  * the common case off the write path, and a member who slips past it is still rejected by
  * `UNIQUE(event_id, user_id)`.
  *
+ * A hackathon is refused with `hackathon_requires_registration`, since people join one by
+ * registering. The read is enough for that: no edit turns an event into a hackathon or a hackathon
+ * into anything else (`event_kind_immutable`).
+ *
  * Notifications (confirmation + reminders) are enqueued only when a seat was actually taken.
  */
 export const createRsvpResolver = async (
@@ -60,6 +64,14 @@ export const createRsvpResolver = async (
   if (event.status !== 'published') {
     return err(
       new AppError('event_not_available', 'This event is no longer available'),
+    );
+  }
+  if (event.kind === 'hackathon') {
+    return err(
+      new AppError(
+        'hackathon_requires_registration',
+        'A hackathon is joined by registering, not by RSVP',
+      ),
     );
   }
 

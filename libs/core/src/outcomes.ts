@@ -118,6 +118,7 @@ export const isOperationsErrorCode = (
 
 export const HACKATHON_ERROR_CODES = [
   'hackathons_disabled',
+  'hackathon_requires_registration',
   'registration_closed',
   'attendance_mode_unavailable',
   'not_eligible',
