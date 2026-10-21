@@ -68,6 +68,7 @@ const detailOf = (base: typeof inProgress): EventDetailItem => ({
   stateName: 'Algiers',
   stateNameAr: 'الجزائر',
   stateNameFr: 'Alger',
+  meetingLink: null,
 });
 
 const serverRender = (viewerId: string | null, base = inProgress) => {

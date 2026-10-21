@@ -8,6 +8,7 @@ const cairo = {
   stateName: 'Cairo',
   stateNameAr: 'القاهرة',
   stateNameFr: 'Le Caire',
+  meetingLink: null,
 };
 
 describe('what an event calls its region', () => {

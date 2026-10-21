@@ -47,6 +47,7 @@ const event = {
   stateName: 'Alger',
   stateNameAr: 'الجزائر',
   stateNameFr: 'Alger',
+  meetingLink: null,
 } satisfies EventDetailItem;
 
 const unpinned = { ...event, latitude: null, longitude: null };

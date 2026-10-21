@@ -11,6 +11,7 @@ export interface EventAttendance {
 export type EventWithAttendance = PublicEvent & EventAttendance;
 
 export type EventDetailItem = EventWithAttendance & {
+  readonly meetingLink: string | null;
   readonly cityName: string;
   readonly cityNameAr: string;
   readonly cityNameFr: string;

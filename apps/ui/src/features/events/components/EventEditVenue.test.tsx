@@ -85,6 +85,7 @@ const event = {
   stateName: 'Alger',
   stateNameAr: 'الجزائر',
   stateNameFr: 'Alger',
+  meetingLink: null,
 } satisfies EventDetailItem;
 
 const show = (locale: Locale = 'en', item: EventDetailItem = event) =>
