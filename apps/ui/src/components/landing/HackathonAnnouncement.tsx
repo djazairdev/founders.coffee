@@ -27,6 +27,7 @@ import {
   FIRST_HACKATHON,
   isAnnouncementShown,
 } from '../../content/hackathon/announcement';
+import { HackathonAlertForm } from '../../features/hackathons/components/HackathonAlertForm';
 
 type HackathonAnnouncementProps = {
   locale: Locale;
@@ -142,12 +143,17 @@ export const HackathonAnnouncement = ({
           ))}
         </ul>
 
-        <p className="text-body-sm text-neutral">
-          {hackathon_announce_registration(
-            { day: opens.day, month: opens.month },
-            { locale },
-          )}
-        </p>
+        <div className="flex flex-col gap-3 border-t border-base-300 pt-5">
+          <p className="text-body-sm text-neutral">
+            {hackathon_announce_registration(
+              { day: opens.day, month: opens.month },
+              { locale },
+            )}
+          </p>
+          <div className="max-w-xl">
+            <HackathonAlertForm locale={locale} marketCode={market.code} />
+          </div>
+        </div>
       </div>
     </section>
   );
