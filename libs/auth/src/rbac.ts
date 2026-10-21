@@ -18,6 +18,7 @@ const statements = {
   submission: ['create'],
   judging: ['score'],
   hackathon_report: ['create'],
+  organisation: ['apply'],
   moderation: ['event', 'user', 'organisation', 'hackathon', 'submission'],
   closeout: ['override'],
   host_trust: ['update'],
@@ -30,6 +31,7 @@ const PARTICIPANT = {
   submission: ['create'],
   judging: ['score'],
   hackathon_report: ['create'],
+  organisation: ['apply'],
 } as const;
 
 const OPERATOR = {
@@ -117,7 +119,7 @@ export const ADMIN_APP_PERMISSION = { operations: ['read'] } as const;
  * happened, which is the evidence every other number is derived from.
  *
  * The hackathon grants say only what a signed-in member may try: read and register for a hackathon,
- * create or join a team, submit, score, report. Who owns what (the organiser of this hackathon, the
+ * create or join a team, submit, score, report, and apply for an organisation. Who owns what (the organiser of this hackathon, the
  * captain of this team, a judge invited to it) is decided by the resolvers and by
  * `requireOrganisationPermission`, never by a role. A moderator's `organisation`, `hackathon` and
  * `submission` moderation, like every other moderation action, is withheld from members.

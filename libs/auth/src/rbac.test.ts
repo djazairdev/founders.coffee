@@ -101,6 +101,19 @@ describe('hackathons', () => {
   );
 });
 
+describe('organisations', () => {
+  it('lets every member who takes part apply for an organisation (B-ORG-04)', () => {
+    for (const role of ['member', 'host', 'moderator', 'admin'])
+      expect(roleAllows(role, { organisation: ['apply'] })).toBe(true);
+  });
+
+  it('keeps a sponsor contact from applying', () => {
+    expect(roleAllows('sponsor_contact', { organisation: ['apply'] })).toBe(
+      false,
+    );
+  });
+});
+
 describe('a role the code does not define', () => {
   it.each([null, undefined, '', 'superuser', 'ADMIN'])(
     'refuses %s rather than reading it as absent',

@@ -70,6 +70,7 @@ describe('organisationApplicationSchema', () => {
 
   it.each([
     ['an unknown kind', { kind: 'charity' }],
+    ['the platform’s own kind, which no applicant holds', { kind: 'platform' }],
     ['a market that is not a code', { marketCode: 'Algeria' }],
     ['a one-letter name', { name: 'G' }],
     ['a description too short to review', { description: 'Tech club' }],

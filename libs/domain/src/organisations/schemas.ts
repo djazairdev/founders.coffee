@@ -67,10 +67,14 @@ export const organisationDescriptionSchema = z
 
 const cityCodeSchema = z.string().trim().min(1).max(32);
 
+export const applicantOrganisationKindSchema = organisationKindSchema.exclude([
+  'platform',
+]);
+
 export const organisationApplicationSchema = z.strictObject({
   name: organisationNameSchema,
   slug: organisationSlugSchema,
-  kind: organisationKindSchema,
+  kind: applicantOrganisationKindSchema,
   marketCode: marketCodeSchema,
   cityCode: cityCodeSchema.nullable().default(null),
   description: organisationDescriptionSchema,
