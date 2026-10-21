@@ -1,6 +1,6 @@
 import { env } from 'cloudflare:workers';
 
-import { id } from '@founders-coffee/core';
+import { id, shortId } from '@founders-coffee/core';
 
 import {
   account,
@@ -13,6 +13,9 @@ import {
   eventFeedback,
   eventRsvps,
   initializeMemberProfile,
+  invitation as organisationInvitation,
+  member as organisationMember,
+  organization,
   pushSessionLinks,
   pushSubscriptions,
   reserveProfileAsset,
@@ -173,6 +176,34 @@ export const closeWithEverything = async (
     payload: { email: member.email },
     sendAt: PAST,
   });
+  const organisationId = id('org');
+  await db.insert(organization).values({
+    id: organisationId,
+    name: 'Closing Club',
+    slug: `closing-club-${shortId(organisationId).slice(0, 12)}`,
+    kind: 'club',
+    marketCode: 'DZ',
+    description: 'A club the closing member runs and invites people to.',
+    createdAt: NOW,
+  });
+  await db.insert(organisationMember).values({
+    id: id('mem'),
+    organizationId: organisationId,
+    userId: member.id,
+    role: 'owner',
+    createdAt: NOW,
+  });
+  await db.insert(organisationInvitation).values(
+    [member.email, 'invited@closing.test'].map((email) => ({
+      id: id('inv'),
+      organizationId: organisationId,
+      email,
+      role: 'member',
+      expiresAt: SOON,
+      inviterId: member.id,
+      createdAt: NOW,
+    })),
+  );
   await db
     .update(user)
     .set({

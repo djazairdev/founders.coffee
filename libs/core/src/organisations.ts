@@ -18,3 +18,12 @@ export const ORGANISATION_STATUSES = [
 ] as const;
 export type OrganisationStatus = (typeof ORGANISATION_STATUSES)[number];
 export const organisationStatusSchema = z.enum(ORGANISATION_STATUSES);
+
+export const ORGANISATION_INVITATION_STATUSES = [
+  'pending',
+  'accepted',
+  'rejected',
+  'canceled',
+] as const;
+export type OrganisationInvitationStatus =
+  (typeof ORGANISATION_INVITATION_STATUSES)[number];

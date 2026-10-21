@@ -40,6 +40,9 @@ import {
   OPERATION_REASONS,
   ORDER_PURPOSES,
   ORDER_STATUSES,
+  ORGANISATION_INVITATION_STATUSES,
+  ORGANISATION_KINDS,
+  ORGANISATION_STATUSES,
   PROFILE_ASSET_STATUSES,
   PROFILE_PHOTO_MIME_TYPES,
   PROFILE_STAGES,
@@ -169,6 +172,7 @@ export const session = sqliteTable(
     ipAddress: text('ip_address'),
     userAgent: text('user_agent'),
     impersonatedBy: text('impersonated_by'),
+    activeOrganizationId: text('active_organization_id'),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),
@@ -226,6 +230,97 @@ export const verification = sqliteTable('verification', {
 
 export type Verification = typeof verification.$inferSelect;
 export type NewVerification = typeof verification.$inferInsert;
+
+/**
+ * Better Auth's organisation plugin keeps organisers, their members and invitations in these three
+ * tables (B-ORG-01). The plugin's own columns keep its names; ours follow them. An organisation
+ * starts `pending` and is approved by an operator before it can run anything.
+ */
+export const organization = sqliteTable(
+  'organization',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    slug: text('slug').notNull().unique(),
+    logo: text('logo'),
+    metadata: text('metadata'),
+    kind: text('kind', { enum: [...ORGANISATION_KINDS] }).notNull(),
+    status: text('status', { enum: [...ORGANISATION_STATUSES] })
+      .notNull()
+      .default('pending'),
+    marketCode: text('market_code')
+      .notNull()
+      .references(() => markets.code),
+    cityCode: text('city_code'),
+    description: text('description').notNull(),
+    websiteUrl: text('website_url'),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    index('organization_market_status_index').on(
+      table.marketCode,
+      table.status,
+    ),
+  ],
+);
+
+export type Organization = typeof organization.$inferSelect;
+
+export const member = sqliteTable(
+  'member',
+  {
+    id: text('id').primaryKey(),
+    organizationId: text('organization_id')
+      .notNull()
+      .references(() => organization.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    role: text('role').notNull().default('member'),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex('member_organization_user_unique').on(
+      table.organizationId,
+      table.userId,
+    ),
+    index('member_user_index').on(table.userId),
+  ],
+);
+
+export type Member = typeof member.$inferSelect;
+
+export const invitation = sqliteTable(
+  'invitation',
+  {
+    id: text('id').primaryKey(),
+    organizationId: text('organization_id')
+      .notNull()
+      .references(() => organization.id, { onDelete: 'cascade' }),
+    email: text('email').notNull(),
+    role: text('role'),
+    status: text('status', { enum: [...ORGANISATION_INVITATION_STATUSES] })
+      .notNull()
+      .default('pending'),
+    expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+    inviterId: text('inviter_id')
+      .notNull()
+      .references(() => user.id),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    index('invitation_organization_index').on(table.organizationId),
+    index('invitation_email_index').on(table.email),
+  ],
+);
+
+export type Invitation = typeof invitation.$inferSelect;
 
 /**
  * Event — a free local meetup created by a host (FR-E1). Every event is free (FR-E2).
