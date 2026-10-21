@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import {
+  eventFormatSchema,
   localeSchema,
   marketCodeSchema,
   topicSchema,
@@ -8,6 +9,14 @@ import {
 } from '@founders-coffee/core';
 
 import { eventDurationLimits } from './duration.js';
+import {
+  addFormatIssues,
+  CREATE_VENUE_FIELDS,
+  eventFormatIssues,
+  eventMeetingUrlSchema,
+  hasVenue,
+  UPDATE_VENUE_FIELDS,
+} from './format.js';
 import { eventLanguagesSchema } from './languages.js';
 
 export const EVENT_TITLE_MIN_LENGTH = 3;
@@ -109,19 +118,33 @@ export const eventCreateSchema = z
     cityCode: z.string().trim().min(1).max(32).optional(),
     title: eventTitleSchema,
     description: eventDescriptionSchema,
-    venueName: eventVenueNameSchema,
-    venueAddress: eventVenueAddressSchema,
+    venueName: eventVenueNameSchema.optional(),
+    venueAddress: eventVenueAddressSchema.optional(),
     venueProviderId: z.string().trim().min(1).max(120).optional(),
-    latitude: z.number().finite().min(-90).max(90),
-    longitude: z.number().finite().min(-180).max(180),
+    latitude: z.number().finite().min(-90).max(90).optional(),
+    longitude: z.number().finite().min(-180).max(180).optional(),
     startsAt: z.number().int().positive(),
     endsAt: z.number().int().positive(),
     languages: eventLanguagesSchema,
     kind: memberEventKindSchema.default('meetup'),
     tags: eventTagsSchema.default([]),
+    format: eventFormatSchema.default('in_person'),
+    meetingUrl: eventMeetingUrlSchema.optional(),
   })
   .strict()
-  .superRefine(addScheduleIssues);
+  .superRefine((input, context) => {
+    addScheduleIssues(input, context);
+    addFormatIssues(
+      eventFormatIssues(input.format, input, CREATE_VENUE_FIELDS),
+      context,
+    );
+    if (!hasVenue(input.format) && input.cityCode === undefined)
+      context.addIssue({
+        code: 'custom',
+        message: 'An online event names its city',
+        path: ['cityCode'],
+      });
+  });
 
 /**
  * Hold an edit to the schedule rules, and to naming a point completely or not at all.
@@ -156,7 +179,7 @@ export const eventUpdateSchema = z
     expectedVersion: z.number().int().nonnegative(),
     title: eventTitleSchema,
     description: eventDescriptionSchema,
-    venueName: eventVenueNameSchema,
+    venueName: eventVenueNameSchema.optional(),
     venueAddress: eventVenueAddressSchema.optional(),
     venueProviderId: z.string().trim().min(1).max(120).optional(),
     latitude: z.number().finite().min(-90).max(90).optional(),
@@ -166,9 +189,18 @@ export const eventUpdateSchema = z
     languages: eventLanguagesSchema,
     kind: memberEventKindSchema.optional(),
     tags: eventTagsSchema.optional(),
+    format: eventFormatSchema.optional(),
+    meetingUrl: eventMeetingUrlSchema.optional(),
   })
   .strict()
-  .superRefine(addUpdateIssues);
+  .superRefine((input, context) => {
+    addUpdateIssues(input, context);
+    if (input.format !== undefined)
+      addFormatIssues(
+        eventFormatIssues(input.format, input, UPDATE_VENUE_FIELDS),
+        context,
+      );
+  });
 
 export type EventUpdateInput = z.infer<typeof eventUpdateSchema>;
 

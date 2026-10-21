@@ -20,7 +20,12 @@ describe('eventCreateRequestSchema', () => {
   it('carries the domain command and nothing else', () => {
     const result = eventCreateRequestSchema.parse({ event });
 
-    expect(result.event).toEqual({ ...event, kind: 'meetup', tags: [] });
+    expect(result.event).toEqual({
+      ...event,
+      kind: 'meetup',
+      tags: [],
+      format: 'in_person',
+    });
     expect(Object.keys(result)).toEqual(['event']);
   });
 

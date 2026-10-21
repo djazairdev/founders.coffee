@@ -25,6 +25,28 @@ import { locatePoint, type LocatedPoint } from '../maps/locate.js';
 import type { MapProvider } from '../maps/provider.js';
 import { attendHostOwnEvent } from './host-attendance.js';
 
+type EventPlacement = Omit<LocatedPoint, 'address'> & {
+  readonly address: string | null;
+};
+
+/** The city the host named, and its state, inside this market; anything else is refused. */
+const namedCity = (
+  marketCode: string,
+  cityCode: string,
+  address: string | null,
+): Result<EventPlacement> => {
+  const chosen = geo.findCity(marketCode, cityCode);
+  if (!chosen) {
+    return err(
+      new AppError(
+        'validation_failed',
+        `Unknown city ${cityCode} for ${marketCode}`,
+      ),
+    );
+  }
+  return ok({ stateCode: chosen.stateCode, cityCode: chosen.code, address });
+};
+
 /**
  * Where this event is, and the address to publish with it.
  *
@@ -32,6 +54,7 @@ import { attendHostOwnEvent } from './host-attendance.js';
  * per-state counts describe where events actually are rather than where a host said they were. A
  * host may override the city on the confirmation step, and an override is trusted only far enough
  * to name a city inside this market — the state still comes from the city, never from the client.
+ * An online event has no point, so the city it names is its city, and it has no address.
  *
  * The venue *name* stays host-authored. Mapbox indexes almost no points of interest in the Maghreb,
  * so a provider name is unavailable exactly where it would be most useful, and "15 Rue Yousfi
@@ -41,7 +64,12 @@ const eventLocation = async (
   mapProvider: MapProvider,
   input: EventCreateInput,
   locale: Locale,
-): Promise<Result<LocatedPoint>> => {
+): Promise<Result<EventPlacement>> => {
+  if (input.latitude === undefined || input.longitude === undefined)
+    return input.cityCode === undefined
+      ? err(new AppError('validation_failed', 'An online event names its city'))
+      : namedCity(input.marketCode, input.cityCode, null);
+
   const located = await locatePoint(mapProvider, {
     marketCode: input.marketCode,
     locale,
@@ -51,21 +79,7 @@ const eventLocation = async (
     fallbackAddress: input.venueAddress,
   });
   if (!located.ok || !input.cityCode) return located;
-
-  const chosen = geo.findCity(input.marketCode, input.cityCode);
-  if (!chosen) {
-    return err(
-      new AppError(
-        'validation_failed',
-        `Unknown city ${input.cityCode} for ${input.marketCode}`,
-      ),
-    );
-  }
-  return ok({
-    ...located.data,
-    stateCode: chosen.stateCode,
-    cityCode: chosen.code,
-  });
+  return namedCity(input.marketCode, input.cityCode, located.data.address);
 };
 
 const slugify = (title: string): string =>
@@ -139,16 +153,18 @@ export const createEventResolverWithId = async (
       cityCode: located.data.cityCode,
       title: input.title,
       description: input.description,
-      venue: input.venueName,
+      venue: input.venueName ?? null,
       venueAddress: located.data.address,
-      latitude: input.latitude,
-      longitude: input.longitude,
+      latitude: input.latitude ?? null,
+      longitude: input.longitude ?? null,
       startsAt: new Date(input.startsAt),
       endsAt: new Date(input.endsAt),
       language,
       languages: input.languages,
       kind: input.kind,
       tags: input.tags,
+      format: input.format,
+      meetingUrl: input.meetingUrl ?? null,
       status: 'published',
     };
 
