@@ -5,6 +5,7 @@ import { id } from '@founders-coffee/core';
 import {
   account,
   cityWaitlist,
+  hackathonInterest,
   createDb,
   createEvent,
   eq,
@@ -154,6 +155,12 @@ export const closeWithEverything = async (
     email: member.email,
     marketCode: 'DZ',
     cityCode: '1',
+    locale: 'ar',
+  });
+  await db.insert(hackathonInterest).values({
+    id: id('hint'),
+    email: member.email,
+    marketCode: 'DZ',
     locale: 'ar',
   });
   await db.insert(scheduledNotifications).values({

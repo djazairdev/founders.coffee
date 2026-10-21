@@ -28,6 +28,7 @@ export * from './chat-system.js';
 export * from './chat-reports.js';
 export * from './chat-retention.js';
 export * from './waitlist.js';
+export * from './hackathon-interest.js';
 export * from './waitlist-launch.js';
 export * from './waitlist-notifications.js';
 export * from './notification-claim.js';

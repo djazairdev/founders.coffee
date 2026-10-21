@@ -18,6 +18,7 @@ import {
   account,
   accountPreferences,
   cityWaitlist,
+  hackathonInterest,
   eq,
   eventAttendance,
   eventFeedback,
@@ -107,6 +108,12 @@ describe('erasing a closed account (#105, real D1)', () => {
         .select()
         .from(cityWaitlist)
         .where(eq(cityWaitlist.email, host.email)),
+    ).toEqual([]);
+    expect(
+      await db
+        .select()
+        .from(hackathonInterest)
+        .where(eq(hackathonInterest.email, host.email)),
     ).toEqual([]);
     const codes = await db.select().from(verification);
     expect(codes.filter((row) => row.identifier.includes(host.email))).toEqual(

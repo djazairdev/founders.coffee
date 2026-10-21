@@ -77,6 +77,10 @@ They use the dataset's columns as above, plus two of their own. Every other row 
 
 No member id, team name, title or other free text is written. Both ids must match the id factory's format (`idSchema`), and a row given anything else is refused and reported instead of written. A hackathon's event id is already public on its page; it identifies the hackathon, never a person.
 
+### Hackathon interest list (B-ANN-01)
+
+`hackathon_interest_joined` is written by `joinHackathonInterest` when an address joins a market's "tell me when registration opens" list for the first time. A repeat of the same address is answered the same way and not counted, so the total is how many addresses asked. The row carries the market in `index1` and the reader's language in `blob3`, nothing else: no address, no hackathon id (there is no hackathon row yet), `blob4` the environment, `blob5`–`blob7` `none` and `blob8` `server`.
+
 ## Private community report
 
 The admin Worker serves GET `/api/community-health` behind its existing Access JWT and correlated Better Auth operator session, plus the central `metrics:read` permission. No public read endpoint was added. It returns unavailable when `communityOperations` is off; missing evidence is not a zero retention rate.
