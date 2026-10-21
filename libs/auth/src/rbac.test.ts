@@ -8,11 +8,14 @@ const OPERATOR_ACTIONS = [
   { metrics: ['read'] },
   { moderation: ['event'] },
   { moderation: ['user'] },
+  { moderation: ['organisation'] },
+  { moderation: ['hackathon'] },
+  { moderation: ['submission'] },
   { host_trust: ['update'] },
   { audit: ['read'] },
 ] as const;
 
-describe('the seven operations actions the permission table defines', () => {
+describe('the operations actions the permission table defines', () => {
   it('gives an admin every one of them', () => {
     for (const action of [...OPERATOR_ACTIONS, { closeout: ['override'] }])
       expect(roleAllows('admin', action)).toBe(true);
@@ -62,6 +65,40 @@ describe('the meetup chat', () => {
     expect(roleAllows('sponsor_contact', { chat: ['read'] })).toBe(false);
     expect(roleAllows('sponsor_contact', { chat: ['write'] })).toBe(false);
   });
+});
+
+const PARTICIPANT_ACTIONS = [
+  { hackathon: ['read'] },
+  { hackathon: ['register'] },
+  { team: ['create'] },
+  { team: ['join'] },
+  { submission: ['create'] },
+  { judging: ['score'] },
+  { hackathon_report: ['create'] },
+] as const;
+
+describe('hackathons', () => {
+  it.each(['member', 'host', 'moderator', 'admin'])(
+    'lets %s try every participant action',
+    (role) => {
+      for (const action of PARTICIPANT_ACTIONS)
+        expect(roleAllows(role, action)).toBe(true);
+    },
+  );
+
+  it('lets a sponsor contact read a hackathon and take part in nothing', () => {
+    expect(roleAllows('sponsor_contact', { hackathon: ['read'] })).toBe(true);
+    for (const action of PARTICIPANT_ACTIONS.slice(1))
+      expect(roleAllows('sponsor_contact', action)).toBe(false);
+  });
+
+  it.each(['member', 'host', 'sponsor_contact'])(
+    'withholds hackathon moderation from %s',
+    (role) => {
+      for (const target of ['organisation', 'hackathon', 'submission'] as const)
+        expect(roleAllows(role, { moderation: [target] })).toBe(false);
+    },
+  );
 });
 
 describe('a role the code does not define', () => {
