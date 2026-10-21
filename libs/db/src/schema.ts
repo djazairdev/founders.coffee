@@ -58,6 +58,7 @@ import {
   RSVP_STATUSES,
   USER_ROLES,
   type AttendanceMode,
+  type HackathonCriterionScale,
   type Topic,
 } from '@founders-coffee/core';
 
@@ -569,6 +570,47 @@ export const hackathonTracks = sqliteTable(
 
 export type HackathonTrack = typeof hackathonTracks.$inferSelect;
 export type NewHackathonTrack = typeof hackathonTracks.$inferInsert;
+
+/**
+ * A hackathon's published rubric (B-HKN-05): each criterion its judges score, how much it weighs and
+ * the scale it is scored on, 1 to 5 or 1 to 10. A hackathon has three or four whose weights add up to
+ * 100, which the domain holds; the database refuses a weight or scale outside its range.
+ */
+export const hackathonCriteria = sqliteTable(
+  'hackathon_criteria',
+  {
+    id: text('id').primaryKey(),
+    eventId: text('event_id')
+      .notNull()
+      .references(() => hackathons.eventId, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    description: text('description').notNull(),
+    weight: integer('weight').notNull(),
+    scale: integer('scale').$type<HackathonCriterionScale>().notNull(),
+    position: integer('position').notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex('hackathon_criteria_position_unique').on(
+      table.eventId,
+      table.position,
+    ),
+    check(
+      'hackathon_criteria_weight_check',
+      sql`${table.weight} BETWEEN 1 AND 100`,
+    ),
+    check('hackathon_criteria_scale_check', sql`${table.scale} IN (5, 10)`),
+    check('hackathon_criteria_position_check', sql`${table.position} >= 0`),
+  ],
+);
+
+export type HackathonCriterion = typeof hackathonCriteria.$inferSelect;
+export type NewHackathonCriterion = typeof hackathonCriteria.$inferInsert;
 
 /** Event RSVP — one per user per event (UNIQUE constraint). */
 export const eventRsvps = sqliteTable(
