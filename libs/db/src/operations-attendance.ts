@@ -32,7 +32,7 @@ export type AttendanceOutcome = AttendanceRecordingOutcome;
 const eligibleAttendee = (eventId: string, userId: string, hostId: string) =>
   sql`events.id = ${eventId}
       AND events.host_id = ${hostId}
-      AND events.status != 'cancelled'
+      AND events.status = 'published'
       AND events.ends_at IS NOT NULL
       AND events.ends_at <= unixepoch()
       AND EXISTS (
@@ -92,7 +92,8 @@ const refusalFor = async (
     .where(eq(events.id, eventId))
     .limit(1);
   const event = rows[0];
-  if (!event || event.hostId !== hostId) return 'not_host';
+  if (!event || event.status === 'draft' || event.hostId !== hostId)
+    return 'not_host';
   if (event.status === 'cancelled') return 'event_cancelled';
   if (event.endsAt === null || event.endsAt.getTime() > Date.now())
     return 'not_ended';

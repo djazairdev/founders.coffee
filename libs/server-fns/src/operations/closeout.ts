@@ -104,7 +104,8 @@ export const readCloseout = async (
   opts: { eventId: string; actorId: string },
 ): Promise<Result<CloseoutView>> => {
   const event = await getEvent(db, opts.eventId);
-  if (!event) return err(new AppError('event_not_found', 'Event not found'));
+  if (!event || event.status === 'draft')
+    return err(new AppError('event_not_found', 'Event not found'));
   if (event.hostId !== opts.actorId) return err(refusal('not_host'));
 
   const disabled = await requireOperationsEnabled(db, event.marketCode);

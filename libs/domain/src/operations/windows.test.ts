@@ -37,6 +37,12 @@ describe('canCloseOut', () => {
     ).toBe(false);
   });
 
+  it('refuses a draft, which never took place', () => {
+    expect(canCloseOut({ endsAt: ENDED, status: 'draft' }, ENDED + 1000)).toBe(
+      false,
+    );
+  });
+
   it('refuses a legacy event with no end time rather than inferring one', () => {
     expect(canCloseOut(published(null), ENDED + 1000)).toBe(false);
   });
@@ -75,6 +81,16 @@ describe('isCloseoutOverdue', () => {
         { endsAt: ENDED, status: 'cancelled' },
         false,
         ENDED + 10 * 86_400_000,
+      ),
+    ).toBe(false);
+  });
+
+  it('says nothing about a draft', () => {
+    expect(
+      isCloseoutOverdue(
+        { endsAt: ENDED, status: 'draft' },
+        false,
+        ENDED + 3 * 86_400_000,
       ),
     ).toBe(false);
   });

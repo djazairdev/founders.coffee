@@ -205,8 +205,9 @@ export const availableEvent = (
   if (!event)
     return err(new AppError('event_not_found', `No event for ${label}`));
   if (
-    event.status !== 'published' &&
-    !eventsDomain.canTransition(event.status, 'published')
+    event.status === 'draft' ||
+    (event.status !== 'published' &&
+      !eventsDomain.canTransition(event.status, 'published'))
   ) {
     return err(
       new AppError('event_not_found', `Event ${event.id} is not available`),

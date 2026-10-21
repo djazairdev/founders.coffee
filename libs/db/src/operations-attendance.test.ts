@@ -260,4 +260,16 @@ describe('the audit says only what actually happened', () => {
     expect(result.outcome).toBe('event_cancelled');
     expect(await auditRows(db)).toEqual([]);
   });
+
+  it('writes nothing for a draft, and answers as if there were no event', async () => {
+    const eventId = await pastEvent(db, {
+      attendees: [MEMBER_ID],
+      status: 'draft',
+    });
+
+    const result = await mark(db, eventId);
+
+    expect(result.outcome).toBe('not_host');
+    expect(await auditRows(db)).toEqual([]);
+  });
 });
