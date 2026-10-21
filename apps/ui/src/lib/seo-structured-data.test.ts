@@ -146,6 +146,24 @@ describe('structured discovery data', () => {
     });
   });
 
+  it('names no place for a meetup that has no venue, and keeps its city', () => {
+    const schema = eventJsonLd(
+      { ...BREAKFAST, venue: null, latitude: null, longitude: null },
+      0,
+    );
+
+    expect(schema.location).toEqual({
+      '@type': 'Place',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: BREAKFAST.venueAddress,
+        addressLocality: 'Alger',
+        addressRegion: 'Alger',
+        addressCountry: 'DZ',
+      },
+    });
+  });
+
   it('leaves the region out when the dataset no longer knows it', () => {
     const schema = eventJsonLd({ ...BREAKFAST, regionName: null }, 0);
 

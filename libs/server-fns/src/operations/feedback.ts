@@ -21,7 +21,7 @@ import { geo, type operations } from '@founders-coffee/domain';
 export interface FeedbackView {
   readonly eventId: string;
   readonly title: string;
-  readonly venue: string;
+  readonly venue: string | null;
   readonly slug: string;
   readonly marketCode: string;
   readonly marketSlug: string;

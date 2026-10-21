@@ -122,6 +122,18 @@ describe('icsFor', () => {
     expect(property(bare, 'GEO')).toBeUndefined();
   });
 
+  it('names no place for an event with no venue, rather than an empty one', () => {
+    const online = icsFor({
+      ...EVENT,
+      venue: null,
+      venueAddress: null,
+      latitude: null,
+      longitude: null,
+    });
+    expect(property(online, 'LOCATION')).toBeUndefined();
+    expect(valueOf(online, 'SUMMARY')).toBe(EVENT.title);
+  });
+
   it('escapes the characters that would otherwise end a value early', () => {
     const ics = icsFor({ ...EVENT, title: 'Pitch; code, \\ coffee' });
 
@@ -201,6 +213,12 @@ describe('googleCalendarUrlFor', () => {
       'Café des Délices, 12 Rue Didouche Mourad, Alger',
     );
     expect(url.searchParams.get('ctz')).toBe('Africa/Algiers');
+  });
+
+  it('leaves the location out for an event with no venue', () => {
+    const params = googleParams({ ...EVENT, venue: null, venueAddress: null });
+    expect(params.has('location')).toBe(false);
+    expect(params.get('text')).toBe(EVENT.title);
   });
 
   it('writes both times in UTC around a slash Google reads as it is', () => {

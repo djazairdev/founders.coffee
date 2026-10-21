@@ -1,4 +1,6 @@
-import { and, eq, gte, isNull, lt, sql } from 'drizzle-orm';
+import { and, eq, gte, isNotNull, isNull, lt, sql } from 'drizzle-orm';
+
+import { hasVenue } from '@founders-coffee/core';
 
 import type { Db } from './db.js';
 import { eventCloseouts, events } from './schema.js';
@@ -93,6 +95,7 @@ export const listEventsMissingCloseoutPrompt = (
     .where(
       and(
         eq(events.status, 'published'),
+        isNotNull(events.venue),
         sql`${events.endsAt} IS NOT NULL`,
         gte(events.endsAt, opts.endedAfter),
         lt(events.endsAt, opts.endsBefore),
@@ -104,7 +107,8 @@ export const listEventsMissingCloseoutPrompt = (
       ),
     )
     .orderBy(events.endsAt)
-    .limit(opts.limit);
+    .limit(opts.limit)
+    .then((rows) => rows.filter(hasVenue));
 
 /**
  * Events called off whose frozen going set has not all been told.
@@ -142,6 +146,7 @@ export const listEventsMissingDidNotHappenNotices = (
     .where(
       and(
         eq(eventCloseouts.outcome, 'did_not_happen'),
+        isNotNull(events.venue),
         gte(events.endsAt, opts.endedAfter),
         sql`EXISTS (
           SELECT 1 FROM event_rsvps
@@ -156,4 +161,5 @@ export const listEventsMissingDidNotHappenNotices = (
       ),
     )
     .orderBy(events.endsAt)
-    .limit(opts.limit);
+    .limit(opts.limit)
+    .then((rows) => rows.filter(hasVenue));

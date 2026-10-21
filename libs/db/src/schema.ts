@@ -24,6 +24,7 @@ import {
   CITY_WAITLIST_NOTIFICATION_STATUSES,
   CLOSEOUT_OUTCOMES,
   CURRENCY_CODES,
+  EVENT_FORMATS,
   EVENT_KINDS,
   EVENT_ORGANISER_ROLES,
   EVENT_STATUSES,
@@ -364,7 +365,7 @@ export const events = sqliteTable(
     cityCode: text('city_code').notNull(),
     title: text('title').notNull(),
     description: text('description').notNull(),
-    venue: text('venue').notNull(),
+    venue: text('venue'),
     startsAt: integer('starts_at', { mode: 'timestamp' }).notNull(),
     endsAt: integer('ends_at', { mode: 'timestamp' }),
     rsvps: integer('rsvps').notNull().default(0),
@@ -383,6 +384,10 @@ export const events = sqliteTable(
     kind: text('kind', { enum: [...EVENT_KINDS] })
       .notNull()
       .default('meetup'),
+    format: text('format', { enum: [...EVENT_FORMATS] })
+      .notNull()
+      .default('in_person'),
+    meetingUrl: text('meeting_url'),
     version: integer('version').notNull().default(1),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
@@ -403,6 +408,7 @@ export const events = sqliteTable(
 );
 
 export type Event = typeof events.$inferSelect;
+export type VenuedEvent = Event & { readonly venue: string };
 export type NewEvent = typeof events.$inferInsert;
 
 /**

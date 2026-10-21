@@ -168,3 +168,16 @@ describe('what the card calls the city', () => {
     ).toContain(place);
   });
 });
+
+describe('where the card says the event is', () => {
+  it('names the venue beside its pin', () => {
+    expect(show().container.textContent).toContain(event.venue);
+  });
+
+  it('shows no empty pin for an event with no venue', () => {
+    const view = show({ venue: null });
+
+    expect(view.container.querySelector('.bg-secondary\\/10')).toBeNull();
+    expect(view.container.textContent).not.toContain('null');
+  });
+});

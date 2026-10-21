@@ -1,7 +1,9 @@
 import { shortId } from '@founders-coffee/core';
 import {
   cityInputs,
+  event_meta_cancelled_city_summary,
   event_meta_cancelled_summary,
+  event_meta_city_summary,
   event_meta_description,
   event_meta_summary,
   type Locale,
@@ -64,11 +66,17 @@ const eventSnippet = (
   hostWords: string,
 ): string => {
   const { day, clock } = eventWhen(event.startsAt, event.timezone, locale);
-  const facts = { day, time: clock, venue: event.venue, city: cityName };
+  const facts = { day, time: clock, city: cityName };
+  const cancelled = event.status === 'cancelled';
   const summary =
-    event.status === 'cancelled'
-      ? event_meta_cancelled_summary(facts, { locale })
-      : event_meta_summary(facts, { locale });
+    event.venue === null
+      ? (cancelled
+          ? event_meta_cancelled_city_summary
+          : event_meta_city_summary)(facts, { locale })
+      : (cancelled ? event_meta_cancelled_summary : event_meta_summary)(
+          { ...facts, venue: event.venue },
+          { locale },
+        );
   return clipAtWord(`${summary} ${hostWords}`, MAX_DESCRIPTION_LENGTH);
 };
 

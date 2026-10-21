@@ -97,14 +97,18 @@ export const EventCard = ({
             >
               {timeRange}
             </span>
-            <span aria-hidden="true">·</span>
-            <span className="inline-flex items-start gap-1 rounded-full bg-secondary/10 px-2 py-0.5 font-medium text-secondary">
-              <MapPin
-                className="mt-0.5 size-4 shrink-0 text-secondary"
-                aria-hidden="true"
-              />
-              <span dir="auto">{event.venue}</span>
-            </span>
+            {event.venue !== null ? (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="inline-flex items-start gap-1 rounded-full bg-secondary/10 px-2 py-0.5 font-medium text-secondary">
+                  <MapPin
+                    className="mt-0.5 size-4 shrink-0 text-secondary"
+                    aria-hidden="true"
+                  />
+                  <span dir="auto">{event.venue}</span>
+                </span>
+              </>
+            ) : null}
             {trailing === 'language' ? (
               <span className="hidden sm:inline">
                 ·{' '}

@@ -1,5 +1,5 @@
 import { localizedName } from '@founders-coffee/core';
-import type { Db, Event } from '@founders-coffee/db';
+import type { Db, VenuedEvent } from '@founders-coffee/db';
 import { geo } from '@founders-coffee/domain';
 import {
   cityInputs,
@@ -27,7 +27,7 @@ import { escapeHtml } from './templates.js';
  */
 const renderWaitlistLaunchEmail = async (
   db: Db,
-  event: Event,
+  event: VenuedEvent,
   locale: Locale,
 ): Promise<EmailPayload> => {
   const city = geo.findCity(event.marketCode, event.cityCode);
@@ -77,7 +77,7 @@ const renderWaitlistLaunchEmail = async (
  */
 export const waitlistLaunchEmails = (
   db: Db,
-  event: Event,
+  event: VenuedEvent,
 ): ((locale: Locale) => Promise<EmailPayload>) => {
   const rendered = new Map<Locale, Promise<EmailPayload>>();
   return (locale) => {

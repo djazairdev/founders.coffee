@@ -12,7 +12,7 @@ export type PublicEventDiscoveryRow = {
   readonly slug: string;
   readonly title: string;
   readonly description: string;
-  readonly venue: string;
+  readonly venue: string | null;
   readonly venueAddress: string | null;
   readonly startsAt: Date;
   readonly endsAt: Date | null;

@@ -1,4 +1,4 @@
-import { id } from '@founders-coffee/core';
+import { hasVenue, id } from '@founders-coffee/core';
 import {
   openCityWaitlistLaunch,
   type Db,
@@ -57,6 +57,7 @@ export const scheduleCityWaitlistLaunch = async (
   db: Db,
   event: Event,
 ): Promise<void> => {
+  if (!hasVenue(event)) return;
   const launchId = id('wll');
   if (!(await openRound(db, event, launchId))) return;
 

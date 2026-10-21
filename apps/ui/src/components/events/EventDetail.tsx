@@ -175,7 +175,9 @@ export const EventDetail = ({
         </div>
       </header>
 
-      {event.latitude != null && event.longitude != null ? (
+      {event.venue !== null &&
+      event.latitude != null &&
+      event.longitude != null ? (
         <div className="mt-4 w-full">
           <EventLocationMap
             locale={locale}
@@ -227,15 +229,17 @@ export const EventDetail = ({
             </div>
             <div className="rounded-box border border-base-300 bg-base-100 p-4">
               <dt className="eyebrow">{event_where({}, { locale })}</dt>
-              <dd className="mt-1.5 flex items-start gap-2 font-medium">
-                <MapPin
-                  className="mt-0.5 size-4 shrink-0 text-secondary"
-                  aria-hidden="true"
-                />
-                <span>
-                  <bdi>{event.venue}</bdi>
-                </span>
-              </dd>
+              {event.venue !== null ? (
+                <dd className="mt-1.5 flex items-start gap-2 font-medium">
+                  <MapPin
+                    className="mt-0.5 size-4 shrink-0 text-secondary"
+                    aria-hidden="true"
+                  />
+                  <span>
+                    <bdi>{event.venue}</bdi>
+                  </span>
+                </dd>
+              ) : null}
               <dd className="mt-0.5 ps-6 text-body-sm text-neutral">
                 <bdi>{streetAddress ?? cityName}</bdi>
               </dd>

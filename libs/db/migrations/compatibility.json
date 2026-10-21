@@ -51,5 +51,6 @@
   "0049_organization_plugin": "compatible",
   "0050_event_organisers": "compatible",
   "0051_platform_organisation": "compatible",
-  "0052_organisation_owner_left": "compatible"
+  "0052_organisation_owner_left": "compatible",
+  "0053_online_hybrid_events": "compatible"
 }

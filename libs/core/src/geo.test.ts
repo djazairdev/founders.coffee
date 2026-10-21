@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { hasVenueMoved, metresBetween, VENUE_MOVE_MIN_METRES } from './geo.js';
+import {
+  hasVenue,
+  hasVenueMoved,
+  metresBetween,
+  VENUE_MOVE_MIN_METRES,
+} from './geo.js';
 
 const ALGIERS = { latitude: 36.7538, longitude: 3.0588 };
 
@@ -66,5 +71,13 @@ describe('hasVenueMoved', () => {
       'a hundred metres is the smallest distance this product is willing to call somewhere else',
     ).toBeGreaterThanOrEqual(VENUE_MOVE_MIN_METRES);
     expect(hasVenueMoved(ALGIERS, exact)).toBe(true);
+  });
+});
+
+describe('hasVenue', () => {
+  it('tells an event with a place to meet from one without', () => {
+    expect(hasVenue({ venue: 'Café des Délices' })).toBe(true);
+    expect(hasVenue({ venue: '' })).toBe(true);
+    expect(hasVenue({ venue: null })).toBe(false);
   });
 });
