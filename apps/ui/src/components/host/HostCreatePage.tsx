@@ -8,7 +8,6 @@ import {
   localizedName,
   type Locale,
 } from '@founders-coffee/i18n';
-import { StatusMessage } from '@founders-coffee/ui';
 
 import { useHostMapContext } from '../../features/events/hooks';
 import type { RepeatEventTemplate } from '../../features/events/api';
@@ -18,15 +17,12 @@ import {
 } from '../../features/events/useHostCreateWizard';
 import { useAuth } from '../../lib/app-providers';
 import type { SocialProvider } from '../auth/SocialSignIn';
-import { HostDetailsStep } from './HostDetailsStep';
 import { HostMapPanel } from './HostMapPanel';
-import { HostIdentityGate } from './HostIdentityGate';
-import { HostScheduleStep } from './HostScheduleStep';
 import { HostStepHeading } from './HostStepHeading';
-import { HostVenueLine } from './HostVenueLine';
-import { HostVenueStep } from './HostVenueStep';
 import { HostWizardActions } from './HostWizardActions';
 import { HostWizardHeader } from './HostWizardHeader';
+import { HostWizardPanel } from './HostWizardPanel';
+import { HostWizardStepBody } from './HostWizardStepBody';
 import { useCitySwitch } from './useCitySwitch';
 import { useStepFocus } from './useStepFocus';
 import { useVenueOverlay } from './useVenueOverlay';
@@ -89,18 +85,6 @@ export const HostCreatePage = ({
     wizard.venue ??
     mapContext.data?.center ?? { latitude: 0, longitude: 0 };
   const marketName = localizedName(market, locale);
-  const stepHeading = (
-    <HostStepHeading
-      locale={locale}
-      headingRef={headingRef}
-      title={wizard.stepTitle}
-      sub={wizard.stepSub}
-      repeatTitle={
-        wizard.isRepeat && repeatTemplate ? repeatTemplate.title : null
-      }
-    />
-  );
-
   const steps = (
     <WizardSteps
       current={wizard.step}
@@ -112,14 +96,6 @@ export const HostCreatePage = ({
       )}
     />
   );
-
-  const venuePanel = wizard.venue ? (
-    <HostVenueLine
-      locale={locale}
-      venue={wizard.venue}
-      venueName={wizard.venueName}
-    />
-  ) : null;
 
   return (
     <div
@@ -136,109 +112,34 @@ export const HostCreatePage = ({
       >
         {steps}
       </HostWizardHeader>
-      <section className="host-fade-up relative flex min-h-0 flex-col border-base-300 bg-base-100 lg:col-start-1 lg:row-start-2 lg:border-e">
-        <div
-          ref={scrollRef}
-          className={`flex min-h-0 flex-1 flex-col gap-3 px-4 pt-3 pb-4 lg:gap-4 lg:overflow-y-auto lg:px-7 lg:pt-5 lg:pb-7 ${
-            wizard.step === 1 && !wizard.isRepeat ? 'max-lg:py-0' : ''
-          }`}
-        >
-          {wizard.isAuthGateOpen ? (
-            <>
-              {wizard.publishError && (
-                <StatusMessage variant="error">
-                  {wizard.publishError}
-                </StatusMessage>
-              )}
-              <HostIdentityGate
-                needsReauthentication={wizard.needsReauthentication}
-                locale={locale}
-                turnstileSiteKey={turnstileSiteKey}
-                isTurnstileBypassed={isTurnstileBypassed}
-                socialProviders={socialProviders}
-                onCancel={wizard.closeAuthGate}
-                onAuthenticated={wizard.onGateAuthenticated}
-              />
-            </>
-          ) : (
-            <>
-              {stepHeading}
-
-              {wizard.step > 1 && venuePanel}
-
-              {wizard.step === 1 && (
-                <HostVenueStep
-                  locale={locale}
-                  area={wizard.venueArea}
-                  cityCode={city?.code}
-                  center={listCenter}
-                  marketCode={market.code}
-                  searchValue={wizard.searchValue}
-                  venue={wizard.venue}
-                  venueName={wizard.venueName}
-                  nameError={wizard.fieldErrors.venueName}
-                  venueError={
-                    wizard.fieldErrors.venue
-                      ? {
-                          message: wizard.fieldErrors.venue,
-                          onDismiss: wizard.clearVenueError,
-                        }
-                      : undefined
-                  }
-                  overlay={{
-                    ...venueOverlay.panel,
-                    onPick: () => {
-                      venueOverlay.showMap();
-                      wizard.setSearchValue('');
-                    },
-                  }}
-                  isDisabled={!mapContext.data}
-                  onSearchChange={wizard.setSearchValue}
-                  onVenueNameChange={wizard.setVenueName}
-                  onVenueSelect={wizard.selectVenue}
-                  onCitySelect={wizard.isRepeat ? undefined : switchCity}
-                />
-              )}
-
-              {wizard.step === 2 && (
-                <HostScheduleStep
-                  locale={locale}
-                  timeZone={market.timezone}
-                  startsAt={wizard.startsAt}
-                  endsAt={wizard.endsAt}
-                  error={wizard.fieldErrors.schedule}
-                  onChange={wizard.setSchedule}
-                  onError={wizard.setScheduleError}
-                />
-              )}
-
-              {wizard.step === 3 && (
-                <HostDetailsStep
-                  locale={locale}
-                  title={wizard.title}
-                  description={wizard.description}
-                  languages={wizard.languages}
-                  constraints={wizard.view.constraints}
-                  errors={wizard.fieldErrors}
-                  onTitleChange={wizard.setTitle}
-                  onDescriptionChange={wizard.setDescription}
-                  onLanguagesChange={wizard.setLanguages}
-                />
-              )}
-            </>
-          )}
-        </div>
-
-        {!wizard.isAuthGateOpen &&
-          wizard.step === TOTAL_STEPS &&
-          wizard.publishError && (
-            <div className="flex flex-col gap-2 border-t border-base-300 px-4 pt-3 lg:px-7 lg:pt-4">
-              <StatusMessage variant="error">
-                {wizard.publishError}
-              </StatusMessage>
-            </div>
-          )}
-      </section>
+      <HostWizardPanel
+        locale={locale}
+        wizard={wizard}
+        scrollRef={scrollRef}
+        turnstileSiteKey={turnstileSiteKey}
+        isTurnstileBypassed={isTurnstileBypassed}
+        socialProviders={socialProviders}
+      >
+        <HostStepHeading
+          locale={locale}
+          headingRef={headingRef}
+          title={wizard.stepTitle}
+          sub={wizard.stepSub}
+          repeatTitle={
+            wizard.isRepeat && repeatTemplate ? repeatTemplate.title : null
+          }
+        />
+        <HostWizardStepBody
+          locale={locale}
+          market={market}
+          cityCode={city?.code}
+          wizard={wizard}
+          venueOverlay={venueOverlay}
+          listCenter={listCenter}
+          isMapReady={!!mapContext.data}
+          onCitySelect={wizard.isRepeat ? undefined : switchCity}
+        />
+      </HostWizardPanel>
 
       <div
         className={`min-h-0 lg:col-start-2 lg:row-span-3 lg:row-start-1 ${
