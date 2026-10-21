@@ -6,6 +6,7 @@ import {
   type Locale,
 } from '@founders-coffee/i18n';
 
+import { TYPE_LINK_ACTIVE, typeSearch } from '../../lib/event-type-filter';
 import { localizedCity, localizedLanding } from '../../lib/locale-routing';
 import { EmptyState } from './EmptyState';
 
@@ -28,7 +29,8 @@ export const EventTypeEmpty = ({
       action={
         <Link
           {...target}
-          search={{}}
+          search={typeSearch(undefined)}
+          activeOptions={TYPE_LINK_ACTIVE}
           resetScroll={false}
           className="btn btn-outline btn-xs sm:btn-sm md:btn-md"
         >
