@@ -137,7 +137,9 @@ export const saveDisplayName = async (
     introduction: value.introduction,
     interests: value.interests,
     spokenLanguages: value.spokenLanguages,
-    professionalLink: value.professionalLink,
+    skills: value.skills,
+    links: value.links,
+    openTo: value.openTo,
     visibility: value.visibility,
   });
 };

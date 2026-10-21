@@ -16,13 +16,17 @@ export const profileChanges: MemberProfileChanges = {
   introduction: 'Community first',
   interests: ['community'],
   spokenLanguages: ['ar', 'en'],
-  professionalLink: 'https://example.com',
+  skills: ['frontend'],
+  links: ['https://github.com/amina'],
+  openTo: ['co_founding'],
   publishHeadline: false,
   publishStage: false,
   publishAttendedCount: false,
   publishInterests: false,
   publishSpokenLanguages: false,
-  publishProfessionalLink: false,
+  publishSkills: false,
+  publishLinks: false,
+  publishOpenTo: false,
 };
 
 export const preferenceChanges: AccountPreferenceChanges = {

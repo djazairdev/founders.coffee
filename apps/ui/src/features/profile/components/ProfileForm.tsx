@@ -87,7 +87,7 @@ export const ProfileForm = ({
     if (!built.ok) {
       setInvalidField(built.field);
       reportError(
-        built.field === 'professionalLink'
+        built.field === 'links'
           ? profile_link_invalid({}, { locale })
           : profile_name_invalid({}, { locale }),
       );

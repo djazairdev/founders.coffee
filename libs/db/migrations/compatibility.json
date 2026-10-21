@@ -46,5 +46,6 @@
   "0044_retire_telegram_groups": "irreversible",
   "0045_hackathon_notifications": "compatible",
   "0046_event_kind": "compatible",
-  "0047_hackathon_interest": "compatible"
+  "0047_hackathon_interest": "compatible",
+  "0048_portfolio_fields": "compatible"
 }

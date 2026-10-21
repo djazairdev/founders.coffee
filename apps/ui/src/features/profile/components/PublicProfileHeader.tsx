@@ -70,13 +70,13 @@ export const PublicProfileHeader = ({
         </div>
       </div>
     </div>
-    {profile.professionalLink ? (
+    {profile.links[0] ? (
       <a
-        href={profile.professionalLink}
+        href={profile.links[0].url}
         target="_blank"
         rel="noreferrer nofollow ugc"
         dir="ltr"
-        aria-label={`${profile_view_link({}, { locale })}: ${profile.professionalLink}`}
+        aria-label={`${profile_view_link({}, { locale })}: ${profile.links[0].url}`}
         className="btn btn-outline btn-xs sm:btn-sm md:btn-md shrink-0 self-start"
       >
         <span>{profile_view_link({}, { locale })}</span>

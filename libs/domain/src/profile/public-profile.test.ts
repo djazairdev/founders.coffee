@@ -17,7 +17,12 @@ const owner = ownerProfileSchema.parse({
   introduction: 'Building a community',
   interests: ['community'],
   spokenLanguages: ['ar', 'fr'],
-  professionalLink: 'https://example.com/amina',
+  skills: ['backend', 'product'],
+  links: [
+    { kind: 'github', url: 'https://github.com/amina' },
+    { kind: 'website', url: 'https://example.com/amina' },
+  ],
+  openTo: ['co_founding'],
 });
 const record = { hosted: 6, attended: 11 };
 
@@ -41,7 +46,9 @@ describe('public profile projection', () => {
       introduction: owner.introduction,
       interests: [],
       spokenLanguages: [],
-      professionalLink: null,
+      skills: [],
+      links: [],
+      openTo: [],
       hostedCount: 6,
       attendedCount: null,
     });
@@ -57,7 +64,9 @@ describe('public profile projection', () => {
           stage: true,
           interests: true,
           spokenLanguages: true,
-          professionalLink: true,
+          skills: true,
+          links: true,
+          openTo: true,
           attendedCount: true,
         },
       },
@@ -73,12 +82,17 @@ describe('public profile projection', () => {
       introduction: owner.introduction,
       interests: ['community'],
       spokenLanguages: ['ar', 'fr'],
-      professionalLink: owner.professionalLink,
+      skills: owner.skills,
+      links: owner.links,
+      openTo: owner.openTo,
       hostedCount: 6,
       attendedCount: 11,
     });
     expect(projected.interests).not.toBe(owner.interests);
     expect(projected.spokenLanguages).not.toBe(owner.spokenLanguages);
+    expect(projected.skills).not.toBe(owner.skills);
+    expect(projected.links).not.toBe(owner.links);
+    expect(projected.openTo).not.toBe(owner.openTo);
   });
 
   it('does not couple independent visibility choices', () => {

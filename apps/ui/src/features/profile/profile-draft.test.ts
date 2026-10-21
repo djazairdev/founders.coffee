@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
 import type { UserProfile } from './api';
-import { commandFrom, draftFrom, isDraftDirty } from './profile-draft';
+import {
+  commandFrom,
+  draftFrom,
+  firstLinkUrl,
+  isDraftDirty,
+  withFirstLink,
+} from './profile-draft';
 
 const saved: UserProfile = {
   userId: 'usr_1',
@@ -14,13 +20,17 @@ const saved: UserProfile = {
   introduction: null,
   interests: [],
   spokenLanguages: [],
-  professionalLink: null,
+  skills: [],
+  links: [],
+  openTo: [],
   visibility: {
     headline: false,
     stage: false,
     interests: false,
     spokenLanguages: false,
-    professionalLink: false,
+    skills: false,
+    links: false,
+    openTo: false,
     attendedCount: false,
   },
 };
@@ -32,10 +42,15 @@ describe('profile draft', () => {
 
     expect(
       isDraftDirty(
-        { ...draft, professionalLink: 'https://example.com' },
+        {
+          ...draft,
+          links: [{ kind: 'website', url: 'https://example.com' }],
+        },
         saved,
       ),
     ).toBe(true);
+    expect(isDraftDirty({ ...draft, skills: ['frontend'] }, saved)).toBe(true);
+    expect(isDraftDirty({ ...draft, openTo: ['jobs'] }, saved)).toBe(true);
     expect(isDraftDirty({ ...draft, interests: ['product'] }, saved)).toBe(
       true,
     );
@@ -79,24 +94,29 @@ describe('profile draft', () => {
 
   it('reports the field that stops a save rather than a generic failure', () => {
     const built = commandFrom(
-      { ...draftFrom(saved), professionalLink: 'http://insecure.example' },
+      {
+        ...draftFrom(saved),
+        links: withFirstLink([], 'http://insecure.example'),
+      },
       3,
     );
 
-    expect(built).toMatchObject({ ok: false, field: 'professionalLink' });
+    expect(built).toMatchObject({ ok: false, field: 'links' });
   });
 
   it('withdraws a publication whose field is emptied', () => {
     const built = commandFrom(
       {
         ...draftFrom(saved),
-        professionalLink: null,
-        visibility: { ...saved.visibility, professionalLink: true },
+        skills: [],
+        links: [],
+        openTo: [],
+        visibility: { ...saved.visibility, links: true },
       },
       3,
     );
 
-    expect(built.ok && built.command.visibility.professionalLink).toBe(false);
+    expect(built.ok && built.command.visibility.links).toBe(false);
   });
 
   it('sends what a member is building and its stage, withdrawing a publication left empty', () => {
@@ -115,5 +135,36 @@ describe('profile draft', () => {
       stage: null,
       visibility: { headline: true, stage: false },
     });
+  });
+
+  it('edits the first link from the single link field, reading its kind from the address', () => {
+    const website = { kind: 'website', url: 'https://example.com' } as const;
+    const links = withFirstLink([website], 'https://www.github.com/amina');
+
+    expect(links).toEqual([
+      { kind: 'github', url: 'https://www.github.com/amina' },
+    ]);
+    expect(firstLinkUrl({ ...draftFrom(saved), links })).toBe(
+      'https://www.github.com/amina',
+    );
+    expect(withFirstLink(links, 'https://dz.linkedin.com/in/amina')).toEqual([
+      { kind: 'linkedin', url: 'https://dz.linkedin.com/in/amina' },
+    ]);
+    expect(withFirstLink(links, '')).toEqual([]);
+    expect(firstLinkUrl(draftFrom(saved))).toBe('');
+  });
+
+  it('keeps the links after the first when the field changes', () => {
+    const github = { kind: 'github', url: 'https://github.com/amina' } as const;
+    const linkedin = {
+      kind: 'linkedin',
+      url: 'https://linkedin.com/in/amina',
+    } as const;
+
+    expect(withFirstLink([github, linkedin], 'https://example.com')).toEqual([
+      { kind: 'website', url: 'https://example.com' },
+      linkedin,
+    ]);
+    expect(withFirstLink([github, linkedin], '')).toEqual([linkedin]);
   });
 });

@@ -730,6 +730,18 @@ export const memberProfiles = sqliteTable(
       .notNull()
       .default(sql`'[]'`),
     professionalLink: text('professional_link'),
+    skills: text('skills', { mode: 'json' })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    links: text('links', { mode: 'json' })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    openTo: text('open_to', { mode: 'json' })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
     photoAssetId: text('photo_asset_id'),
     publishHeadline: integer('publish_headline', { mode: 'boolean' })
       .notNull()
@@ -753,6 +765,15 @@ export const memberProfiles = sqliteTable(
     publishProfessionalLink: integer('publish_professional_link', {
       mode: 'boolean',
     })
+      .notNull()
+      .default(false),
+    publishSkills: integer('publish_skills', { mode: 'boolean' })
+      .notNull()
+      .default(false),
+    publishLinks: integer('publish_links', { mode: 'boolean' })
+      .notNull()
+      .default(false),
+    publishOpenTo: integer('publish_open_to', { mode: 'boolean' })
       .notNull()
       .default(false),
     revision: integer('revision').notNull().default(0),
