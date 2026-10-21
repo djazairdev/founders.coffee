@@ -74,6 +74,7 @@ const hostedEvent = {
   endsAt: new Date('2099-04-01T19:00:00Z'),
   rsvps: 3,
   language: 'fr',
+  kind: 'meetup',
 } as never;
 
 const pastMeetup = (id: string, isOnRecord: boolean) =>
