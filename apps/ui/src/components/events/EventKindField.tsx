@@ -1,23 +1,17 @@
 import { useId } from 'react';
 
 import {
-  event_kind_meetup,
-  event_kind_workshop,
   host_kind_label,
   host_kind_meetup_hint,
   host_kind_workshop_hint,
   type Locale,
 } from '@founders-coffee/i18n';
 
+import { eventKindName } from '../../features/events/event-kind-name';
 import {
   HOST_EVENT_KINDS,
   type HostEventKind,
 } from '../../features/events/types';
-
-const NAMES = {
-  meetup: event_kind_meetup,
-  workshop: event_kind_workshop,
-} as const;
 
 const HINTS = {
   meetup: host_kind_meetup_hint,
@@ -62,7 +56,7 @@ export const EventKindField = ({
               />
               <span className="min-w-0 flex-1">
                 <span className="block text-body-sm font-semibold text-base-content">
-                  {NAMES[kind]({}, { locale })}
+                  {eventKindName(kind, locale)}
                 </span>
                 <span className="block text-caption text-neutral">
                   {HINTS[kind]({}, { locale })}

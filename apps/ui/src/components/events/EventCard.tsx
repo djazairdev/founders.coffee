@@ -16,6 +16,7 @@ import type { EventFeedItem } from '@founders-coffee/server-fns';
 import { eventCityName } from '../../features/events/event-city-name';
 import { localizedEvent } from '../../lib/locale-routing';
 import { AvatarGroup } from './AvatarGroup';
+import { EventKindBadge } from './EventKindBadge';
 import { HostFace } from './HostFace';
 
 type EventCardProps = {
@@ -75,7 +76,8 @@ export const EventCard = ({
         </time>
 
         <span className="flex min-w-0 flex-1 flex-col gap-1">
-          <header>
+          <header className="flex flex-col items-start gap-1">
+            <EventKindBadge kind={event.kind} locale={locale} />
             <h3
               dir="auto"
               className="font-display text-body font-semibold leading-snug"

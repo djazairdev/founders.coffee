@@ -38,6 +38,7 @@ import type { EventPhase } from '../../features/events/live-window';
 import type { UseEventLiveResult } from '../../features/events/useEventLive';
 import { localizedCity } from '../../lib/locale-routing';
 import { EventHostCard } from './EventHostCard';
+import { EventKindBadge } from './EventKindBadge';
 import { EventLocationMap } from './EventLocationMap';
 import { EventRsvpBox } from './EventRsvpBox';
 import { ShareEventButton } from './ShareEventButton';
@@ -133,6 +134,7 @@ export const EventDetail = ({
 
       <header className="rounded-box bg-base-200 p-5 sm:p-8">
         <div className="flex flex-wrap items-center gap-2">
+          <EventKindBadge kind={event.kind} locale={locale} />
           <span className="inline-flex items-center gap-1.5 text-body-sm text-neutral">
             <MapPin className="size-4 text-secondary" aria-hidden="true" />
             <span dir="auto">{cityName}</span>
