@@ -43,6 +43,7 @@ const EVENT_COLUMNS = [
   'endsAt',
   'hostId',
   'id',
+  'kind',
   'language',
   'languages',
   'latitude',

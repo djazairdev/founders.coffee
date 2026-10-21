@@ -169,6 +169,7 @@ export const useHostCreateWizard = ({
       longitude: venue.longitude,
       startsAt,
       endsAt,
+      kind: 'meetup',
     });
   };
 
