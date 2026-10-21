@@ -136,8 +136,19 @@ describe('WaitlistForm bot protection (AR-06)', () => {
     ).toBe('email');
     expect(
       email.getAttribute('dir'),
-      'a raw input does not go through the shared Input, so it does not inherit the left-to-right default and has to say so itself',
+      'the shared Input writes an email field left to right, so the address reads correctly on an Arabic page',
     ).toBe('ltr');
+  });
+
+  it('keeps the field full height when the form stacks on a phone', () => {
+    renderForm();
+    const email = screen.getByRole('textbox');
+
+    expect(
+      email.classList.contains('flex-1'),
+      'below sm the form is a column, where flex-1 makes the height grow from zero and the field collapses to its text',
+    ).toBe(false);
+    expect(email.classList.contains('sm:flex-1')).toBe(true);
   });
 });
 
