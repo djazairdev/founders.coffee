@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import { NOTIFICATION_TEMPLATE_KEYS } from '@founders-coffee/core';
+
 import {
+  isHackathonTemplate,
   isNotificationChannelEnabled,
   NOTIFICATION_CATEGORIES,
   notificationCategoryForTemplate,
@@ -17,6 +20,7 @@ const masks = {
   hostRsvpCancelledChannels: 5,
   followUpPromptsChannels: 0,
   meetupChatChannels: 1,
+  hackathonsChannels: 4,
 } as const;
 
 describe('notification channel matrix', () => {
@@ -58,10 +62,47 @@ describe('notification channel matrix', () => {
       hostRsvpCancelledChannels: 0,
       followUpPromptsChannels: 0,
       meetupChatChannels: 1,
+      hackathonsChannels: 0,
     };
 
     expect(notificationMaskForTemplate('rsvp_confirmation', chatOnly)).toBe(0);
     expect(notificationMaskForTemplate('chat_unread', chatOnly)).toBe(1);
+  });
+
+  it('puts every hackathon_ template in the Hackathons category', () => {
+    for (const template of [
+      'hackathon_registration_confirmed',
+      'hackathon_results_published',
+    ]) {
+      expect(isHackathonTemplate(template)).toBe(true);
+      expect(notificationCategoryForTemplate(template)).toBe(
+        'hackathonsChannels',
+      );
+      expect(notificationMaskForTemplate(template, masks)).toBe(4);
+    }
+  });
+
+  it('claims no template of today for the Hackathons category', () => {
+    for (const template of NOTIFICATION_TEMPLATE_KEYS)
+      expect(isHackathonTemplate(template)).toBe(false);
+    expect(isHackathonTemplate(undefined)).toBe(false);
+    expect(isHackathonTemplate('hackathons')).toBe(false);
+  });
+
+  it('leaves the Hackathons category out of the union too', () => {
+    const hackathonsOnly = {
+      eventUpdatesChannels: 0,
+      eventRemindersChannels: 0,
+      hostRsvpReceivedChannels: 0,
+      hostRsvpCancelledChannels: 0,
+      followUpPromptsChannels: 0,
+      meetupChatChannels: 0,
+      hackathonsChannels: 5,
+    };
+
+    expect(
+      notificationMaskForTemplate('rsvp_confirmation', hackathonsOnly),
+    ).toBe(0);
   });
 
   it('selects push before email and leaves no fallback for one channel', () => {

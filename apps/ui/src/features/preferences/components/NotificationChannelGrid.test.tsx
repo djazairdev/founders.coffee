@@ -25,6 +25,8 @@ const draft = (
   followUpPromptsChannels: [],
   meetupChat: true,
   meetupChatChannels: ['push'],
+  hackathons: true,
+  hackathonsChannels: ['push', 'email'],
   pushEnabled: false,
   smsFallbackEnabled: false,
   ...overrides,
@@ -35,6 +37,7 @@ const show = (
   options: {
     current?: NotificationDraft;
     isChatAvailable?: boolean;
+    isHackathonsAvailable?: boolean;
     onEnablePush?: () => Promise<boolean>;
   } = {},
 ) =>
@@ -45,12 +48,36 @@ const show = (
       pushState={pushState}
       isEnabling={false}
       isChatAvailable={options.isChatAvailable ?? true}
+      isHackathonsAvailable={options.isHackathonsAvailable ?? false}
       onEnablePush={options.onEnablePush ?? (async () => true)}
       onChange={vi.fn()}
     />,
   );
 
 afterEach(() => cleanup());
+
+describe('the Hackathons row', () => {
+  it('stays out until a market runs hackathons', () => {
+    show('registered');
+
+    expect(screen.queryByText('Hackathons you take part in')).toBeNull();
+  });
+
+  it('offers push and email once one does', () => {
+    show('registered', { isHackathonsAvailable: true });
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'Hackathons you take part in: Push notifications',
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'Hackathons you take part in: Email',
+      }),
+    ).toBeTruthy();
+  });
+});
 
 describe('notification channel grid', () => {
   it.each([
@@ -131,6 +158,7 @@ describe('notification channel grid', () => {
         pushState="registered"
         isEnabling={false}
         isChatAvailable
+        isHackathonsAvailable={false}
         onEnablePush={async () => true}
         onChange={onChange}
       />,
@@ -160,6 +188,7 @@ describe('notification channel grid', () => {
         pushState="unavailable"
         isEnabling={false}
         isChatAvailable
+        isHackathonsAvailable={false}
         onEnablePush={async () => true}
         onChange={onChange}
       />,
@@ -205,6 +234,7 @@ describe('notification channel grid', () => {
         pushState="not_requested"
         isEnabling={false}
         isChatAvailable
+        isHackathonsAvailable={false}
         onEnablePush={onEnablePush}
         onChange={onChange}
       />,
@@ -232,6 +262,7 @@ describe('notification channel grid', () => {
         pushState="registered"
         isEnabling={false}
         isChatAvailable
+        isHackathonsAvailable={false}
         onEnablePush={async () => true}
         onChange={onChange}
       />,

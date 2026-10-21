@@ -880,5 +880,7 @@
   "host_edit_where": "المكان",
   "host_edit_venue_hint": "اضغط على الخريطة أو ابحث لتغيير المكان.",
   "host_edit_notice_change": "سيتلقى جميع الحاضرين إشعارًا بالتغيير.",
-  "hackathons_unavailable": "الهاكاثونات غير متاحة في هذا البلد بعد."
+  "hackathons_unavailable": "الهاكاثونات غير متاحة في هذا البلد بعد.",
+  "prefs_hackathons": "الهاكاثونات التي تشارك فيها",
+  "prefs_hackathons_note": "تسجيلك وفريقك والمواعيد النهائية والنتائج."
 }

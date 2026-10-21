@@ -14,6 +14,7 @@ export const NOTIFICATION_CATEGORIES = [
   'hostRsvpCancelledChannels',
   'followUpPromptsChannels',
   'meetupChatChannels',
+  'hackathonsChannels',
 ] as const;
 
 export const notificationCategorySchema = z.enum(NOTIFICATION_CATEGORIES);
@@ -31,7 +32,8 @@ export interface NotificationChannelSelection {
 /**
  * Every channel the member keeps for news of their meetups, which a notice with no category of its
  * own follows. The chat's category is not among them: it arrived switched on, so counting it would
- * start sending those notices again to a member who had turned every other category off.
+ * start sending those notices again to a member who had turned every other category off. The
+ * hackathons category stays out for the same reason.
  */
 const allCategoryChannels = (masks: NotificationCategoryMasks): number =>
   masks.eventUpdatesChannels |
@@ -39,6 +41,18 @@ const allCategoryChannels = (masks: NotificationCategoryMasks): number =>
   masks.hostRsvpReceivedChannels |
   masks.hostRsvpCancelledChannels |
   masks.followUpPromptsChannels;
+
+export const HACKATHON_TEMPLATE_PREFIX = 'hackathon_';
+
+/**
+ * Whether a template is a Stage B notice: registration, team, deadline, judging or results.
+ *
+ * Every one of them belongs to the Hackathons category, so the rule is the template's name rather
+ * than a list each Stage B ticket would have to remember to extend: a template whose key starts with
+ * `hackathon_` is a hackathon notice, and no other template's key does.
+ */
+export const isHackathonTemplate = (templateKey: string | undefined): boolean =>
+  templateKey?.startsWith(HACKATHON_TEMPLATE_PREFIX) ?? false;
 
 /** Return the member-facing category controlled by a notification template. */
 export const notificationCategoryForTemplate = (
@@ -62,7 +76,7 @@ export const notificationCategoryForTemplate = (
     case 'chat_unread':
       return 'meetupChatChannels';
     default:
-      return null;
+      return isHackathonTemplate(templateKey) ? 'hackathonsChannels' : null;
   }
 };
 
