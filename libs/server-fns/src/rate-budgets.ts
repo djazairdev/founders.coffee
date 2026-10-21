@@ -13,6 +13,16 @@ export const RATE_BUDGETS = {
       limit: 10,
       windowMs: 10 * MINUTE_MS,
     },
+    organisationApply: {
+      action: 'apply_for_organisation',
+      limit: 3,
+      windowMs: 60 * MINUTE_MS,
+    },
+    organisationUpdate: {
+      action: 'update_organisation',
+      limit: 10,
+      windowMs: 10 * MINUTE_MS,
+    },
   },
   read: {
     publicProfile: {
@@ -128,7 +138,8 @@ export type RateBudgetCategory = keyof typeof RATE_BUDGETS;
  * Naming them once fixes both, and the categories say what a budget is *for* rather than only what
  * it permits.
  *
- * `edit` covers cheap owner writes. `read` covers unauthenticated reads that are cheap per call but
+ * `edit` covers cheap owner writes. An organisation application is one of them, held to three an
+ * hour: it lands in an admin's review queue, and a member applies for an organisation rarely. `read` covers unauthenticated reads that are cheap per call but
  * enumerable in bulk. `otp` holds the two halves of a contact change: sending a code costs an SMS or
  * an email and is bounded tightly, while submitting one is cheap but must not become an oracle, so it
  * is bounded loosely. Together they are the reason a stolen session cannot walk a member's contact

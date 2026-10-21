@@ -116,6 +116,13 @@ export const isOperationsErrorCode = (
 ): code is OperationsErrorCode =>
   (OPERATIONS_ERROR_CODES as readonly string[]).includes(code);
 
+export const ORGANISATION_ERROR_CODES = [
+  'organisation_slug_taken',
+  'organisation_not_approved',
+  'invalid_organisation_transition',
+] as const;
+export type OrganisationErrorCode = (typeof ORGANISATION_ERROR_CODES)[number];
+
 export const HACKATHON_ERROR_CODES = [
   'hackathons_disabled',
   'hackathon_requires_registration',
