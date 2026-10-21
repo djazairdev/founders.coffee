@@ -3,6 +3,7 @@ import { events as eventsDomain } from '@founders-coffee/domain';
 import {
   getEvent,
   getEventBySlug,
+  isEventOrganiser,
   isVisibleHost,
   listUpcomingEvents,
   listPublicEventHosts,
@@ -41,22 +42,49 @@ export const availableEvent = (
 };
 
 /**
+ * {@link availableEvent}, except that a draft is available to its organisers: its host, and the
+ * members of an organisation that organises it. Everyone else is told it does not exist, the same
+ * answer as for an address nobody holds, so a draft cannot be found by guessing (B-EVT-16).
+ */
+export const availableToReader = async (
+  db: Db,
+  event: Event | undefined,
+  label: string,
+  viewerId: string | null | undefined,
+): Promise<Result<Event>> => {
+  if (event?.status !== 'draft' || !viewerId)
+    return availableEvent(event, label);
+  if (
+    event.hostId === viewerId ||
+    (await isEventOrganiser(db, { eventId: event.id, userId: viewerId }))
+  )
+    return ok(event);
+  return availableEvent(event, label);
+};
+
+/**
  * Resolve a single event by id or by (marketCode + slug). Returns `event_not_found` on miss.
  *
  * A suppressed host's event answers the same way as one that never existed. The feed already drops
  * those rows in SQL; without the same rule here the link would simply have to be typed rather than
- * clicked, which is not a restriction.
+ * clicked, which is not a restriction. A draft answers only to its organisers.
  */
 export const resolveEvent = async (
   db: Db,
   input: { id?: string; marketCode?: string; slug?: string },
+  viewerId?: string | null,
 ): Promise<Result<Event>> => {
   const event = input.id
     ? await getEvent(db, input.id)
     : input.marketCode && input.slug
       ? await getEventBySlug(db, input.marketCode, input.slug)
       : undefined;
-  const available = availableEvent(event, input.id ?? input.slug ?? '(none)');
+  const available = await availableToReader(
+    db,
+    event,
+    input.id ?? input.slug ?? '(none)',
+    viewerId,
+  );
   if (!available.ok) return available;
   if (!(await isVisibleHost(db, available.data.hostId))) {
     return err(

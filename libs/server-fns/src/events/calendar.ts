@@ -27,13 +27,15 @@ export type EventCalendarRequest = {
  * A cancelled meetup answers with its own page instead, which says it is off and why. Nobody should
  * be handed a calendar entry for a gathering that is not happening, and the link that asked for one,
  * in a confirmation email sent before the host called it off, lands somewhere that explains.
+ *
+ * A draft answers as no meetup at all, so its address gives away nothing until it is published.
  */
 export const answerEventCalendar = async (
   db: Db,
   request: EventCalendarRequest,
 ): Promise<EventCalendarAnswer | null> => {
   const row = await getEventCalendar(db, request.id);
-  if (!row) return null;
+  if (!row || row.status === 'draft') return null;
   const page = `${request.origin}${eventShortPath(request.locale, request.id)}`;
   if (row.status !== 'published') return { kind: 'redirect', location: page };
   const entry = { ...row, id: request.id, url: page };

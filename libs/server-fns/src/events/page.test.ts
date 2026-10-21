@@ -179,7 +179,7 @@ describe('readEventPage (real D1)', () => {
     expect(!page.ok && page.error.code).toBe('event_not_found');
   });
 
-  it('answers a draft as a missing meetup, even to its host, and a cancelled one with its page', async () => {
+  it('answers a draft as a missing meetup to a reader signed out, its host excepted, and a cancelled one with its page', async () => {
     const db = await setupDb();
     const draft = await createTestEvent(db);
     const cancelled = await createTestEvent(db);
@@ -194,14 +194,18 @@ describe('readEventPage (real D1)', () => {
       .where(eq(events.id, cancelled.id))
       .run();
 
-    for (const viewer of [anonymous(), Promise.resolve(TEST_HOST_ID)]) {
-      const page = await readEventPage(
-        db,
-        { marketCode: 'DZ', slug: draft.slug },
-        viewer,
-      );
-      expect(!page.ok && page.error.code).toBe('event_not_found');
-    }
+    const hidden = await readEventPage(
+      db,
+      { marketCode: 'DZ', slug: draft.slug },
+      anonymous(),
+    );
+    const hosted = await readEventPage(
+      db,
+      { marketCode: 'DZ', slug: draft.slug },
+      Promise.resolve(TEST_HOST_ID),
+    );
+    expect(!hidden.ok && hidden.error.code).toBe('event_not_found');
+    expect(hosted.ok && hosted.data.event.status).toBe('draft');
     const shown = await readEventPage(
       db,
       { marketCode: 'DZ', slug: cancelled.slug },

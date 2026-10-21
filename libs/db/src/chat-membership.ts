@@ -37,7 +37,8 @@ export const isChatSwitchedOnAnywhere = (): SQL =>
  * and deleting it on a cancellation is what removes them. Their account must be active and not
  * banned, through {@link activeProfileIdentity}, since the chat does not trust the RSVP for that.
  * And the meetup must still stand by its host, through {@link visibleHost}: a suppressed host takes
- * the chat with the meetup's page, the way the page and the lists already go.
+ * the chat with the meetup's page, the way the page and the lists already go. A draft has no chat
+ * members until it is published, so nothing about it reaches anyone (B-EVT-16).
  *
  * A chat switched off in its market has no members at all, through {@link isChatSwitchedOn}, so no
  * surface can reach a chat its market has not opened by forgetting to ask, and switching it off
@@ -56,4 +57,5 @@ export const isChatMember = (userId: string | SQL): SQL => sql`(
     ))
   AND EXISTS (SELECT 1 FROM ${user} WHERE ${activeProfileIdentity(userId)})
   AND ${visibleHost(events.hostId)}
+  AND ${events.status} <> 'draft'
 )`;
