@@ -36,6 +36,7 @@ export * from './waitlist.js';
 export * from './hackathon-interest.js';
 export * from './organisations.js';
 export * from './organisation-invitations.js';
+export * from './organisation-review.js';
 export * from './waitlist-launch.js';
 export * from './waitlist-notifications.js';
 export * from './notification-claim.js';

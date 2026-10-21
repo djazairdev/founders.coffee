@@ -67,6 +67,8 @@ export const organisationPlugin = (
           description: { type: 'string', required: true },
           websiteUrl: { type: 'string', required: false },
           ownerLeftAt: { type: 'date', required: false, input: false },
+          reviewNote: { type: 'string', required: false, input: false },
+          reviewedAt: { type: 'date', required: false, input: false },
         },
       },
     },

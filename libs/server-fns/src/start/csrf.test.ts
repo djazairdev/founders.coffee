@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isStateChangingRequest } from './csrf';
+import { isStateChangingRequest } from './csrf.js';
 
 const request = (method: string) =>
   new Request('http://localhost:3000/', { method });

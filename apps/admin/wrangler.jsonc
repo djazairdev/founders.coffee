@@ -11,6 +11,11 @@
   // workers.dev URL, so the subdomain must stay disabled (AGENTS.md §10).
   "workers_dev": false,
 
+  // Operator decisions draw on a token bucket like every other mutation (AGENTS.md §10). Admin keeps
+  // its own `RateLimiterDO` rather than reaching into the public Worker's, so its deploys and local
+  // runs never depend on that script.
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["RateLimiterDO"] }],
+
   // Top-level = local dev. `CF_ACCESS_DISABLED=true` in `.dev.vars` bypasses the JWT guard locally;
   // `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUD` are secrets in the deployed environments.
   "vars": {
@@ -22,6 +27,9 @@
   // send binding. Without it an operator can request a code that is never delivered — the failure
   // Better Auth swallows, answering 200 either way.
   "send_email": [{ "name": "EMAIL" }],
+  "durable_objects": {
+    "bindings": [{ "name": "RATE_LIMITER", "class_name": "RateLimiterDO" }],
+  },
 
   // The admin app reads the same D1 the public app does. It has to: an operator's Better Auth
   // session lives in that database, and CO-04 refuses a request whose Access identity does not match
@@ -48,6 +56,9 @@
         "MAIL_FROM": "no-reply@founders.coffee",
       },
       "send_email": [{ "name": "EMAIL" }],
+      "durable_objects": {
+        "bindings": [{ "name": "RATE_LIMITER", "class_name": "RateLimiterDO" }],
+      },
       "d1_databases": [
         {
           "binding": "DB",
@@ -65,6 +76,9 @@
         "MAIL_FROM": "no-reply@founders.coffee",
       },
       "send_email": [{ "name": "EMAIL" }],
+      "durable_objects": {
+        "bindings": [{ "name": "RATE_LIMITER", "class_name": "RateLimiterDO" }],
+      },
       "d1_databases": [
         {
           "binding": "DB",

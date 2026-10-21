@@ -12,7 +12,10 @@ import type { AuthEnv } from '@founders-coffee/auth';
 
 import { createAuthHandler } from '@founders-coffee/auth';
 
+export { RateLimiterDO } from '@founders-coffee/server-fns/rate-limiter-do';
+
 import { forbidden, verifyAccessJwt, type AdminEnv } from './access-guard.js';
+import { withAccessSubject } from './access-subject-header.js';
 import {
   authRequestIsForSelf,
   needsAdminSession,
@@ -75,7 +78,7 @@ export default {
       const access = await verifyAccessJwt(request, env);
       if (!access.ok) return secure(access.response);
       if (!url.pathname.startsWith('/api/auth/'))
-        return secure(await handler.fetch(request));
+        return secure(await handler.fetch(withAccessSubject(request, null)));
 
       if (!(await authRequestIsForSelf(request, access.identity.email)))
         return secure(
@@ -99,6 +102,10 @@ export default {
       return secure(
         await handleCommunityHealthRequest(request, env.DB, admin.context.role),
       );
-    return secure(await handler.fetch(request));
+    return secure(
+      await handler.fetch(
+        withAccessSubject(request, admin.context.accessSubject),
+      ),
+    );
   }),
 } satisfies ExportedHandler<AdminWorkerEnv>;

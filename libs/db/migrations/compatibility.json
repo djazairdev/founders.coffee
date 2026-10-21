@@ -56,5 +56,6 @@
   "0054_event_tags": "compatible",
   "0055_hackathons": "compatible",
   "0056_hackathon_tracks": "compatible",
-  "0057_hackathon_criteria": "compatible"
+  "0057_hackathon_criteria": "compatible",
+  "0058_organisation_review": "compatible"
 }
