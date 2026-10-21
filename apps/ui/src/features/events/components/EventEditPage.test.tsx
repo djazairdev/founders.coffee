@@ -82,6 +82,7 @@ const base = {
   venueAddress: null,
   slug: 'founders-breakfast',
   status: 'published',
+  kind: 'meetup',
   version: 1,
   createdAt: new Date('2026-09-01T00:00:00Z'),
   updatedAt: new Date('2026-09-01T00:00:00Z'),

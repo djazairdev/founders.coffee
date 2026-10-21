@@ -24,6 +24,7 @@ import {
   CITY_WAITLIST_NOTIFICATION_STATUSES,
   CLOSEOUT_OUTCOMES,
   CURRENCY_CODES,
+  EVENT_KINDS,
   EVENT_STATUSES,
   FEEDBACK_RATINGS,
   HOST_TRUST_STATUSES,
@@ -276,6 +277,9 @@ export const events = sqliteTable(
     status: text('status', { enum: [...EVENT_STATUSES] })
       .notNull()
       .default('published'),
+    kind: text('kind', { enum: [...EVENT_KINDS] })
+      .notNull()
+      .default('meetup'),
     version: integer('version').notNull().default(1),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()

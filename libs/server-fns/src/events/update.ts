@@ -84,6 +84,21 @@ const refuseClosed = (event: Event, actorId: string): AppError | null => {
 };
 
 /**
+ * Refuse to change a hackathon's kind from the meetup editor.
+ *
+ * A member chooses between a meetup and a workshop. A hackathon is created and edited as an
+ * organisation's (B-HKN-06), with its own rows beside the event, so turning one into a meetup here
+ * would strand them, and nothing here makes an event a hackathon.
+ */
+const refuseKindChange = (
+  event: Event,
+  input: EventUpdateInput,
+): AppError | null =>
+  event.kind === 'hackathon' && input.kind !== undefined
+    ? new AppError('event_kind_immutable', 'A hackathon stays a hackathon')
+    : null;
+
+/**
  * Change a meetup that is already published, on its host's behalf.
  *
  * Editing exists because the alternative was cancelling. A host who mistyped a title, or whose café
@@ -123,6 +138,8 @@ export const updateEventResolver = async (
   if (!event) return err(new AppError('event_not_found', 'Event not found'));
   const refusal = refuseClosed(event, opts.actorId);
   if (refusal) return err(refusal);
+  const kindRefusal = refuseKindChange(event, opts.input);
+  if (kindRefusal) return err(kindRefusal);
 
   const point: Point | null =
     opts.input.latitude !== undefined && opts.input.longitude !== undefined
@@ -164,6 +181,7 @@ export const updateEventResolver = async (
     endsAt: new Date(opts.input.endsAt),
     language,
     languages: opts.input.languages,
+    kind: opts.input.kind ?? event.kind,
     version: opts.input.expectedVersion + 1,
     updatedAt: new Date(),
   };
@@ -184,6 +202,7 @@ export const updateEventResolver = async (
       endsAt: updated.endsAt,
       language: updated.language,
       languages: updated.languages,
+      kind: updated.kind,
     },
   );
   if (changed === 0)

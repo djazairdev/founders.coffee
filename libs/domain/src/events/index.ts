@@ -21,6 +21,8 @@ export {
   eventScheduleSchema,
   eventTitleSchema,
   eventUpdateSchema,
+  MEMBER_EVENT_KINDS,
+  memberEventKindSchema,
   eventVenueAddressSchema,
   eventVenueNameSchema,
   publicEventDiscoverySchema,

@@ -26,6 +26,10 @@ export const EVENT_STATUSES = ['published', 'cancelled'] as const;
 export type EventStatus = (typeof EVENT_STATUSES)[number];
 export const eventStatusSchema = z.enum(EVENT_STATUSES);
 
+export const EVENT_KINDS = ['meetup', 'workshop', 'hackathon'] as const;
+export type EventKind = (typeof EVENT_KINDS)[number];
+export const eventKindSchema = z.enum(EVENT_KINDS);
+
 export const RSVP_STATUSES = ['going', 'waitlist', 'cancelled'] as const;
 export type RsvpStatus = (typeof RSVP_STATUSES)[number];
 export const rsvpStatusSchema = z.enum(RSVP_STATUSES);

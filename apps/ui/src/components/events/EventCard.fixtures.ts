@@ -32,6 +32,7 @@ export const event: EventFeedItem = {
   longitude: null,
   venueAddress: null,
   status: 'published',
+  kind: 'meetup',
   version: 1,
   createdAt: new Date(0),
   updatedAt: new Date(0),

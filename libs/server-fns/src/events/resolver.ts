@@ -153,6 +153,7 @@ export const createEventResolverWithId = async (
       endsAt: new Date(input.endsAt),
       language,
       languages: input.languages,
+      kind: input.kind,
       status: 'published',
     };
 

@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
-import { localeSchema, marketCodeSchema } from '@founders-coffee/core';
+import {
+  localeSchema,
+  marketCodeSchema,
+  type EventKind,
+} from '@founders-coffee/core';
 
 import { eventLanguagesSchema } from './languages.js';
 
@@ -14,6 +18,12 @@ export const EVENT_VENUE_ADDRESS_MIN_LENGTH = 2;
 export const EVENT_VENUE_ADDRESS_MAX_LENGTH = 500;
 export const EVENT_DURATION_MINUTES_MIN = 30;
 export const EVENT_DURATION_MINUTES_MAX = 8 * 60;
+
+export const MEMBER_EVENT_KINDS = [
+  'meetup',
+  'workshop',
+] as const satisfies readonly EventKind[];
+export const memberEventKindSchema = z.enum(MEMBER_EVENT_KINDS);
 
 const MINUTE_MS = 60_000;
 export const EVENT_DURATION_MS_MIN = EVENT_DURATION_MINUTES_MIN * MINUTE_MS;
@@ -101,6 +111,7 @@ export const eventCreateSchema = z
     startsAt: z.number().int().positive(),
     endsAt: z.number().int().positive(),
     languages: eventLanguagesSchema,
+    kind: memberEventKindSchema.default('meetup'),
   })
   .strict()
   .superRefine(addScheduleIssues);
@@ -146,6 +157,7 @@ export const eventUpdateSchema = z
     startsAt: z.number().int().positive(),
     endsAt: z.number().int().positive(),
     languages: eventLanguagesSchema,
+    kind: memberEventKindSchema.optional(),
   })
   .strict()
   .superRefine(addUpdateIssues);

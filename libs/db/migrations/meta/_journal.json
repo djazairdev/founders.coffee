@@ -323,6 +323,13 @@
       "when": 1792577877393,
       "tag": "0045_hackathon_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "6",
+      "when": 1792583080244,
+      "tag": "0046_event_kind",
+      "breakpoints": true
     }
   ]
 }
