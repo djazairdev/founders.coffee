@@ -73,6 +73,7 @@ export const useHostCreateWizard = ({
     setKind,
     setChosenLanguages,
     setHostAs,
+    setTags,
   } = useHostCreateDraftState({
     locale,
     marketCode: market.code,
@@ -184,7 +185,7 @@ export const useHostCreateWizard = ({
         startsAt,
         endsAt,
         kind: draft.kind,
-        tags: [],
+        tags: [...draft.tags],
         format: 'in_person',
       },
       hostOrganisation?.id ?? null,
@@ -265,6 +266,7 @@ export const useHostCreateWizard = ({
       setFieldErrors((current) => ({ ...current, description: undefined }));
     },
     setKind,
+    setTags,
     setSchedule,
     setScheduleError,
     selectVenue,

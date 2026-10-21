@@ -6,6 +6,7 @@ export {
 export {
   EVENT_DESCRIPTION_MAX_LENGTH,
   EVENT_DESCRIPTION_MIN_LENGTH,
+  EVENT_TAG_LIMIT,
   EVENT_TITLE_MAX_LENGTH,
   EVENT_TITLE_MIN_LENGTH,
   EVENT_VENUE_ADDRESS_MAX_LENGTH,
@@ -15,6 +16,7 @@ export {
   eventCreateSchema,
   eventDescriptionSchema,
   eventScheduleSchema,
+  eventTagsSchema,
   eventTitleSchema,
   eventUpdateSchema,
   MEMBER_EVENT_KINDS,

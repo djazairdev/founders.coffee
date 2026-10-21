@@ -37,6 +37,7 @@ describe('repeatDraftFrom', () => {
       description: 'A relaxed breakfast for local founders.',
       kind: 'meetup',
       hostAs: null,
+      tags: [],
       chosenLanguages: ['ar'],
     });
   });
