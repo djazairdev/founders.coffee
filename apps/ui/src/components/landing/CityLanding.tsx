@@ -29,6 +29,7 @@ import { LoadMoreEvents } from '../events/LoadMoreEvents';
 import { EventCard } from '../events/EventCard';
 import { CityFilters } from './CityFilters';
 import { EmptyState } from './EmptyState';
+import { HackathonAnnouncement } from './HackathonAnnouncement';
 import { NoMatchingMeetups } from './NoMatchingMeetups';
 
 type CityLandingProps = {
@@ -130,6 +131,7 @@ export const CityLanding = ({
         className="mx-auto flex max-w-content flex-col gap-8 px-4 py-8 md:px-8"
       >
         {pageHeader}
+        <HackathonAnnouncement locale={locale} market={market} />
         <EmptyState
           title={city_empty_title(cityNameInputs, { locale })}
           action={
@@ -152,6 +154,7 @@ export const CityLanding = ({
       className="mx-auto flex max-w-content flex-col gap-8 px-4 py-8 md:px-8"
     >
       {pageHeader}
+      <HackathonAnnouncement locale={locale} market={market} />
       <section
         aria-labelledby="city-events-title"
         className="flex flex-col gap-5"

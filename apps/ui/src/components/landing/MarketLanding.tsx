@@ -8,6 +8,7 @@ import type {
 } from '@founders-coffee/server-fns';
 
 import { DiscoverFeed } from './DiscoverFeed';
+import { HackathonAnnouncement } from './HackathonAnnouncement';
 import { HowItWorks } from './HowItWorks';
 import { MarketHero } from './MarketHero';
 import { TrendingStates } from './TrendingStates';
@@ -39,6 +40,11 @@ export const MarketLanding = ({
       locale={locale}
       market={market}
       cityEventCounts={cityEventCounts}
+    />
+    <HackathonAnnouncement
+      locale={locale}
+      market={market}
+      className="mx-auto max-w-content px-4 pt-10 md:px-8 md:pt-14"
     />
     <TrendingStates locale={locale} market={market} trending={trending} />
     <DiscoverFeed

@@ -16,6 +16,8 @@ import { createElement, type ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  city_upcoming_title,
+  cityInputs,
   filter_ar,
   filter_fr,
   load_more,
@@ -207,7 +209,13 @@ describe('city page chips that match nothing loaded so far', () => {
 
     turnOn(filter_ar({}, EN));
 
-    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(2);
+    expect(
+      within(
+        screen.getByRole('list', {
+          name: city_upcoming_title(cityInputs('Oran'), EN),
+        }),
+      ).getAllByRole('heading', { level: 3 }),
+    ).toHaveLength(2);
     expect(api.getUpcomingEvents).not.toHaveBeenCalled();
   });
 });
