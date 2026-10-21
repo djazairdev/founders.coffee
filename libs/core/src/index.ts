@@ -12,6 +12,7 @@ export * from './enums.js';
 export * from './chat.js';
 export * from './rooms.js';
 export * from './outcomes.js';
+export * from './organisations.js';
 export * from './validation.js';
 export * from './security-headers.js';
 export * from './geo.js';
