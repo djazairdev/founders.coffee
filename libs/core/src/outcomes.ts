@@ -115,3 +115,7 @@ export const isOperationsErrorCode = (
   code: string,
 ): code is OperationsErrorCode =>
   (OPERATIONS_ERROR_CODES as readonly string[]).includes(code);
+
+export const HACKATHON_ERROR_CODES = ['hackathons_disabled'] as const;
+export type HackathonErrorCode = (typeof HACKATHON_ERROR_CODES)[number];
+export const hackathonErrorCodeSchema = z.enum(HACKATHON_ERROR_CODES);
