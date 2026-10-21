@@ -30,6 +30,7 @@ export const organisationPlugin = () =>
           cityCode: { type: 'string', required: false },
           description: { type: 'string', required: true },
           websiteUrl: { type: 'string', required: false },
+          ownerLeftAt: { type: 'date', required: false, input: false },
         },
       },
     },

@@ -235,7 +235,9 @@ export type NewVerification = typeof verification.$inferInsert;
 /**
  * Better Auth's organisation plugin keeps organisers, their members and invitations in these three
  * tables (B-ORG-01). The plugin's own columns keep its names; ours follow them. An organisation
- * starts `pending` and is approved by an operator before it can run anything.
+ * starts `pending` and is approved by an operator before it can run anything. `owner_left_at` is
+ * when its last owner closed their account (B-ORG-12), which puts it in the admin queue until an
+ * owner is named again.
  */
 export const organization = sqliteTable(
   'organization',
@@ -255,6 +257,7 @@ export const organization = sqliteTable(
     cityCode: text('city_code'),
     description: text('description').notNull(),
     websiteUrl: text('website_url'),
+    ownerLeftAt: integer('owner_left_at', { mode: 'timestamp' }),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),
@@ -264,6 +267,9 @@ export const organization = sqliteTable(
       table.marketCode,
       table.status,
     ),
+    index('organization_owner_left_index')
+      .on(table.ownerLeftAt)
+      .where(sql`owner_left_at IS NOT NULL`),
   ],
 );
 
