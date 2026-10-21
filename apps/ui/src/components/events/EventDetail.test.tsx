@@ -89,6 +89,18 @@ describe('EventDetail once the host has called the meetup off', () => {
   });
 });
 
+describe('EventDetail for a hackathon', () => {
+  it('offers no RSVP, since a hackathon is joined by registering', () => {
+    show(event);
+    expect(screen.getByText('Save your place')).toBeTruthy();
+    cleanup();
+
+    show({ ...event, kind: 'hackathon' });
+    expect(screen.queryByText('Save your place')).toBeNull();
+    expect(screen.queryByRole('complementary')).toBeNull();
+  });
+});
+
 describe('the share chip in the event header', () => {
   it('reads as an imperative, because it is a button and not a heading', () => {
     show(event, 'ar');
