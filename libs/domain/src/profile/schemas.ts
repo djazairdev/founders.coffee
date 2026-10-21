@@ -69,21 +69,26 @@ export const memberSinceSchema = z
 export const memberSinceOf = (createdAt: Date): string =>
   createdAt.toISOString().slice(0, 7);
 
+/** Whether `value` is an absolute HTTPS address that carries no user name or password. */
+export const isCredentialFreeHttpsUrl = (value: string): boolean => {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && !url.username && !url.password;
+  } catch {
+    return false;
+  }
+};
+
 export const professionalLinkSchema = z
   .string()
   .trim()
   .max(2048)
   .nullable()
   .transform((value) => value || null)
-  .refine((value) => {
-    if (value === null) return true;
-    try {
-      const url = new URL(value);
-      return url.protocol === 'https:' && !url.username && !url.password;
-    } catch {
-      return false;
-    }
-  }, 'A credential-free HTTPS URL is required');
+  .refine(
+    (value) => value === null || isCredentialFreeHttpsUrl(value),
+    'A credential-free HTTPS URL is required',
+  );
 
 export const profileVisibilitySchema = z.strictObject({
   headline: z.boolean().default(false),

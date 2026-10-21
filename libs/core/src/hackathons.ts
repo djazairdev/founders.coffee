@@ -22,3 +22,11 @@ export const attendanceModeSchema = z.enum(ATTENDANCE_MODES);
 export const REGISTRATION_STATUSES = ['registered', 'waitlisted'] as const;
 export type RegistrationStatus = (typeof REGISTRATION_STATUSES)[number];
 export const registrationStatusSchema = z.enum(REGISTRATION_STATUSES);
+
+export const HACKATHON_AI_POLICIES = [
+  'disclosed',
+  'ai_native',
+  'restricted',
+] as const;
+export type HackathonAiPolicy = (typeof HACKATHON_AI_POLICIES)[number];
+export const hackathonAiPolicySchema = z.enum(HACKATHON_AI_POLICIES);
