@@ -37,9 +37,9 @@ export const privacyEnglish: CompanyPageContent = translatedPage(
       ),
       subheading('Profile'),
       ...text(
-        'Your profile can include an introduction about you, what you are building and its stage, your interests, your languages, your professional link, and your photo.',
-        'Your name, photo, introduction, the month you joined, and the number of gatherings you hosted appear on your public profile. What you are building and its stage, your interests, languages, professional link, and the number of gatherings you attended appear only if you publish them.',
-        'Each optional field has its own visibility switch and starts hidden. You can delete your photo and introduction at any time. Your public profile is open to anyone with its link, and profile pages ask search engines not to index them.',
+        'Your profile can include an introduction about you, what you are building and its stage, your interests, your languages, your skills, your links (GitHub, LinkedIn, and a website), the opportunities you are open to (jobs, internships, co-founding), and your photo.',
+        'Your name, photo, introduction, the month you joined, and the number of gatherings you hosted appear on your public profile. What you are building and its stage, your interests, languages, skills, links, the opportunities you are open to, and the number of gatherings you attended appear only if you publish them.',
+        'Each optional field has its own visibility switch and starts hidden. You can delete your photo and introduction at any time. Your public profile is open to anyone with its link. Profile pages ask search engines not to index them unless you turn on the search engines switch, which also starts off. While it is on, your profile page is listed in our sitemap and search engines may show it in their results, with only what you published on it. If you turn it off, the page asks them again not to index it and leaves the sitemap; a search engine may take a few days to drop a copy it already holds.',
       ),
       subheading('Gatherings and RSVPs'),
       ...text(

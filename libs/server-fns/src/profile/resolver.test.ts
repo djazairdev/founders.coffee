@@ -88,6 +88,7 @@ describe('PF-03 profile resolvers against real D1', () => {
         skills: [],
         links: [],
         openTo: [],
+        indexable: false,
         hostedCount: 0,
         attendedCount: null,
       },

@@ -49,6 +49,20 @@ describe('GEO document contract', () => {
     ).toEqual([]);
   });
 
+  it('wants a listed profile to be a ProfilePage named as its heading', () => {
+    const url = 'https://founders.coffee/ar/u/usr_1';
+    const inspect = (type) =>
+      inspectGeoDocument({
+        path: '/ar/u/usr_1',
+        type: 'profile',
+        body: document({ type, name: 'Amina', locale: 'ar', url }),
+        canonical: url,
+      });
+
+    expect(inspect('ProfilePage')).toEqual([]);
+    expect(inspect('Person')).toEqual(['missing ProfilePage JSON-LD entity']);
+  });
+
   it('rejects duplicate entities and private fields in the primary schema', () => {
     const body = `${document({
       type: 'Event',

@@ -6,12 +6,11 @@ import { profile_title } from '@founders-coffee/i18n';
 import { eventsApi, type HostedEventItem } from '../features/events/api';
 import { profileApi, type PublicProfile } from '../features/profile/api';
 import { PublicProfilePage } from '../features/profile/components/PublicProfilePage';
-import { NO_INDEX_VALUE } from '../lib/indexation';
 import {
   hostedPaginationSearchSchema,
   type HostedPaginationSearch,
 } from '../lib/public-pagination';
-import { buildPageTitle } from '../lib/seo';
+import { profilePageHead, profileRobots } from '../lib/seo-profile';
 
 const PublicProfileRoute = () => {
   const { locale, markets } = Route.useRouteContext();
@@ -66,21 +65,16 @@ export const Route = createFileRoute('/$locale/u/$userId')({
       pagination: deps,
     };
   },
-  headers: () => ({
+  headers: ({ loaderData }) => ({
     'Cache-Control': 'private, no-store',
-    'X-Robots-Tag': NO_INDEX_VALUE,
+    'X-Robots-Tag': profileRobots(loaderData?.profile),
   }),
   staleTime: 0,
   gcTime: 0,
-  head: ({ loaderData, match }) => ({
-    meta: [
-      {
-        title: buildPageTitle(
-          loaderData?.profile.displayName ??
-            profile_title({}, { locale: match.context.locale }),
-        ),
-      },
-      { name: 'robots', content: NO_INDEX_VALUE },
-    ],
-  }),
+  head: ({ loaderData, match }) =>
+    profilePageHead(
+      match.context.locale,
+      profile_title({}, { locale: match.context.locale }),
+      loaderData?.profile,
+    ),
 });

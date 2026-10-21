@@ -5,6 +5,7 @@ export type IndexationEnvironment = {
 
 export const PRODUCTION_ORIGIN = 'https://founders.coffee';
 export const NO_INDEX_VALUE = 'noindex, nofollow';
+export const INDEX_VALUE = 'index, follow';
 export const PUBLIC_DOCUMENT_CACHE_CONTROL =
   'public, max-age=0, s-maxage=60, stale-while-revalidate=300';
 export const PRIVATE_DOCUMENT_CACHE_CONTROL = 'private, no-store';
@@ -134,12 +135,28 @@ export const isPrivatePath = (pathname: string): boolean => {
   );
 };
 
+const PROFILE_PAGE = /^\/[^/]+\/u\/[^/]+$/iu;
+
+/**
+ * Whether a response is a member's profile page as its route rendered it, robots decision and all.
+ *
+ * The profile is the one private screen whose owner decides whether search engines may list it
+ * (B-PRF-04), so the page says `noindex` or not through its own `X-Robots-Tag`. Only a page the
+ * route rendered carries one: a redirect, or the address of a member who cannot be shown, never
+ * does, and neither does `/algeria/u/{id}`, which the `$locale` layout redirects.
+ */
+const isRenderedProfilePage = (response: Response, pathname: string): boolean =>
+  response.status === 200 &&
+  response.headers.has('X-Robots-Tag') &&
+  PROFILE_PAGE.test(routedPath(pathname));
+
 /**
  * Mark a response on the way to a private screen `private, no-store` and `noindex`.
  *
  * A route's own `headers()` reach only a page it renders. TanStack Start returns a redirect before
  * it reads them, so every redirect on the way to a private screen carries what this adds and
- * nothing else.
+ * nothing else. A rendered profile page keeps the robots decision its route made, and is still
+ * never cached, so turning the switch off takes effect on the next request.
  */
 export const withPrivateRouteHeaders = (
   response: Response,
@@ -148,7 +165,8 @@ export const withPrivateRouteHeaders = (
   if (!isPrivatePath(pathname)) return response;
   const headers = new Headers(response.headers);
   headers.set('Cache-Control', PRIVATE_DOCUMENT_CACHE_CONTROL);
-  headers.set('X-Robots-Tag', NO_INDEX_VALUE);
+  if (!isRenderedProfilePage(response, pathname))
+    headers.set('X-Robots-Tag', NO_INDEX_VALUE);
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,

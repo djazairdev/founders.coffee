@@ -29,6 +29,7 @@ const member: PublicProfile = {
   skills: [],
   links: [],
   openTo: [],
+  indexable: false,
   hostedCount: 0,
   attendedCount: null,
 };

@@ -26,6 +26,7 @@ export const ownerProfileProjection = (
       url,
     })),
     openTo: row?.openTo ?? [],
+    indexable: row?.profileIndexable ?? false,
     visibility: {
       headline: row?.publishHeadline ?? false,
       stage: row?.publishStage ?? false,
@@ -82,6 +83,7 @@ export const profileChanges = (input: profile.UpdateProfileInput) => ({
   skills: input.skills,
   links: input.links.map((link) => link.url),
   openTo: input.openTo,
+  profileIndexable: input.indexable,
   publishHeadline: input.visibility.headline,
   publishStage: input.visibility.stage,
   publishInterests: input.visibility.interests,

@@ -140,6 +140,7 @@ export const saveDisplayName = async (
     skills: value.skills,
     links: value.links,
     openTo: value.openTo,
+    indexable: value.indexable,
     visibility: value.visibility,
   });
 };

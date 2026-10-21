@@ -26,6 +26,8 @@ const link = (text: string, url: string): string => `- [${text}](${url})`;
 
 const eventPath = (path: string): boolean => /\/e\//u.test(path);
 
+const profilePath = (path: string): boolean => /\/u\//u.test(path);
+
 const productionLines = (
   origin: string,
   data: SitemapData,
@@ -33,7 +35,9 @@ const productionLines = (
 ): string[] => {
   const items = sitemapItems(data);
   const eventItems = items.filter((item) => eventPath(item.path));
-  const discoveryItems = items.filter((item) => !eventPath(item.path));
+  const discoveryItems = items.filter(
+    (item) => !eventPath(item.path) && !profilePath(item.path),
+  );
   const eventLinks = eventItems
     .slice(0, MAX_EVENT_LINKS)
     .map((item) => link(item.path, absolute(origin, item.path)));

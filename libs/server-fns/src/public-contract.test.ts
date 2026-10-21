@@ -16,6 +16,7 @@ import { ownerProfileProjection } from './profile/projection.js';
 const PUBLIC_PROFILE_FIELDS = [
   'displayName',
   'headline',
+  'indexable',
   'interests',
   'introduction',
   'links',
@@ -174,6 +175,7 @@ describe('public response contract', () => {
       skills: [],
       links: [],
       openTo: [],
+      indexable: false,
       photoAssetId: owner.photoAssetId,
       interests: [],
       spokenLanguages: [],

@@ -16,6 +16,7 @@ const PRIMARY_TYPES = {
   city: 'CollectionPage',
   event: 'Event',
   market: 'CollectionPage',
+  profile: 'ProfilePage',
 };
 const PRIVATE_KEYS = new Set(['email', 'phone', 'hostid', 'rsvps']);
 
