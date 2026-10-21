@@ -21,7 +21,11 @@ import { reportAuthFailure } from './auth-failures.js';
 import { captchaEndpointsFor } from './captcha.js';
 import { codeSendLimit, type CodeSendLimit } from './code-send-limit.js';
 import { nameForNewAccount, nameUnnamedMember } from './member-name.js';
-import { organisationHttpPaths, organisationPlugin } from './organisations.js';
+import {
+  organisationHttpPaths,
+  organisationPlugin,
+  type OrganisationInvitationSender,
+} from './organisations.js';
 import {
   forgetProviderTokens,
   withoutProviderPicture,
@@ -53,6 +57,7 @@ export interface AuthDeps {
   smsProvider?: SmsProvider;
   captchaBypassed?: boolean;
   codeSendLimit?: CodeSendLimit;
+  sendInvitationEmail?: OrganisationInvitationSender;
 }
 
 const GUARDED_ACCOUNT_PATHS = [
@@ -130,7 +135,7 @@ export const createAuth = (env: AuthEnv, deps: AuthDeps = {}) => {
   const db = createDb(env.DB);
   const google = socialCredentials(env, 'google');
   const github = socialCredentials(env, 'github');
-  const organisations = organisationPlugin();
+  const organisations = organisationPlugin(deps.sendInvitationEmail);
 
   const auth = betterAuth({
     database: drizzleAdapter(db, {

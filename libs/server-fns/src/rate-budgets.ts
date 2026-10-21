@@ -23,6 +23,21 @@ export const RATE_BUDGETS = {
       limit: 10,
       windowMs: 10 * MINUTE_MS,
     },
+    organisationInvite: {
+      action: 'invite_organisation_member',
+      limit: 10,
+      windowMs: 60 * MINUTE_MS,
+    },
+    organisationInvitationCancel: {
+      action: 'cancel_organisation_invitation',
+      limit: 20,
+      windowMs: 10 * MINUTE_MS,
+    },
+    organisationInvitationAnswer: {
+      action: 'answer_organisation_invitation',
+      limit: 10,
+      windowMs: 10 * MINUTE_MS,
+    },
   },
   read: {
     publicProfile: {

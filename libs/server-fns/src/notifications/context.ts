@@ -101,6 +101,13 @@ export const eventUrlFor = (opts: {
 export const closeoutUrlFor = (locale: Locale, eventId: string): string =>
   `${notificationBaseUrl()}/${locale}/closeout/${eventId}`;
 
+/** The private screen where an invited member accepts or declines (B-ORG-10), on the same terms. */
+export const organisationInvitationUrlFor = (
+  locale: Locale,
+  invitationId: string,
+): string =>
+  `${notificationBaseUrl()}/${locale}/o/invitations/${encodeURIComponent(invitationId)}`;
+
 /** The screen where an attendee leaves feedback, on the same terms as `closeoutUrlFor`. */
 export const feedbackUrlFor = (locale: Locale, eventId: string): string =>
   `${notificationBaseUrl()}/${locale}/feedback/${eventId}`;

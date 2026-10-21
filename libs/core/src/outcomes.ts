@@ -120,6 +120,11 @@ export const ORGANISATION_ERROR_CODES = [
   'organisation_slug_taken',
   'organisation_not_approved',
   'invalid_organisation_transition',
+  'organisation_already_member',
+  'organisation_invitation_not_found',
+  'organisation_invitation_expired',
+  'organisation_email_unverified',
+  'organisation_invitation_failed',
 ] as const;
 export type OrganisationErrorCode = (typeof ORGANISATION_ERROR_CODES)[number];
 
