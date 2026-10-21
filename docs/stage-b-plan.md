@@ -28,7 +28,7 @@ An audit of `develop` on 16 October 2026:
 | Privacy       | Account closure with a tombstone, retention sweeps, a privacy policy in three languages                                                                                                           | Every new table in erasure and retention, and an updated policy                             |
 | Tooling       | Nx 23, TanStack Start on Workers, D1 and Drizzle, Better Auth 1.7, Paraglide (ar, fr, en), Tailwind 4 and DaisyUI 5, Vitest with Miniflare, Playwright                                            | Nothing new: Stage B adds no dependency                                                     |
 
-`libs/db/pending-migrations/0044_retire_telegram_groups.sql` is still pending, and no migration can ship after a pending one. B-FND-01 settles it first.
+`0044_retire_telegram_groups` waited in `libs/db/pending-migrations/`, and no migration can ship after a pending one. B-FND-01 promoted it on 2026-10-21, so Stage B's migrations follow it in `libs/db/migrations/`.
 
 ## 2. Decisions for Stage B
 
