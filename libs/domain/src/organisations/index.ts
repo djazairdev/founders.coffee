@@ -1,4 +1,5 @@
 export {
+  applicantOrganisationKindSchema,
   isReservedOrganisationSlug,
   ORGANISATION_DESCRIPTION_MAX_LENGTH,
   ORGANISATION_DESCRIPTION_MIN_LENGTH,
@@ -29,3 +30,4 @@ export {
   type OrganisationDecision,
   type OrganisationDecisionInput,
 } from './decisions.js';
+export { suggestOrganisationSlug } from './slug.js';

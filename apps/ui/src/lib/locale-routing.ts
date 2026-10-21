@@ -159,6 +159,12 @@ export const localizedProfile = (locale: Locale) => ({
   activeOptions: ONLY_THIS_PAGE,
 });
 
+/** The page where a member applies for an organisation (B-ORG-08). */
+export const localizedOrganisationApply = (locale: Locale) => ({
+  to: '/$locale/o/apply' as const,
+  params: { locale },
+});
+
 /** The reader's own activity, on the same terms as {@link localizedProfile}. */
 export const localizedProfileActivity = (locale: Locale) => ({
   to: '/$locale/profile/activity' as const,
