@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Market } from '@founders-coffee/db';
 import type { geo } from '@founders-coffee/domain';
 import {
+  hackathon_announce_title,
   back_to_market,
   hero_empty_cta,
   city_empty_title,
@@ -63,7 +64,10 @@ const egypt: Market = {
   timezone: 'Africa/Cairo',
 };
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 describe('city page', () => {
   it.each<Locale>(LOCALES)(
@@ -75,9 +79,12 @@ describe('city page', () => {
       );
 
       expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(city);
-      expect(screen.getByRole('heading', { level: 2 }).textContent).toBe(
-        city_empty_title(cityInputs(city), { locale }),
-      );
+      expect(
+        screen.getByRole('heading', {
+          level: 2,
+          name: city_empty_title(cityInputs(city), { locale }),
+        }),
+      ).toBeTruthy();
     },
   );
 
@@ -85,9 +92,12 @@ describe('city page', () => {
     const { unmount } = render(
       <CityLanding locale="fr" market={egypt} city={cairo} events={[]} />,
     );
-    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe(
-      'Soyez le premier à organiser une rencontre d’entrepreneurs au Caire',
-    );
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Soyez le premier à organiser une rencontre d’entrepreneurs au Caire',
+      }),
+    ).toBeTruthy();
     unmount();
 
     render(
@@ -98,14 +108,35 @@ describe('city page', () => {
         events={[{ ...event, marketCode: 'EG', cityCode: cairo.code }]}
       />,
     );
-    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe(
-      'Prochaines rencontres au Caire',
-    );
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Prochaines rencontres au Caire',
+      }),
+    ).toBeTruthy();
     expect(
       screen.getByText(
         'Découvrez les prochaines rencontres d’entrepreneurs et de la communauté au Caire.',
       ),
     ).toBeTruthy();
+  });
+
+  it('announces the first hackathon under the header of an Algerian city', () => {
+    vi.useFakeTimers({
+      now: new Date('2026-10-21T10:00:00Z'),
+      toFake: ['Date'],
+    });
+    render(
+      <CityLanding locale="en" market={market} city={oran} events={[event]} />,
+    );
+
+    const headings = screen
+      .getAllByRole('heading', { level: 2 })
+      .map((heading) => heading.textContent);
+    expect(headings).toEqual([
+      hackathon_announce_title({}, { locale: 'en' }),
+      city_upcoming_title(cityInputs('Oran'), { locale: 'en' }),
+    ]);
   });
 
   it('gives a city with nothing on one way to host and one way back', () => {
@@ -139,9 +170,12 @@ describe('city page', () => {
     );
 
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Oran');
-    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe(
-      city_upcoming_title(cityInputs('Oran'), { locale: 'en' }),
-    );
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: city_upcoming_title(cityInputs('Oran'), { locale: 'en' }),
+      }),
+    ).toBeTruthy();
     expect(
       screen.getByText(
         city_events_description(cityInputs('Oran'), { locale: 'en' }),
