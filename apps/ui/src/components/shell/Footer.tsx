@@ -6,6 +6,7 @@ import {
   brand,
   footer_about,
   footer_report,
+  org_apply_link,
   footer_company,
   footer_contact,
   footer_community,
@@ -34,6 +35,7 @@ import {
   localizedHostCreate,
   localizedHome,
   localizedLanding,
+  localizedOrganisationApply,
 } from '../../lib/locale-routing';
 import { SOURCE_REPOSITORY_URL } from '../../lib/source-repository';
 
@@ -144,6 +146,14 @@ export const Footer = ({ locale, markets, market, cityCode }: FooterProps) => {
                 </Link>
               </li>
             ) : null}
+            <li>
+              <Link
+                {...localizedOrganisationApply(locale)}
+                className={linkClass}
+              >
+                {org_apply_link({}, { locale })}
+              </Link>
+            </li>
             <li>
               <Link
                 {...localizedLanding(locale, 'contact')}
