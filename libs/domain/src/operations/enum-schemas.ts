@@ -60,6 +60,13 @@ export type AuditAction = z.infer<typeof auditActionSchema>;
  * enum value and no implementation; each of those tickets adds its value alongside the code that
  * emits it.
  *
+ * Stage B's decisions are the one batch added ahead of their writers (B-FND-04): `approved`,
+ * `rejected` and `suspended` for an organisation or a hackathon, `recused` for a judge,
+ * `disqualified` for a submission, and `results_published` for a hackathon. The admin queues and
+ * the organiser flows that write them (B-ORG-06, B-HKN-08, B-JDG-04, B-SAFE-02, B-JDG-09) all land
+ * in Stage B, and fixing the words first keeps one vocabulary across them. The target type says
+ * what was approved; the action alone does not.
+ *
  * Member feedback is not audited at all, and that is a decision rather than an omission: an
  * individual pulse stays private, and an audit stream naming who submitted one and when would be
  * the disclosure that rule exists to prevent.

@@ -229,6 +229,10 @@ export const AUDIT_TARGETS = [
   'feedback',
   'host_trust',
   'operations_review',
+  'organisation',
+  'hackathon',
+  'submission',
+  'judge',
 ] as const;
 export type AuditTarget = (typeof AUDIT_TARGETS)[number];
 export const auditTargetSchema = z.enum(AUDIT_TARGETS);
@@ -240,6 +244,12 @@ export const AUDIT_ACTIONS = [
   'attendance_corrected',
   'host_trust_updated',
   'review_recorded',
+  'approved',
+  'rejected',
+  'suspended',
+  'recused',
+  'disqualified',
+  'results_published',
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 export const auditActionSchema = z.enum(AUDIT_ACTIONS);
