@@ -1,16 +1,21 @@
 import { organization } from 'better-auth/plugins';
 
+import { organisationAc, organisationRoles } from './organisation-access.js';
+
 /**
  * Better Auth's organisation plugin, configured for organisers (B-ORG-01).
  *
  * Organisations, their members, roles and invitations come from the plugin rather than new tables.
  * Teams stay off: a hackathon team is not a team of the organiser, and its participants are not
  * the organiser's members. Our fields sit on the organisation row; `status` cannot be sent by a
- * caller, so every organisation starts `pending` until an operator approves it.
+ * caller, so every organisation starts `pending` until an operator approves it. Roles carry our
+ * organising grants (B-ORG-02) beside Better Auth's own.
  */
 export const organisationPlugin = () =>
   organization({
     teams: { enabled: false },
+    ac: organisationAc,
+    roles: organisationRoles,
     schema: {
       organization: {
         additionalFields: {
