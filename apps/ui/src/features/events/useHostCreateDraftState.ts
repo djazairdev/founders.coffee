@@ -48,6 +48,7 @@ export const useHostCreateDraftState = ({
   const [chosenLanguages, setChosenLanguages] = useState<
     MeetupLanguage[] | null
   >(null);
+  const [hostAs, setHostAs] = useState<string | null>(null);
   const [hasRestoredDraft, setHasRestoredDraft] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
   const repeat =
@@ -64,6 +65,7 @@ export const useHostCreateDraftState = ({
     description,
     kind,
     chosenLanguages,
+    hostAs,
   };
 
   useEffect(() => {
@@ -77,6 +79,7 @@ export const useHostCreateDraftState = ({
       setDescription(next.description);
       setKind(next.kind);
       setChosenLanguages(next.chosenLanguages);
+      setHostAs(next.hostAs);
     };
     setIsRepeat(repeat !== null);
     const restored = repeat
@@ -108,6 +111,7 @@ export const useHostCreateDraftState = ({
         description,
         kind,
         chosenLanguages,
+        hostAs,
       },
       repeat?.sourceEventId,
     );
@@ -125,6 +129,7 @@ export const useHostCreateDraftState = ({
     description,
     kind,
     chosenLanguages,
+    hostAs,
   ]);
 
   return {
@@ -140,5 +145,6 @@ export const useHostCreateDraftState = ({
     setDescription,
     setKind,
     setChosenLanguages,
+    setHostAs,
   };
 };

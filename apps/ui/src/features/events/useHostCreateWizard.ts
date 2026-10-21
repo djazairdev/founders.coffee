@@ -25,6 +25,11 @@ import {
   type HostCreateFieldErrors,
 } from './host-create-validation';
 import type { RepeatEventTemplate } from './api';
+import { useMyOrganisations } from './hooks';
+import {
+  chosenHostOrganisation,
+  hostableOrganisations,
+} from './host-organisations';
 import type { MeetupLanguage, VenueArea, VenueSelection } from './types';
 import { useHostPublish } from './useHostPublish';
 import { useAuth } from '../../lib/app-providers';
@@ -67,6 +72,7 @@ export const useHostCreateWizard = ({
     setDescription,
     setKind,
     setChosenLanguages,
+    setHostAs,
   } = useHostCreateDraftState({
     locale,
     marketCode: market.code,
@@ -77,6 +83,12 @@ export const useHostCreateWizard = ({
   const languages: readonly MeetupLanguage[] = draft.chosenLanguages ?? [
     locale,
   ];
+  const myOrganisations = useMyOrganisations(isAuthenticated);
+  const organisations = hostableOrganisations(
+    myOrganisations.data,
+    market.code,
+  );
+  const hostOrganisation = chosenHostOrganisation(draft.hostAs, organisations);
   const {
     publishing,
     publishError,
@@ -157,23 +169,26 @@ export const useHostCreateWizard = ({
   };
   const publish = () => {
     if (!venue || startsAt === null || endsAt === null) return;
-    void publishEvent({
-      marketCode: market.code,
-      cityCode: city?.code,
-      title,
-      description,
-      languages: [...languages],
-      venueName,
-      venueProviderId: venue.providerId,
-      venueAddress: venue.address,
-      latitude: venue.latitude,
-      longitude: venue.longitude,
-      startsAt,
-      endsAt,
-      kind: draft.kind,
-      tags: [],
-      format: 'in_person',
-    });
+    void publishEvent(
+      {
+        marketCode: market.code,
+        cityCode: city?.code,
+        title,
+        description,
+        languages: [...languages],
+        venueName,
+        venueProviderId: venue.providerId,
+        venueAddress: venue.address,
+        latitude: venue.latitude,
+        longitude: venue.longitude,
+        startsAt,
+        endsAt,
+        kind: draft.kind,
+        tags: [],
+        format: 'in_person',
+      },
+      hostOrganisation?.id ?? null,
+    );
   };
 
   /**
@@ -209,6 +224,9 @@ export const useHostCreateWizard = ({
 
   return {
     ...draft,
+    hostAs: hostOrganisation?.id ?? null,
+    organisations,
+    setHostAs,
     fieldErrors,
     publishing,
     publishError,

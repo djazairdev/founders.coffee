@@ -14,6 +14,7 @@ const DRAFT_VERSION = 6;
 const READABLE_DRAFT_VERSIONS = [5, DRAFT_VERSION] as const;
 const DRAFT_MAX_AGE_MS = 24 * 60 * 60_000;
 const REPEAT_ID_MAX_LENGTH = 64;
+const HOST_AS_MAX_LENGTH = 64;
 
 const venueSelectionSchema = z.object({
   providerId: z.string().min(1),
@@ -50,6 +51,7 @@ const hostCreateDraftSchema = z.object({
     .max(REPEAT_ID_MAX_LENGTH)
     .nullable()
     .default(null),
+  hostAs: z.string().min(1).max(HOST_AS_MAX_LENGTH).nullable().default(null),
 });
 
 export type HostCreateDraft = {
@@ -63,6 +65,7 @@ export type HostCreateDraft = {
   description: string;
   kind: HostEventKind;
   chosenLanguages: MeetupLanguage[] | null;
+  hostAs: string | null;
 };
 
 const draftKey = (marketCode: string): string => `fc:event-draft:${marketCode}`;
@@ -106,6 +109,7 @@ export const readHostCreateDraft = (
       description: parsed.data.description,
       kind: parsed.data.kind,
       chosenLanguages: parsed.data.chosenLanguages,
+      hostAs: parsed.data.hostAs,
     };
   } catch {
     return null;
@@ -138,6 +142,10 @@ export const writeHostCreateDraft = (
         searchValue: draft.searchValue.slice(0, VENUE_SEARCH_MAX_LENGTH),
         repeatOf:
           repeatOf && repeatOf.length <= REPEAT_ID_MAX_LENGTH ? repeatOf : null,
+        hostAs:
+          draft.hostAs && draft.hostAs.length <= HOST_AS_MAX_LENGTH
+            ? draft.hostAs
+            : null,
       }),
     );
   } catch {
