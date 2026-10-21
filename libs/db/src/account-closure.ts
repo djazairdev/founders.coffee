@@ -24,6 +24,8 @@ import {
   eventFeedback,
   eventRsvps,
   events,
+  invitation,
+  member,
   memberProfiles,
   profileAssets,
   pushSessionLinks,
@@ -137,12 +139,13 @@ export const listProfileAssetPrefixes = async (
  * detached, as the city's record. RSVPs and attendance stay for the twenty-four months the policy
  * gives them, attributed to nobody. Feedback ratings stay without their comment. Host trust,
  * audit and review rows stay under their own retention, and so do meetup chat reports, the ones
- * they filed and the ones about their messages, pointing at the tombstone.
+ * they filed and the ones about their messages, pointing at the tombstone. An invitation they sent
+ * stays with its organisation, from the tombstone.
  *
  * Everything that is the member's own goes: profile, photo rows, preferences, devices, queued
- * notices, meetup chat messages and chat settings, sessions, sign-in links with
- * Google or GitHub, codes still waiting for their address or phone, and the city waitlist entries
- * under their address. Photo bytes are the caller's to delete first, from
+ * notices, meetup chat messages and chat settings, organisation memberships, sessions, sign-in links
+ * with Google or GitHub, codes still waiting for their address or phone, and the city waitlist,
+ * hackathon interest and organisation invitations under their address. Photo bytes are the caller's to delete first, from
  * {@link listProfileAssetPrefixes}, since a deleted row is the only record of where they are.
  *
  * Every statement re-checks that the account is still closing, and the tombstone is written last,
@@ -179,6 +182,7 @@ export const eraseClosedAccount = async (
       .where(owned(eventFeedback.userId)),
     db.delete(chatMessages).where(owned(chatMessages.authorId)),
     db.delete(chatMembers).where(owned(chatMembers.userId)),
+    db.delete(member).where(owned(member.userId)),
     db.delete(session).where(owned(session.userId)),
     db.delete(account).where(owned(account.userId)),
     db
@@ -198,6 +202,9 @@ export const eraseClosedAccount = async (
     db
       .delete(hackathonInterest)
       .where(and(eq(hackathonInterest.email, closing.email), stillClosing)),
+    db
+      .delete(invitation)
+      .where(and(eq(invitation.email, closing.email), stillClosing)),
     db
       .update(user)
       .set({

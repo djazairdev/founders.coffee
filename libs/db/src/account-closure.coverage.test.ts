@@ -17,6 +17,7 @@ const ERASED: readonly string[] = [
   'event_feedback.user_id',
   'chat_messages.author_id',
   'chat_members.user_id',
+  'member.user_id',
 ];
 
 const KEPT: Readonly<Record<string, string>> = {
@@ -52,6 +53,8 @@ const KEPT: Readonly<Record<string, string>> = {
     'A report about the member stays until its retention runs out (CH-09).',
   'chat_reports.reviewed_by':
     'The moderator who decided a report stays named in the decision.',
+  'invitation.inviter_id':
+    'An invitation belongs to its organisation; one the member sent stays, from the tombstone, until it is answered or expires.',
 };
 
 const tables = (): SQLiteTable[] =>

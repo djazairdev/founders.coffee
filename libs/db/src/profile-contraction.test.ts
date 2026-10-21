@@ -16,7 +16,6 @@ import {
   pushSessionLinks,
   pushSubscriptions,
   scheduledNotifications,
-  session,
   user,
 } from './schema.js';
 
@@ -31,12 +30,11 @@ describe('PF-03 residence contraction on populated D1', () => {
       .bind(userId)
       .run();
     await initializeMemberProfile(db, userId);
-    await db.insert(session).values({
-      id: 'ses_contract',
-      userId,
-      token: 'contract-session',
-      expiresAt: new Date('2099-01-01'),
-    });
+    await env.PRIOR_DB.prepare(
+      'INSERT INTO session (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)',
+    )
+      .bind('ses_contract', userId, 'contract-session', 4070908800)
+      .run();
     await db.insert(account).values({
       id: 'acc_contract',
       userId,
