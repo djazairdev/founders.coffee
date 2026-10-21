@@ -351,6 +351,13 @@
       "when": 1792585380366,
       "tag": "0049_organization_plugin",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "6",
+      "when": 1792588915240,
+      "tag": "0050_event_organisers",
+      "breakpoints": true
     }
   ]
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { eq, events, getEvent } from '@founders-coffee/db';
 
-import { createEventResolver } from './resolver.js';
+import { createEventResolver } from './create-resolver.js';
 import {
   createInput,
   setupDb,

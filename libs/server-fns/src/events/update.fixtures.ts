@@ -12,7 +12,7 @@ import { eventUpdateSchema } from '@founders-coffee/domain';
 
 import { enqueueRsvpNotifications } from '../notifications/producer.js';
 import { updateEventResolver } from './update.js';
-import { createEventResolver } from './resolver.js';
+import { createEventResolver } from './create-resolver.js';
 import {
   baseEvent,
   createInput,
