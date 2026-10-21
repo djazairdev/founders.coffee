@@ -52,7 +52,7 @@ export const cookiesEnglish: CompanyPageContent = translatedPage(
         ],
       ),
       ...text(
-        'The human-verification service (Cloudflare Turnstile) may set a short-lived technical cookie during sign-in or a city waitlist request to distinguish a visitor from an automated program. It is not used for tracking and we do not read personal information from it.',
+        'The human-verification service (Cloudflare Turnstile) may set a short-lived technical cookie during sign-in, a city waitlist request or a hackathon registration alert request to distinguish a visitor from an automated program. It is not used for tracking and we do not read personal information from it.',
       ),
     ]),
     section(
@@ -96,5 +96,5 @@ export const cookiesEnglish: CompanyPageContent = translatedPage(
       ),
     ),
   ],
-  '6 October 2026',
+  '21 October 2026',
 );

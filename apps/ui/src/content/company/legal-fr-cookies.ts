@@ -52,7 +52,7 @@ export const cookiesFrench: CompanyPageContent = translatedPage(
         ],
       ),
       ...text(
-        'Le service de vérification humaine (Cloudflare Turnstile) peut déposer un cookie technique de courte durée lors de la connexion ou d’une inscription à la liste d’attente d’une ville, pour distinguer un visiteur d’un programme automatisé. Il ne sert pas au suivi et nous n’en lisons aucune donnée personnelle.',
+        'Le service de vérification humaine (Cloudflare Turnstile) peut déposer un cookie technique de courte durée lors de la connexion, d’une inscription à la liste d’attente d’une ville ou d’une demande d’alerte à l’ouverture des inscriptions au hackathon, pour distinguer un visiteur d’un programme automatisé. Il ne sert pas au suivi et nous n’en lisons aucune donnée personnelle.',
       ),
     ]),
     section(
@@ -96,5 +96,5 @@ export const cookiesFrench: CompanyPageContent = translatedPage(
       ),
     ),
   ],
-  '6 octobre 2026',
+  '21 octobre 2026',
 );

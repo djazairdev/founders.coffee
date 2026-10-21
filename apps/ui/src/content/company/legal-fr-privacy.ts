@@ -68,7 +68,7 @@ export const privacyFrench: CompanyPageContent = translatedPage(
       ...text(
         'Pour chaque session de connexion, nous conservons **l’adresse IP**, la description du navigateur et la durée de validité de la session. Nous conservons aussi des journaux techniques des requêtes reçues par le serveur.',
         'Leur finalité se limite à trois choses : vous garder connecté, détecter les tentatives de connexion illégitimes et les abus, et diagnostiquer les pannes.',
-        'Nous utilisons aussi un service de vérification humaine lors de la connexion et de l’inscription à la liste d’attente d’une ville ; il reçoit votre adresse IP à cette seule fin.',
+        'Nous utilisons aussi un service de vérification humaine lors de la connexion, de l’inscription à la liste d’attente d’une ville et de la demande d’alerte à l’ouverture des inscriptions au hackathon ; il reçoit votre adresse IP à cette seule fin.',
         'Chaque page exécute en outre un script de Cloudflare qui détecte les programmes automatisés : il examine des caractéristiques techniques de votre navigateur et dépose un cookie de sécurité, comme le détaille la [Politique de cookies](/cookies).',
         'Nous mesurons l’usage de la plateforme par des compteurs agrégés côté serveur (nombre de requêtes, de rencontres publiées, taux d’échec), qui ne sont attribués à personne.',
         'Nous utilisons aussi **Cloudflare Web Analytics** pour mesurer l’audience : chaque page charge un script qui transmet à Cloudflare l’adresse de la page, celle de la page d’où vous venez et des mesures de vitesse de chargement, avec votre adresse IP et une description de votre navigateur et de votre appareil, comme toute connexion. Nous n’en voyons que des chiffres agrégés ; il ne dépose aucun cookie et ne vous reconnaît pas d’une visite à l’autre. **Nous n’utilisons aucun outil de suivi publicitaire et ne vendons de données à personne.**',
@@ -91,12 +91,17 @@ export const privacyFrench: CompanyPageContent = translatedPage(
         'Si vous cherchez une ville sans rencontre à venir, vous pouvez laisser votre e-mail pour être prévenu de la publication de sa prochaine rencontre. Nous conservons l’e-mail, la ville, la langue et la date de la demande, sans exiger de compte.',
         'Cet e-mail ne sert qu’à cela : une seule notification, à la publication de la prochaine rencontre de la ville. Il n’est ajouté à aucune liste marketing et n’est utilisé pour rien d’autre que ce que vous avez demandé.',
       ),
+      subheading('Alerte d’ouverture des inscriptions au hackathon'),
+      ...text(
+        'Si vous demandez à être prévenu de l’ouverture des inscriptions au premier hackathon founders.coffee, nous conservons votre e-mail, la page pays depuis laquelle vous l’avez demandé, votre langue et la date de la demande, sans exiger de compte.',
+        'Cet e-mail ne sert qu’à cela : un seul message, à l’ouverture des inscriptions. Il n’est ajouté à aucune liste marketing et n’est utilisé pour rien d’autre que ce que vous avez demandé.',
+      ),
     ]),
     section('Base juridique du traitement', [
       ...text('Chaque traitement repose sur un fondement prévu par la loi :'),
       list([
         '**Exécution du contrat qui nous lie :** le compte, votre profil public (votre nom, votre photo et votre présentation si vous les ajoutez, votre mois d’inscription et le nombre de rencontres organisées), la publication des rencontres, les inscriptions, la discussion de la rencontre, et les rappels et alertes liés à une rencontre à laquelle vous êtes inscrit. Ce ne sont pas des services en plus, mais l’essentiel de ce pour quoi vous vous êtes inscrit.',
-        '**Votre consentement explicite :** la publication des champs facultatifs du profil, qui ont chacun un réglage de visibilité, l’activation des notifications push ou SMS, et l’inscription à la liste d’attente d’une ville. Vous pouvez retirer votre consentement à tout moment, sans remettre en cause la licéité de ce qui a été fait auparavant.',
+        '**Votre consentement explicite :** la publication des champs facultatifs du profil, qui ont chacun un réglage de visibilité, l’activation des notifications push ou SMS, l’inscription à la liste d’attente d’une ville et la demande d’alerte à l’ouverture des inscriptions au hackathon. Vous pouvez retirer votre consentement à tout moment, sans remettre en cause la licéité de ce qui a été fait auparavant.',
         '**Intérêt légitime :** la sécurité de la plateforme, la prévention des abus et l’examen des signalements, la mesure de l’usage par des chiffres agrégés qui ne sont attribués à personne, et les registres de présence comme moyen de protéger la communauté contre les rencontres fictives. Nous avons mis cet intérêt en balance avec vos droits : c’est pourquoi les registres de présence ne sont pas publics et vous pouvez les faire corriger.',
         '**Obligation légale :** lorsqu’un texte nous impose de conserver ou de transmettre une donnée.',
       ]),
@@ -162,6 +167,10 @@ export const privacyFrench: CompanyPageContent = translatedPage(
           [
             'E-mail de liste d’attente',
             'Jusqu’à l’envoi de la notification, puis **12 mois**, ou suppression immédiate sur demande',
+          ],
+          [
+            'E-mail d’alerte des inscriptions au hackathon',
+            'Jusqu’à l’ouverture des inscriptions et l’envoi du message, puis **12 mois**, ou suppression immédiate sur demande',
           ],
           [
             'Messages et signalements de modération',
@@ -235,5 +244,5 @@ export const privacyFrench: CompanyPageContent = translatedPage(
       ),
     ),
   ],
-  '12 octobre 2026',
+  '21 octobre 2026',
 );
