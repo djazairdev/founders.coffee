@@ -273,3 +273,14 @@ export const METRIC_KEYS = [
 ] as const;
 export type MetricKey = (typeof METRIC_KEYS)[number];
 export const metricKeySchema = z.enum(METRIC_KEYS);
+
+export const HACKATHON_PHASES = [
+  'upcoming',
+  'registration_open',
+  'registration_closed',
+  'building',
+  'judging',
+  'results',
+] as const;
+export type HackathonPhase = (typeof HACKATHON_PHASES)[number];
+export const hackathonPhaseSchema = z.enum(HACKATHON_PHASES);
