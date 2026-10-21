@@ -5,8 +5,6 @@ import { LOCALES } from '@founders-coffee/core';
 import {
   EVENT_DESCRIPTION_MAX_LENGTH,
   EVENT_DESCRIPTION_MIN_LENGTH,
-  EVENT_DURATION_MS_MAX,
-  EVENT_DURATION_MS_MIN,
   EVENT_TITLE_MAX_LENGTH,
   EVENT_TITLE_MIN_LENGTH,
   EVENT_VENUE_ADDRESS_MAX_LENGTH,
@@ -16,6 +14,7 @@ import {
   eventCreateSchema,
   eventUpdateSchema,
 } from './schemas.js';
+import { EVENT_DURATION_MS_MAX, EVENT_DURATION_MS_MIN } from './duration.js';
 
 const validInput = (overrides: Record<string, unknown> = {}) => {
   const startsAt = Date.now() + 24 * 60 * 60_000;

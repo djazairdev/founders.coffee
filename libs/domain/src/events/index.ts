@@ -6,10 +6,6 @@ export {
 export {
   EVENT_DESCRIPTION_MAX_LENGTH,
   EVENT_DESCRIPTION_MIN_LENGTH,
-  EVENT_DURATION_MINUTES_MAX,
-  EVENT_DURATION_MINUTES_MIN,
-  EVENT_DURATION_MS_MAX,
-  EVENT_DURATION_MS_MIN,
   EVENT_TITLE_MAX_LENGTH,
   EVENT_TITLE_MIN_LENGTH,
   EVENT_VENUE_ADDRESS_MAX_LENGTH,
@@ -35,4 +31,14 @@ export {
   icsFor,
   type CalendarEvent,
 } from './calendar.js';
+export {
+  EVENT_DURATION_MINUTES_MAX,
+  EVENT_DURATION_MINUTES_MIN,
+  EVENT_DURATION_MS_MAX,
+  EVENT_DURATION_MS_MIN,
+  eventDurationLimits,
+  HACKATHON_DURATION_DAYS_MAX,
+  isEventDurationAllowed,
+  type EventDurationLimits,
+} from './duration.js';
 export { eventLanguagesSchema, leadLocale } from './languages.js';

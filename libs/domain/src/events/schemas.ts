@@ -6,6 +6,7 @@ import {
   type EventKind,
 } from '@founders-coffee/core';
 
+import { eventDurationLimits } from './duration.js';
 import { eventLanguagesSchema } from './languages.js';
 
 export const EVENT_TITLE_MIN_LENGTH = 3;
@@ -16,8 +17,6 @@ export const EVENT_VENUE_NAME_MIN_LENGTH = 2;
 export const EVENT_VENUE_NAME_MAX_LENGTH = 200;
 export const EVENT_VENUE_ADDRESS_MIN_LENGTH = 2;
 export const EVENT_VENUE_ADDRESS_MAX_LENGTH = 500;
-export const EVENT_DURATION_MINUTES_MIN = 30;
-export const EVENT_DURATION_MINUTES_MAX = 8 * 60;
 
 export const MEMBER_EVENT_KINDS = [
   'meetup',
@@ -26,8 +25,6 @@ export const MEMBER_EVENT_KINDS = [
 export const memberEventKindSchema = z.enum(MEMBER_EVENT_KINDS);
 
 const MINUTE_MS = 60_000;
-export const EVENT_DURATION_MS_MIN = EVENT_DURATION_MINUTES_MIN * MINUTE_MS;
-export const EVENT_DURATION_MS_MAX = EVENT_DURATION_MINUTES_MAX * MINUTE_MS;
 
 export const eventTitleSchema = z
   .string()
@@ -54,7 +51,7 @@ export const eventVenueAddressSchema = z
   .max(EVENT_VENUE_ADDRESS_MAX_LENGTH);
 
 const addScheduleIssues = (
-  input: { startsAt: number; endsAt: number },
+  input: { startsAt: number; endsAt: number; kind?: EventKind },
   context: z.RefinementCtx,
 ) => {
   if (input.startsAt <= Date.now()) {
@@ -74,17 +71,18 @@ const addScheduleIssues = (
     });
     return;
   }
-  if (duration < EVENT_DURATION_MS_MIN) {
+  const limits = eventDurationLimits(input.kind ?? 'meetup');
+  if (duration < limits.minMs) {
     context.addIssue({
       code: 'custom',
-      message: `Event duration must be at least ${EVENT_DURATION_MINUTES_MIN} minutes`,
+      message: `Event duration must be at least ${limits.minMs / MINUTE_MS} minutes`,
       path: ['endsAt'],
     });
   }
-  if (duration > EVENT_DURATION_MS_MAX) {
+  if (duration > limits.maxMs) {
     context.addIssue({
       code: 'custom',
-      message: `Event duration must not exceed ${EVENT_DURATION_MINUTES_MAX} minutes`,
+      message: `Event duration must not exceed ${limits.maxMs / MINUTE_MS} minutes`,
       path: ['endsAt'],
     });
   }
