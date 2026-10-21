@@ -20,12 +20,15 @@ const view = (
     followUpPromptsChannels: [],
     meetupChat: true,
     meetupChatChannels: ['push'],
+    hackathons: true,
+    hackathonsChannels: ['push', 'email'],
     pushEnabled: false,
     smsFallbackEnabled: false,
   },
   smsAvailable: true,
   smsConsentAt: null,
   meetupChatAvailable: true,
+  hackathonsAvailable: false,
   ...overrides,
 });
 
@@ -44,6 +47,8 @@ describe('draftFrom', () => {
       followUpPromptsChannels: [],
       meetupChat: true,
       meetupChatChannels: ['push'],
+      hackathons: true,
+      hackathonsChannels: ['push', 'email'],
       pushEnabled: false,
       smsFallbackEnabled: false,
     });
@@ -108,6 +113,8 @@ describe('toInput', () => {
       'expectedRevision',
       'followUpPrompts',
       'followUpPromptsChannels',
+      'hackathons',
+      'hackathonsChannels',
       'hostRsvpCancelled',
       'hostRsvpCancelledChannels',
       'hostRsvpReceived',
@@ -116,6 +123,24 @@ describe('toInput', () => {
       'meetupChatChannels',
       'smsFallbackEnabled',
     ]);
+  });
+
+  it('sends both channels for Hackathons when none is picked, or nothing once it is off', () => {
+    const on = toInput({ ...draftFrom(view()), hackathonsChannels: [] }, 4);
+    const off = toInput(
+      {
+        ...draftFrom(view()),
+        hackathons: false,
+        hackathonsChannels: ['email'],
+      },
+      4,
+    );
+
+    expect(on).toMatchObject({
+      hackathons: true,
+      hackathonsChannels: ['push', 'email'],
+    });
+    expect(off).toMatchObject({ hackathons: false, hackathonsChannels: [] });
   });
 
   it('sends the meetup chat on push alone, or on nothing once it is off', () => {

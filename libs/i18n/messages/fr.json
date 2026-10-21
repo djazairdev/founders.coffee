@@ -1006,5 +1006,7 @@
   "host_edit_where": "Où",
   "host_edit_venue_hint": "Appuyez sur la carte ou recherchez pour changer de lieu.",
   "host_edit_notice_change": "Tous les participants seront informés du changement.",
-  "hackathons_unavailable": "Les hackathons ne sont pas encore ouverts dans ce pays."
+  "hackathons_unavailable": "Les hackathons ne sont pas encore ouverts dans ce pays.",
+  "prefs_hackathons": "Les hackathons auxquels vous participez",
+  "prefs_hackathons_note": "Votre inscription, votre équipe, les échéances et les résultats."
 }

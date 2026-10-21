@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql, type SQL } from 'drizzle-orm';
 
 import type { Db } from './db.js';
 import { markets } from './schema.js';
@@ -36,3 +36,13 @@ export const hackathonsEnabled = (
   db: Db,
   marketCode: string,
 ): Promise<boolean> => marketFlagEnabled(db, marketCode, 'hackathons');
+
+/**
+ * Whether any market has switched hackathons on, as one SQL expression.
+ *
+ * An account belongs to no market, so a setting that only matters once some market runs hackathons
+ * (the Hackathons row in the notification preferences) asks this rather than a member's market.
+ * The test is the same as {@link marketFlagEnabled}'s: a stored JSON `true`, nothing else.
+ */
+export const isHackathonsOnAnywhere = (): SQL =>
+  sql`EXISTS (SELECT 1 FROM ${markets} WHERE json_type(${markets.featureFlags}, '$.hackathons') = 'true')`;

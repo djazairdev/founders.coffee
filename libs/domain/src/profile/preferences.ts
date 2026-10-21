@@ -70,6 +70,10 @@ export const notificationPreferencesSchema = z.strictObject({
   meetupChatChannels: meetupChatChannelsSchema.default([
     ...MEETUP_CHAT_CHANNELS,
   ]),
+  hackathons: z.boolean().default(true),
+  hackathonsChannels: notificationChannelsSchema.default([
+    ...DEFAULT_NOTIFICATION_CHANNELS,
+  ]),
   pushEnabled: z.boolean().default(false),
   smsFallbackEnabled: z.boolean().default(false),
 });
@@ -86,6 +90,7 @@ export const accountPreferencesViewSchema = z.strictObject({
   smsAvailable: z.boolean(),
   smsConsentAt: z.string().nullable(),
   meetupChatAvailable: z.boolean(),
+  hackathonsAvailable: z.boolean(),
 });
 
 export type NotificationPreferences = z.infer<

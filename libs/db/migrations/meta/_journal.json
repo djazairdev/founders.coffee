@@ -316,6 +316,13 @@
       "when": 1790842523764,
       "tag": "0044_retire_telegram_groups",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "6",
+      "when": 1792577877393,
+      "tag": "0045_hackathon_notifications",
+      "breakpoints": true
     }
   ]
 }

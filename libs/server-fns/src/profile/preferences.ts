@@ -27,7 +27,8 @@ type StoredPreferences = NonNullable<
  *
  * `meetupChatAvailable` says whether any market has opened its meetup chats. Until one has, the
  * screen leaves the chat's row out, since there is no chat to be notified about, and the member's
- * saved choice for it goes back unchanged with every save.
+ * saved choice for it goes back unchanged with every save. `hackathonsAvailable` does the same for
+ * the Hackathons row, until some market runs hackathons.
  */
 const view = (stored: StoredPreferences): profile.AccountPreferencesView =>
   profile.accountPreferencesViewSchema.parse({
@@ -57,12 +58,17 @@ const view = (stored: StoredPreferences): profile.AccountPreferencesView =>
       meetupChatChannels: profile.meetupChatChannelsFromMask(
         stored.preferences.meetupChatChannels,
       ),
+      hackathons: stored.preferences.hackathons,
+      hackathonsChannels: profile.maskToChannels(
+        stored.preferences.hackathonsChannels,
+      ),
       pushEnabled: stored.preferences.pushEnabled,
       smsFallbackEnabled: stored.preferences.smsFallbackEnabled,
     },
     smsAvailable: stored.phoneVerified,
     smsConsentAt: stored.preferences.smsConsentAt?.toISOString() ?? null,
     meetupChatAvailable: stored.chatSwitchedOn,
+    hackathonsAvailable: stored.hackathonsSwitchedOn,
   });
 
 const preferencesOperation = async <T>(
@@ -154,6 +160,7 @@ export const saveMyPreferences = (
       hostRsvpCancelledChannels,
       followUpPromptsChannels,
       meetupChatChannels,
+      hackathonsChannels,
       ...categories
     } = input;
     const saved = await updateAccountPreferences(db, {
@@ -178,6 +185,9 @@ export const saveMyPreferences = (
         ),
         meetupChatChannels: profile.channelsToMask(
           input.meetupChat ? meetupChatChannels : [],
+        ),
+        hackathonsChannels: profile.channelsToMask(
+          input.hackathons ? hackathonsChannels : [],
         ),
         pushEnabled: before.preferences.pushEnabled,
       },

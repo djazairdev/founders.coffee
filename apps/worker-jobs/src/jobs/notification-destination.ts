@@ -90,7 +90,8 @@ const unreachable = (reason: string, account = false): DestinationResult => ({
  * the market flag below is its only gate.
  * The categories exist to control what arrives unprompted: reminders under `event_reminders`, event
  * cancellation notices under `event_updates`, RSVP confirmations and cancellations under their
- * respective host preferences, and feedback invitations under `follow_up_prompts`.
+ * respective host preferences, feedback invitations under `follow_up_prompts`, and every Stage B
+ * notice (a `hackathon_` template) under `hackathons`.
  *
  * The market flag is enforced here rather than in the producer, and rather than in the sweep loop:
  * this is the one place every channel already passes through before a send — a market that switches operations off between the intent being written and the prompt
@@ -139,6 +140,8 @@ export const resolveDestination = async (
     return unreachable('follow_up_prompts_off', true);
   if (templateKey === 'chat_unread' && !contact.meetupChat)
     return unreachable('meetup_chat_off', true);
+  if (notifications.isHackathonTemplate(templateKey) && !contact.hackathons)
+    return unreachable('hackathons_off', true);
 
   const categoryMask = notifications.notificationMaskForTemplate(
     templateKey,

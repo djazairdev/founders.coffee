@@ -768,6 +768,10 @@ export const accountPreferences = sqliteTable('account_preferences', {
     .notNull()
     .default(true),
   meetupChatChannels: integer('meetup_chat_channels').notNull().default(1),
+  hackathons: integer('hackathons', { mode: 'boolean' })
+    .notNull()
+    .default(true),
+  hackathonsChannels: integer('hackathons_channels').notNull().default(5),
   pushEnabled: integer('push_enabled', { mode: 'boolean' })
     .notNull()
     .default(false),

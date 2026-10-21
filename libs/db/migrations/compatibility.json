@@ -43,5 +43,6 @@
   "0041_meetup_chat": "compatible",
   "0042_meetup_chat_notifications": "compatible",
   "0043_chat_report_retention": "compatible",
-  "0044_retire_telegram_groups": "irreversible"
+  "0044_retire_telegram_groups": "irreversible",
+  "0045_hackathon_notifications": "compatible"
 }

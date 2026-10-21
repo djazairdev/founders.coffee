@@ -13,6 +13,8 @@ export interface NotificationDraft {
   readonly followUpPromptsChannels: readonly PreferencesInput['followUpPromptsChannels'][number][];
   readonly meetupChat: boolean;
   readonly meetupChatChannels: readonly PreferencesInput['meetupChatChannels'][number][];
+  readonly hackathons: boolean;
+  readonly hackathonsChannels: readonly PreferencesInput['hackathonsChannels'][number][];
   readonly pushEnabled: boolean;
   readonly smsFallbackEnabled: boolean;
 }
@@ -130,6 +132,14 @@ export const toInput = (
       draft.meetupChat,
       draft.meetupChatChannels,
       CHAT_CHANNELS,
+    ),
+  ],
+  hackathons: draft.hackathons,
+  hackathonsChannels: [
+    ...channelsForCategory(
+      draft.hackathons,
+      draft.hackathonsChannels,
+      EVERY_CHANNEL,
     ),
   ],
   smsFallbackEnabled: draft.smsFallbackEnabled,

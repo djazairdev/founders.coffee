@@ -2,6 +2,7 @@ import { and, eq, exists, isNotNull, ne, sql } from 'drizzle-orm';
 
 import { isChatSwitchedOnAnywhere } from './chat-membership.js';
 import type { Db } from './db.js';
+import { isHackathonsOnAnywhere } from './market-flags.js';
 import { activeProfileIdentity } from './profile-access.js';
 import {
   accountPreferences,
@@ -23,6 +24,8 @@ export type AccountPreferenceChanges = Pick<
   | 'followUpPromptsChannels'
   | 'meetupChat'
   | 'meetupChatChannels'
+  | 'hackathons'
+  | 'hackathonsChannels'
   | 'pushEnabled'
   | 'smsFallbackEnabled'
 >;
@@ -35,7 +38,7 @@ export type AccountPreferenceChanges = Pick<
  * number, and a screen that cannot see that would render a switch whose save silently fails. What
  * the writer requires, the reader has to be able to explain. Whether any market has opened its
  * meetup chats travels in the same statement, since until one has, the chat's row has nothing to
- * notify anyone about.
+ * notify anyone about. Whether any market runs hackathons travels with it, for the same reason.
  */
 export const getAccountPreferences = async (db: Db, userId: string) => {
   const rows = await db
@@ -43,6 +46,7 @@ export const getAccountPreferences = async (db: Db, userId: string) => {
       phoneVerified: sql<number>`(${user.phoneNumberVerified} = 1
         and ${user.phoneNumber} is not null and ${user.phoneNumber} != '')`,
       chatSwitchedOn: sql<number>`${isChatSwitchedOnAnywhere()}`,
+      hackathonsSwitchedOn: sql<number>`${isHackathonsOnAnywhere()}`,
       preferences: accountPreferences,
     })
     .from(accountPreferences)
@@ -55,6 +59,7 @@ export const getAccountPreferences = async (db: Db, userId: string) => {
         ...row,
         phoneVerified: row.phoneVerified === 1,
         chatSwitchedOn: row.chatSwitchedOn === 1,
+        hackathonsSwitchedOn: row.hackathonsSwitchedOn === 1,
       }
     : null;
 };
@@ -100,6 +105,8 @@ export const updateAccountPreferences = async (
         followUpPromptsChannels: changes.followUpPromptsChannels,
         meetupChat: changes.meetupChatChannels !== 0,
         meetupChatChannels: changes.meetupChatChannels,
+        hackathons: changes.hackathonsChannels !== 0,
+        hackathonsChannels: changes.hackathonsChannels,
         pushEnabled: changes.pushEnabled,
         smsFallbackEnabled: changes.smsFallbackEnabled,
         smsConsentAt: changes.smsFallbackEnabled

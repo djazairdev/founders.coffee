@@ -37,6 +37,8 @@ describe('account preferences', () => {
       followUpPromptsChannels: ['email'],
       meetupChat: true,
       meetupChatChannels: ['push'],
+      hackathons: true,
+      hackathonsChannels: ['push', 'email'],
       pushEnabled: false,
       smsFallbackEnabled: false,
     });
@@ -92,6 +94,8 @@ describe('account preferences', () => {
       followUpPromptsChannels: ['email'],
       meetupChat: true,
       meetupChatChannels: ['push'],
+      hackathons: true,
+      hackathonsChannels: ['push', 'email'],
       smsFallbackEnabled: false,
       expectedRevision: 0,
     });

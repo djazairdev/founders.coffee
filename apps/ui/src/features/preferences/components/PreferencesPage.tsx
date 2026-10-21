@@ -80,6 +80,7 @@ const PreferencesForm = ({
         pushState={push.state}
         isEnabling={push.isEnabling}
         isChatAvailable={view.meetupChatAvailable}
+        isHackathonsAvailable={view.hackathonsAvailable}
         onEnablePush={push.enable}
         onChange={change}
       />
