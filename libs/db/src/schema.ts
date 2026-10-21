@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  check,
   index,
   foreignKey,
   integer,
@@ -26,6 +27,8 @@ import {
   CURRENCY_CODES,
   EVENT_FORMATS,
   EVENT_KINDS,
+  HACKATHON_AI_POLICIES,
+  HACKATHON_REVIEW_STATUSES,
   EVENT_ORGANISER_ROLES,
   EVENT_STATUSES,
   FEEDBACK_RATINGS,
@@ -53,6 +56,7 @@ import {
   REVIEW_BOTTLENECKS,
   RSVP_STATUSES,
   USER_ROLES,
+  type AttendanceMode,
   type Topic,
 } from '@founders-coffee/core';
 
@@ -445,6 +449,77 @@ export const eventOrganisers = sqliteTable(
 );
 
 export type EventOrganiser = typeof eventOrganisers.$inferSelect;
+
+/**
+ * The details that make an event a hackathon (B-HKN-01): one row beside an event of kind `hackathon`.
+ *
+ * Kickoff and demo day are the event's own `starts_at` and `ends_at`, so the event page, slug, chat
+ * and notifications serve the hackathon unchanged. A `null` minimum age or capacity means none.
+ */
+export const hackathons = sqliteTable(
+  'hackathons',
+  {
+    eventId: text('event_id')
+      .primaryKey()
+      .references(() => events.id, { onDelete: 'cascade' }),
+    rules: text('rules'),
+    minimumAge: integer('minimum_age'),
+    attendanceModes: text('attendance_modes', { mode: 'json' })
+      .$type<AttendanceMode[]>()
+      .notNull(),
+    teamMin: integer('team_min').notNull(),
+    teamMax: integer('team_max').notNull(),
+    capacity: integer('capacity'),
+    registrationOpensAt: integer('registration_opens_at', {
+      mode: 'timestamp',
+    }).notNull(),
+    registrationClosesAt: integer('registration_closes_at', {
+      mode: 'timestamp',
+    }).notNull(),
+    submissionDeadlineAt: integer('submission_deadline_at', {
+      mode: 'timestamp',
+    }).notNull(),
+    judgingEndsAt: integer('judging_ends_at', { mode: 'timestamp' }).notNull(),
+    aiPolicy: text('ai_policy', { enum: [...HACKATHON_AI_POLICIES] }).notNull(),
+    aiPolicyNote: text('ai_policy_note'),
+    licenceNote: text('licence_note'),
+    reviewStatus: text('review_status', {
+      enum: [...HACKATHON_REVIEW_STATUSES],
+    })
+      .notNull()
+      .default('draft'),
+    reviewNote: text('review_note'),
+    resultsPublishedAt: integer('results_published_at', { mode: 'timestamp' }),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    index('hackathons_review_status_index').on(table.reviewStatus),
+    check(
+      'hackathons_team_size_check',
+      sql`${table.teamMin} >= 1 AND ${table.teamMax} >= ${table.teamMin}`,
+    ),
+    check(
+      'hackathons_capacity_check',
+      sql`${table.capacity} IS NULL OR ${table.capacity} > 0`,
+    ),
+    check(
+      'hackathons_minimum_age_check',
+      sql`${table.minimumAge} IS NULL OR ${table.minimumAge} > 0`,
+    ),
+    check(
+      'hackathons_dates_check',
+      sql`${table.registrationOpensAt} < ${table.registrationClosesAt} AND ${table.submissionDeadlineAt} < ${table.judgingEndsAt}`,
+    ),
+  ],
+);
+
+export type Hackathon = typeof hackathons.$inferSelect;
+export type NewHackathon = typeof hackathons.$inferInsert;
 
 /** Event RSVP — one per user per event (UNIQUE constraint). */
 export const eventRsvps = sqliteTable(
