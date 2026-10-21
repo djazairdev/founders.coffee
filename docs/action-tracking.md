@@ -48,6 +48,35 @@ Production reports must filter `blob4 = 'production'` and exclude activation/tes
 
 Use sample-weighted totals, as described in [Cloudflare's SQL API documentation](https://developers.cloudflare.com/analytics/analytics-engine/sql-api/): `SUM(_sample_interval * double1)`, not a raw row count. Export weekly; sampled totals can be estimates, and blocked/failed/opted-out browser reports are missing observations. Anonymous counts cannot establish unique people or a person-level conversion rate. Verify the dataset table name with `SHOW TABLES` before running reports.
 
+## Stage B hackathon outcomes (B-FND-05)
+
+Stage C's sponsor dashboard reads challenge outcomes from these rows, so their names and columns were fixed on 21 October 2026, before the first writer. Each is written once, by the server, after the change it counts has committed, through `recordHackathonMetric` (`libs/server-fns/src/hackathons/metrics.ts`); a metrics failure never undoes the change.
+
+| `blob1`                  | Written when                                                     | Meaning                                                              |
+| ------------------------ | ---------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `hackathon_published`    | An admin approves a hackathon and it becomes public              | One hackathon open to the public; not a registration                 |
+| `registration_created`   | A member's registration is saved, on the list or the waitlist    | One registration; a withdraw and re-register counts again            |
+| `registration_withdrawn` | A member withdraws a registration                                | One withdrawal; subtract from `registration_created` for a net count |
+| `team_created`           | A captain creates a team                                         | One team; members joining later are not counted here                 |
+| `submission_submitted`   | A team submits before the deadline (a draft save is not counted) | One final submission, with its track; a resubmission counts again    |
+| `judging_completed`      | A judge has scored or recused from every entry assigned to them  | One judge finished; not the hackathon's judging as a whole           |
+| `results_published`      | An organiser publishes the frozen results                        | One hackathon's results public                                       |
+
+They use the dataset's columns as above, plus two of their own. Every other row keeps its shape.
+
+| Column           | Value                                                                      |
+| ---------------- | -------------------------------------------------------------------------- |
+| `index1`         | Market code                                                                |
+| `blob2`, `blob3` | Empty: the first hackathon is online, and an outcome has no reading locale |
+| `blob4`          | Environment, `unknown` when none was given                                 |
+| `blob5`–`blob7`  | `none`: outcomes carry no campaign                                         |
+| `blob8`          | `server`                                                                   |
+| `blob9`          | The hackathon's event id                                                   |
+| `blob10`         | The track id for `submission_submitted`, otherwise empty                   |
+| `double1`        | 1                                                                          |
+
+No member id, team name, title or other free text is written. Both ids must match the id factory's format (`idSchema`), and a row given anything else is refused and reported instead of written. A hackathon's event id is already public on its page; it identifies the hackathon, never a person.
+
 ## Private community report
 
 The admin Worker serves GET `/api/community-health` behind its existing Access JWT and correlated Better Auth operator session, plus the central `metrics:read` permission. No public read endpoint was added. It returns unavailable when `communityOperations` is off; missing evidence is not a zero retention rate.
