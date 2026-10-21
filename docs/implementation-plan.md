@@ -218,7 +218,7 @@ from the dormant payments work, are not touched by the erasure; that must change
 open. The migration is `0038_account_closure.sql`. Miniflare coverage lives in
 `libs/db/src/account-closure*.test.ts`, `libs/db/src/events.moderation.test.ts`,
 `libs/server-fns/src/profile/account-closure.test.ts` and the daily-run test in
-`apps/worker-jobs/src/index.test.ts`.
+`apps/worker-jobs/src/index.test.ts`. `libs/db/src/account-closure.coverage.test.ts` (B-FND-07) fails the build when a column with a foreign key to `user` is neither erased by `eraseClosedAccount` nor named as kept with its reason, so every Stage B table that holds a person has to be decided on.
 
 ### Public profile (P1-004)
 
