@@ -58,6 +58,7 @@ const EVENT_COLUMNS = [
   'startsAt',
   'stateCode',
   'status',
+  'tags',
   'title',
   'updatedAt',
   'venue',

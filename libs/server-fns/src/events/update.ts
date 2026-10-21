@@ -182,6 +182,7 @@ export const updateEventResolver = async (
     language,
     languages: opts.input.languages,
     kind: opts.input.kind ?? event.kind,
+    tags: opts.input.tags ?? event.tags,
     version: opts.input.expectedVersion + 1,
     updatedAt: new Date(),
   };
@@ -203,6 +204,7 @@ export const updateEventResolver = async (
       language: updated.language,
       languages: updated.languages,
       kind: updated.kind,
+      tags: updated.tags,
     },
   );
   if (changed === 0)

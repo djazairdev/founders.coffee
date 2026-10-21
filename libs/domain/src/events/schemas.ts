@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   localeSchema,
   marketCodeSchema,
+  topicSchema,
   type EventKind,
 } from '@founders-coffee/core';
 
@@ -23,6 +24,12 @@ export const MEMBER_EVENT_KINDS = [
   'workshop',
 ] as const satisfies readonly EventKind[];
 export const memberEventKindSchema = z.enum(MEMBER_EVENT_KINDS);
+
+export const EVENT_TAG_LIMIT = 5;
+export const eventTagsSchema = z
+  .array(topicSchema)
+  .max(EVENT_TAG_LIMIT)
+  .refine((tags) => new Set(tags).size === tags.length, 'Each topic once');
 export type MemberEventKind = z.infer<typeof memberEventKindSchema>;
 
 const MINUTE_MS = 60_000;
@@ -111,6 +118,7 @@ export const eventCreateSchema = z
     endsAt: z.number().int().positive(),
     languages: eventLanguagesSchema,
     kind: memberEventKindSchema.default('meetup'),
+    tags: eventTagsSchema.default([]),
   })
   .strict()
   .superRefine(addScheduleIssues);
@@ -157,6 +165,7 @@ export const eventUpdateSchema = z
     endsAt: z.number().int().positive(),
     languages: eventLanguagesSchema,
     kind: memberEventKindSchema.optional(),
+    tags: eventTagsSchema.optional(),
   })
   .strict()
   .superRefine(addUpdateIssues);

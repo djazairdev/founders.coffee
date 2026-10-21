@@ -53,6 +53,7 @@ import {
   REVIEW_BOTTLENECKS,
   RSVP_STATUSES,
   USER_ROLES,
+  type Topic,
 } from '@founders-coffee/core';
 
 export {
@@ -384,6 +385,10 @@ export const events = sqliteTable(
     kind: text('kind', { enum: [...EVENT_KINDS] })
       .notNull()
       .default('meetup'),
+    tags: text('tags', { mode: 'json' })
+      .$type<Topic[]>()
+      .notNull()
+      .default(sql`'[]'`),
     format: text('format', { enum: [...EVENT_FORMATS] })
       .notNull()
       .default('in_person'),

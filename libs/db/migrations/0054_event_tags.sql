@@ -1,0 +1,1 @@
+ALTER TABLE `events` ADD `tags` text DEFAULT '[]' NOT NULL;
