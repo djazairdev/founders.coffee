@@ -5,6 +5,60 @@
       "banned": ["دردشة", "شات"],
       "why": "P1-026: one word for a meetup's chat, which the catalogue calls محادثة اللقاء. دردشة reads as idle chatter and شات is a loanword, and a member who meets two names for one panel looks for two features.",
       "allow": {}
+    },
+    {
+      "canonical": "هاكاثون",
+      "banned": ["هكاثون", "هاكثون"],
+      "why": "B-I18N-01 (Stage B): the event participants build in, spelled as the announcement (#294) spells it; one spelling, so a search for it finds every page.",
+      "allow": {}
+    },
+    {
+      "canonical": "فريق",
+      "banned": ["طاقم"],
+      "why": "B-I18N-01 (Stage B): a hackathon team, as the announcement says (انضمّ إلى فريق); طاقم reads as a crew or staff, which a team of participants is not.",
+      "allow": {}
+    },
+    {
+      "canonical": "قائد الفريق",
+      "banned": ["كابتن", "رئيس الفريق"],
+      "why": "B-I18N-01 (Stage B): the team member who manages it (invites, requests, submitting); كابتن is a loanword and رئيس suggests an office the product does not give.",
+      "allow": {}
+    },
+    {
+      "canonical": "تسليم",
+      "banned": ["إيداع"],
+      "why": "B-I18N-01 (Stage B): a team's submitted project, as in the announcement's آخر أجل لتسليم المشاريع; إيداع reads as a bank deposit or a filing.",
+      "allow": {}
+    },
+    {
+      "canonical": "حكم",
+      "banned": ["قاضي", "قضاة"],
+      "why": "B-I18N-01 (Stage B): one member of لجنة التحكيم, the jury the announcement names; قاضي is a judge in court.",
+      "allow": {}
+    },
+    {
+      "canonical": "مسار",
+      "banned": ["تراك"],
+      "why": "B-I18N-01 (Stage B): what participants build toward, as in مسار للمصادر المفتوحة; تراك is a loanword.",
+      "allow": {}
+    },
+    {
+      "canonical": "معايير التقييم",
+      "banned": ["روبريك", "سلم التنقيط"],
+      "why": "B-I18N-01 (Stage B): the criteria judges score against; روبريك is a loanword and سلم التنقيط reads as a school marking scale.",
+      "allow": {}
+    },
+    {
+      "canonical": "التنحي",
+      "banned": ["انسحاب الحكم"],
+      "why": "B-I18N-01 (Stage B): a judge stepping aside from an entry they have a conflict with; انسحاب is what a participant does when leaving a hackathon, a different act.",
+      "allow": {}
+    },
+    {
+      "canonical": "الجهة المنظمة",
+      "banned": ["منظم", "المنظم"],
+      "why": "B-I18N-01 (Stage B): the approved organisation that runs a hackathon, never a single person; المنظّمين in the meetup terms names hosts and stays.",
+      "allow": {}
     }
   ],
   "fr": [
@@ -12,6 +66,60 @@
       "canonical": "discussion",
       "banned": ["chat", "Chat", "tchat", "Tchat", "messagerie", "Messagerie"],
       "why": "P1-026: one word for a meetup's chat, « Discussion » in its panel and its entry. Chat is a cat in French and tchat is slang, and messagerie names an inbox of private messages, which the chat is not.",
+      "allow": {}
+    },
+    {
+      "canonical": "hackathon",
+      "banned": ["hackaton", "Hackaton"],
+      "why": "B-I18N-01 (Stage B): spelled as the announcement (#294) spells it; hackaton is a common misspelling.",
+      "allow": {}
+    },
+    {
+      "canonical": "équipe",
+      "banned": ["team", "Team"],
+      "why": "B-I18N-01 (Stage B): a hackathon team, as the announcement says; the English word is avoided in French copy.",
+      "allow": {}
+    },
+    {
+      "canonical": "capitaine",
+      "banned": ["leader", "Leader", "chef d’équipe"],
+      "why": "B-I18N-01 (Stage B): the team member who manages it; leader is English and chef suggests authority over the others, which the role does not give.",
+      "allow": {}
+    },
+    {
+      "canonical": "dépôt",
+      "banned": ["soumission", "Soumission"],
+      "why": "B-I18N-01 (Stage B): a team's submitted project, as in Fin des dépôts; soumission also means submissiveness.",
+      "allow": {}
+    },
+    {
+      "canonical": "jury",
+      "banned": ["juge", "Juge", "juges", "Juges"],
+      "why": "B-I18N-01 (Stage B): the panel that scores entries, and juré for one of its members, as the announcement says; un juge sits in a court.",
+      "allow": {}
+    },
+    {
+      "canonical": "parcours",
+      "banned": ["track", "Track"],
+      "why": "B-I18N-01 (Stage B): what participants build toward, as in un parcours open source; the English word is avoided in French copy.",
+      "allow": {}
+    },
+    {
+      "canonical": "grille d’évaluation",
+      "banned": ["rubrique", "Rubrique"],
+      "why": "B-I18N-01 (Stage B): the criteria judges score against; rubrique is a false friend meaning a section or column.",
+      "allow": {}
+    },
+    {
+      "canonical": "récusation",
+      "banned": ["désistement", "Désistement"],
+      "why": "B-I18N-01 (Stage B): a juror stepping aside from an entry they have a conflict with; désistement is a participant leaving, a different act.",
+      "allow": {}
+    },
+    {
+      "canonical": "organisateur",
+      "banned": ["organiseur", "Organiseur"],
+      "why": "B-I18N-01 (Stage B): the approved organisation that runs a hackathon; organiseur is a desk organiser.",
       "allow": {}
     }
   ],
@@ -21,6 +129,62 @@
       "banned": ["discussion", "Discussion", "discussions", "Discussions"],
       "why": "P1-026: one word for a meetup's chat, as its panel and its entry name it. A discussion reads as a forum thread, a different feature the product does not have.",
       "allow": {}
+    },
+    {
+      "canonical": "hackathon",
+      "banned": ["hack-a-thon", "Hack-a-thon"],
+      "why": "B-I18N-01 (Stage B): one spelling, as the announcement (#294) has it, so a search finds every page.",
+      "allow": {}
+    },
+    {
+      "canonical": "team",
+      "banned": ["squad", "Squad"],
+      "why": "B-I18N-01 (Stage B): a hackathon team; squad is slang the rest of the copy does not use.",
+      "allow": {}
+    },
+    {
+      "canonical": "captain",
+      "banned": ["team lead", "Team lead", "team leader", "Team leader"],
+      "why": "B-I18N-01 (Stage B): the member who manages the team (invites, requests, submitting); lead suggests authority over the others, which the role does not give.",
+      "allow": {}
+    },
+    {
+      "canonical": "submission",
+      "banned": ["entry", "Entry", "entries", "Entries"],
+      "why": "B-I18N-01 (Stage B): what a team submits by the deadline; an entry also means a registration, and the product keeps the two apart.",
+      "allow": {}
+    },
+    {
+      "canonical": "judge",
+      "banned": ["juror", "Juror", "jurors", "Jurors"],
+      "why": "B-I18N-01 (Stage B): a member of the panel that scores entries, as the announcement says (judges you know by name).",
+      "allow": {}
+    },
+    {
+      "canonical": "track",
+      "banned": ["theme", "Theme"],
+      "why": "B-I18N-01 (Stage B): what participants build toward, as in an open-source track; a theme is a look of the site.",
+      "allow": {}
+    },
+    {
+      "canonical": "rubric",
+      "banned": ["scorecard", "Scorecard", "scoring grid"],
+      "why": "B-I18N-01 (Stage B): the criteria judges score against, one word on every page.",
+      "allow": {}
+    },
+    {
+      "canonical": "recusal",
+      "banned": ["judge withdrawal"],
+      "why": "B-I18N-01 (Stage B): a judge stepping aside from an entry they have a conflict with; withdrawing is what a participant does when leaving a hackathon.",
+      "allow": {}
+    },
+    {
+      "canonical": "organiser",
+      "banned": ["organizer", "Organizer", "organizers", "Organizers"],
+      "why": "B-I18N-01 (Stage B): the approved organisation that runs a hackathon, spelled the British way as the plan and the rest of Stage B are.",
+      "allow": {
+        "footer_organizers": "The meetup hosts' terms page, named before this glossary; it means meetup hosts, not hackathon organisers."
+      }
     }
   ]
 }
