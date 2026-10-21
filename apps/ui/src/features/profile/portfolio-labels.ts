@@ -17,6 +17,7 @@ import {
   profile_link_linkedin_label,
   profile_link_linkedin_placeholder,
   profile_link_placeholder,
+  profile_view_link,
   type Locale,
 } from '@founders-coffee/i18n';
 
@@ -65,3 +66,12 @@ export const linkFieldText = (kind: ProfileLinkKind, locale: Locale) => ({
   placeholder: LINK_FIELDS[kind].placeholder({}, { locale }),
   invalid: LINK_FIELDS[kind].invalid({}, { locale }),
 });
+
+/** What a published link is called on a public profile, where the website is not the reader's own. */
+export const publicLinkLabel = (
+  kind: ProfileLinkKind,
+  locale: Locale,
+): string =>
+  kind === 'website'
+    ? profile_view_link({}, { locale })
+    : LINK_FIELDS[kind].label({}, { locale });

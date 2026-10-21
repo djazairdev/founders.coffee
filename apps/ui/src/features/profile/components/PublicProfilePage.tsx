@@ -16,6 +16,7 @@ import type { RootMarket } from '../../markets/api';
 import type { PublicProfile } from '../api';
 import { HostedEventCaption } from './HostedEventCaption';
 import { PublicProfileHeader } from './PublicProfileHeader';
+import { PublicProfilePortfolio } from './PublicProfilePortfolio';
 import { PublicProfileRecord } from './PublicProfileRecord';
 
 const PAGE_SIZE = 12;
@@ -96,6 +97,7 @@ export const PublicProfilePage = ({
               ))}
             </ul>
           ) : null}
+          <PublicProfilePortfolio locale={locale} profile={profile} />
           {profile.spokenLanguages.length > 0 ? (
             <p dir="auto" className="text-body-sm text-neutral">
               {profile.spokenLanguages

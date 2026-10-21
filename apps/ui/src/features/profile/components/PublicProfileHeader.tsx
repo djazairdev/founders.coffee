@@ -2,16 +2,14 @@ import {
   profile_member_since,
   profile_photo_of,
   profile_stage_label,
-  profile_view_link,
   type Locale,
 } from '@founders-coffee/i18n';
-
-import { ExternalLink } from 'lucide-react';
 
 import { initials } from '../../../lib/utils';
 import { profilePhotoUrl } from '../photo-url';
 import { memberSinceLabel, stageLabel } from '../profile-labels';
 import type { PublicProfile } from '../api';
+import { PublicProfileLinks } from './PublicProfileLinks';
 
 export const PublicProfileHeader = ({
   locale,
@@ -70,18 +68,6 @@ export const PublicProfileHeader = ({
         </div>
       </div>
     </div>
-    {profile.links[0] ? (
-      <a
-        href={profile.links[0].url}
-        target="_blank"
-        rel="noreferrer nofollow ugc"
-        dir="ltr"
-        aria-label={`${profile_view_link({}, { locale })}: ${profile.links[0].url}`}
-        className="btn btn-outline btn-xs sm:btn-sm md:btn-md shrink-0 self-start"
-      >
-        <span>{profile_view_link({}, { locale })}</span>
-        <ExternalLink className="size-4" aria-hidden="true" />
-      </a>
-    ) : null}
+    <PublicProfileLinks locale={locale} links={profile.links} />
   </header>
 );
