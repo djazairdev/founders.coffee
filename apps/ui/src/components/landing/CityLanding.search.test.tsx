@@ -42,6 +42,12 @@ vi.mock('@tanstack/react-router', () => ({
     className?: string;
   }) => createElement('a', { href: '/', className }, children),
 }));
+vi.mock('../../features/auth/hooks', () => ({
+  usePublicAuthConfig: () => ({ data: undefined }),
+}));
+vi.mock('../../features/hackathons/hooks', () => ({
+  useJoinHackathonInterest: () => ({ isPending: false, isSuccess: false }),
+}));
 vi.mock('../../lib/auth', () => ({
   authClient: { useSession: () => ({ data: null, isPending: false }) },
 }));

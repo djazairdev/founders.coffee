@@ -3,6 +3,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { Market } from '@founders-coffee/db';
 
+vi.mock('../../features/hackathons/components/HackathonAlertForm', () => ({
+  HackathonAlertForm: ({ marketCode }: { marketCode: string }) => (
+    <form aria-label="hackathon alert" data-market={marketCode} />
+  ),
+}));
+
 import { HackathonAnnouncement } from './HackathonAnnouncement';
 import { market } from './city-landing.fixtures';
 
@@ -41,6 +47,11 @@ describe('the first hackathon announcement', () => {
     expect(screen.getByText('Demo day Saturday 30 January')).toBeTruthy();
     expect(screen.getByText('Registration opens on 4 January.')).toBeTruthy();
     expect(screen.getAllByRole('listitem')).toHaveLength(12);
+    expect(
+      screen
+        .getByRole('form', { name: 'hackathon alert' })
+        .getAttribute('data-market'),
+    ).toBe('DZ');
   });
 
   it('writes the dates the way Algeria names them, in Arabic', () => {
