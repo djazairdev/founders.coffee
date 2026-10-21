@@ -39,3 +39,11 @@ export const HACKATHON_REVIEW_STATUSES = [
 ] as const;
 export type HackathonReviewStatus = (typeof HACKATHON_REVIEW_STATUSES)[number];
 export const hackathonReviewStatusSchema = z.enum(HACKATHON_REVIEW_STATUSES);
+
+export const HACKATHON_TRACK_KINDS = [
+  'founder_problem',
+  'partner_technology',
+  'open_source',
+] as const;
+export type HackathonTrackKind = (typeof HACKATHON_TRACK_KINDS)[number];
+export const hackathonTrackKindSchema = z.enum(HACKATHON_TRACK_KINDS);
