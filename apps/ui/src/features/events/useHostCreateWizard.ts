@@ -172,6 +172,7 @@ export const useHostCreateWizard = ({
       endsAt,
       kind: draft.kind,
       tags: [],
+      format: 'in_person',
     });
   };
 

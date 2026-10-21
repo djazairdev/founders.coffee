@@ -99,6 +99,29 @@ const refuseKindChange = (
     : null;
 
 /**
+ * Refuse an edit that changes the event's format, or does not fit the one it has.
+ *
+ * Moving a meetup online, or into a room, is not an edit to the event people said yes to but a
+ * different one, as with its city. An edit that leaves the link out keeps the stored one.
+ */
+const refuseFormat = (
+  event: Event,
+  input: EventUpdateInput,
+): AppError | null => {
+  if (input.format !== undefined && input.format !== event.format)
+    return new AppError(
+      'event_format_immutable',
+      'An event keeps the format it was published with',
+    );
+  const [issue] = eventsDomain.eventFormatIssues(
+    event.format,
+    { ...input, meetingUrl: input.meetingUrl ?? event.meetingUrl ?? undefined },
+    eventsDomain.UPDATE_VENUE_FIELDS,
+  );
+  return issue ? new AppError('validation_failed', issue.message) : null;
+};
+
+/**
  * Change a meetup that is already published, on its host's behalf.
  *
  * Editing exists because the alternative was cancelling. A host who mistyped a title, or whose café
@@ -140,6 +163,8 @@ export const updateEventResolver = async (
   if (refusal) return err(refusal);
   const kindRefusal = refuseKindChange(event, opts.input);
   if (kindRefusal) return err(kindRefusal);
+  const formatRefusal = refuseFormat(event, opts.input);
+  if (formatRefusal) return err(formatRefusal);
 
   const point: Point | null =
     opts.input.latitude !== undefined && opts.input.longitude !== undefined
@@ -173,7 +198,7 @@ export const updateEventResolver = async (
     ...event,
     title: opts.input.title,
     description: opts.input.description,
-    venue: opts.input.venueName,
+    venue: opts.input.venueName ?? null,
     venueAddress: placed.venueAddress,
     latitude: placed.latitude,
     longitude: placed.longitude,
@@ -183,6 +208,7 @@ export const updateEventResolver = async (
     languages: opts.input.languages,
     kind: opts.input.kind ?? event.kind,
     tags: opts.input.tags ?? event.tags,
+    meetingUrl: opts.input.meetingUrl ?? event.meetingUrl,
     version: opts.input.expectedVersion + 1,
     updatedAt: new Date(),
   };
@@ -205,6 +231,7 @@ export const updateEventResolver = async (
       languages: updated.languages,
       kind: updated.kind,
       tags: updated.tags,
+      meetingUrl: updated.meetingUrl,
     },
   );
   if (changed === 0)
