@@ -9,19 +9,20 @@ import { getDb } from '../db.js';
 import { RATE_BUDGETS } from '../rate-budgets.js';
 import { rateLimit } from '../rate-limit.js';
 import { privateNoStore } from '../response-cache.js';
-import {
-  hackathonDraftResolver,
-  saveHackathonDetailsResolver,
-} from './details.js';
+import { saveHackathonDetailsResolver } from './details.js';
+import { hackathonDraftResolver } from './draft-view.js';
 
 const { hackathonEdit } = RATE_BUDGETS.edit;
 
 const eventId = z.string().trim().min(1).max(64);
 
+export const hackathonVersionSchema = z.number().int().positive();
+
 const hackathonDraftSchema = z.strictObject({ eventId });
 
 const saveHackathonDetailsSchema = z.strictObject({
   eventId,
+  version: hackathonVersionSchema,
   details: hackathons.hackathonDetailsSchema,
 });
 
@@ -40,7 +41,7 @@ export const getHackathonDraft = createServerFn({ strict: false })
   });
 
 /**
- * Save the organiser flow's second step (B-HKN-12). A member of the organisation that leads the
+ * Save a hackathon's details (B-HKN-12), on the version the organiser saw (B-HKN-07). A member of the organisation that leads the
  * hackathon, within the edit budget; authenticated, so no Turnstile.
  */
 export const saveHackathonDetails = createServerFn({
@@ -61,6 +62,7 @@ export const saveHackathonDetails = createServerFn({
     return handleResult(
       saveHackathonDetailsResolver(getDb(), {
         eventId: data.eventId,
+        version: data.version,
         organisationId: context.organisationId,
         details: data.details,
       }),

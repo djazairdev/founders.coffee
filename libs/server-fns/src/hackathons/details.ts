@@ -1,122 +1,10 @@
 import { z } from 'zod';
 
-import {
-  AppError,
-  err,
-  ok,
-  type AttendanceMode,
-  type EventFormat,
-  type EventStatus,
-  type HackathonAiPolicy,
-  type Result,
-} from '@founders-coffee/core';
-import {
-  readHackathonDraft,
-  saveDraftHackathonDetails,
-  type Db,
-  type Hackathon,
-  type HackathonDraftRows,
-  type HackathonLead,
-} from '@founders-coffee/db';
+import { AppError, err, type Result } from '@founders-coffee/core';
+import { hackathonDetailsWrite, type Db } from '@founders-coffee/db';
 import { hackathons } from '@founders-coffee/domain';
-import { logger, reportError } from '@founders-coffee/observability';
 
-import { requireHackathonsEnabled } from './flag.js';
-
-export type HackathonDetailsView = {
-  readonly rules: string | null;
-  readonly minimumAge: number | null;
-  readonly attendanceModes: readonly AttendanceMode[];
-  readonly teamMin: number;
-  readonly teamMax: number;
-  readonly capacity: number | null;
-  readonly registrationOpensAt: number;
-  readonly registrationClosesAt: number;
-  readonly submissionDeadlineAt: number;
-  readonly judgingEndsAt: number;
-  readonly aiPolicy: HackathonAiPolicy;
-  readonly aiPolicyNote: string | null;
-  readonly licenceNote: string | null;
-};
-
-export type HackathonDraftView = {
-  readonly event: {
-    readonly id: string;
-    readonly title: string;
-    readonly marketCode: string;
-    readonly cityCode: string;
-    readonly startsAt: number;
-    readonly endsAt: number;
-    readonly format: EventFormat;
-    readonly status: EventStatus;
-  };
-  readonly organisation: HackathonLead;
-  readonly details: HackathonDetailsView | null;
-  readonly isEditable: boolean;
-};
-
-const notFound = () =>
-  err(new AppError('event_not_found', 'No hackathon for this event'));
-
-const notEditable = () =>
-  err(
-    new AppError(
-      'hackathon_not_editable',
-      'The hackathon has moved on from its draft',
-    ),
-  );
-
-const detailsView = (row: Hackathon): HackathonDetailsView => ({
-  rules: row.rules,
-  minimumAge: row.minimumAge,
-  attendanceModes: row.attendanceModes,
-  teamMin: row.teamMin,
-  teamMax: row.teamMax,
-  capacity: row.capacity,
-  registrationOpensAt: row.registrationOpensAt.getTime(),
-  registrationClosesAt: row.registrationClosesAt.getTime(),
-  submissionDeadlineAt: row.submissionDeadlineAt.getTime(),
-  judgingEndsAt: row.judgingEndsAt.getTime(),
-  aiPolicy: row.aiPolicy,
-  aiPolicyNote: row.aiPolicyNote,
-  licenceNote: row.licenceNote,
-});
-
-/** Whether the organiser flow may still write this hackathon: a draft whose details are not in review. */
-const isDraft = (rows: HackathonDraftRows): boolean =>
-  rows.event.status === 'draft' &&
-  (rows.details === null || rows.details.reviewStatus === 'draft');
-
-/**
- * Read a hackathon for its organisers (B-HKN-12): its event, the organisation that leads it, and
- * its details once saved. The middleware has checked that the reader may manage it. A market with
- * hackathons off answers as the feature does everywhere else.
- */
-export const hackathonDraftResolver = async (
-  db: Db,
-  eventId: string,
-): Promise<Result<HackathonDraftView>> => {
-  const rows = await readHackathonDraft(db, eventId);
-  if (!rows || rows.event.endsAt === null) return notFound();
-  const disabled = await requireHackathonsEnabled(db, rows.event.marketCode);
-  if (disabled) return err(disabled);
-  const { event } = rows;
-  return ok({
-    event: {
-      id: event.id,
-      title: event.title,
-      marketCode: event.marketCode,
-      cityCode: event.cityCode,
-      startsAt: event.startsAt.getTime(),
-      endsAt: rows.event.endsAt.getTime(),
-      format: event.format,
-      status: event.status,
-    },
-    organisation: rows.organisation,
-    details: rows.details ? detailsView(rows.details) : null,
-    isEditable: isDraft(rows),
-  });
-};
+import { loadHackathonEdit, runHackathonEdit } from './edit-context.js';
 
 /** The details the database stores, with every optional value the organiser left out as `null`. */
 const storedDetails = (details: hackathons.HackathonDetailsInput) => ({
@@ -136,31 +24,33 @@ const storedDetails = (details: hackathons.HackathonDetailsInput) => ({
 });
 
 /**
- * Save the organiser flow's second step (B-HKN-12): the rules, eligibility, attendance, team size,
- * capacity, timeline, AI policy and licence of a hackathon still being drafted.
+ * Save a hackathon's rules, eligibility, attendance, team size, places, timeline, AI policy and
+ * licence (B-HKN-12), at any stage that still allows it (B-HKN-07).
  *
  * The details are held to the saved event, whose kickoff, demo day and format they depend on, and
- * written in one statement that also checks the hackathon is still a draft, so a change that lands
- * after it moved on writes nothing and says so. Saving again replaces what was saved.
+ * to what the hackathon's stage allows: once registration opens, the rules people registered under
+ * stay, places only grow and dates only move later, and the fields that would break that promise
+ * come back as `hackathon_field_locked`. The write lands only on the version the organiser saw, with
+ * the version bump, and answers the new version. Saving again replaces what was saved.
  */
 export const saveHackathonDetailsResolver = async (
   db: Db,
   input: {
     readonly eventId: string;
+    readonly version: number;
     readonly organisationId: string;
     readonly details: hackathons.HackathonDetailsInput;
   },
-): Promise<Result<{ readonly eventId: string }>> => {
-  const rows = await readHackathonDraft(db, input.eventId);
-  if (!rows || rows.event.endsAt === null) return notFound();
-  const disabled = await requireHackathonsEnabled(db, rows.event.marketCode);
-  if (disabled) return err(disabled);
-  if (!isDraft(rows)) return notEditable();
+  now: number = Date.now(),
+): Promise<Result<{ readonly eventId: string; readonly version: number }>> => {
+  const loaded = await loadHackathonEdit(db, input, now);
+  if (!loaded.ok) return loaded;
+  const { event } = loaded.data.rows;
   const checked = hackathons
     .hackathonDetailsFor({
-      startsAt: rows.event.startsAt.getTime(),
-      endsAt: rows.event.endsAt.getTime(),
-      format: rows.event.format,
+      startsAt: event.startsAt.getTime(),
+      endsAt: event.endsAt.getTime(),
+      format: event.format,
     })
     .safeParse(input.details);
   if (!checked.success) {
@@ -172,26 +62,29 @@ export const saveHackathonDetailsResolver = async (
       }),
     );
   }
-  try {
-    const written = await saveDraftHackathonDetails(db, {
-      eventId: input.eventId,
-      details: storedDetails(checked.data),
-    });
-    if (!written) return notEditable();
-  } catch (error) {
-    reportError(error, {
-      operation: 'save_hackathon_details',
-      market: rows.event.marketCode,
-      eventId: input.eventId,
-    });
+  const locked = hackathons.lockedDetailChanges(
+    loaded.data.details,
+    checked.data,
+    loaded.data.stage,
+    now,
+  );
+  if (locked.length > 0)
     return err(
-      new AppError('hackathon_save_failed', 'The details could not be saved'),
+      new AppError(
+        'hackathon_field_locked',
+        'Registration has opened, so these details cannot change that way',
+        { fields: locked },
+      ),
     );
-  }
-  logger.info('hackathon_details_saved', {
-    eventId: input.eventId,
+  return runHackathonEdit(db, loaded.data, {
+    operation: 'hackathon_details_saved',
     organisationId: input.organisationId,
-    market: rows.event.marketCode,
+    writes: [
+      hackathonDetailsWrite(db, {
+        eventId: input.eventId,
+        version: input.version,
+        details: storedDetails(checked.data),
+      }),
+    ],
   });
-  return ok({ eventId: input.eventId });
 };

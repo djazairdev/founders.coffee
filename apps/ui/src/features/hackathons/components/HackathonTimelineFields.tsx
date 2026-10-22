@@ -65,6 +65,7 @@ export const HackathonTimelineFields = ({
               id={id}
               type="datetime-local"
               value={form.values[field]}
+              disabled={form.isLocked(field)}
               aria-invalid={error ? true : undefined}
               aria-describedby={error ? fieldNoteId(id) : undefined}
               onChange={(event) => form.set(field, event.target.value)}

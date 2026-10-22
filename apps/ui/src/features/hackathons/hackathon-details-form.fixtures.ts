@@ -23,8 +23,13 @@ export const draftView = (
     name: 'Oran Makers',
     slug: 'oran-makers',
   },
-  details: null,
+  version: 1,
+  stage: 'open',
   isEditable: true,
+  details: null,
+  tracks: [],
+  prizes: [],
+  criteria: [],
   ...changes,
 });
 

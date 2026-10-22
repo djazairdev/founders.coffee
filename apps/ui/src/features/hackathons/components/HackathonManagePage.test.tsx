@@ -101,6 +101,7 @@ describe('HackathonManagePage (B-HKN-12)', () => {
 
     expect(mocks.save.mutate).toHaveBeenCalledWith({
       eventId: 'evt_draft',
+      version: 1,
       details: {
         registrationOpensAt: Date.UTC(2099, 1, 1, 8, 0),
         registrationClosesAt: Date.UTC(2099, 2, 10, 21, 0),
@@ -157,6 +158,55 @@ describe('HackathonManagePage (B-HKN-12)', () => {
     ).toBeTruthy();
   });
 
+  it('locks what registrants signed up under once registration is open', () => {
+    mocks.draft.data = draftView(
+      { stage: 'locked', version: 4, details: savedDetails },
+      { status: 'published' },
+    );
+    vi.setSystemTime(Date.UTC(2099, 1, 10));
+    renderPage();
+    vi.useRealTimers();
+
+    expect(
+      screen.getByText(
+        'Registration is open, so the rules people signed up under stay as they are. Places can grow, and dates still ahead can only move later.',
+      ),
+    ).toBeTruthy();
+    const isDisabled = (label: string | RegExp) =>
+      (screen.getByLabelText(label) as HTMLInputElement).disabled;
+    expect(isDisabled('Registration opens')).toBe(true);
+    expect(isDisabled('Registration closes')).toBe(false);
+    expect(isDisabled('Largest team')).toBe(true);
+    expect(isDisabled(/^Places/)).toBe(false);
+    expect(
+      (document.getElementById('hackathon-rules') as HTMLTextAreaElement)
+        .disabled,
+    ).toBe(true);
+    expect(
+      (screen.getByRole('radio', { name: /AI-native/ }) as HTMLInputElement)
+        .disabled,
+    ).toBe(true);
+
+    fill(/^Places/, '200');
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(mocks.save.mutate).toHaveBeenCalledWith(
+      expect.objectContaining({ version: 4 }),
+    );
+  });
+
+  it('asks for a reload when the hackathon changed since the page opened', () => {
+    mocks.draft.data = draftView({ details: savedDetails });
+    mocks.save.isError = true;
+    mocks.save.error = { code: 'hackathon_conflict' };
+    renderPage();
+
+    expect(
+      screen.getByText(
+        'This hackathon changed since you opened it. Reload the page to see the latest, then save again.',
+      ),
+    ).toBeTruthy();
+  });
+
   it('offers both ways to take part only for a hybrid hackathon', () => {
     mocks.draft.data = draftView({}, { format: 'hybrid' });
     renderPage();
@@ -174,7 +224,7 @@ describe('HackathonManagePage (B-HKN-12)', () => {
 
     expect(
       screen.getByText(
-        'This hackathon is no longer a draft, so these details cannot be changed here.',
+        'These details can no longer be changed: the hackathon is cancelled, with the reviewers, or over.',
       ),
     ).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();

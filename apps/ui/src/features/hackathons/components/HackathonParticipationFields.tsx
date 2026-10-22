@@ -65,6 +65,7 @@ const NumberField = ({
         inputMode="numeric"
         min={1}
         value={form.values[field]}
+        disabled={form.isLocked(field)}
         aria-invalid={error ? true : undefined}
         aria-describedby={error || hint ? fieldNoteId(id) : undefined}
         onChange={(event) => form.set(field, event.target.value)}
@@ -117,6 +118,7 @@ export const HackathonParticipationFields = ({
                 type="checkbox"
                 className="checkbox checkbox-sm checkbox-primary"
                 checked={form.values.attendanceModes.includes(mode)}
+                disabled={form.isLocked('attendanceModes')}
                 onChange={(event) => toggleMode(mode, event.target.checked)}
               />
               {MODE_LABELS[mode]({}, { locale })}
@@ -180,6 +182,7 @@ export const HackathonParticipationFields = ({
           dir="auto"
           placeholder={hackathon_details_rules_ph({}, { locale })}
           value={form.values.rules}
+          disabled={form.isLocked('rules')}
           aria-invalid={form.errors.rules ? true : undefined}
           aria-describedby={
             form.errors.rules ? fieldNoteId(rulesId) : undefined

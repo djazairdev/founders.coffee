@@ -128,12 +128,36 @@ const optionalNumber = (value: string) =>
 const optionalText = (value: string) =>
   value.trim() === '' ? undefined : value;
 
+type DateField =
+  | 'registrationOpensAt'
+  | 'registrationClosesAt'
+  | 'submissionDeadlineAt'
+  | 'judgingEndsAt';
+
+/**
+ * The instant a date field names: the saved one while the field still shows it, since the field
+ * keeps only minutes and a saved date may carry seconds, else the one the organiser entered.
+ */
+const dateOf = (
+  field: DateField,
+  values: DetailsFormValues,
+  saved: HackathonDraftView['details'],
+  timeZone: string,
+): number | undefined =>
+  saved && values[field] === localInput(saved[field], timeZone)
+    ? saved[field]
+    : instantOf(values[field], timeZone);
+
 /** The details the form holds, in the shape the server takes, before they are checked. */
-const detailsInput = (values: DetailsFormValues, timeZone: string) => ({
-  registrationOpensAt: instantOf(values.registrationOpensAt, timeZone),
-  registrationClosesAt: instantOf(values.registrationClosesAt, timeZone),
-  submissionDeadlineAt: instantOf(values.submissionDeadlineAt, timeZone),
-  judgingEndsAt: instantOf(values.judgingEndsAt, timeZone),
+const detailsInput = (
+  values: DetailsFormValues,
+  saved: HackathonDraftView['details'],
+  timeZone: string,
+) => ({
+  registrationOpensAt: dateOf('registrationOpensAt', values, saved, timeZone),
+  registrationClosesAt: dateOf('registrationClosesAt', values, saved, timeZone),
+  submissionDeadlineAt: dateOf('submissionDeadlineAt', values, saved, timeZone),
+  judgingEndsAt: dateOf('judgingEndsAt', values, saved, timeZone),
   attendanceModes: [...values.attendanceModes],
   teamMin: Number(values.teamMin),
   teamMax: Number(values.teamMax),
@@ -228,17 +252,18 @@ export type DetailsCheck =
  */
 export const checkDetails = (
   values: DetailsFormValues,
-  event: HackathonDraftView['event'],
+  draft: HackathonDraftView,
   timeZone: string,
   locale: Locale,
 ): DetailsCheck => {
+  const { event } = draft;
   const parsed = hackathons
     .hackathonDetailsFor({
       startsAt: event.startsAt,
       endsAt: event.endsAt,
       format: event.format,
     })
-    .safeParse(detailsInput(values, timeZone));
+    .safeParse(detailsInput(values, draft.details, timeZone));
   if (parsed.success) return { ok: true, details: parsed.data };
   const errors: DetailsFormErrors = {};
   for (const issue of parsed.error.issues) {

@@ -3,6 +3,7 @@ import { and, eq, sql, type SQL } from 'drizzle-orm';
 import type { AttendanceMode, HackathonAiPolicy } from '@founders-coffee/core';
 
 import type { Db } from './db.js';
+import { hackathonAtVersion } from './hackathon-edits.js';
 import { bound } from './insert-select.js';
 import { events, hackathons, type Event, type Hackathon } from './schema.js';
 
@@ -88,18 +89,27 @@ export const insertHackathonDetails = (
 ) => db.insert(hackathons).select(detailsFromEvent(db, input, sql`1`));
 
 /**
- * Save a draft hackathon's details from the organiser flow's second step (B-HKN-12): written the
- * first time, replaced every time after. Only while the event is still a `draft` and the details
- * have not gone to review, so a hackathon that moved on is never rewritten here; whether anything
- * was written says which.
+ * The write that saves a hackathon's details from the organiser flow (B-HKN-12, B-HKN-07): inserted
+ * the first time, replaced every time after, and only while the hackathon is at `version`, for
+ * {@link applyHackathonEdit} to run with the version bump.
  */
-export const saveDraftHackathonDetails = async (
+export const hackathonDetailsWrite = (
   db: Db,
-  input: { readonly eventId: string; readonly details: HackathonDetails },
-): Promise<boolean> => {
-  const written = await db
+  input: {
+    readonly eventId: string;
+    readonly version: number;
+    readonly details: HackathonDetails;
+  },
+) =>
+  db
     .insert(hackathons)
-    .select(detailsFromEvent(db, input, eq(events.status, 'draft')))
+    .select(
+      detailsFromEvent(
+        db,
+        input,
+        hackathonAtVersion(input.eventId, input.version),
+      ),
+    )
     .onConflictDoUpdate({
       target: hackathons.eventId,
       set: {
@@ -118,11 +128,7 @@ export const saveDraftHackathonDetails = async (
         licenceNote: sql`excluded.licence_note`,
         updatedAt: sql`unixepoch()`,
       },
-      setWhere: eq(hackathons.reviewStatus, 'draft'),
-    })
-    .returning({ eventId: hackathons.eventId });
-  return written.length === 1;
-};
+    });
 
 /** A hackathon's event and its details, or `null` when the event is not a hackathon with details. */
 export const getHackathon = async (

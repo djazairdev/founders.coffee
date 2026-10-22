@@ -1198,7 +1198,7 @@
   "hackathon_manage_not_found": "لم يُعثر على هذا الهاكاثون، أو أنك لا تنظّمه.",
   "hackathon_manage_error": "تعذّر تحميل الهاكاثون.",
   "hackathon_manage_created": "تم حفظ المسودة. حدّد الآن القواعد ومن يمكنه المشاركة.",
-  "hackathon_manage_locked": "لم يعد هذا الهاكاثون مسودة، فلا يمكن تعديل هذه التفاصيل هنا.",
+  "hackathon_manage_locked": "لم يعد ممكنًا تعديل هذه التفاصيل: الهاكاثون ملغى أو قيد المراجعة أو انتهى.",
   "hackathon_details_heading": "القواعد وشروط المشاركة",
   "hackathon_details_sub": "ما يوافق عليه المشاركون، ومن يمكنه المشاركة، ومتى.",
   "hackathon_details_timeline": "الجدول الزمني",
@@ -1246,5 +1246,8 @@
   "org_hackathon_manage": "إدارة",
   "hackathon_details_error_registration_closes_missing": "اختر موعد انتهاء التسجيل.",
   "hackathon_details_error_submission_deadline_missing": "اختر آخر موعد للتسليم.",
-  "hackathon_details_error_judging_ends_missing": "اختر موعد انتهاء التحكيم."
+  "hackathon_details_error_judging_ends_missing": "اختر موعد انتهاء التحكيم.",
+  "hackathon_details_locked_notice": "التسجيل مفتوح، لذا تبقى القواعد التي سجّل المشاركون على أساسها كما هي. يمكن زيادة عدد الأماكن، ولا يمكن تأجيل المواعيد القادمة إلا إلى وقت لاحق.",
+  "hackathon_details_error_conflict": "تغيّر هذا الهاكاثون منذ أن فتحته. أعد تحميل الصفحة لترى آخر نسخة، ثم احفظ من جديد.",
+  "hackathon_details_error_locked": "التسجيل مفتوح، لذا لا يمكن إلا زيادة عدد الأماكن وتأجيل المواعيد إلى وقت لاحق."
 }
