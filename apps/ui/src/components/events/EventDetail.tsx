@@ -12,8 +12,6 @@ import {
   formatDate,
   localizedName,
   going_count,
-  host_time_from,
-  host_time_to,
   ntf_cancel_reason,
   role_host,
   share_event_action,
@@ -35,6 +33,8 @@ import { eventCityName } from '../../features/events/event-city-name';
 import { eventStreetAddress } from '../../features/events/event-street-address';
 import type { EventPhase } from '../../features/events/live-window';
 import type { UseEventLiveResult } from '../../features/events/useEventLive';
+import type { HackathonSchedule as Schedule } from '../../features/hackathons/api';
+import { HackathonSchedule } from '../../features/hackathons/components/HackathonSchedule';
 import { localizedCity } from '../../lib/locale-routing';
 import { EventFormatBadge } from './EventFormatBadge';
 import { EventHostCard } from './EventHostCard';
@@ -45,6 +45,7 @@ import { EventTopics } from './EventTopics';
 import { EventWhere } from './EventWhere';
 import { EventLocationMap } from './EventLocationMap';
 import { EventRsvpBox } from './EventRsvpBox';
+import { EventTimeRange } from './EventTimeRange';
 import { ShareEventButton } from './ShareEventButton';
 
 type EventDetailProps = {
@@ -57,6 +58,7 @@ type EventDetailProps = {
   isWindowOpen: boolean;
   phase: EventPhase;
   mapboxToken: string | null;
+  hackathon?: Schedule | null;
 };
 
 export const EventDetail = ({
@@ -69,6 +71,7 @@ export const EventDetail = ({
   isWindowOpen,
   phase,
   mapboxToken,
+  hackathon = null,
 }: EventDetailProps) => {
   const hostName = host?.displayName ?? role_host({}, { locale });
   const on = (value: Date, options: Intl.DateTimeFormatOptions) =>
@@ -77,26 +80,18 @@ export const EventDetail = ({
       hour12: false,
       ...options,
     });
-  const clock = { hour: '2-digit', minute: '2-digit' } as const;
   const start = new Date(event.startsAt);
   const end = event.endsAt == null ? null : new Date(event.endsAt);
   const names = locale === 'ar' ? 'long' : 'short';
   const day = on(start, { weekday: names, day: 'numeric', month: names });
-  const times =
-    end == null
-      ? on(start, clock)
-      : `${on(start, clock)}\u2013${on(end, clock)}`;
-  const timeRange =
-    end == null ? (
-      <bdi dir="ltr">{times}</bdi>
-    ) : locale === 'ar' ? (
-      <span dir="rtl">
-        {host_time_from({}, { locale })} <bdi dir="ltr">{on(start, clock)}</bdi>{' '}
-        {host_time_to({}, { locale })} <bdi dir="ltr">{on(end, clock)}</bdi>
-      </span>
-    ) : (
-      <bdi dir="ltr">{times}</bdi>
-    );
+  const timeRange = (
+    <EventTimeRange
+      locale={locale}
+      timeZone={market.timezone}
+      start={start}
+      end={end}
+    />
+  );
 
   const cityName = eventCityName(event, locale);
   const streetAddress = eventStreetAddress(event);
@@ -107,6 +102,7 @@ export const EventDetail = ({
   const hasRsvpBox =
     event.kind !== 'hackathon' &&
     (isCancelled ? (isHost ? isChatAvailable : isGoing) : true);
+  const hasAside = hasRsvpBox || hackathon !== null;
 
   return (
     <article className="mx-auto max-w-5xl px-4 py-6 sm:py-8 md:px-8 md:py-10">
@@ -212,7 +208,7 @@ export const EventDetail = ({
       </h2>
 
       <div
-        className={`mt-4 grid gap-8 ${hasRsvpBox ? 'lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.75fr)]' : ''}`}
+        className={`mt-4 grid gap-8 ${hasAside ? 'lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.75fr)]' : ''}`}
       >
         <section
           aria-labelledby="event-details-title"
@@ -269,6 +265,14 @@ export const EventDetail = ({
             isWindowOpen={isWindowOpen}
             phase={phase}
             isChatAvailable={isChatAvailable}
+          />
+        ) : null}
+        {hackathon ? (
+          <HackathonSchedule
+            schedule={hackathon}
+            locale={locale}
+            timeZone={market.timezone}
+            isCancelled={isCancelled}
           />
         ) : null}
       </div>

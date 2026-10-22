@@ -7,6 +7,10 @@ import { ownerProfileOf, publicProfileOf } from '../profile/projection.js';
 import type { PublicProfile } from '../profile/schemas.js';
 import type { EventDetailItem } from './attendance.js';
 import { eventDetail } from './detail.js';
+import {
+  hackathonScheduleOf,
+  type HackathonSchedule,
+} from './hackathon-schedule.js';
 import { availableToReader } from './resolver.js';
 import type { EventPageRequestInput } from './schemas.js';
 
@@ -15,6 +19,7 @@ export interface EventPage {
   readonly event: EventDetailItem;
   readonly host: PublicProfile | null;
   readonly viewerId: string | null;
+  readonly hackathon: HackathonSchedule | null;
 }
 
 type PageRows = Awaited<ReturnType<typeof readEventPageRows>>;
@@ -74,7 +79,8 @@ const hostCard = (
  * The reader's id comes back with the page, `null` for a reader who is signed out. The page is
  * rendered for one reader (`private, no-store`), and whether they host the meetup has to be in the
  * HTML the server sends, as whether they are going already is. The browser's own session answers
- * only after hydration, and until it did, a host's own meetup showed them a guest's RSVP box.
+ * only after hydration, and until it did, a host's own meetup showed them a guest's RSVP box. A
+ * hackathon's schedule and current phase come back with it, read in the same batch (B-HKN-17).
  */
 export const readEventPage = async (
   db: Db,
@@ -100,5 +106,6 @@ export const readEventPage = async (
     event: await eventDetail(db, event.data, viewerId, rows.data.organisers),
     host: hostCard(event.data.hostId, rows.data.host),
     viewerId: viewerId ?? null,
+    hackathon: hackathonScheduleOf(event.data, rows.data.hackathon, Date.now()),
   });
 };

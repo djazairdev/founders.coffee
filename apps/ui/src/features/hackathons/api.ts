@@ -14,6 +14,7 @@ import {
   type ChangeHackathonPrizeRequest,
   type ConfirmHackathonPrizeRequest,
   type CreateHackathonDraftRequest,
+  type HackathonSchedule,
   type HackathonDraftCreated,
   type HackathonDraftView,
   type JoinHackathonInterestRequest,
@@ -48,6 +49,7 @@ export const hackathonsApi = {
 
 export type {
   AddHackathonPrizeRequest,
+  HackathonSchedule,
   ChangeHackathonPrizeRequest,
   ConfirmHackathonPrizeRequest,
   CreateHackathonDraftRequest,
