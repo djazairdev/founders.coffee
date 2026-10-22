@@ -58,6 +58,11 @@ export const RATE_BUDGETS = {
       limit: 10,
       windowMs: 10 * MINUTE_MS,
     },
+    hackathonJudgeAnswer: {
+      action: 'answer_hackathon_judge_invite',
+      limit: 10,
+      windowMs: 10 * MINUTE_MS,
+    },
     hackathonTeamRequest: {
       action: 'request_hackathon_team',
       limit: 10,
