@@ -59,6 +59,10 @@ const KEPT: Readonly<Record<string, string>> = {
     'An invite link belongs to its team; one the member made stays with the team, from the tombstone, until it expires or is revoked.',
   'hackathon_submission_versions.submitted_by':
     'A submitted snapshot is the team’s record of what judges saw; who pressed submit stays with it, as the tombstone.',
+  'hackathon_judges.user_id':
+    'A judge’s place stays with its hackathon so the scores and recusals behind its results stay reproducible; it names the tombstone.',
+  'hackathon_judges.invited_by':
+    'An invite link belongs to its hackathon; who made it stays with the judge’s place, as the tombstone.',
   'invitation.inviter_id':
     'An invitation belongs to its organisation; one the member sent stays, from the tombstone, until it is answered or expires.',
 };

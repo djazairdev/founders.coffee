@@ -29,9 +29,12 @@ import {
   EVENT_KINDS,
   ATTENDANCE_MODES,
   HACKATHON_AI_POLICIES,
+  HACKATHON_JUDGE_STATUSES,
+  HACKATHON_RECUSAL_REASON_MAX,
   HACKATHON_REGISTRATION_SKILLS_MAX,
   HACKATHON_REGISTRATION_STATUSES,
   HACKATHON_REVIEW_STATUSES,
+  HACKATHON_SCORE_COMMENT_MAX,
   HACKATHON_SUBMISSION_AI_STATEMENT_MAX,
   HACKATHON_SUBMISSION_AI_TOOL_MAX,
   HACKATHON_SUBMISSION_DESCRIPTION_MAX,
@@ -679,6 +682,7 @@ export const hackathonCriteria = sqliteTable(
       table.eventId,
       table.position,
     ),
+    uniqueIndex('hackathon_criteria_event_unique').on(table.id, table.eventId),
     check(
       'hackathon_criteria_weight_check',
       sql`${table.weight} BETWEEN 1 AND 100`,
@@ -978,6 +982,10 @@ export const hackathonSubmissions = sqliteTable(
       foreignColumns: [hackathonTracks.id, hackathonTracks.eventId],
     }),
     uniqueIndex('hackathon_submissions_team_unique').on(table.teamId),
+    uniqueIndex('hackathon_submissions_event_unique').on(
+      table.id,
+      table.eventId,
+    ),
     index('hackathon_submissions_event_status_index').on(
       table.eventId,
       table.status,
@@ -1052,6 +1060,139 @@ export const hackathonSubmissionVersions = sqliteTable(
 
 export type HackathonSubmissionVersion =
   typeof hackathonSubmissionVersions.$inferSelect;
+
+/**
+ * A hackathon's judges (B-JDG-01). Each place starts as an invite link the organisers make for one
+ * judge, of which only the token's hash is kept; the judge accepts it with their account, which
+ * fills `user_id`, or declines it, and the organisers may remove a judge. A member judges a
+ * hackathon at most once, and an accepted judge always has an account.
+ *
+ * Judges are never deleted while their hackathon stands: their scores and recusals must stay
+ * reproducible, so a closed account leaves its places against the tombstone, as it does the member
+ * who made the link.
+ */
+export const hackathonJudges = sqliteTable(
+  'hackathon_judges',
+  {
+    id: text('id').primaryKey(),
+    eventId: text('event_id')
+      .notNull()
+      .references(() => hackathons.eventId, { onDelete: 'cascade' }),
+    userId: text('user_id').references(() => user.id),
+    status: text('status', { enum: [...HACKATHON_JUDGE_STATUSES] })
+      .notNull()
+      .default('invited'),
+    tokenHash: text('token_hash').notNull().unique(),
+    invitedBy: text('invited_by')
+      .notNull()
+      .references(() => user.id),
+    respondedAt: integer('responded_at', { mode: 'timestamp' }),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex('hackathon_judges_event_unique').on(table.id, table.eventId),
+    uniqueIndex('hackathon_judges_user_unique').on(table.eventId, table.userId),
+    index('hackathon_judges_user_index').on(table.userId),
+    check(
+      'hackathon_judges_accepted_check',
+      sql`${table.status} != 'accepted' OR ${table.userId} IS NOT NULL`,
+    ),
+  ],
+);
+
+export type HackathonJudge = typeof hackathonJudges.$inferSelect;
+export type NewHackathonJudge = typeof hackathonJudges.$inferInsert;
+
+/**
+ * A judge stepping away from an entry they cannot judge fairly (B-JDG-01), with their reason. Once
+ * per judge and entry, and never undone, so it has no status; the judge and the entry are the same
+ * hackathon's, by composite keys.
+ */
+export const hackathonRecusals = sqliteTable(
+  'hackathon_recusals',
+  {
+    judgeId: text('judge_id').notNull(),
+    submissionId: text('submission_id').notNull(),
+    eventId: text('event_id').notNull(),
+    reason: text('reason').notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    primaryKey({ columns: [table.judgeId, table.submissionId] }),
+    foreignKey({
+      columns: [table.judgeId, table.eventId],
+      foreignColumns: [hackathonJudges.id, hackathonJudges.eventId],
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.submissionId, table.eventId],
+      foreignColumns: [hackathonSubmissions.id, hackathonSubmissions.eventId],
+    }).onDelete('cascade'),
+    index('hackathon_recusals_submission_index').on(table.submissionId),
+    check(
+      'hackathon_recusals_reason_check',
+      sql`length(trim(${table.reason})) BETWEEN 1 AND ${sql.raw(String(HACKATHON_RECUSAL_REASON_MAX))}`,
+    ),
+  ],
+);
+
+export type HackathonRecusal = typeof hackathonRecusals.$inferSelect;
+
+/**
+ * A judge's score for one criterion of one entry (B-JDG-01), with an optional comment: one per
+ * entry, judge and criterion. The value is held to 1 to 10 here and to the criterion's own scale by
+ * the domain. The judge, the entry and the criterion are the same hackathon's, by composite keys; a
+ * criterion with scores cannot be deleted, and by then the rubric is locked anyway.
+ */
+export const hackathonScores = sqliteTable(
+  'hackathon_scores',
+  {
+    submissionId: text('submission_id').notNull(),
+    judgeId: text('judge_id').notNull(),
+    criterionId: text('criterion_id').notNull(),
+    eventId: text('event_id').notNull(),
+    value: integer('value').notNull(),
+    comment: text('comment'),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.submissionId, table.judgeId, table.criterionId],
+    }),
+    foreignKey({
+      columns: [table.judgeId, table.eventId],
+      foreignColumns: [hackathonJudges.id, hackathonJudges.eventId],
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.submissionId, table.eventId],
+      foreignColumns: [hackathonSubmissions.id, hackathonSubmissions.eventId],
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.criterionId, table.eventId],
+      foreignColumns: [hackathonCriteria.id, hackathonCriteria.eventId],
+    }),
+    index('hackathon_scores_judge_index').on(table.judgeId),
+    index('hackathon_scores_criterion_index').on(table.criterionId),
+    check('hackathon_scores_value_check', sql`${table.value} BETWEEN 1 AND 10`),
+    check(
+      'hackathon_scores_comment_check',
+      sql`${table.comment} IS NULL OR length(${table.comment}) <= ${sql.raw(String(HACKATHON_SCORE_COMMENT_MAX))}`,
+    ),
+  ],
+);
+
+export type HackathonScore = typeof hackathonScores.$inferSelect;
 
 /** Event RSVP — one per user per event (UNIQUE constraint). */
 export const eventRsvps = sqliteTable(
