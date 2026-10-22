@@ -12,6 +12,7 @@ export * from './events-publish.js';
 export * from './event-organisers.js';
 export * from './hackathons.js';
 export * from './hackathon-tracks.js';
+export * from './hackathon-prizes.js';
 export * from './hackathon-criteria.js';
 export * from './event-page.js';
 export * from './events-sitemap.js';
