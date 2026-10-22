@@ -35,12 +35,14 @@ import {
   type ChangeHackathonPrizeRequest,
   type ConfirmHackathonPrizeRequest,
   type CreateHackathonDraftRequest,
+  type EventPage,
   type HackathonDashboard,
   type HackathonSchedule,
   type HackathonDraftCreated,
   type HackathonDraftView,
   type JoinHackathonInterestRequest,
   type PublicHackathonPrizeView,
+  type PublicHackathonRules,
   type PublicHackathonTrack,
   type RemoveHackathonPrizeRequest,
   type SaveHackathonDetailsRequest,
@@ -152,6 +154,7 @@ export type {
   HackathonDraftView,
   JoinHackathonInterestRequest,
   PublicHackathonPrizeView,
+  PublicHackathonRules,
   PublicHackathonTrack,
   RemoveHackathonPrizeRequest,
   SaveHackathonDetailsRequest,
@@ -167,6 +170,11 @@ export type HackathonTrackView = HackathonDraftView['tracks'][number];
 export type HackathonOffer = {
   readonly tracks: readonly PublicHackathonTrack[];
   readonly prizes: readonly PublicHackathonPrizeView[];
+};
+export type HackathonJudgeView = EventPage['judges'][number];
+export type HackathonPageDetails = HackathonOffer & {
+  readonly rules: PublicHackathonRules;
+  readonly judges: readonly HackathonJudgeView[];
 };
 export type HackathonPrizeView = HackathonDraftView['prizes'][number];
 export type HackathonBasicsRequest = CreateHackathonDraftRequest['hackathon'];

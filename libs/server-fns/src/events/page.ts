@@ -2,6 +2,8 @@ import {
   AppError,
   err,
   ok,
+  type AttendanceMode,
+  type HackathonAiPolicy,
   type HackathonTrackKind,
   type Result,
 } from '@founders-coffee/core';
@@ -40,18 +42,47 @@ export type PublicHackathonPrizeView = Omit<
   'confirmedAt'
 >;
 
+export type PublicHackathonRules = {
+  readonly rules: string | null;
+  readonly minimumAge: number | null;
+  readonly attendanceModes: readonly AttendanceMode[];
+  readonly teamMin: number;
+  readonly teamMax: number;
+  readonly aiPolicy: HackathonAiPolicy;
+  readonly aiPolicyNote: string | null;
+  readonly licenceNote: string | null;
+};
+
 export interface EventPage {
   readonly market: Market;
   readonly event: EventDetailItem;
   readonly host: PublicProfile | null;
   readonly viewerId: string | null;
   readonly hackathon: HackathonSchedule | null;
+  readonly rules: PublicHackathonRules | null;
   readonly judges: readonly PublicHackathonJudge[];
   readonly tracks: readonly PublicHackathonTrack[];
   readonly prizes: readonly PublicHackathonPrizeView[];
 }
 
 type PageRows = Awaited<ReturnType<typeof readEventPageRows>>;
+
+const rulesOf = (
+  row: PageRows['hackathon'],
+  isHackathon: boolean,
+): PublicHackathonRules | null =>
+  row && isHackathon
+    ? {
+        rules: row.rules,
+        minimumAge: row.minimumAge,
+        attendanceModes: row.attendanceModes,
+        teamMin: row.teamMin,
+        teamMax: row.teamMax,
+        aiPolicy: row.aiPolicy,
+        aiPolicyNote: row.aiPolicyNote,
+        licenceNote: row.licenceNote,
+      }
+    : null;
 
 const publicPrizeOf = (
   prize: PublicHackathonPrize,
@@ -121,7 +152,8 @@ const hostCard = (
  * rendered for one reader (`private, no-store`), and whether they host the meetup has to be in the
  * HTML the server sends, as whether they are going already is. The browser's own session answers
  * only after hydration, and until it did, a host's own meetup showed them a guest's RSVP box. A
- * hackathon's schedule and current phase come back with it, read in the same batch (B-HKN-17), and
+ * hackathon's schedule and current phase come back with it, read in the same batch (B-HKN-17), with
+ * its rules, eligibility, AI policy and licence (B-HKN-19), and
  * so do the judges who accepted (B-JDG-03) and its tracks and confirmed prizes (B-HKN-18), none
  * for a meetup.
  */
@@ -151,6 +183,7 @@ export const readEventPage = async (
     host: hostCard(event.data.hostId, rows.data.host),
     viewerId: viewerId ?? null,
     hackathon: hackathonScheduleOf(event.data, rows.data.hackathon, Date.now()),
+    rules: rulesOf(rows.data.hackathon, isHackathon),
     judges: isHackathon ? rows.data.judges : [],
     tracks: isHackathon ? rows.data.tracks : [],
     prizes: isHackathon ? rows.data.prizes.map(publicPrizeOf) : [],

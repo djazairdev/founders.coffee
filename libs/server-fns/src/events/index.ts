@@ -18,6 +18,7 @@ export type { EventCalendarAnswer } from './calendar.js';
 export type {
   EventPage,
   PublicHackathonPrizeView,
+  PublicHackathonRules,
   PublicHackathonTrack,
 } from './page.js';
 export type { HackathonSchedule } from './hackathon-schedule.js';
