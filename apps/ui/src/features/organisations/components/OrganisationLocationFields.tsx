@@ -9,11 +9,10 @@ import {
   org_apply_state_none,
   type Locale,
 } from '@founders-coffee/i18n';
-import { Select } from '@founders-coffee/ui';
+import { FormField, Select } from '@founders-coffee/ui';
 
 import { RegionCitySelects } from '../../../components/geo/RegionCitySelects';
 import type { RootMarket } from '../../markets/api';
-import { ApplicationField } from './ApplicationField';
 
 export const OrganisationLocationFields = ({
   locale,
@@ -41,7 +40,7 @@ export const OrganisationLocationFields = ({
   onCity: (cityCode: string) => void;
 }) => (
   <>
-    <ApplicationField
+    <FormField
       id="organisation-market"
       label={org_apply_market({}, { locale })}
       optionalLabel={optional({}, { locale })}
@@ -58,7 +57,7 @@ export const OrganisationLocationFields = ({
           </option>
         ))}
       </Select>
-    </ApplicationField>
+    </FormField>
     <RegionCitySelects
       cityCode={cityCode}
       cityId="organisation-city"

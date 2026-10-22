@@ -183,6 +183,12 @@ export const localizedHackathonCreate = (locale: Locale, slug: string) => ({
   params: { locale, slug },
 });
 
+/** Where a hackathon's organisers manage it, from the organiser flow's second step (B-HKN-12). */
+export const localizedHackathonManage = (locale: Locale, eventId: string) => ({
+  to: '/$locale/hackathon/$eventId/manage' as const,
+  params: { locale, eventId },
+});
+
 /** The reader's own activity, on the same terms as {@link localizedProfile}. */
 export const localizedProfileActivity = (locale: Locale) => ({
   to: '/$locale/profile/activity' as const,

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 export const fieldNoteId = (id: string) => `${id}-note`;
 
-export const ApplicationField = ({
+export const FormField = ({
   id,
   label,
   isOptional = false,

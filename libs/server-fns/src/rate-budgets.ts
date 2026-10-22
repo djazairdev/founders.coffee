@@ -43,6 +43,11 @@ export const RATE_BUDGETS = {
       limit: 10,
       windowMs: 10 * MINUTE_MS,
     },
+    hackathonEdit: {
+      action: 'edit_hackathon',
+      limit: 30,
+      windowMs: 10 * MINUTE_MS,
+    },
     organisationInvitationAnswer: {
       action: 'answer_organisation_invitation',
       limit: 10,

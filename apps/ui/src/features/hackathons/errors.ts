@@ -10,3 +10,13 @@ const HACKATHONS_DISABLED: HackathonErrorCode = 'hackathons_disabled';
  */
 export const isHackathonsDisabled = (error: unknown): boolean =>
   appErrorCode(error) === HACKATHONS_DISABLED;
+
+const MISSING = new Set(['event_not_found', 'forbidden', 'validation_failed']);
+
+/**
+ * Whether a hackathon screen was refused because there is no hackathon this reader organises at
+ * that address. Not organising it answers the same as it not existing, so the page cannot be used
+ * to find out which drafts exist.
+ */
+export const isHackathonMissing = (error: unknown): boolean =>
+  MISSING.has(appErrorCode(error));
