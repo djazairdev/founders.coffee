@@ -13,6 +13,7 @@ import {
   type HackathonDraftView,
   type JoinHackathonInterestArgs,
   type SaveHackathonDetailsRequest,
+  type SaveHackathonRubricRequest,
   type SaveHackathonTracksRequest,
 } from './api';
 
@@ -69,6 +70,15 @@ export const useSaveHackathonTracks = () => {
   const cache = useQueryClient();
   return useMutation<HackathonEditSaved, Error, SaveHackathonTracksRequest>({
     mutationFn: (request) => hackathonsApi.saveTracks(request),
+    onSuccess: (saved) => afterEdit(cache, saved),
+  });
+};
+
+/** Save a hackathon's judging rubric; the hackathon is read again after. */
+export const useSaveHackathonRubric = () => {
+  const cache = useQueryClient();
+  return useMutation<HackathonEditSaved, Error, SaveHackathonRubricRequest>({
+    mutationFn: (request) => hackathonsApi.saveRubric(request),
     onSuccess: (saved) => afterEdit(cache, saved),
   });
 };

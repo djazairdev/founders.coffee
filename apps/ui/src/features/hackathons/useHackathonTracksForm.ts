@@ -3,6 +3,7 @@ import { flushSync } from 'react-dom';
 
 import {
   hackathon_tracks_error_none,
+  hackathon_tracks_locked_hint,
   type Locale,
 } from '@founders-coffee/i18n';
 
@@ -218,6 +219,12 @@ export const useHackathonTracksForm = ({
     submit,
     isSaving: save.isPending,
     isSaved: save.isSuccess,
-    saveError: save.isError ? hackathonEditError(save.error, locale) : null,
+    saveError: save.isError
+      ? hackathonEditError(
+          save.error,
+          locale,
+          hackathon_tracks_locked_hint({}, { locale }),
+        )
+      : null,
   };
 };

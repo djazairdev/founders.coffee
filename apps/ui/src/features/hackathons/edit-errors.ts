@@ -11,8 +11,15 @@ import {
   type Locale,
 } from '@founders-coffee/i18n';
 
-/** What an organiser reads when a hackathon edit is refused (B-HKN-07), by the refusal's code. */
-export const hackathonEditError = (error: unknown, locale: Locale): string => {
+/**
+ * What an organiser reads when a hackathon edit is refused (B-HKN-07), by the refusal's code. A
+ * section whose own lock reads differently from the details' passes it as `lockedMessage`.
+ */
+export const hackathonEditError = (
+  error: unknown,
+  locale: Locale,
+  lockedMessage?: string,
+): string => {
   const options = { locale };
   switch (appErrorCode(error)) {
     case 'rate_limited':
@@ -22,7 +29,7 @@ export const hackathonEditError = (error: unknown, locale: Locale): string => {
     case 'hackathon_conflict':
       return hackathon_details_error_conflict({}, options);
     case 'hackathon_field_locked':
-      return hackathon_details_error_locked({}, options);
+      return lockedMessage ?? hackathon_details_error_locked({}, options);
     case 'hackathon_details_required':
       return hackathon_edit_error_details_required({}, options);
     case 'hackathon_track_has_prizes':
