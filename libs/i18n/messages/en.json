@@ -1629,5 +1629,19 @@
   "ntf_push_hackathon_submission_received_body": "{name} submitted {project} to {title}. It can change until the deadline; the last submission counts.",
   "ntf_email_hackathon_submission_received_subject": "Submitted: {project} for {title}",
   "ntf_email_hackathon_submission_received_html": "<p><strong>{name}</strong> submitted <strong>{project}</strong>, the project of <strong>{team}</strong> for {title}.</p><p>It can still change until the submission deadline, and the last submission counts.</p><p><a href=\"{url}\">Open your team's project</a></p>",
-  "ntf_email_hackathon_submission_received_text": "{name} submitted {project}, the project of {team} for {title}. It can still change until the submission deadline, and the last submission counts. {url}"
+  "ntf_email_hackathon_submission_received_text": "{name} submitted {project}, the project of {team} for {title}. It can still change until the submission deadline, and the last submission counts. {url}",
+  "hackathon_judging_title": "Judging",
+  "hackathon_judging_loading": "Loading the submissions…",
+  "hackathon_judging_error": "The submissions could not be loaded.",
+  "hackathon_judging_not_judge": "Only this hackathon’s judges see its submissions.",
+  "hackathon_judging_not_started": "Judging opens when submissions close, {date}.",
+  "hackathon_judging_open": "You can score the submissions until judging ends, {date}.",
+  "hackathon_judging_closed": "Judging has closed, so scores can no longer change.",
+  "hackathon_judging_progress": "Scored: {scored} of {total}",
+  "hackathon_judging_recused_count": "Recused: {count}",
+  "hackathon_judging_entries_heading": "Submissions",
+  "hackathon_judging_empty": "No team has submitted a project.",
+  "hackathon_judging_state_to_score": "To score",
+  "hackathon_judging_state_scored": "Scored",
+  "hackathon_judging_state_recused": "Recused"
 }

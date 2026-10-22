@@ -11,7 +11,7 @@ import {
   type Result,
 } from '@founders-coffee/core';
 
-import { phaseAt, type HackathonTimeline } from './timeline.js';
+import { judgingStageAt, type JudgingWindow } from './judge-progress.js';
 
 export const judgeEntriesSchema = z.strictObject({
   eventId: idSchema,
@@ -25,11 +25,7 @@ export const recusalSchema = z.strictObject({
 
 export type RecusalInput = z.infer<typeof recusalSchema>;
 
-type JudgeAccess = {
-  readonly timeline: HackathonTimeline;
-  readonly now: number;
-  readonly isCancelled: boolean;
-  readonly isResultsPublished: boolean;
+type JudgeAccess = JudgingWindow & {
   readonly judge: HackathonJudgeStatus | null;
 };
 
@@ -43,10 +39,10 @@ export const decideJudgeAccess = (input: JudgeAccess): Result<true> => {
     return err(
       new AppError('not_judge', 'Only an accepted judge reads entries'),
     );
-  const phase = phaseAt(input.timeline, input.now);
-  if (input.isCancelled || input.isResultsPublished || phase === 'results')
+  const stage = judgingStageAt(input);
+  if (stage === 'closed')
     return err(new AppError('judging_closed', 'Judging is closed'));
-  if (phase !== 'judging')
+  if (stage === 'not_started')
     return err(
       new AppError('judging_not_started', 'Judging opens at the deadline'),
     );

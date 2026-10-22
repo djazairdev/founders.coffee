@@ -1822,5 +1822,19 @@
   "ntf_push_hackathon_submission_received_body": "{name} a déposé {project} au hackathon « {title} ». Il peut changer jusqu’à la date limite ; le dernier dépôt compte.",
   "ntf_email_hackathon_submission_received_subject": "Dépôt reçu : {project} pour le hackathon « {title} »",
   "ntf_email_hackathon_submission_received_html": "<p><strong>{name}</strong> a déposé <strong>{project}</strong>, le projet de <strong>{team}</strong> pour le hackathon « {title} ».</p><p>Il peut encore changer jusqu’à la date limite de dépôt, et le dernier dépôt compte.</p><p><a href=\"{url}\">Ouvrir le projet de votre équipe</a></p>",
-  "ntf_email_hackathon_submission_received_text": "{name} a déposé {project}, le projet de {team} pour le hackathon « {title} ». Il peut encore changer jusqu’à la date limite de dépôt, et le dernier dépôt compte. {url}"
+  "ntf_email_hackathon_submission_received_text": "{name} a déposé {project}, le projet de {team} pour le hackathon « {title} ». Il peut encore changer jusqu’à la date limite de dépôt, et le dernier dépôt compte. {url}",
+  "hackathon_judging_title": "Évaluation",
+  "hackathon_judging_loading": "Chargement des projets…",
+  "hackathon_judging_error": "Les projets n’ont pas pu être chargés.",
+  "hackathon_judging_not_judge": "Seul le jury de ce hackathon voit ses projets.",
+  "hackathon_judging_not_started": "L’évaluation commence à la clôture des dépôts, {date}.",
+  "hackathon_judging_open": "Vous pouvez noter les projets jusqu’à la fin de l’évaluation, {date}.",
+  "hackathon_judging_closed": "L’évaluation est close : les notes ne peuvent plus changer.",
+  "hackathon_judging_progress": "Notés : {scored} sur {total}",
+  "hackathon_judging_recused_count": "Récusations : {count}",
+  "hackathon_judging_entries_heading": "Projets",
+  "hackathon_judging_empty": "Aucune équipe n’a déposé de projet.",
+  "hackathon_judging_state_to_score": "À noter",
+  "hackathon_judging_state_scored": "Noté",
+  "hackathon_judging_state_recused": "Récusé"
 }

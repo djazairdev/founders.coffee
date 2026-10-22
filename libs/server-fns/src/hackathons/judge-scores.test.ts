@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { id } from '@founders-coffee/core';
 import {
   eq,
-  hackathonCriteria,
   hackathons as hackathonRows,
   hackathonScores,
   listJudgeScores,
@@ -15,6 +14,7 @@ import { hackathons } from '@founders-coffee/domain';
 import { setupDb } from '../rsvps/resolver.fixtures.js';
 import {
   codeOf,
+  criteriaOf,
   judgeOf,
   submitted,
   toJudging,
@@ -25,34 +25,9 @@ import { setHackathons } from './registration.fixtures.js';
 
 let db: Db;
 
-const criteriaOf = async (eventId: string) => {
-  const [impact, craft] = [id('crt'), id('crt')];
-  await db.insert(hackathonCriteria).values([
-    {
-      id: impact,
-      eventId,
-      name: 'Impact',
-      description: 'Who it helps.',
-      weight: 60,
-      scale: 10,
-      position: 0,
-    },
-    {
-      id: craft,
-      eventId,
-      name: 'Craft',
-      description: 'How well it is built.',
-      weight: 40,
-      scale: 5,
-      position: 1,
-    },
-  ]);
-  return { impact, craft };
-};
-
 const judging = async () => {
   const { eventId, submissionId } = await submitted(db);
-  const criteria = await criteriaOf(eventId);
+  const criteria = await criteriaOf(db, eventId);
   await toJudging(db, eventId);
   const judge = await judgeOf(db, eventId);
   return { eventId, submissionId, criteria, judge };
@@ -110,7 +85,7 @@ describe('judges score entries (B-JDG-05, real D1)', () => {
   it('refuses a score above its criterion’s scale, or for another hackathon’s criterion, and writes nothing', async () => {
     const { eventId, submissionId, criteria, judge } = await judging();
     const other = await submitted(db);
-    const elsewhere = await criteriaOf(other.eventId);
+    const elsewhere = await criteriaOf(db, other.eventId);
 
     expect(
       codeOf(
@@ -165,7 +140,7 @@ describe('judges score entries (B-JDG-05, real D1)', () => {
 
   it('refuses scores before judging opens and once the results are published', async () => {
     const { eventId, submissionId } = await submitted(db);
-    const criteria = await criteriaOf(eventId);
+    const criteria = await criteriaOf(db, eventId);
     const judge = await judgeOf(db, eventId);
     const scores = [{ criterionId: criteria.impact, value: 7 }];
 

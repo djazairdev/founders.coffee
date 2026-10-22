@@ -2,6 +2,7 @@ import { id } from '@founders-coffee/core';
 import {
   eq,
   events,
+  hackathonCriteria,
   hackathonJudges,
   hackathons as hackathonRows,
   user,
@@ -93,4 +94,30 @@ export const submitted = async (db: Db) => {
   );
   unwrap(await save(db, eventId, sent.version, { trackId, title: 'Ledger 2' }));
   return { eventId, trackId, submissionId: sent.submissionId };
+};
+
+/** Two criteria for the hackathon: impact scored out of 10, craft out of 5. */
+export const criteriaOf = async (db: Db, eventId: string) => {
+  const [impact, craft] = [id('crt'), id('crt')];
+  await db.insert(hackathonCriteria).values([
+    {
+      id: impact,
+      eventId,
+      name: 'Impact',
+      description: 'Who it helps.',
+      weight: 60,
+      scale: 10,
+      position: 0,
+    },
+    {
+      id: craft,
+      eventId,
+      name: 'Craft',
+      description: 'How well it is built.',
+      weight: 40,
+      scale: 5,
+      position: 1,
+    },
+  ]);
+  return { impact, craft };
 };

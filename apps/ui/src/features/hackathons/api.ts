@@ -4,6 +4,7 @@ import {
   cancelHackathonTeamRequest,
   createHackathonTeam,
   createHackathonTeamInvite,
+  getHackathonJudgePage,
   getHackathonLookingForTeam,
   getHackathonSubmissionPage,
   getHackathonTeamPage,
@@ -15,6 +16,8 @@ import {
   revokeHackathonTeamInvite,
   saveHackathonSubmissionDraft,
   submitHackathonSubmission,
+  type JudgePageEntry,
+  type JudgePageView,
   type LookingForTeamView,
   type SubmissionDraftSaved,
   type SubmissionPageView,
@@ -159,8 +162,14 @@ export const submissionsApi = {
     }),
 };
 
+export const judgingApi = {
+  page: (eventId: string) => getHackathonJudgePage({ data: { eventId } }),
+};
+
 export type {
   AddHackathonPrizeRequest,
+  JudgePageEntry,
+  JudgePageView,
   LookingForTeamView,
   SubmissionDraftSaved,
   SubmissionPageView,

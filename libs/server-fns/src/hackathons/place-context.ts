@@ -7,6 +7,8 @@ import { requireHackathonsEnabled } from './flag.js';
 
 export type PlaceHackathon = {
   readonly marketCode: string;
+  readonly title: string;
+  readonly slug: string;
   readonly timeline: hackathons.HackathonTimeline;
   readonly isCancelled: boolean;
   readonly isResultsPublished: boolean;
@@ -28,6 +30,8 @@ export const loadPlaceHackathon = async (
   if (disabled) return err(disabled);
   return ok({
     marketCode: event.marketCode,
+    title: event.title,
+    slug: event.slug,
     isCancelled: event.status === 'cancelled',
     isResultsPublished: hackathon.resultsPublishedAt !== null,
     timeline: {

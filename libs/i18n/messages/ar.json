@@ -1696,5 +1696,19 @@
   "ntf_push_hackathon_submission_received_body": "سلّم {name} مشروع {project} في {title}. يمكن تعديله حتى الموعد النهائي، والعبرة بآخر تسليم.",
   "ntf_email_hackathon_submission_received_subject": "تم التسليم: {project} في {title}",
   "ntf_email_hackathon_submission_received_html": "<p>سلّم <strong>{name}</strong> مشروع <strong>{project}</strong> لفريق <strong>{team}</strong> في {title}.</p><p>يمكن تعديله حتى الموعد النهائي للتسليم، والعبرة بآخر تسليم.</p><p><a href=\"{url}\">افتح مشروع فريقك</a></p>",
-  "ntf_email_hackathon_submission_received_text": "سلّم {name} مشروع {project} لفريق {team} في {title}. يمكن تعديله حتى الموعد النهائي للتسليم، والعبرة بآخر تسليم. {url}"
+  "ntf_email_hackathon_submission_received_text": "سلّم {name} مشروع {project} لفريق {team} في {title}. يمكن تعديله حتى الموعد النهائي للتسليم، والعبرة بآخر تسليم. {url}",
+  "hackathon_judging_title": "التحكيم",
+  "hackathon_judging_loading": "جارٍ تحميل المشاريع…",
+  "hackathon_judging_error": "تعذّر تحميل المشاريع.",
+  "hackathon_judging_not_judge": "لا يرى مشاريع هذا الهاكاثون إلا حكامه.",
+  "hackathon_judging_not_started": "يبدأ التحكيم عند إغلاق التسليم، {date}.",
+  "hackathon_judging_open": "يمكنك تقييم المشاريع حتى انتهاء التحكيم، {date}.",
+  "hackathon_judging_closed": "انتهى التحكيم، فلم يعد بالإمكان تعديل العلامات.",
+  "hackathon_judging_progress": "تم تقييمها: {scored} من {total}",
+  "hackathon_judging_recused_count": "مشاريع تنحّيت عنها: {count}",
+  "hackathon_judging_entries_heading": "المشاريع",
+  "hackathon_judging_empty": "لم يسلّم أي فريق مشروعًا.",
+  "hackathon_judging_state_to_score": "بانتظار التقييم",
+  "hackathon_judging_state_scored": "تم تقييمه",
+  "hackathon_judging_state_recused": "تنحّيت عنه"
 }

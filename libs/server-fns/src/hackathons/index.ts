@@ -77,10 +77,12 @@ export type {
 } from './mentors.js';
 export {
   getHackathonJudgeEntries,
+  getHackathonJudgePage,
   recuseFromHackathonEntry,
   saveHackathonScores,
 } from './judge-entries-rpc.js';
 export type { JudgeEntryView } from './judge-entries.js';
+export type { JudgePageEntry, JudgePageView } from './judge-page.js';
 export { reportHackathonTarget } from './reports-rpc.js';
 export {
   getHackathonPullRequests,
