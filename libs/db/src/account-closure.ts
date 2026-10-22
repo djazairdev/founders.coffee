@@ -15,6 +15,7 @@ import {
 import { batch } from './atomic.js';
 import type { Db } from './db.js';
 import { hackathonErasure } from './account-closure-hackathons.js';
+import { projectErasure } from './account-closure-projects.js';
 import { ASSUMED_DURATION_SECONDS } from './events.js';
 import {
   account,
@@ -158,9 +159,10 @@ export const listProfileAssetPrefixes = async (
  *
  * Everything that is the member's own goes: profile, photo rows, preferences, devices, queued
  * notices, meetup chat messages and chat settings, organisation memberships, their teams, team
- * requests and hackathon registrations ({@link hackathonErasure}), sessions, sign-in links
- * with Google or GitHub, codes still waiting for their address or phone, and the city waitlist,
- * hackathon interest and organisation invitations under their address. Photo bytes are the caller's to delete first, from
+ * requests and hackathon registrations ({@link hackathonErasure}), their places on projects
+ * ({@link projectErasure}), sessions, sign-in links with Google or GitHub, codes still waiting for
+ * their address or phone, and the city waitlist, hackathon interest and organisation invitations
+ * under their address. Photo bytes are the caller's to delete first, from
  * {@link listProfileAssetPrefixes}, since a deleted row is the only record of where they are.
  *
  * Every statement re-checks that the account is still closing, and the tombstone is written last,
@@ -208,6 +210,7 @@ export const eraseClosedAccount = async (
         ),
       ),
     ...hackathonErasure(db, userId, stillClosing),
+    ...projectErasure(db, userId, stillClosing),
     db.delete(member).where(owned(member.userId)),
     db.delete(session).where(owned(session.userId)),
     db.delete(account).where(owned(account.userId)),
