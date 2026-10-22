@@ -4,6 +4,7 @@ import {
   teamsApi,
   type LookingForTeamView,
   type TeamInviteCreated,
+  type TeamJoined,
   type TeamPageView,
 } from './api';
 
@@ -63,7 +64,7 @@ export const useRevokeTeamInvite = (eventId: string) =>
 
 /** Join the team an invite link is for. */
 export const useJoinTeam = (eventId: string) =>
-  useTeamChange(eventId, (token: string) => teamsApi.join(token));
+  useTeamChange<string, TeamJoined>(eventId, (token) => teamsApi.join(token));
 
 /** Accept or decline a request to join the captain's team. */
 export const useAnswerTeamRequest = (eventId: string) =>

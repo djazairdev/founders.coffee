@@ -85,6 +85,9 @@ const renderPage = (
 const field = (name: string) =>
   screen.getByLabelText(name, { exact: false }) as HTMLInputElement;
 
+const trackSelect = () =>
+  screen.getByLabelText('Track') as unknown as HTMLSelectElement;
+
 describe('HackathonSubmitPage (B-SUB-05)', () => {
   it('fills the form with the team’s saved project and says until when it can change', () => {
     renderPage(submissionView());
@@ -97,9 +100,7 @@ describe('HackathonSubmitPage (B-SUB-05)', () => {
         'Your team can change its project until submissions close, Sat, Mar 14, 12:00.',
       ),
     ).toBeTruthy();
-    expect((screen.getByLabelText('Track') as HTMLSelectElement).value).toBe(
-      TRACK_ID,
-    );
+    expect(trackSelect().value).toBe(TRACK_ID);
     expect(field('Project name').value).toBe('Ledger');
     expect(field('Code repository').value).toBe(
       'https://github.com/byte-club/ledger',
@@ -212,9 +213,7 @@ describe('HackathonSubmitPage (B-SUB-05)', () => {
       screen.getByText('Only your team’s captain can change the project.'),
     ).toBeTruthy();
     expect(field('Project name').readOnly).toBe(true);
-    expect((screen.getByLabelText('Track') as HTMLSelectElement).disabled).toBe(
-      true,
-    );
+    expect(trackSelect().disabled).toBe(true);
     expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();
   });
 

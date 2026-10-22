@@ -132,7 +132,9 @@ describe('a hackathon’s full preview in the review queue (B-HKN-09)', () => {
     expect(screen.getByText('No prizes')).toBeTruthy();
     cleanup();
 
-    renderPreview({ prizes: [{ ...item.prizes[0]!, isConfirmed: true }] });
+    renderPreview({
+      prizes: item.prizes.map((prize) => ({ ...prize, isConfirmed: true })),
+    });
     expect(screen.queryByText('Not confirmed yet')).toBeNull();
   });
 
