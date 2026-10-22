@@ -69,6 +69,18 @@ export const hackathonSubmissionStatusSchema = z.enum(
   HACKATHON_SUBMISSION_STATUSES,
 );
 
+export const HACKATHON_JUDGE_STATUSES = [
+  'invited',
+  'accepted',
+  'declined',
+  'removed',
+] as const;
+export type HackathonJudgeStatus = (typeof HACKATHON_JUDGE_STATUSES)[number];
+export const hackathonJudgeStatusSchema = z.enum(HACKATHON_JUDGE_STATUSES);
+
+export const HACKATHON_RECUSAL_REASON_MAX = 500;
+export const HACKATHON_SCORE_COMMENT_MAX = 1000;
+
 export const HACKATHON_AI_POLICIES = [
   'disclosed',
   'ai_native',

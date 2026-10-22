@@ -61,5 +61,6 @@
   "0059_hackathon_registrations": "compatible",
   "0060_hackathon_prizes": "compatible",
   "0061_hackathon_teams": "compatible",
-  "0062_hackathon_submissions": "compatible"
+  "0062_hackathon_submissions": "compatible",
+  "0063_hackathon_judging": "compatible"
 }
