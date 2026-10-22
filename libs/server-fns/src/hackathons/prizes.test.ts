@@ -4,7 +4,7 @@ import {
   applyHackathonEdit,
   eq,
   events,
-  hackathonPrizeChange,
+  hackathonPrizeRemoval,
   hackathonPrizes,
   type Db,
 } from '@founders-coffee/db';
@@ -57,7 +57,7 @@ describe("a hackathon's prizes (B-HKN-07, real D1)", () => {
     expect(first).toMatchObject({
       title: 'First prize',
       value: { amount_minor: 5_000_000, currency: 'DZD' },
-      isConfirmed: false,
+      confirmation: null,
     });
 
     const changed = versionOf(
@@ -81,7 +81,7 @@ describe("a hackathon's prizes (B-HKN-07, real D1)", () => {
     expect((await readDraft(db, eventId)).prizes).toEqual([]);
   });
 
-  it('keeps a confirmed prize as confirmed, and every prize once registration opens', async () => {
+  it('withdraws no confirmed prize, and changes no prize once registration opens', async () => {
     const open = await hackathonWithDetails(db);
     const added = versionOf(
       await addHackathonPrizeResolver(db, {
@@ -140,7 +140,7 @@ describe("a hackathon's prizes (B-HKN-07, real D1)", () => {
     ).toBe('hackathon_prize_not_found');
   });
 
-  it('moves no version when a prize was confirmed between the read and the write', async () => {
+  it('moves no version when a prize was confirmed between the read and its withdrawal', async () => {
     const { eventId, version } = await hackathonWithDetails(db);
     const added = versionOf(
       await addHackathonPrizeResolver(db, {
@@ -155,11 +155,10 @@ describe("a hackathon's prizes (B-HKN-07, real D1)", () => {
       eventId,
       version: added,
       writes: [
-        hackathonPrizeChange(db, {
+        hackathonPrizeRemoval(db, {
           eventId,
           version: added,
           prizeId: idOf(first),
-          prize: prize({ title: 'Rewritten' }),
         }),
       ],
       isSingleRow: true,

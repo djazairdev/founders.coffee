@@ -55,7 +55,10 @@ export {
   type HackathonTrackInput,
 } from './tracks.js';
 export {
+  HACKATHON_PRIZE_CONFIRMATION_NOTE_MAX_LENGTH,
+  HACKATHON_PRIZE_CONFIRMATION_NOTE_MIN_LENGTH,
   HACKATHON_PRIZE_PLACE_MAX,
+  hackathonPrizeConfirmationSchema,
   hackathonPrizeSchema,
   type HackathonPrizeInput,
 } from './prizes.js';
@@ -83,6 +86,8 @@ export {
   HACKATHON_LOCKED_FIELDS,
   isPrizeAddable,
   isPrizeChangeable,
+  isPrizeConfirmable,
+  isPrizeRemovable,
   isRubricEditable,
   isTrackRemovable,
   lockedDetailChanges,
