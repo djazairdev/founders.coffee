@@ -9,4 +9,13 @@ export interface WaitlistLaunchDueMessage {
   readonly eventId: string;
 }
 
-export type AppQueueMessage = NotificationDueMessage | WaitlistLaunchDueMessage;
+export interface HackathonInterestLaunchDueMessage {
+  readonly kind: 'hackathon_interest_launch_due';
+  readonly launchId: string;
+  readonly eventId: string;
+}
+
+export type AppQueueMessage =
+  | NotificationDueMessage
+  | WaitlistLaunchDueMessage
+  | HackathonInterestLaunchDueMessage;

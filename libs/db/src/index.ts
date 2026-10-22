@@ -37,6 +37,7 @@ export * from './chat-reports.js';
 export * from './chat-retention.js';
 export * from './waitlist.js';
 export * from './hackathon-interest.js';
+export * from './hackathon-interest-launch.js';
 export * from './organisations.js';
 export * from './organisation-invitations.js';
 export * from './organisation-roster.js';

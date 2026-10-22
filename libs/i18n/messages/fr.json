@@ -588,6 +588,9 @@
       }
     }
   ],
+  "ntf_email_hackathon_interest_subject": "Les inscriptions sont ouvertes : hackathon « {title} »",
+  "ntf_email_hackathon_interest_html": "<p>Les inscriptions au hackathon <strong>« {title} »</strong> sont ouvertes jusqu’au {date}.</p><p><a href=\"{url}\">S’inscrire au hackathon</a></p><p>Vous nous avez demandé de vous prévenir à l’ouverture des inscriptions au premier hackathon. C’est le seul email que nous vous enverrons à ce sujet.</p>",
+  "ntf_email_hackathon_interest_text": "Les inscriptions au hackathon « {title} » sont ouvertes jusqu’au {date}.\n{url}\n\nVous nous avez demandé de vous prévenir à l’ouverture des inscriptions au premier hackathon. C’est le seul email que nous vous enverrons à ce sujet.",
   "ntf_sms_confirmation": "Votre présence est confirmée pour {title}, le {date} à {venue}. À bientôt ! {url}",
   "ntf_sms_reminder_72h": "Dans 3 jours : {title}, le {date}. N’oubliez pas ! {url}",
   "ntf_sms_reminder_24h": "Demain : {title} à {venue}. Rendez-vous sur place le {date} ! {url}",

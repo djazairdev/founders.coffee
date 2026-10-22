@@ -6,7 +6,10 @@ import {
   type Result,
 } from '@founders-coffee/core';
 import type { AiRuntime, VectorizeRuntime } from '@founders-coffee/core/ai';
-import { createCloudflareEmailProvider } from '@founders-coffee/email';
+import {
+  createCloudflareEmailProvider,
+  type EmailProvider,
+} from '@founders-coffee/email';
 import { createDb } from '@founders-coffee/db';
 import { R2PhotoStore, resolveQueueKind } from '@founders-coffee/infra';
 import { strippingQueryValues } from '@founders-coffee/observability';
@@ -26,6 +29,10 @@ import { processNotificationDue } from './jobs/notifications.js';
 import { sweepProfileAssets } from './jobs/profile-asset-sweep.js';
 import { backfillCloseoutPrompts } from './jobs/closeout-prompt-backfill.js';
 import { sweepChatRetention } from './jobs/chat-retention.js';
+import {
+  processHackathonInterestLaunch,
+  sweepHackathonInterestLaunches,
+} from './jobs/hackathon-interest-launch.js';
 import { sweepExpiredHackathonInterest } from './jobs/hackathon-interest-retention.js';
 import { backfillDidNotHappenNotices } from './jobs/did-not-happen-backfill.js';
 import { runReconcile } from './jobs/reconcile.js';
@@ -34,7 +41,6 @@ import {
   processWaitlistLaunch,
   sweepExpiredWaitlistEntries,
   sweepWaitlistLaunches,
-  type WaitlistLaunchDeps,
 } from './jobs/waitlist-launch.js';
 
 export { NotificationScheduleDO } from './jobs/notification-schedule-do.js';
@@ -65,10 +71,16 @@ const createPushProvider = (env: Env): PushProvider | null => {
 };
 
 /**
- * What waitlist delivery needs: the email provider, and the queue to hand a round back to for its
- * next pass. Without a queue binding the recovery sweep carries rounds on instead.
+ * What a notice round needs, for the city waitlist and the hackathon interest list alike: the email
+ * provider, and the queue to hand a round back to for its next pass. Without a queue binding the
+ * recovery sweep carries rounds on instead.
  */
-const waitlistDeps = (env: Env): WaitlistLaunchDeps => {
+const launchDeps = <M extends AppQueueMessage>(
+  env: Env,
+): {
+  email: EmailProvider;
+  requeue?: (message: M, delaySeconds: number) => Promise<void>;
+} => {
   const email = createCloudflareEmailProvider(env.EMAIL, env.MAIL_FROM);
   const queue = env.NOTIFICATIONS;
   if (!queue) return { email };
@@ -106,7 +118,9 @@ const dispatch = async (
   if (kind === 'notifications') {
     const message = body as AppQueueMessage;
     if (message.kind === 'waitlist_launch_due')
-      return processWaitlistLaunch(db, message, waitlistDeps(env));
+      return processWaitlistLaunch(db, message, launchDeps(env));
+    if (message.kind === 'hackathon_interest_launch_due')
+      return processHackathonInterestLaunch(db, message, launchDeps(env));
     return processNotificationDue(db, message, {
       email: createCloudflareEmailProvider(env.EMAIL, env.MAIL_FROM),
       sms: createSmsProvider(env),
@@ -137,7 +151,9 @@ export default {
    * minutes is chosen against what those rows are — reminders scheduled hours ahead — not against
    * the latency of the normal path, which is now seconds rather than the up-to-a-minute the old
    * one-minute cron gave. The constant is only a name for the schedule; `triggers.crons` in
-   * `wrangler.jsonc` is what Cloudflare actually runs, and the two must agree.
+   * `wrangler.jsonc` is what Cloudflare actually runs, and the two must agree. The same tick starts
+   * the hackathon interest rounds whose registration has opened (B-ANN-05), because their approval
+   * runs where no queue is bound.
    *
    * The daily run also carries every account closed on request through to its erasure (#105), and
    * ends with the retention sweeps of the city waitlist and the meetup chat (CH-09). All are
@@ -154,7 +170,8 @@ export default {
           email: createCloudflareEmailProvider(env.EMAIL, env.MAIL_FROM),
           push: createPushProvider(env),
         });
-        await sweepWaitlistLaunches(db, waitlistDeps(env));
+        await sweepWaitlistLaunches(db, launchDeps(env));
+        await sweepHackathonInterestLaunches(db, launchDeps(env));
       }
 
       if (controller.cron === '0 3 * * *') {

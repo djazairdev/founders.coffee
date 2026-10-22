@@ -103,6 +103,14 @@ export const HACKATHON_REVIEW_STATUSES = [
 export type HackathonReviewStatus = (typeof HACKATHON_REVIEW_STATUSES)[number];
 export const hackathonReviewStatusSchema = z.enum(HACKATHON_REVIEW_STATUSES);
 
+export const HACKATHON_INTEREST_LAUNCH_STATUSES = [
+  'pending',
+  'completed',
+  'cancelled',
+] as const;
+export type HackathonInterestLaunchStatus =
+  (typeof HACKATHON_INTEREST_LAUNCH_STATUSES)[number];
+
 export const HACKATHON_TRACK_KINDS = [
   'founder_problem',
   'partner_technology',

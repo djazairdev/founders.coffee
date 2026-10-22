@@ -29,6 +29,7 @@ import {
   EVENT_KINDS,
   ATTENDANCE_MODES,
   HACKATHON_AI_POLICIES,
+  HACKATHON_INTEREST_LAUNCH_STATUSES,
   HACKATHON_JUDGE_STATUSES,
   HACKATHON_MENTOR_HELPS_WITH_MAX,
   HACKATHON_MENTOR_OFFICE_HOURS_MAX,
@@ -1632,6 +1633,8 @@ export const hackathonInterest = sqliteTable(
       .references(() => markets.code),
     locale: text('locale', { enum: [...LOCALES] }).notNull(),
     notifiedAt: integer('notified_at', { mode: 'timestamp' }),
+    sendAttempts: integer('send_attempts').notNull().default(0),
+    lastError: text('last_error'),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),
@@ -1644,10 +1647,52 @@ export const hackathonInterest = sqliteTable(
     index('hackathon_interest_notified_index')
       .on(t.notifiedAt)
       .where(sql`notified_at IS NOT NULL`),
+    index('hackathon_interest_waiting_index')
+      .on(t.marketCode, t.createdAt)
+      .where(sql`notified_at IS NULL`),
   ],
 );
 
 export type HackathonInterestRow = typeof hackathonInterest.$inferSelect;
+
+/**
+ * The registration notice owed to a market's interest list (B-ANN-05), written when the market's
+ * first hackathon is approved. At most one live or completed round per market, so only the first
+ * hackathon to open registration there sends it; a round withdrawn because its hackathon will not
+ * open leaves the market's list for the next.
+ */
+export const hackathonInterestLaunches = sqliteTable(
+  'hackathon_interest_launches',
+  {
+    id: text('id').primaryKey(),
+    eventId: text('event_id')
+      .notNull()
+      .references(() => hackathons.eventId, { onDelete: 'cascade' }),
+    marketCode: text('market_code')
+      .notNull()
+      .references(() => markets.code),
+    status: text('status', { enum: [...HACKATHON_INTEREST_LAUNCH_STATUSES] })
+      .notNull()
+      .default('pending'),
+    completedAt: integer('completed_at', { mode: 'timestamp' }),
+    cancelledAt: integer('cancelled_at', { mode: 'timestamp' }),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    uniqueIndex('hackathon_interest_launch_event_unique').on(t.eventId),
+    uniqueIndex('hackathon_interest_launch_market_unique')
+      .on(t.marketCode)
+      .where(sql`status != 'cancelled'`),
+    index('hackathon_interest_launch_pending_index')
+      .on(t.createdAt)
+      .where(sql`status = 'pending'`),
+  ],
+);
+
+export type HackathonInterestLaunchRow =
+  typeof hackathonInterestLaunches.$inferSelect;
 
 /**
  * One notice round: a published meetup telling its city's waitlist that it is coming up (#107).
