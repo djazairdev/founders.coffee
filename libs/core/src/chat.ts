@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const CHAT_OPEN_DAYS_AFTER_MEETUP = 7;
+export const CHAT_OPEN_DAYS_AFTER_HACKATHON_RESULTS = 30;
 export const CHAT_KEPT_DAYS_AFTER_MEETUP = 90;
 export const CHAT_REPORT_KEPT_MONTHS = 24;
 
