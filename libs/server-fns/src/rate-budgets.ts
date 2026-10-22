@@ -58,6 +58,11 @@ export const RATE_BUDGETS = {
       limit: 10,
       windowMs: 10 * MINUTE_MS,
     },
+    hackathonDecision: {
+      action: 'decide_hackathon',
+      limit: 60,
+      windowMs: 10 * MINUTE_MS,
+    },
     organisationDecision: {
       action: 'decide_organisation',
       limit: 60,

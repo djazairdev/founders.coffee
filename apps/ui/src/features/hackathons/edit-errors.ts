@@ -6,6 +6,8 @@ import {
   hackathon_details_error_save,
   hackathon_edit_error_details_required,
   hackathon_manage_locked,
+  hackathon_review_error_incomplete,
+  hackathon_review_error_not_submittable,
   hackathon_tracks_error_has_prizes,
   host_error_invalid,
   type Locale,
@@ -32,6 +34,10 @@ export const hackathonEditError = (
       return lockedMessage ?? hackathon_details_error_locked({}, options);
     case 'hackathon_details_required':
       return hackathon_edit_error_details_required({}, options);
+    case 'hackathon_incomplete':
+      return hackathon_review_error_incomplete({}, options);
+    case 'hackathon_not_submittable':
+      return hackathon_review_error_not_submittable({}, options);
     case 'hackathon_track_has_prizes':
       return hackathon_tracks_error_has_prizes({}, options);
     case 'validation_failed':

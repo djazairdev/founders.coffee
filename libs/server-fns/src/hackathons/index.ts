@@ -35,3 +35,7 @@ export { withdrawFromHackathon } from './withdrawal-rpc.js';
 export type { Withdrawn } from './withdrawal.js';
 export { createHackathonTeam } from './team-creation-rpc.js';
 export type { TeamCreated } from './team-creation.js';
+export {
+  submitHackathonForReview,
+  type SubmitHackathonForReviewRequest,
+} from './review-rpc.js';

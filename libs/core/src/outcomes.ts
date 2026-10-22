@@ -159,6 +159,9 @@ export const HACKATHON_ERROR_CODES = [
   'hackathon_track_has_prizes',
   'hackathon_prize_not_found',
   'withdrawal_closed',
+  'hackathon_not_submittable',
+  'hackathon_incomplete',
+  'invalid_hackathon_transition',
 ] as const;
 export type HackathonErrorCode = (typeof HACKATHON_ERROR_CODES)[number];
 export const hackathonErrorCodeSchema = z.enum(HACKATHON_ERROR_CODES);

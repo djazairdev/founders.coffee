@@ -24,6 +24,12 @@ const mocks = vi.hoisted(() => ({
     error: null,
     data: undefined,
   },
+  submit: {
+    mutate: vi.fn(),
+    isPending: false,
+    isError: false,
+    error: null as unknown,
+  },
   save: {
     mutate: vi.fn(),
     reset: vi.fn(),
@@ -53,6 +59,7 @@ vi.mock('../hooks', () => ({
   useSaveHackathonDetails: () => mocks.save,
   useSaveHackathonTracks: () => mocks.saveTracks,
   useSaveHackathonRubric: () => mocks.saveTracks,
+  useSubmitHackathonForReview: () => mocks.submit,
 }));
 
 const markets = [
@@ -268,5 +275,18 @@ describe('HackathonManagePage (B-HKN-12)', () => {
     ).toBeTruthy();
     expect(screen.getByLabelText('بدء التسجيل')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'حفظ' })).toBeTruthy();
+  });
+
+  it('shows a hackathon with the reviewers as in review, instead of the forms', () => {
+    mocks.draft.data = draftView({
+      isEditable: false,
+      review: { status: 'submitted', note: null, gaps: [] },
+    });
+    renderPage();
+
+    expect(screen.getByText('In review')).toBeTruthy();
+    expect(screen.getByText(/^Sent for review\./)).toBeTruthy();
+    expect(screen.queryByText(/can no longer be changed/)).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();
   });
 });
