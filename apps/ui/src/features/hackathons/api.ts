@@ -4,12 +4,15 @@ import {
   cancelHackathonTeamRequest,
   createHackathonTeam,
   createHackathonTeamInvite,
+  getHackathonLookingForTeam,
   getHackathonTeamPage,
   joinHackathonTeam,
   leaveHackathonTeam,
   passHackathonTeamCaptaincy,
   removeHackathonTeamMember,
+  requestToJoinHackathonTeam,
   revokeHackathonTeamInvite,
+  type LookingForTeamView,
   type TeamInviteCreated,
   type TeamPageView,
   changeHackathonPrize,
@@ -68,6 +71,8 @@ type TeamRequestAnswer = EventScoped & { readonly requestId: string };
 
 export const teamsApi = {
   page: (eventId: string) => getHackathonTeamPage({ data: { eventId } }),
+  looking: (eventId: string) =>
+    getHackathonLookingForTeam({ data: { eventId } }),
   create: (request: {
     readonly eventId: string;
     readonly name: string;
@@ -82,6 +87,8 @@ export const teamsApi = {
   answerRequest: (
     request: TeamRequestAnswer & { readonly decision: 'accept' | 'decline' },
   ) => answerHackathonTeamRequest({ data: request }),
+  request: (request: EventScoped & { readonly teamId: string }) =>
+    requestToJoinHackathonTeam({ data: request }),
   cancelRequest: (request: TeamRequestAnswer) =>
     cancelHackathonTeamRequest({ data: request }),
   leave: (request: EventScoped) => leaveHackathonTeam({ data: request }),
@@ -93,6 +100,7 @@ export const teamsApi = {
 
 export type {
   AddHackathonPrizeRequest,
+  LookingForTeamView,
   TeamInviteCreated,
   TeamPageView,
   HackathonSchedule,

@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { teamsApi, type TeamInviteCreated, type TeamPageView } from './api';
+import {
+  teamsApi,
+  type LookingForTeamView,
+  type TeamInviteCreated,
+  type TeamPageView,
+} from './api';
 
 const TEAM = ['hackathons', 'team'] as const;
 
@@ -11,7 +16,17 @@ export const useTeamPage = (eventId: string) =>
     queryFn: () => teamsApi.page(eventId),
   });
 
-/** A team change that reads the team page again once it lands, whether it worked or not. */
+/**
+ * The teams and participants looking for each other (B-TEAM-08), kept under the team page's key so
+ * every team change reads it again too.
+ */
+export const useLookingForTeam = (eventId: string) =>
+  useQuery<LookingForTeamView>({
+    queryKey: [...TEAM, eventId, 'looking'],
+    queryFn: () => teamsApi.looking(eventId),
+  });
+
+/** A team change that reads the team pages again once it lands, whether it worked or not. */
 const useTeamChange = <Input, Output>(
   eventId: string,
   change: (input: Input) => Promise<Output>,
@@ -58,6 +73,12 @@ export const useAnswerTeamRequest = (eventId: string) =>
       readonly requestId: string;
       readonly decision: 'accept' | 'decline';
     }) => teamsApi.answerRequest({ eventId, ...input }),
+  );
+
+/** Ask to join a team. */
+export const useRequestToJoinTeam = (eventId: string) =>
+  useTeamChange(eventId, (teamId: string) =>
+    teamsApi.request({ eventId, teamId }),
   );
 
 /** Withdraw the member's own request to join a team. */

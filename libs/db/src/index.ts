@@ -80,6 +80,7 @@ export * from './hackathon-withdrawal.js';
 export * from './hackathon-team-creation.js';
 export * from './hackathon-team-invites.js';
 export * from './hackathon-team-page.js';
+export * from './hackathon-looking.js';
 export * from './hackathon-dashboard.js';
 export * from './hackathon-places.js';
 export * from './hackathon-judges.js';

@@ -1,51 +1,34 @@
 import { Link } from '@tanstack/react-router';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 
 import {
-  hackathon_team_back,
   hackathon_team_deadline,
   hackathon_team_error,
+  hackathon_team_find,
   hackathon_team_joined,
   hackathon_team_loading,
   hackathon_team_locked,
-  hackathon_team_not_found,
   hackathon_team_not_registered,
   hackathon_team_size,
   hackathon_team_title,
   hackathon_team_waitlisted,
-  retry,
   type Locale,
 } from '@founders-coffee/i18n';
-import { Button, LoadingStatus, StatusMessage } from '@founders-coffee/ui';
+import { StatusMessage } from '@founders-coffee/ui';
 
-import { localizedEvent } from '../../../lib/locale-routing';
+import { localizedHackathonLooking } from '../../../lib/locale-routing';
 import type { RootMarket } from '../../markets/api';
 import type { TeamPageView } from '../api';
-import { isHackathonMissing, isHackathonsDisabled } from '../errors';
 import { scheduleMoment } from '../schedule';
 import { useTeamPage } from '../team-hooks';
-import { HackathonsUnavailable } from './HackathonsUnavailable';
 import { HackathonTeamCreateForm } from './HackathonTeamCreateForm';
+import { HackathonTeamFrame } from './HackathonTeamFrame';
 import { HackathonTeamInviteLink } from './HackathonTeamInviteLink';
 import { HackathonTeamJoin } from './HackathonTeamJoin';
 import { HackathonTeamMembers } from './HackathonTeamMembers';
 import { HackathonTeamOwnRequests } from './HackathonTeamOwnRequests';
+import { HackathonTeamQueryStatus } from './HackathonTeamQueryStatus';
 import { HackathonTeamRequests } from './HackathonTeamRequests';
-
-const Shell = ({
-  locale,
-  children,
-}: {
-  locale: Locale;
-  children: ReactNode;
-}) => (
-  <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:py-12">
-    <h1 className="font-display text-h3">
-      {hackathon_team_title({}, { locale })}
-    </h1>
-    {children}
-  </div>
-);
 
 const Team = ({
   view,
@@ -153,56 +136,36 @@ export const HackathonTeamPage = ({
   const query = useTeamPage(eventId);
   const [joinedTeamId, setJoinedTeamId] = useState<string | null>(null);
   const view = query.data;
+  const title = hackathon_team_title({}, { locale });
   if (!view)
     return (
-      <Shell locale={locale}>
-        {query.isError ? (
-          isHackathonsDisabled(query.error) ? (
-            <div className="mt-6">
-              <HackathonsUnavailable locale={locale} />
-            </div>
-          ) : isHackathonMissing(query.error) ? (
-            <StatusMessage variant="warning" className="mt-6">
-              {hackathon_team_not_found({}, { locale })}
-            </StatusMessage>
-          ) : (
-            <StatusMessage
-              variant="error"
-              className="mt-6"
-              action={
-                <Button variant="outline" onClick={() => void query.refetch()}>
-                  {retry({}, { locale })}
-                </Button>
-              }
-            >
-              {hackathon_team_error({}, { locale })}
-            </StatusMessage>
-          )
-        ) : (
-          <LoadingStatus
-            className="mt-6"
-            label={hackathon_team_loading({}, { locale })}
-          />
-        )}
-      </Shell>
+      <HackathonTeamFrame
+        title={title}
+        locale={locale}
+        markets={markets}
+        event={null}
+      >
+        <HackathonTeamQueryStatus
+          isError={query.isError}
+          error={query.error}
+          onRetry={() => void query.refetch()}
+          errorLabel={hackathon_team_error({}, { locale })}
+          loadingLabel={hackathon_team_loading({}, { locale })}
+          locale={locale}
+        />
+      </HackathonTeamFrame>
     );
 
-  const market = markets.find((item) => item.code === view.event.marketCode);
-  const timeZone = market?.timezone ?? 'UTC';
+  const timeZone =
+    markets.find((item) => item.code === view.event.marketCode)?.timezone ??
+    'UTC';
   return (
-    <Shell locale={locale}>
-      {market ? (
-        <Link
-          {...localizedEvent(locale, market.slug, view.event.slug)}
-          className="link link-hover mt-1 inline-block text-body-sm text-neutral"
-        >
-          <bdi>{view.event.title}</bdi>
-          <span className="sr-only">
-            {' '}
-            {hackathon_team_back({}, { locale })}
-          </span>
-        </Link>
-      ) : null}
+    <HackathonTeamFrame
+      title={title}
+      locale={locale}
+      markets={markets}
+      event={view.event}
+    >
       <p className="mt-3 text-body-sm text-neutral">
         {view.canChangeTeams
           ? hackathon_team_deadline(
@@ -221,6 +184,14 @@ export const HackathonTeamPage = ({
           { locale },
         )}
       </p>
+      {view.registration === 'registered' ? (
+        <Link
+          {...localizedHackathonLooking(locale, eventId)}
+          className="link link-hover mt-2 inline-block text-body-sm font-medium text-secondary"
+        >
+          {hackathon_team_find({}, { locale })}
+        </Link>
+      ) : null}
       <Team
         view={view}
         joinToken={joinToken}
@@ -232,6 +203,6 @@ export const HackathonTeamPage = ({
         locale={locale}
         timeZone={timeZone}
       />
-    </Shell>
+    </HackathonTeamFrame>
   );
 };
