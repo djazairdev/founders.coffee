@@ -1,12 +1,19 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+} from '@tanstack/react-query';
 
 import {
   hackathonsApi,
   type CreateHackathonDraftRequest,
   type HackathonDraftCreated,
+  type HackathonEditSaved,
   type HackathonDraftView,
   type JoinHackathonInterestArgs,
   type SaveHackathonDetailsRequest,
+  type SaveHackathonTracksRequest,
 } from './api';
 
 const DRAFT = ['hackathons', 'draft'] as const;
@@ -37,16 +44,31 @@ export const useHackathonDraft = (eventId: string) =>
     queryFn: () => hackathonsApi.draft(eventId),
   });
 
-/** Save a hackathon's second step; the hackathon is read again after. */
+/**
+ * After an edit lands: the cached hackathon takes the new version at once, so the next section
+ * saved is not refused as stale while the hackathon is read again.
+ */
+const afterEdit = (cache: QueryClient, saved: HackathonEditSaved) => {
+  cache.setQueryData<HackathonDraftView>([...DRAFT, saved.eventId], (draft) =>
+    draft ? { ...draft, version: saved.version } : draft,
+  );
+  return cache.invalidateQueries({ queryKey: [...DRAFT, saved.eventId] });
+};
+
+/** Save a hackathon's rules and who can take part; the hackathon is read again after. */
 export const useSaveHackathonDetails = () => {
   const cache = useQueryClient();
-  return useMutation<
-    { readonly eventId: string },
-    Error,
-    SaveHackathonDetailsRequest
-  >({
+  return useMutation<HackathonEditSaved, Error, SaveHackathonDetailsRequest>({
     mutationFn: (request) => hackathonsApi.saveDetails(request),
-    onSuccess: (_saved, request) =>
-      cache.invalidateQueries({ queryKey: [...DRAFT, request.eventId] }),
+    onSuccess: (saved) => afterEdit(cache, saved),
+  });
+};
+
+/** Save a hackathon's tracks; the hackathon is read again after. */
+export const useSaveHackathonTracks = () => {
+  const cache = useQueryClient();
+  return useMutation<HackathonEditSaved, Error, SaveHackathonTracksRequest>({
+    mutationFn: (request) => hackathonsApi.saveTracks(request),
+    onSuccess: (saved) => afterEdit(cache, saved),
   });
 };
