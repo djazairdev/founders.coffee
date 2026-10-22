@@ -77,6 +77,8 @@ export type {
 } from './mentors.js';
 export { saveHackathonSubmissionDraft } from './submission-drafts-rpc.js';
 export type { SubmissionDraftSaved } from './submission-drafts.js';
+export { submitHackathonSubmission } from './submission-submit-rpc.js';
+export type { SubmissionSubmitted } from './submission-submit.js';
 export {
   leaveHackathonTeam,
   passHackathonTeamCaptaincy,

@@ -83,6 +83,11 @@ export {
   type SubmissionDraftSaveInput,
 } from './submission-drafts.js';
 export {
+  decideSubmit,
+  submissionSubmitSchema,
+  type SubmissionSubmitInput,
+} from './submission-submit.js';
+export {
   checkSubmission,
   SUBMISSION_AI_TOOL_LIMIT,
   SUBMISSION_PULL_REQUEST_LIMIT,
