@@ -68,6 +68,11 @@ export const RATE_BUDGETS = {
       limit: 10,
       windowMs: 10 * MINUTE_MS,
     },
+    hackathonRecusal: {
+      action: 'recuse_hackathon_entry',
+      limit: 20,
+      windowMs: 10 * MINUTE_MS,
+    },
     hackathonMentorNote: {
       action: 'save_hackathon_mentor_note',
       limit: 20,

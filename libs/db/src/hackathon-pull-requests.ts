@@ -6,6 +6,7 @@ import type {
 } from '@founders-coffee/core';
 
 import type { Db } from './db.js';
+import { lastSubmittedVersion } from './hackathon-submitted-version.js';
 import {
   events,
   hackathonPullRequests,
@@ -31,8 +32,6 @@ export type HackathonPullRequestRow = {
   }[];
 };
 
-const lastSubmitted = sql`${hackathonSubmissionVersions.version} = (SELECT max(v.version) FROM hackathon_submission_versions v WHERE v.submission_id = ${hackathonSubmissionVersions.submissionId})`;
-
 /**
  * An entry of a hackathon as recording its pull requests needs it (B-SUB-08): its status, the pull
  * requests of the version it last submitted, and whether the results are out. `null` when the entry
@@ -54,7 +53,7 @@ export const readPullRequestEntry = async (
       hackathonSubmissionVersions,
       and(
         eq(hackathonSubmissionVersions.submissionId, hackathonSubmissions.id),
-        lastSubmitted,
+        lastSubmittedVersion,
       ),
     )
     .where(
@@ -146,7 +145,7 @@ export const listHackathonPullRequests = async (
       hackathonSubmissionVersions,
       and(
         eq(hackathonSubmissionVersions.submissionId, hackathonSubmissions.id),
-        lastSubmitted,
+        lastSubmittedVersion,
       ),
     )
     .where(
