@@ -199,3 +199,12 @@ export {
   type JudgeScoresInput,
   type JudgeScoreValue,
 } from './judge-scores.js';
+export {
+  judgeEntryState,
+  judgeProgressOf,
+  judgingStageAt,
+  type JudgeEntryState,
+  type JudgeProgress,
+  type JudgingStage,
+  type JudgingWindow,
+} from './judge-progress.js';

@@ -13,6 +13,7 @@ import {
   listJudgeEntriesResolver,
   recuseFromEntryResolver,
 } from './judge-entries.js';
+import { judgePageResolver } from './judge-page.js';
 import { saveJudgeScoresResolver } from './judge-scores.js';
 
 const { hackathonRecusal, hackathonScoreSave } = RATE_BUDGETS.edit;
@@ -28,6 +29,23 @@ export const getHackathonJudgeEntries = createServerFn({ strict: false })
     privateNoStore();
     return handleResult(
       listJudgeEntriesResolver(getDb(), {
+        eventId: data.eventId,
+        userId: requireAuth(context.session).user.id,
+      }),
+    );
+  });
+
+/**
+ * The signed-in member's judge page for a hackathon (B-JDG-06): their entries and progress when
+ * they judge it and judging is open, and where judging stands otherwise.
+ */
+export const getHackathonJudgePage = createServerFn({ strict: false })
+  .middleware([requirePermission('judging', 'score')])
+  .validator(appValidator(hackathons.judgeEntriesSchema))
+  .handler(({ context, data }) => {
+    privateNoStore();
+    return handleResult(
+      judgePageResolver(getDb(), {
         eventId: data.eventId,
         userId: requireAuth(context.session).user.id,
       }),
