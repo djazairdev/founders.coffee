@@ -38,6 +38,8 @@ describe('repeatDraftFrom', () => {
       kind: 'meetup',
       hostAs: null,
       tags: [],
+      format: 'in_person',
+      meetingUrl: '',
       chosenLanguages: ['ar'],
     });
   });

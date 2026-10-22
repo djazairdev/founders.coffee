@@ -20,13 +20,17 @@ import type { EventDetailItem } from '@founders-coffee/server-fns';
 
 import { hostCreateViewCopy } from '../host-create-copy';
 import {
+  editsMeetingLink,
+  editsVenue,
   hasPlaceMoved,
   hasScheduleMoved,
+  meetingUrlProblem,
   nameFor,
   type EventEditDraft,
 } from '../event-edit-draft';
 import { DatetimePicker } from '../../../components/host/DatetimePicker';
 import { HostDetailsStep } from '../../../components/host/HostDetailsStep';
+import { HostMeetingLinkField } from '../../../components/host/HostMeetingLinkField';
 import { EventEditVenue } from './EventEditVenue';
 
 const scheduleMessage = (error: ZonedDateTimeError, locale: Locale): string => {
@@ -67,6 +71,7 @@ export const EventEditForm = ({
   const placeMoved = hasPlaceMoved(event, draft);
   const others = Math.max(0, event.goingCount - 1);
   const willNotify = (timeMoved || placeMoved) && others > 0;
+  const linkProblem = meetingUrlProblem(event, draft, locale);
   const patch = (next: Partial<EventEditDraft>) =>
     onDraftChange({ ...draft, ...next });
 
@@ -98,32 +103,47 @@ export const EventEditForm = ({
         <legend className="mb-1 font-display text-body-lg font-semibold">
           {host_edit_where({}, { locale })}
         </legend>
-        <label className="flex flex-col" htmlFor="edit-venue-name">
-          <span className="mb-1 text-body-sm text-neutral">
-            {host_venue_name_label({}, { locale })}
-          </span>
-          <input
-            id="edit-venue-name"
-            className="input input-sm md:input-md w-full"
-            dir="auto"
-            value={draft.venueName}
-            maxLength={constraints.venueNameMax}
-            placeholder={host_venue_name_ph({}, { locale })}
-            onChange={(changed) => patch({ venueName: changed.target.value })}
+        {editsMeetingLink(event) && (
+          <HostMeetingLinkField
+            id="edit-meeting-url"
+            locale={locale}
+            value={draft.meetingUrl}
+            error={linkProblem ?? undefined}
+            onChange={(meetingUrl) => patch({ meetingUrl })}
           />
-        </label>
-        <EventEditVenue
-          locale={locale}
-          event={event}
-          mapboxToken={mapboxToken}
-          venue={draft.venue}
-          searchValue={draft.venueSearch}
-          onSearchChange={(venueSearch) => patch({ venueSearch })}
-          onVenueSelect={(picked) =>
-            patch({ venue: picked, venueName: nameFor(draft, picked) })
-          }
-          onVenueInvalidate={() => patch({ venue: null })}
-        />
+        )}
+        {editsVenue(event) && (
+          <>
+            <label className="flex flex-col" htmlFor="edit-venue-name">
+              <span className="mb-1 text-body-sm text-neutral">
+                {host_venue_name_label({}, { locale })}
+              </span>
+              <input
+                id="edit-venue-name"
+                className="input input-sm md:input-md w-full"
+                dir="auto"
+                value={draft.venueName}
+                maxLength={constraints.venueNameMax}
+                placeholder={host_venue_name_ph({}, { locale })}
+                onChange={(changed) =>
+                  patch({ venueName: changed.target.value })
+                }
+              />
+            </label>
+            <EventEditVenue
+              locale={locale}
+              event={event}
+              mapboxToken={mapboxToken}
+              venue={draft.venue}
+              searchValue={draft.venueSearch}
+              onSearchChange={(venueSearch) => patch({ venueSearch })}
+              onVenueSelect={(picked) =>
+                patch({ venue: picked, venueName: nameFor(draft, picked) })
+              }
+              onVenueInvalidate={() => patch({ venue: null })}
+            />
+          </>
+        )}
       </fieldset>
 
       <fieldset className="grid gap-2">
@@ -155,7 +175,10 @@ export const EventEditForm = ({
           variant="primary"
           className="w-fit"
           disabled={
-            isPending || scheduleError !== null || draft.languages.length === 0
+            isPending ||
+            scheduleError !== null ||
+            linkProblem !== null ||
+            draft.languages.length === 0
           }
         >
           {isPending ? saving({}, { locale }) : host_edit_save({}, { locale })}

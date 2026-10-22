@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import type { Topic } from '@founders-coffee/core';
+import type { EventFormat, Topic } from '@founders-coffee/core';
 import type { Locale } from '@founders-coffee/i18n';
 
 import {
@@ -31,10 +31,12 @@ import type { HostEventKind, MeetupLanguage, VenueSelection } from './types';
 export const useHostCreateDraftState = ({
   locale,
   marketCode,
+  cityCode,
   repeatTemplate,
 }: {
   locale: Locale;
   marketCode: string;
+  cityCode?: string;
   repeatTemplate?: RepeatEventTemplate | null;
 }) => {
   const [step, setStep] = useState(1);
@@ -51,10 +53,14 @@ export const useHostCreateDraftState = ({
   >(null);
   const [hostAs, setHostAs] = useState<string | null>(null);
   const [tags, setTags] = useState<Topic[]>([]);
+  const [format, setFormat] = useState<EventFormat>('in_person');
+  const [meetingUrl, setMeetingUrl] = useState('');
   const [hasRestoredDraft, setHasRestoredDraft] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
   const repeat =
     repeatTemplate?.marketCode === marketCode ? repeatTemplate : null;
+  const cityCodeRef = useRef(cityCode);
+  cityCodeRef.current = cityCode;
 
   const draft: HostCreateDraft = {
     step,
@@ -69,6 +75,8 @@ export const useHostCreateDraftState = ({
     chosenLanguages,
     hostAs,
     tags,
+    format,
+    meetingUrl,
   };
 
   useEffect(() => {
@@ -84,13 +92,15 @@ export const useHostCreateDraftState = ({
       setChosenLanguages(next.chosenLanguages);
       setHostAs(next.hostAs);
       setTags(next.tags);
+      setFormat(next.format);
+      setMeetingUrl(next.meetingUrl);
     };
     setIsRepeat(repeat !== null);
     const restored = repeat
       ? readHostCreateDraft(marketCode, repeat.sourceEventId)
       : readHostCreateDraft(marketCode);
     if (restored) {
-      setStep(restoredDraftStep(restored, locale));
+      setStep(restoredDraftStep(restored, cityCodeRef.current, locale));
       apply(restored);
     } else if (repeat) {
       const repeated = repeatDraftFrom(repeat);
@@ -117,6 +127,8 @@ export const useHostCreateDraftState = ({
         chosenLanguages,
         hostAs,
         tags,
+        format,
+        meetingUrl,
       },
       repeat?.sourceEventId,
     );
@@ -136,6 +148,8 @@ export const useHostCreateDraftState = ({
     chosenLanguages,
     hostAs,
     tags,
+    format,
+    meetingUrl,
   ]);
 
   return {
@@ -153,5 +167,7 @@ export const useHostCreateDraftState = ({
     setChosenLanguages,
     setHostAs,
     setTags,
+    setFormat,
+    setMeetingUrl,
   };
 };

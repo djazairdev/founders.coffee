@@ -23,6 +23,7 @@ const edited: EventEditDraft = {
   startsAt: Date.parse('2099-09-20T10:00:00Z'),
   endsAt: Date.parse('2099-09-20T12:00:00Z'),
   languages: ['ar', 'fr'],
+  meetingUrl: 'https://meet.example.com/founders',
 };
 
 beforeEach(() => window.sessionStorage.clear());
@@ -65,6 +66,24 @@ describe('the edits a host has not saved', () => {
 
     expect(readEventEditDraft('evt_1', 3)).toBeNull();
     expect(window.sessionStorage.getItem('fc:event-edit:evt_1')).toBeNull();
+  });
+
+  it('are dropped when they were kept before the form had a meeting link', () => {
+    const before = Object.fromEntries(
+      Object.entries(edited).filter(([key]) => key !== 'meetingUrl'),
+    );
+    window.sessionStorage.setItem(
+      'fc:event-edit:evt_1',
+      JSON.stringify({
+        version: 1,
+        savedAt: Date.now(),
+        eventId: 'evt_1',
+        eventVersion: 3,
+        ...before,
+      }),
+    );
+
+    expect(readEventEditDraft('evt_1', 3)).toBeNull();
   });
 
   it('are gone once cleared', () => {

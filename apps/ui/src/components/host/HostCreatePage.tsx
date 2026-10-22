@@ -18,6 +18,7 @@ import {
 import { useAuth } from '../../lib/app-providers';
 import type { SocialProvider } from '../auth/SocialSignIn';
 import { HostMapPanel } from './HostMapPanel';
+import { HostOnlinePanel } from './HostOnlinePanel';
 import { HostStepHeading } from './HostStepHeading';
 import { HostWizardActions } from './HostWizardActions';
 import { HostWizardHeader } from './HostWizardHeader';
@@ -100,7 +101,7 @@ export const HostCreatePage = ({
   return (
     <div
       className={`grid min-h-dvh grid-cols-1 lg:h-[calc(100vh-4rem)] lg:min-h-0 lg:grid-cols-[26rem_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)_auto] xl:grid-cols-[30rem_minmax(0,1fr)] ${
-        wizard.step === 1
+        wizard.step === 1 && wizard.isVenueFormat
           ? 'grid-rows-[auto_auto_minmax(16rem,1fr)_auto]'
           : 'grid-rows-[auto_1fr_auto]'
       }`}
@@ -132,7 +133,7 @@ export const HostCreatePage = ({
         <HostWizardStepBody
           locale={locale}
           market={market}
-          cityCode={city?.code}
+          city={city}
           wizard={wizard}
           venueOverlay={venueOverlay}
           listCenter={listCenter}
@@ -143,32 +144,36 @@ export const HostCreatePage = ({
 
       <div
         className={`min-h-0 lg:col-start-2 lg:row-span-3 lg:row-start-1 ${
-          wizard.step === 1 ? '' : 'hidden lg:block'
+          wizard.step === 1 && wizard.isVenueFormat ? '' : 'hidden lg:block'
         }`}
       >
-        <HostMapPanel
-          locale={locale}
-          accessToken={mapboxToken}
-          marketCode={market.code}
-          cityCode={city?.code}
-          venue={wizard.venue}
-          viewport={mapContext.data}
-          error={mapContext.error}
-          isInteractive={wizard.step === 1}
-          covered={wizard.step === 1 ? venueOverlay.covered : 0}
-          onRetry={() => void mapContext.refetch()}
-          onCitySelect={wizard.isRepeat ? undefined : switchCity}
-          onVenueSelect={wizard.selectVenue}
-          onVenueInvalidate={wizard.clearVenue}
-          onCenterChange={(center) =>
-            setMapCenter({ ...center, cityCode: city?.code })
-          }
-          onSearch={
-            venueOverlay.isSearchOpen ? undefined : venueOverlay.openSearch
-          }
-          onMiss={venueOverlay.offerPlaces}
-          {...venueOverlay.map}
-        />
+        {wizard.isVenueFormat ? (
+          <HostMapPanel
+            locale={locale}
+            accessToken={mapboxToken}
+            marketCode={market.code}
+            cityCode={city?.code}
+            venue={wizard.venue}
+            viewport={mapContext.data}
+            error={mapContext.error}
+            isInteractive={wizard.step === 1}
+            covered={wizard.step === 1 ? venueOverlay.covered : 0}
+            onRetry={() => void mapContext.refetch()}
+            onCitySelect={wizard.isRepeat ? undefined : switchCity}
+            onVenueSelect={wizard.selectVenue}
+            onVenueInvalidate={wizard.clearVenue}
+            onCenterChange={(center) =>
+              setMapCenter({ ...center, cityCode: city?.code })
+            }
+            onSearch={
+              venueOverlay.isSearchOpen ? undefined : venueOverlay.openSearch
+            }
+            onMiss={venueOverlay.offerPlaces}
+            {...venueOverlay.map}
+          />
+        ) : (
+          <HostOnlinePanel locale={locale} />
+        )}
       </div>
 
       {!wizard.isAuthGateOpen && (
@@ -181,7 +186,8 @@ export const HostCreatePage = ({
           isPublishing={wizard.publishing}
           onBack={wizard.prev}
           onNext={() => {
-            if (!wizard.venue) venueOverlay.offerPlaces();
+            if (wizard.isVenueFormat && !wizard.venue)
+              venueOverlay.offerPlaces();
             wizard.next();
           }}
         />

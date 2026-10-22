@@ -1172,5 +1172,21 @@
   "org_apply_error_website": "Saisissez une adresse web complète, comme https://example.org.",
   "org_apply_error_rate_limited": "Vous avez envoyé plusieurs demandes récemment. Réessayez dans une heure.",
   "org_apply_error_failed": "La demande n’a pas pu être envoyée. Réessayez.",
-  "org_apply_link": "Inscrire une organisation"
+  "org_apply_link": "Inscrire une organisation",
+  "host_format_label": "Format",
+  "host_format_in_person": "En présentiel",
+  "host_format_online": "En ligne",
+  "host_format_hybrid": "Hybride",
+  "host_format_in_person_hint": "Dans un café ou un autre lieu.",
+  "host_format_online_hint": "En visio, sans lieu.",
+  "host_format_hybrid_hint": "Sur place, avec un lien pour qui participe à distance.",
+  "host_meeting_url_label": "Lien de la réunion",
+  "host_meeting_url_hint": "Seuls vous et les membres inscrits le voyez.",
+  "host_online_region": "Région",
+  "host_online_region_choose": "Choisissez une région",
+  "host_online_city": "Ville",
+  "host_online_city_choose": "Choisissez une ville",
+  "host_online_city_hint": "La rencontre apparaît sur la page de cette ville.",
+  "host_online_panel_title": "Pas besoin de carte",
+  "host_online_panel": "Une rencontre en ligne n’a pas de lieu. Les membres inscrits voient son lien sur la page de la rencontre."
 }

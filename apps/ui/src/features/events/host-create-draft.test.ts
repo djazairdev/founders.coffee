@@ -28,6 +28,8 @@ const draft: HostCreateDraft = {
   chosenLanguages: ['ar', 'fr'],
   hostAs: null,
   tags: [],
+  format: 'in_person',
+  meetingUrl: '',
 };
 
 describe('host create draft', () => {
@@ -224,6 +226,8 @@ describe('AR: a draft this module wrote is always readable', () => {
     chosenLanguages: null,
     hostAs: null,
     tags: [],
+    format: 'in_person' as const,
+    meetingUrl: '',
   };
 
   it('survives a venue search value longer than the schema allows', () => {

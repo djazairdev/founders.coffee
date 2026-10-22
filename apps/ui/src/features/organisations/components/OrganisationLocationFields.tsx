@@ -11,9 +11,9 @@ import {
 } from '@founders-coffee/i18n';
 import { Select } from '@founders-coffee/ui';
 
+import { RegionCitySelects } from '../../../components/geo/RegionCitySelects';
 import type { RootMarket } from '../../markets/api';
-import { useMarketStates, useStateCities } from '../../geo/hooks';
-import { ApplicationField, fieldNoteId } from './ApplicationField';
+import { ApplicationField } from './ApplicationField';
 
 export const OrganisationLocationFields = ({
   locale,
@@ -39,78 +39,47 @@ export const OrganisationLocationFields = ({
   onMarket: (marketCode: string) => void;
   onState: (stateCode: string) => void;
   onCity: (cityCode: string) => void;
-}) => {
-  const states = useMarketStates(marketCode);
-  const cities = useStateCities(marketCode, stateCode);
-  const optionalLabel = optional({}, { locale });
-  return (
-    <>
-      <ApplicationField
+}) => (
+  <>
+    <ApplicationField
+      id="organisation-market"
+      label={org_apply_market({}, { locale })}
+      optionalLabel={optional({}, { locale })}
+    >
+      <Select
+        disabled={isDisabled}
         id="organisation-market"
-        label={org_apply_market({}, { locale })}
-        optionalLabel={optionalLabel}
+        onChange={(event) => onMarket(event.target.value)}
+        value={marketCode}
       >
-        <Select
-          disabled={isDisabled}
-          id="organisation-market"
-          onChange={(event) => onMarket(event.target.value)}
-          value={marketCode}
-        >
-          {markets.map((market) => (
-            <option key={market.code} value={market.code}>
-              {localizedName(market, locale)}
-            </option>
-          ))}
-        </Select>
-      </ApplicationField>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <ApplicationField
-          id="organisation-state"
-          isOptional
-          label={org_apply_state({}, { locale })}
-          optionalLabel={optionalLabel}
-        >
-          <Select
-            disabled={isDisabled || !states.data}
-            id="organisation-state"
-            onChange={(event) => onState(event.target.value)}
-            value={stateCode}
-          >
-            <option value="">{org_apply_state_none({}, { locale })}</option>
-            {(states.data ?? []).map((state) => (
-              <option key={state.code} value={state.code}>
-                {localizedName(state, locale)}
-              </option>
-            ))}
-          </Select>
-        </ApplicationField>
-        <ApplicationField
-          error={isCityInvalid ? org_apply_error_city({}, { locale }) : null}
-          id="organisation-city"
-          isOptional
-          label={org_apply_city({}, { locale })}
-          optionalLabel={optionalLabel}
-        >
-          <Select
-            aria-describedby={
-              isCityInvalid ? fieldNoteId('organisation-city') : undefined
-            }
-            aria-invalid={isCityInvalid || undefined}
-            disabled={isDisabled || !stateCode || !cities.data}
-            id="organisation-city"
-            onChange={(event) => onCity(event.target.value)}
-            ref={cityRef}
-            value={cityCode}
-          >
-            <option value="">{org_apply_city_none({}, { locale })}</option>
-            {(cities.data ?? []).map((city) => (
-              <option key={city.code} value={city.code}>
-                {localizedName(city, locale)}
-              </option>
-            ))}
-          </Select>
-        </ApplicationField>
-      </div>
-    </>
-  );
-};
+        {markets.map((market) => (
+          <option key={market.code} value={market.code}>
+            {localizedName(market, locale)}
+          </option>
+        ))}
+      </Select>
+    </ApplicationField>
+    <RegionCitySelects
+      cityCode={cityCode}
+      cityId="organisation-city"
+      cityNote={isCityInvalid ? org_apply_error_city({}, { locale }) : null}
+      cityRef={cityRef}
+      isCityInvalid={isCityInvalid}
+      isDisabled={isDisabled}
+      isOptional
+      labels={{
+        region: org_apply_state({}, { locale }),
+        city: org_apply_city({}, { locale }),
+        noRegion: org_apply_state_none({}, { locale }),
+        noCity: org_apply_city_none({}, { locale }),
+        optional: optional({}, { locale }),
+      }}
+      locale={locale}
+      marketCode={marketCode}
+      onCity={(city) => onCity(city?.code ?? '')}
+      onState={onState}
+      regionId="organisation-state"
+      stateCode={stateCode}
+    />
+  </>
+);

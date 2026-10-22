@@ -2,6 +2,8 @@ import { eventLanguages, hasVenueMoved } from '@founders-coffee/core';
 import { events } from '@founders-coffee/domain';
 import type { EventDetailItem } from '@founders-coffee/server-fns';
 
+import { profile_link_invalid, type Locale } from '@founders-coffee/i18n';
+
 import type { MeetupLanguage, VenueSelection } from './types';
 
 const MAX_ADDRESS_LENGTH = 500;
@@ -16,6 +18,7 @@ export type EventEditDraft = {
   startsAt: number | null;
   endsAt: number | null;
   languages: MeetupLanguage[];
+  meetingUrl: string;
 };
 
 export type EventLocationPatch = {
@@ -64,6 +67,7 @@ export const draftFromEvent = (event: EventDetailItem): EventEditDraft => ({
   startsAt: new Date(event.startsAt).getTime(),
   endsAt: event.endsAt ? new Date(event.endsAt).getTime() : null,
   languages: storedLanguages(event),
+  meetingUrl: event.meetingLink ?? '',
 });
 
 /**
@@ -129,3 +133,40 @@ export const locationPatch = (
       : {}),
   };
 };
+
+export const editsVenue = (event: EventDetailItem): boolean =>
+  events.hasVenue(event.format);
+
+export const editsMeetingLink = (event: EventDetailItem): boolean =>
+  events.hasMeetingLink(event.format);
+
+/**
+ * What the meeting link field says is wrong, or null when the event has no link or its link is fine.
+ *
+ * The link was given when the event was published and the edit starts from it, so an empty field
+ * is a link the host deleted, and it is refused like any other link that does not work.
+ */
+export const meetingUrlProblem = (
+  event: EventDetailItem,
+  draft: EventEditDraft,
+  locale: Locale,
+): string | null =>
+  editsMeetingLink(event) &&
+  !events.eventMeetingUrlSchema.safeParse(draft.meetingUrl).success
+    ? profile_link_invalid({}, { locale })
+    : null;
+
+/**
+ * The place fields a save carries for the event's format: the venue's name and any move of its
+ * pin when it has a venue, and its meeting link when it has one. An online event sends no venue
+ * name at all, because the server refuses one on an event that takes place nowhere.
+ */
+export const placePatch = (event: EventDetailItem, draft: EventEditDraft) => ({
+  ...(editsVenue(event)
+    ? {
+        venueName: draft.venueName.trim(),
+        ...(locationPatch(event, draft) ?? {}),
+      }
+    : {}),
+  ...(editsMeetingLink(event) ? { meetingUrl: draft.meetingUrl.trim() } : {}),
+});

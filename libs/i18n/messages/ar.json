@@ -1046,5 +1046,21 @@
   "org_apply_error_website": "أدخل عنوانًا كاملًا، مثل https://example.org.",
   "org_apply_error_rate_limited": "أرسلت عدة طلبات مؤخرًا. حاول مجددًا بعد ساعة.",
   "org_apply_error_failed": "تعذّر إرسال الطلب. حاول مجددًا.",
-  "org_apply_link": "تسجيل منظمة"
+  "org_apply_link": "تسجيل منظمة",
+  "host_format_label": "طريقة اللقاء",
+  "host_format_in_person": "حضوري",
+  "host_format_online": "عبر الإنترنت",
+  "host_format_hybrid": "هجين",
+  "host_format_in_person_hint": "في مقهى أو مكان آخر.",
+  "host_format_online_hint": "عبر مكالمة فيديو، دون مكان.",
+  "host_format_hybrid_hint": "في مكان، مع رابط لمن يشارك عن بُعد.",
+  "host_meeting_url_label": "رابط الاجتماع",
+  "host_meeting_url_hint": "لا يراه إلا أنت والأعضاء المسجّلون.",
+  "host_online_region": "المنطقة",
+  "host_online_region_choose": "اختر المنطقة",
+  "host_online_city": "المدينة",
+  "host_online_city_choose": "اختر المدينة",
+  "host_online_city_hint": "يظهر اللقاء في صفحة هذه المدينة.",
+  "host_online_panel_title": "لا حاجة إلى خريطة",
+  "host_online_panel": "ليس للقاء عبر الإنترنت مكان. يرى الأعضاء المسجّلون رابطه في صفحة اللقاء."
 }
