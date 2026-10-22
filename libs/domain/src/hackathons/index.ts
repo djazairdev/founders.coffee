@@ -57,3 +57,13 @@ export {
   hackathonRubricSchema,
   type HackathonCriterionInput,
 } from './criteria.js';
+export {
+  rankEntries,
+  type CriterionResult,
+  type JudgeScore,
+  type RankedEntry,
+  type RankingCriterion,
+  type RankingEntry,
+  type RankingInput,
+  type Recusal,
+} from './ranking.js';
