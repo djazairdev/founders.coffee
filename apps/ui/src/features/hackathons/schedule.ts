@@ -29,6 +29,22 @@ export type ScheduleStep = {
   readonly lines: readonly string[];
 };
 
+/** The day of a schedule moment in the market's time zone, as {@link scheduleMoment} writes it. */
+export const scheduleDay = (
+  at: number,
+  locale: Locale,
+  timeZone: string,
+): string => {
+  const names = locale === 'ar' ? 'long' : 'short';
+  return formatDate(new Date(at), locale, {
+    timeZone,
+    hour12: false,
+    weekday: names,
+    day: 'numeric',
+    month: names,
+  });
+};
+
 /**
  * A moment of the schedule in the market's time zone: the day and the time formatted apart, with
  * the options the meetup page already renders on the server, and joined by the locale's own words.
@@ -39,19 +55,19 @@ export const scheduleMoment = (
   at: number,
   locale: Locale,
   timeZone: string,
-): string => {
-  const names = locale === 'ar' ? 'long' : 'short';
-  const date = new Date(at);
-  const on = (options: Intl.DateTimeFormatOptions) =>
-    formatDate(date, locale, { timeZone, hour12: false, ...options });
-  return hackathon_schedule_moment(
+): string =>
+  hackathon_schedule_moment(
     {
-      day: on({ weekday: names, day: 'numeric', month: names }),
-      time: on({ hour: '2-digit', minute: '2-digit' }),
+      day: scheduleDay(at, locale, timeZone),
+      time: formatDate(new Date(at), locale, {
+        timeZone,
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     },
     { locale },
   );
-};
 
 /** The steps of a hackathon's schedule in order, each with the dates it shows (B-HKN-17). */
 export const scheduleSteps = (
