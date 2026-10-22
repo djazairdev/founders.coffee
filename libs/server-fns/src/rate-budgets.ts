@@ -68,6 +68,11 @@ export const RATE_BUDGETS = {
       limit: 30,
       windowMs: 10 * MINUTE_MS,
     },
+    hackathonTeamChange: {
+      action: 'change_hackathon_team',
+      limit: 20,
+      windowMs: 10 * MINUTE_MS,
+    },
     hackathonEdit: {
       action: 'edit_hackathon',
       limit: 30,
