@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { eq, events, user, type Db } from '@founders-coffee/db';
+import {
+  eq,
+  eventOrganisers,
+  events,
+  organization,
+  user,
+  type Db,
+} from '@founders-coffee/db';
 
 import {
   DAY,
@@ -98,6 +105,35 @@ describe('a hackathon’s schedule on its page (B-HKN-17, real D1)', () => {
     ]);
   });
 
+  it('names the organisations that run it, the lead first (B-HKN-24)', async () => {
+    const db = await setupHackathonDb();
+    const { eventId } = await hackathonWithDetails(db, {}, true);
+    await db.insert(organization).values({
+      id: 'org_aaa_cohost',
+      name: 'AAA Co-hosts',
+      slug: 'aaa-co-hosts',
+      kind: 'club',
+      status: 'approved',
+      marketCode: 'DZ',
+      description: 'A club that co-hosts the hackathon.',
+    });
+    await db
+      .insert(eventOrganisers)
+      .values({ eventId, organisationId: 'org_aaa_cohost', role: 'co_host' });
+
+    const page = await readEventPage(
+      db,
+      { marketCode: 'DZ', slug: await slugOf(db, eventId) },
+      anonymous(),
+    );
+
+    if (!page.ok) throw page.error;
+    expect(page.data.organisations).toEqual([
+      { name: 'Algiers Builders', slug: 'algiers-builders' },
+      { name: 'AAA Co-hosts', slug: 'aaa-co-hosts' },
+    ]);
+  });
+
   it('carries no schedule for a meetup', async () => {
     const db = await setupHackathonDb();
     const { slug } = await createTestEvent(db);
@@ -111,6 +147,7 @@ describe('a hackathon’s schedule on its page (B-HKN-17, real D1)', () => {
     if (!page.ok) throw page.error;
     expect(page.data.hackathon).toBeNull();
     expect(page.data.judges).toEqual([]);
+    expect(page.data.organisations).toEqual([]);
   });
 });
 

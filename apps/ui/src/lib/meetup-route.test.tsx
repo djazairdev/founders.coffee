@@ -179,6 +179,8 @@ const headOf = async (
       event: { ...detailOf(upcoming), ...place },
       host: null,
       viewerId: null,
+      hackathon: null,
+      organisations: [],
       mapboxToken,
     },
   } as never);

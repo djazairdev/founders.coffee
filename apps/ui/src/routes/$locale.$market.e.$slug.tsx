@@ -163,6 +163,20 @@ export const Route = createFileRoute('/$locale/$market/e/$slug')({
               url: `${getSiteOrigin()}/${loaderData.locale}/u/${encodeURIComponent(loaderData.host.userId)}`,
             }
           : null,
+        organisations: loaderData.organisations.map(({ name, slug }) => ({
+          name,
+          url: canonicalUrl({
+            type: 'organisation',
+            slug,
+            locale: loaderData.locale,
+          }),
+        })),
+        registration: loaderData.hackathon
+          ? {
+              opensAt: new Date(loaderData.hackathon.registrationOpensAt),
+              closesAt: new Date(loaderData.hackathon.registrationClosesAt),
+            }
+          : null,
       },
       breadcrumbs: [
         {
