@@ -8,7 +8,7 @@ import { Button, LoadingStatus, StatusMessage } from '@founders-coffee/ui';
 import { isHackathonMissing, isHackathonsDisabled } from '../errors';
 import { HackathonsUnavailable } from './HackathonsUnavailable';
 
-export const HackathonTeamQueryStatus = ({
+export const HackathonParticipantQueryStatus = ({
   isError,
   error,
   onRetry,

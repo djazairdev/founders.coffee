@@ -5,6 +5,7 @@ import {
   createHackathonTeam,
   createHackathonTeamInvite,
   getHackathonLookingForTeam,
+  getHackathonSubmissionPage,
   getHackathonTeamPage,
   joinHackathonTeam,
   leaveHackathonTeam,
@@ -12,7 +13,10 @@ import {
   removeHackathonTeamMember,
   requestToJoinHackathonTeam,
   revokeHackathonTeamInvite,
+  saveHackathonSubmissionDraft,
   type LookingForTeamView,
+  type SubmissionDraftSaved,
+  type SubmissionPageView,
   type TeamInviteCreated,
   type TeamPageView,
   changeHackathonPrize,
@@ -98,9 +102,41 @@ export const teamsApi = {
     removeHackathonTeamMember({ data: request }),
 };
 
+export type SubmissionDraftFields = {
+  readonly trackId: string | null;
+  readonly title: string;
+  readonly description: string;
+  readonly repositoryUrl: string | null;
+  readonly demoVideoUrl: string | null;
+  readonly pullRequestUrls: readonly string[];
+  readonly aiTools: readonly string[];
+  readonly aiStatement: string | null;
+};
+
+export const submissionsApi = {
+  page: (eventId: string) => getHackathonSubmissionPage({ data: { eventId } }),
+  saveDraft: (request: {
+    readonly eventId: string;
+    readonly version: number;
+    readonly draft: SubmissionDraftFields;
+  }) =>
+    saveHackathonSubmissionDraft({
+      data: {
+        ...request,
+        draft: {
+          ...request.draft,
+          pullRequestUrls: [...request.draft.pullRequestUrls],
+          aiTools: [...request.draft.aiTools],
+        },
+      },
+    }),
+};
+
 export type {
   AddHackathonPrizeRequest,
   LookingForTeamView,
+  SubmissionDraftSaved,
+  SubmissionPageView,
   TeamInviteCreated,
   TeamPageView,
   HackathonSchedule,

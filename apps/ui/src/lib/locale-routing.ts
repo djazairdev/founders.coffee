@@ -195,6 +195,12 @@ export const localizedHackathonTeam = (locale: Locale, eventId: string) => ({
   params: { locale, eventId },
 });
 
+/** The reader's team's project in a hackathon (B-SUB-05). */
+export const localizedHackathonSubmit = (locale: Locale, eventId: string) => ({
+  to: '/$locale/hackathon/$eventId/submit' as const,
+  params: { locale, eventId },
+});
+
 /** The teams and participants looking for each other in a hackathon (B-TEAM-08). */
 export const localizedHackathonLooking = (locale: Locale, eventId: string) => ({
   to: '/$locale/hackathon/$eventId/looking' as const,

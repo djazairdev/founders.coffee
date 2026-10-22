@@ -9,6 +9,7 @@ import {
   hackathon_team_loading,
   hackathon_team_locked,
   hackathon_team_not_registered,
+  hackathon_team_project_link,
   hackathon_team_size,
   hackathon_team_title,
   hackathon_team_waitlisted,
@@ -16,19 +17,25 @@ import {
 } from '@founders-coffee/i18n';
 import { StatusMessage } from '@founders-coffee/ui';
 
-import { localizedHackathonLooking } from '../../../lib/locale-routing';
+import {
+  localizedHackathonLooking,
+  localizedHackathonSubmit,
+} from '../../../lib/locale-routing';
 import type { RootMarket } from '../../markets/api';
 import type { TeamPageView } from '../api';
 import { scheduleMoment } from '../schedule';
 import { useTeamPage } from '../team-hooks';
 import { HackathonTeamCreateForm } from './HackathonTeamCreateForm';
-import { HackathonTeamFrame } from './HackathonTeamFrame';
+import { HackathonParticipantFrame } from './HackathonParticipantFrame';
 import { HackathonTeamInviteLink } from './HackathonTeamInviteLink';
 import { HackathonTeamJoin } from './HackathonTeamJoin';
 import { HackathonTeamMembers } from './HackathonTeamMembers';
 import { HackathonTeamOwnRequests } from './HackathonTeamOwnRequests';
-import { HackathonTeamQueryStatus } from './HackathonTeamQueryStatus';
+import { HackathonParticipantQueryStatus } from './HackathonParticipantQueryStatus';
 import { HackathonTeamRequests } from './HackathonTeamRequests';
+
+const LINK_CLASS =
+  'link link-hover mt-2 block w-fit text-body-sm font-medium text-secondary';
 
 const Team = ({
   view,
@@ -139,13 +146,13 @@ export const HackathonTeamPage = ({
   const title = hackathon_team_title({}, { locale });
   if (!view)
     return (
-      <HackathonTeamFrame
+      <HackathonParticipantFrame
         title={title}
         locale={locale}
         markets={markets}
         event={null}
       >
-        <HackathonTeamQueryStatus
+        <HackathonParticipantQueryStatus
           isError={query.isError}
           error={query.error}
           onRetry={() => void query.refetch()}
@@ -153,14 +160,14 @@ export const HackathonTeamPage = ({
           loadingLabel={hackathon_team_loading({}, { locale })}
           locale={locale}
         />
-      </HackathonTeamFrame>
+      </HackathonParticipantFrame>
     );
 
   const timeZone =
     markets.find((item) => item.code === view.event.marketCode)?.timezone ??
     'UTC';
   return (
-    <HackathonTeamFrame
+    <HackathonParticipantFrame
       title={title}
       locale={locale}
       markets={markets}
@@ -184,10 +191,18 @@ export const HackathonTeamPage = ({
           { locale },
         )}
       </p>
+      {view.team ? (
+        <Link
+          {...localizedHackathonSubmit(locale, eventId)}
+          className={LINK_CLASS}
+        >
+          {hackathon_team_project_link({}, { locale })}
+        </Link>
+      ) : null}
       {view.registration === 'registered' ? (
         <Link
           {...localizedHackathonLooking(locale, eventId)}
-          className="link link-hover mt-2 inline-block text-body-sm font-medium text-secondary"
+          className={LINK_CLASS}
         >
           {hackathon_team_find({}, { locale })}
         </Link>
@@ -203,6 +218,6 @@ export const HackathonTeamPage = ({
         locale={locale}
         timeZone={timeZone}
       />
-    </HackathonTeamFrame>
+    </HackathonParticipantFrame>
   );
 };
