@@ -414,6 +414,13 @@
       "when": 1792621953039,
       "tag": "0058_organisation_review",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "6",
+      "when": 1792631343925,
+      "tag": "0059_hackathon_registrations",
+      "breakpoints": true
     }
   ]
 }

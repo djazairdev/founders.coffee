@@ -22,6 +22,8 @@ import {
   chatMessages,
   cityWaitlist,
   hackathonInterest,
+  hackathonRegistrations,
+  hackathons,
   eventFeedback,
   eventRsvps,
   events,
@@ -156,7 +158,8 @@ export const listProfileAssetPrefixes = async (
  * stamped `owner_left_at`, before their membership goes, so an operator can name a new owner.
  *
  * Everything that is the member's own goes: profile, photo rows, preferences, devices, queued
- * notices, meetup chat messages and chat settings, organisation memberships, sessions, sign-in links
+ * notices, meetup chat messages and chat settings, organisation memberships, hackathon
+ * registrations, whose places go back to their hackathons, sessions, sign-in links
  * with Google or GitHub, codes still waiting for their address or phone, and the city waitlist,
  * hackathon interest and organisation invitations under their address. Photo bytes are the caller's to delete first, from
  * {@link listProfileAssetPrefixes}, since a deleted row is the only record of where they are.
@@ -205,6 +208,30 @@ export const eraseClosedAccount = async (
           stillClosing,
         ),
       ),
+    db
+      .update(hackathons)
+      .set({ registeredCount: sql`${hackathons.registeredCount} - 1` })
+      .where(
+        and(
+          inArray(
+            hackathons.eventId,
+            db
+              .select({ eventId: hackathonRegistrations.eventId })
+              .from(hackathonRegistrations)
+              .where(
+                and(
+                  eq(hackathonRegistrations.userId, userId),
+                  eq(hackathonRegistrations.status, 'registered'),
+                ),
+              ),
+          ),
+          gt(hackathons.registeredCount, 0),
+          stillClosing,
+        ),
+      ),
+    db
+      .delete(hackathonRegistrations)
+      .where(owned(hackathonRegistrations.userId)),
     db.delete(member).where(owned(member.userId)),
     db.delete(session).where(owned(session.userId)),
     db.delete(account).where(owned(account.userId)),

@@ -23,6 +23,19 @@ export const REGISTRATION_STATUSES = ['registered', 'waitlisted'] as const;
 export type RegistrationStatus = (typeof REGISTRATION_STATUSES)[number];
 export const registrationStatusSchema = z.enum(REGISTRATION_STATUSES);
 
+export const HACKATHON_REGISTRATION_STATUSES = [
+  ...REGISTRATION_STATUSES,
+  'withdrawn',
+  'disqualified',
+] as const;
+export type HackathonRegistrationStatus =
+  (typeof HACKATHON_REGISTRATION_STATUSES)[number];
+export const hackathonRegistrationStatusSchema = z.enum(
+  HACKATHON_REGISTRATION_STATUSES,
+);
+
+export const HACKATHON_REGISTRATION_SKILLS_MAX = 140;
+
 export const HACKATHON_AI_POLICIES = [
   'disclosed',
   'ai_native',

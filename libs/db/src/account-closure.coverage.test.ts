@@ -18,6 +18,7 @@ const ERASED: readonly string[] = [
   'chat_messages.author_id',
   'chat_members.user_id',
   'member.user_id',
+  'hackathon_registrations.user_id',
 ];
 
 const KEPT: Readonly<Record<string, string>> = {
