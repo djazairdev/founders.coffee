@@ -69,6 +69,7 @@ export const insertHackathonDetails = (
         resultsPublishedAt: bound(null, 'results_published_at'),
         createdAt: sql`unixepoch()`.as('created_at'),
         updatedAt: sql`unixepoch()`.as('updated_at'),
+        registeredCount: bound(0, 'registered_count'),
       })
       .from(events)
       .where(and(eq(events.id, input.eventId), eq(events.kind, 'hackathon'))),

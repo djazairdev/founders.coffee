@@ -9,6 +9,8 @@ import {
   eventFormatSchema,
   HACKATHON_PHASES,
   hackathonPhaseSchema,
+  HACKATHON_REGISTRATION_STATUSES,
+  hackathonRegistrationStatusSchema,
   REGISTRATION_STATUSES,
   registrationStatusSchema,
 } from './hackathons.js';
@@ -19,6 +21,7 @@ describe('hackathon contracts', () => {
     [EVENT_FORMATS, eventFormatSchema],
     [ATTENDANCE_MODES, attendanceModeSchema],
     [REGISTRATION_STATUSES, registrationStatusSchema],
+    [HACKATHON_REGISTRATION_STATUSES, hackathonRegistrationStatusSchema],
     [HACKATHON_AI_POLICIES, hackathonAiPolicySchema],
   ] as const)('accepts exactly %j', (values, schema) => {
     for (const value of values)

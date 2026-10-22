@@ -27,7 +27,10 @@ import {
   CURRENCY_CODES,
   EVENT_FORMATS,
   EVENT_KINDS,
+  ATTENDANCE_MODES,
   HACKATHON_AI_POLICIES,
+  HACKATHON_REGISTRATION_SKILLS_MAX,
+  HACKATHON_REGISTRATION_STATUSES,
   HACKATHON_REVIEW_STATUSES,
   HACKATHON_TRACK_KINDS,
   EVENT_ORGANISER_ROLES,
@@ -460,6 +463,8 @@ export type EventOrganiser = typeof eventOrganisers.$inferSelect;
  *
  * Kickoff and demo day are the event's own `starts_at` and `ends_at`, so the event page, slug, chat
  * and notifications serve the hackathon unchanged. A `null` minimum age or capacity means none.
+ * `registered_count` is how many registrations hold a place (B-REG-01), kept beside the capacity so
+ * a registration can take a place in one atomic statement, as an RSVP does.
  */
 export const hackathons = sqliteTable(
   'hackathons',
@@ -501,6 +506,7 @@ export const hackathons = sqliteTable(
     updatedAt: integer('updated_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),
+    registeredCount: integer('registered_count').notNull().default(0),
   },
   (table) => [
     index('hackathons_review_status_index').on(table.reviewStatus),
@@ -511,6 +517,10 @@ export const hackathons = sqliteTable(
     check(
       'hackathons_capacity_check',
       sql`${table.capacity} IS NULL OR ${table.capacity} > 0`,
+    ),
+    check(
+      'hackathons_registered_count_check',
+      sql`${table.registeredCount} >= 0`,
     ),
     check(
       'hackathons_minimum_age_check',
@@ -614,6 +624,71 @@ export const hackathonCriteria = sqliteTable(
 
 export type HackathonCriterion = typeof hackathonCriteria.$inferSelect;
 export type NewHackathonCriterion = typeof hackathonCriteria.$inferInsert;
+
+/**
+ * A member's registration for a hackathon (B-REG-01): one per member per hackathon.
+ *
+ * `status` is `registered` while it holds a place and `waitlisted` while it waits for one; a member
+ * who leaves is `withdrawn` and one removed by the organisers `disqualified`, and both stay as the
+ * record of what happened. `attendance_mode` is how the member takes part, from the modes the
+ * hackathon offers. `code_of_conduct_accepted_at` is when they accepted it, which every registration
+ * does, and `age_attested_at` when they confirmed the minimum age, null for a hackathon that has
+ * none. `skills` is the line a member looking for a team shows the others, up to 140 characters.
+ *
+ * Account closure deletes the member's registrations and gives back the places they held.
+ */
+export const hackathonRegistrations = sqliteTable(
+  'hackathon_registrations',
+  {
+    id: text('id').primaryKey(),
+    eventId: text('event_id')
+      .notNull()
+      .references(() => hackathons.eventId, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    status: text('status', { enum: [...HACKATHON_REGISTRATION_STATUSES] })
+      .notNull()
+      .default('registered'),
+    attendanceMode: text('attendance_mode', {
+      enum: [...ATTENDANCE_MODES],
+    }).notNull(),
+    codeOfConductAcceptedAt: integer('code_of_conduct_accepted_at', {
+      mode: 'timestamp',
+    }).notNull(),
+    ageAttestedAt: integer('age_attested_at', { mode: 'timestamp' }),
+    isLookingForTeam: integer('looking_for_team', { mode: 'boolean' })
+      .notNull()
+      .default(false),
+    skills: text('skills'),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex('hackathon_registrations_event_user_unique').on(
+      table.eventId,
+      table.userId,
+    ),
+    index('hackathon_registrations_event_status_index').on(
+      table.eventId,
+      table.status,
+      table.createdAt,
+    ),
+    index('hackathon_registrations_user_index').on(table.userId),
+    check(
+      'hackathon_registrations_skills_check',
+      sql`${table.skills} IS NULL OR length(${table.skills}) <= ${sql.raw(String(HACKATHON_REGISTRATION_SKILLS_MAX))}`,
+    ),
+  ],
+);
+
+export type HackathonRegistration = typeof hackathonRegistrations.$inferSelect;
+export type NewHackathonRegistration =
+  typeof hackathonRegistrations.$inferInsert;
 
 /** Event RSVP — one per user per event (UNIQUE constraint). */
 export const eventRsvps = sqliteTable(
