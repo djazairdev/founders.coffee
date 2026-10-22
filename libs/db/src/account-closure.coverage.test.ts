@@ -3,6 +3,7 @@ import { getTableColumns, is } from 'drizzle-orm';
 import { getTableConfig, SQLiteTable } from 'drizzle-orm/sqlite-core';
 
 import { hackathonErasure } from './account-closure-hackathons.js';
+import { projectErasure } from './account-closure-projects.js';
 import { eraseClosedAccount } from './account-closure.js';
 import * as schema from './schema.js';
 
@@ -20,6 +21,7 @@ const ERASED: readonly string[] = [
   'chat_members.user_id',
   'member.user_id',
   'hackathon_registrations.user_id',
+  'project_members.user_id',
 ];
 
 const KEPT: Readonly<Record<string, string>> = {
@@ -132,7 +134,7 @@ describe('account closure covers every table that points at a person', () => {
   });
 
   it('finds each erased column in the erasure itself', () => {
-    const source = [eraseClosedAccount, hackathonErasure]
+    const source = [eraseClosedAccount, hackathonErasure, projectErasure]
       .map((step) => step.toString())
       .join('\n');
     const missing = ERASED.filter(

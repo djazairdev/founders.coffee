@@ -171,6 +171,7 @@ export const HACKATHON_ERROR_CODES = [
   'hackathon_not_submittable',
   'hackathon_incomplete',
   'invalid_hackathon_transition',
+  'invalid_project_transition',
 ] as const;
 export type HackathonErrorCode = (typeof HACKATHON_ERROR_CODES)[number];
 export const hackathonErrorCodeSchema = z.enum(HACKATHON_ERROR_CODES);

@@ -61,6 +61,15 @@ import {
   OPERATIONS_SCOPES,
   OPERATION_REASONS,
   ORDER_PURPOSES,
+  PROJECT_URL_MAX,
+  PROJECT_TITLE_MAX,
+  PROJECT_STATUSES,
+  PROJECT_STAGES,
+  PROJECT_SLUG_MIN,
+  PROJECT_SLUG_MAX,
+  PROJECT_PROBLEM_MAX,
+  PROJECT_MEMBER_ROLES,
+  PROJECT_DESCRIPTION_MAX,
   ORDER_STATUSES,
   ORGANISATION_INVITATION_STATUSES,
   ORGANISATION_KINDS,
@@ -1193,6 +1202,117 @@ export const hackathonScores = sqliteTable(
 );
 
 export type HackathonScore = typeof hackathonScores.$inferSelect;
+
+/**
+ * A project page (B-PRJ-01): what a team or founder is building, the problem it solves, how far it
+ * has come (idea, prototype, MVP, launched) and its links. In Stage B a project starts from a
+ * hackathon entry, which `source_submission_id` names, once per entry; from Stage D any member
+ * posts one, with no entry behind it, so the table already allows that. If the entry goes, the
+ * project stays and forgets it.
+ *
+ * A `draft` is the team's until they publish it; a `published` project has a public page, and a
+ * `hidden` one keeps its address but shows nothing. Search engines index a published page only
+ * when the team turned `search_indexable` on (V17). `version` guards the owners' edits, as an
+ * event's does. A project belongs to the market it was made in.
+ */
+export const projects = sqliteTable(
+  'projects',
+  {
+    id: text('id').primaryKey(),
+    slug: text('slug').notNull().unique(),
+    title: text('title').notNull(),
+    problem: text('problem').notNull(),
+    description: text('description').notNull().default(''),
+    stage: text('stage', { enum: [...PROJECT_STAGES] }).notNull(),
+    repositoryUrl: text('repository_url'),
+    demoUrl: text('demo_url'),
+    websiteUrl: text('website_url'),
+    marketCode: text('market_code')
+      .notNull()
+      .references(() => markets.code),
+    sourceSubmissionId: text('source_submission_id').references(
+      () => hackathonSubmissions.id,
+      { onDelete: 'set null' },
+    ),
+    status: text('status', { enum: [...PROJECT_STATUSES] })
+      .notNull()
+      .default('draft'),
+    isSearchIndexable: integer('search_indexable', { mode: 'boolean' })
+      .notNull()
+      .default(false),
+    version: integer('version').notNull().default(1),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex('projects_source_submission_unique').on(
+      table.sourceSubmissionId,
+    ),
+    index('projects_market_status_index').on(
+      table.marketCode,
+      table.status,
+      table.updatedAt,
+    ),
+    check(
+      'projects_slug_check',
+      sql`length(${table.slug}) BETWEEN ${sql.raw(String(PROJECT_SLUG_MIN))} AND ${sql.raw(String(PROJECT_SLUG_MAX))} AND ${table.slug} NOT GLOB '*[^a-z0-9-]*' AND ${table.slug} NOT GLOB '-*' AND ${table.slug} NOT GLOB '*-' AND ${table.slug} NOT GLOB '*--*'`,
+    ),
+    check(
+      'projects_text_check',
+      sql`length(trim(${table.title})) BETWEEN 1 AND ${sql.raw(String(PROJECT_TITLE_MAX))} AND length(${table.problem}) <= ${sql.raw(String(PROJECT_PROBLEM_MAX))} AND length(${table.description}) <= ${sql.raw(String(PROJECT_DESCRIPTION_MAX))}`,
+    ),
+    check(
+      'projects_urls_check',
+      sql`(${table.repositoryUrl} IS NULL OR length(${table.repositoryUrl}) <= ${sql.raw(String(PROJECT_URL_MAX))}) AND (${table.demoUrl} IS NULL OR length(${table.demoUrl}) <= ${sql.raw(String(PROJECT_URL_MAX))}) AND (${table.websiteUrl} IS NULL OR length(${table.websiteUrl}) <= ${sql.raw(String(PROJECT_URL_MAX))})`,
+    ),
+    check(
+      'projects_enum_check',
+      sql`${table.stage} IN (${sql.raw(PROJECT_STAGES.map((stage) => `'${stage}'`).join(', '))}) AND ${table.status} IN (${sql.raw(PROJECT_STATUSES.map((status) => `'${status}'`).join(', '))})`,
+    ),
+    check('projects_version_check', sql`${table.version} >= 1`),
+  ],
+);
+
+export type Project = typeof projects.$inferSelect;
+export type NewProject = typeof projects.$inferInsert;
+
+/**
+ * Who is on a project (B-PRJ-01): its owners, who edit and publish it, and its members. A member is
+ * `listed` on the public page only once they confirmed it, so nobody is shown on a project they
+ * did not agree to. A closed account leaves its projects; one left with nobody is deleted.
+ */
+export const projectMembers = sqliteTable(
+  'project_members',
+  {
+    projectId: text('project_id')
+      .notNull()
+      .references(() => projects.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    role: text('role', { enum: [...PROJECT_MEMBER_ROLES] })
+      .notNull()
+      .default('member'),
+    isListed: integer('listed', { mode: 'boolean' }).notNull().default(false),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    primaryKey({ columns: [table.projectId, table.userId] }),
+    index('project_members_user_index').on(table.userId),
+    check(
+      'project_members_role_check',
+      sql`${table.role} IN (${sql.raw(PROJECT_MEMBER_ROLES.map((role) => `'${role}'`).join(', '))})`,
+    ),
+  ],
+);
+
+export type ProjectMember = typeof projectMembers.$inferSelect;
 
 /** Event RSVP — one per user per event (UNIQUE constraint). */
 export const eventRsvps = sqliteTable(
