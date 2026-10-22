@@ -26,6 +26,11 @@ export const draftView = (
   version: 1,
   stage: 'open',
   isEditable: true,
+  review: {
+    status: 'draft',
+    note: null,
+    gaps: ['details', 'tracks', 'rubric'],
+  },
   details: null,
   tracks: [],
   prizes: [],

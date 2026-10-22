@@ -6,6 +6,7 @@ import {
   type EventStatus,
   type HackathonAiPolicy,
   type HackathonCriterionScale,
+  type HackathonReviewStatus,
   type HackathonTrackKind,
   type Money,
   type Result,
@@ -86,6 +87,11 @@ export type HackathonDraftView = {
   readonly version: number;
   readonly stage: hackathons.HackathonEditStage;
   readonly isEditable: boolean;
+  readonly review: {
+    readonly status: HackathonReviewStatus;
+    readonly note: string | null;
+    readonly gaps: readonly hackathons.HackathonReadinessGap[];
+  };
   readonly details: HackathonDetailsView | null;
   readonly tracks: readonly HackathonTrackView[];
   readonly prizes: readonly HackathonPrizeView[];
@@ -136,6 +142,15 @@ export const hackathonDraftResolver = async (
     version: event.version,
     stage,
     isEditable: isHackathonEditable(rows, stage),
+    review: {
+      status: rows.details?.reviewStatus ?? 'draft',
+      note: rows.details?.reviewNote ?? null,
+      gaps: hackathons.hackathonReadinessGaps({
+        hasDetails: rows.details !== null,
+        trackCount: tracks.length,
+        criterionWeights: criteria.map((criterion) => criterion.weight),
+      }),
+    },
     details: details && {
       ...details,
       rules: details.rules ?? null,

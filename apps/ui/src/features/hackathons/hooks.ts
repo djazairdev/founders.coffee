@@ -15,6 +15,7 @@ import {
   type SaveHackathonDetailsRequest,
   type SaveHackathonRubricRequest,
   type SaveHackathonTracksRequest,
+  type SubmitHackathonForReviewRequest,
 } from './api';
 
 const DRAFT = ['hackathons', 'draft'] as const;
@@ -70,6 +71,19 @@ export const useSaveHackathonTracks = () => {
   const cache = useQueryClient();
   return useMutation<HackathonEditSaved, Error, SaveHackathonTracksRequest>({
     mutationFn: (request) => hackathonsApi.saveTracks(request),
+    onSuccess: (saved) => afterEdit(cache, saved),
+  });
+};
+
+/** Send a hackathon for review; the hackathon is read again after, now with the reviewers. */
+export const useSubmitHackathonForReview = () => {
+  const cache = useQueryClient();
+  return useMutation<
+    HackathonEditSaved,
+    Error,
+    SubmitHackathonForReviewRequest
+  >({
+    mutationFn: (request) => hackathonsApi.submitForReview(request),
     onSuccess: (saved) => afterEdit(cache, saved),
   });
 };

@@ -5,6 +5,7 @@ import {
   saveHackathonDetails,
   saveHackathonRubric,
   saveHackathonTracks,
+  submitHackathonForReview,
   type CreateHackathonDraftRequest,
   type HackathonDraftCreated,
   type HackathonDraftView,
@@ -12,6 +13,7 @@ import {
   type SaveHackathonDetailsRequest,
   type SaveHackathonRubricRequest,
   type SaveHackathonTracksRequest,
+  type SubmitHackathonForReviewRequest,
 } from '@founders-coffee/server-fns';
 
 export const hackathonsApi = {
@@ -24,6 +26,8 @@ export const hackathonsApi = {
     saveHackathonTracks({ data: request }),
   saveRubric: (request: SaveHackathonRubricRequest) =>
     saveHackathonRubric({ data: request }),
+  submitForReview: (request: SubmitHackathonForReviewRequest) =>
+    submitHackathonForReview({ data: request }),
 };
 
 export type {
@@ -34,6 +38,7 @@ export type {
   SaveHackathonDetailsRequest,
   SaveHackathonRubricRequest,
   SaveHackathonTracksRequest,
+  SubmitHackathonForReviewRequest,
 };
 export type HackathonEditSaved = {
   readonly eventId: string;

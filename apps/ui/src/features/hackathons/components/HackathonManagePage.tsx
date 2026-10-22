@@ -11,6 +11,7 @@ import {
   hackathon_manage_not_found,
   hackathon_manage_title,
   org_hackathon_dates,
+  org_hackathon_status_in_review,
   retry,
   type Locale,
 } from '@founders-coffee/i18n';
@@ -22,6 +23,7 @@ import { hackathonStatusLabel } from '../../organisations/hackathon-labels';
 import { isHackathonMissing, isHackathonsDisabled } from '../errors';
 import { useHackathonDraft } from '../hooks';
 import { HackathonDetailsForm } from './HackathonDetailsForm';
+import { HackathonReviewSection } from './HackathonReviewSection';
 import { HackathonRubricSection } from './HackathonRubricSection';
 import { HackathonTracksSection } from './HackathonTracksSection';
 import { HackathonsUnavailable } from './HackathonsUnavailable';
@@ -105,7 +107,9 @@ export const HackathonManagePage = ({
       <h1 className="mt-2 flex flex-wrap items-center gap-2 font-display text-h3">
         <bdi className="min-w-0 break-words">{draft.event.title}</bdi>
         <span className="badge badge-ghost">
-          {hackathonStatusLabel(draft.event.status, locale)}
+          {draft.event.status === 'draft' && draft.review.status === 'submitted'
+            ? org_hackathon_status_in_review({}, { locale })
+            : hackathonStatusLabel(draft.event.status, locale)}
         </span>
       </h1>
       <p className="mt-1 text-body-sm text-neutral">
@@ -135,7 +139,10 @@ export const HackathonManagePage = ({
           </section>
           <HackathonTracksSection draft={draft} locale={locale} />
           <HackathonRubricSection draft={draft} locale={locale} />
+          <HackathonReviewSection draft={draft} locale={locale} />
         </>
+      ) : draft.review.status === 'submitted' ? (
+        <HackathonReviewSection draft={draft} locale={locale} />
       ) : (
         <StatusMessage variant="info" className="mt-6">
           {hackathon_manage_locked({}, { locale })}
