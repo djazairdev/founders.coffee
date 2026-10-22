@@ -1,7 +1,6 @@
 import {
   AppError,
   err,
-  hasVenue,
   id,
   ok,
   type AttendanceOutcome,
@@ -242,17 +241,16 @@ export const submitCloseoutResolver = async (
   });
 
   if (opts.input.outcome === 'did_not_happen') {
-    if (hasVenue(event))
-      await enqueueDidNotHappenNotices(db, {
-        id: event.id,
-        hostId: event.hostId,
-        marketCode: event.marketCode,
-        title: event.title,
-        venue: event.venue,
-        slug: event.slug,
-        startsAt: event.startsAt,
-        endsAt: event.endsAt,
-      });
+    await enqueueDidNotHappenNotices(db, {
+      id: event.id,
+      hostId: event.hostId,
+      marketCode: event.marketCode,
+      title: event.title,
+      venue: event.venue,
+      slug: event.slug,
+      startsAt: event.startsAt,
+      endsAt: event.endsAt,
+    });
     return ok({ refusedMarks: [] });
   }
 
@@ -269,7 +267,7 @@ export const submitCloseoutResolver = async (
     if (written.outcome !== 'recorded') refusedMarks.push(mark.userId);
   }
 
-  if (hasVenue(event)) await enqueueFeedbackInvitations(db, event);
+  await enqueueFeedbackInvitations(db, event);
 
   return ok({ refusedMarks });
 };

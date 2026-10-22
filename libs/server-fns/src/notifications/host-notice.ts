@@ -51,7 +51,7 @@ export const enqueueHostRsvpNotice = async (
     eventSlug: string;
     marketCode: string;
     startsAt: Date;
-    venue: string;
+    venue: string | null;
     hostEmail?: string;
     hostLocale?: string | null;
   },
@@ -75,7 +75,7 @@ export const enqueueHostRsvpNotice = async (
     eventSlug: opts.eventSlug,
     marketCode: opts.marketCode,
     startsAt: opts.startsAt.toISOString(),
-    venue: opts.venue,
+    ...(opts.venue ? { venue: opts.venue } : {}),
     locale: context.locale,
   };
   const values = valuesFor(basePayload, context, true);
@@ -117,7 +117,7 @@ export const enqueueHostRsvpCancellationNotice = async (
     eventSlug: string;
     marketCode: string;
     startsAt: Date;
-    venue: string;
+    venue: string | null;
     hostEmail?: string;
     hostLocale?: string | null;
   },
@@ -136,7 +136,7 @@ export const enqueueHostRsvpCancellationNotice = async (
     eventSlug: opts.eventSlug,
     marketCode: opts.marketCode,
     startsAt: opts.startsAt.toISOString(),
-    venue: opts.venue,
+    ...(opts.venue ? { venue: opts.venue } : {}),
     locale: context.locale,
   };
   const values = valuesFor(basePayload, context, true);

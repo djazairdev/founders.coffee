@@ -26,6 +26,8 @@ import {
   ntf_sms_event_cancelled,
   ntf_sms_reminder_24h,
   ntf_sms_reminder_72h,
+  ntf_where_online,
+  ntf_where_venue,
   type Locale,
 } from '@founders-coffee/i18n';
 
@@ -41,12 +43,32 @@ export interface CalendarLinks {
 export interface TemplateValues {
   readonly title: string;
   readonly venue: string;
+  readonly where: string;
+  readonly isOnline: boolean;
   readonly address: string;
   readonly date: string;
   readonly url: string;
   readonly reason?: string;
   readonly calendar?: CalendarLinks;
+  readonly meetingLink?: string;
 }
+
+/**
+ * Where a message says the meetup happens, with its preposition: "at Café Atlas", or "online" for
+ * an online meetup, which has no venue to be at. The messages read `{where}` rather than
+ * "at {venue}", so one sentence serves both and no online event is told to go somewhere.
+ */
+export const placeValues = (
+  venue: string | null,
+  locale: Locale,
+): Pick<TemplateValues, 'venue' | 'where' | 'isOnline'> =>
+  venue
+    ? {
+        venue,
+        where: ntf_where_venue({ venue }, { locale }),
+        isOnline: false,
+      }
+    : { venue: '', where: ntf_where_online({}, { locale }), isOnline: true };
 
 /**
  * Escape one value for an HTML template: the five characters that can open markup or end an attribute.
@@ -71,6 +93,8 @@ export const escapeHtml = (value: string): string =>
 export const escapeValues = (values: TemplateValues): TemplateValues => ({
   title: escapeHtml(values.title),
   venue: escapeHtml(values.venue),
+  where: escapeHtml(values.where),
+  isOnline: values.isOnline,
   address: escapeHtml(values.address),
   date: escapeHtml(values.date),
   url: escapeHtml(values.url),
@@ -81,6 +105,7 @@ export const escapeValues = (values: TemplateValues): TemplateValues => ({
         ics: escapeHtml(values.calendar.ics),
       }
     : undefined,
+  meetingLink: values.meetingLink ? escapeHtml(values.meetingLink) : undefined,
 });
 
 /**

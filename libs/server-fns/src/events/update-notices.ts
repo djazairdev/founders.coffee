@@ -13,6 +13,7 @@ import {
   rescheduledNotice,
 } from '../chat/notices.js';
 import { enqueueRsvpNotifications } from '../notifications/producer.js';
+import { meetingLinkFor } from './meeting-link.js';
 import {
   enqueueEventChangeNotices,
   type EventChangeTemplateKey,
@@ -62,14 +63,16 @@ export const noticeFor = (
  * quiet edit less quiet than it looks — correcting a misspelt café still leaves two messages queued
  * against the old spelling, and they go out days later contradicting the page they link to.
  *
- * Three fields reach a reminder's text, and the start also decides when it is sent, so any of them
- * changing means the queue has to be written again. Nothing else here does: the description is not
+ * Four fields reach a reminder's text, and the start also decides when it is sent, so any of them
+ * changing means the queue has to be written again: the start, the title, the venue, and the meeting
+ * link an online or hybrid meetup's reminders carry. Nothing else here does: the description is not
  * in a reminder, and neither is the address.
  */
 const remindersWouldLie = (before: Event, after: Event): boolean =>
   scheduleMoved(before, after) ||
   before.title !== after.title ||
-  before.venue !== after.venue;
+  before.venue !== after.venue ||
+  before.meetingUrl !== after.meetingUrl;
 
 /**
  * Write the reminders again from what the meetup now says.
@@ -89,7 +92,6 @@ const rearmReminders = async (db: Db, event: Event): Promise<void> => {
     eventId: event.id,
     templateKeys: [...REARMED_TEMPLATES],
   });
-  if (!hasVenue(event)) return;
   for (const attendee of await listGoingAttendees(db, event.id)) {
     await enqueueRsvpNotifications(db, {
       eventId: event.id,
@@ -99,6 +101,10 @@ const rearmReminders = async (db: Db, event: Event): Promise<void> => {
       marketCode: event.marketCode,
       startsAt: event.startsAt,
       venue: event.venue,
+      meetingLink: await meetingLinkFor(db, event, {
+        id: attendee.userId,
+        isGoing: true,
+      }),
       phoneNumber: attendee.phoneNumber,
       email: attendee.email,
       locale: attendee.localePref,
@@ -151,7 +157,7 @@ export const announceUpdate = async (
 
   try {
     if (rewrite) await rearmReminders(db, opts.after);
-    if (!opts.notice || !hasVenue(opts.after)) return 0;
+    if (!opts.notice) return 0;
     return await enqueueEventChangeNotices(db, {
       eventId: opts.after.id,
       hostId: opts.after.hostId,

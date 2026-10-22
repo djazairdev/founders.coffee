@@ -13,7 +13,11 @@ import {
 } from './context.js';
 import { channelPlanFor } from './channel-plan.js';
 import { armNotificationSchedule } from './schedule.js';
-import { pushPayloadFor, type TemplateValues } from './templates.js';
+import {
+  placeValues,
+  pushPayloadFor,
+  type TemplateValues,
+} from './templates.js';
 import { emailPayloadFor } from './email-templates.js';
 import {
   enqueueNotification,
@@ -34,7 +38,7 @@ export interface NotificationPayload {
   eventSlug: string;
   marketCode: string;
   startsAt: string;
-  venue: string;
+  venue?: string;
   venueAddress?: string;
   locale: Locale;
   rsvpCount?: number;
@@ -88,6 +92,9 @@ export const validPayload = (
  * render an empty gap. Most rows carry no address at all — it is derived from a point, and most
  * meetups never had one — and the relocation notice is the one message whose whole content is the
  * new place. Naming the café is a worse answer than the street, and a far better one than nothing.
+ *
+ * An online meetup's payload has no venue, and its messages say "online" where the others say at
+ * which café (`placeValues`).
  */
 export const valuesFor = (
   payload: NotificationPayload,
@@ -96,8 +103,8 @@ export const valuesFor = (
   reason?: string,
 ): TemplateValues => ({
   title: payload.eventTitle,
-  venue: payload.venue,
-  address: payload.venueAddress?.trim() || payload.venue,
+  ...placeValues(payload.venue ?? null, context.locale),
+  address: payload.venueAddress?.trim() || (payload.venue ?? ''),
   date: dateFor(payload.startsAt, context, withTime),
   url: eventUrlFor({
     locale: context.locale,
@@ -139,6 +146,9 @@ export const valuesFor = (
  *
  * Skips if a pending notification already exists, so re-RSVPing does not duplicate anything.
  *
+ * `meetingLink` is this member's link to an online or hybrid meetup, from `meetingLinkFor`; the
+ * confirmation and both reminders carry it in their email, and nothing else does.
+ *
  * `remindersOnly` leaves the confirmation out, for the one caller that is not a new RSVP: a host
  * moving the start has to rewrite the reminders around the new time, and the people it rewrites
  * them for booked weeks ago. Confirming a booking they already made, on the day somebody changed
@@ -154,7 +164,8 @@ export const enqueueRsvpNotifications = async (
     eventSlug: string;
     marketCode: string;
     startsAt: Date;
-    venue: string;
+    venue: string | null;
+    meetingLink?: string | null;
     phoneNumber?: string | null;
     email?: string;
     locale?: string | null;
@@ -178,7 +189,7 @@ export const enqueueRsvpNotifications = async (
     eventSlug: opts.eventSlug,
     marketCode: opts.marketCode,
     startsAt: opts.startsAt.toISOString(),
-    venue: opts.venue,
+    ...(opts.venue ? { venue: opts.venue } : {}),
     locale: context.locale,
   };
 
@@ -202,6 +213,7 @@ export const enqueueRsvpNotifications = async (
     const values = {
       ...valuesFor(basePayload, context, true),
       calendar: calendarLinksFor(locale, opts.eventId),
+      meetingLink: opts.meetingLink ?? undefined,
     };
     const payload = {
       ...basePayload,
