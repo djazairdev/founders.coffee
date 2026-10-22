@@ -43,6 +43,8 @@ export {
   revokeHackathonTeamInvite,
 } from './team-invites-rpc.js';
 export type { TeamInviteCreated, TeamJoined } from './team-invites.js';
+export { saveHackathonSubmissionDraft } from './submission-drafts-rpc.js';
+export type { SubmissionDraftSaved } from './submission-drafts.js';
 export {
   leaveHackathonTeam,
   passHackathonTeamCaptaincy,

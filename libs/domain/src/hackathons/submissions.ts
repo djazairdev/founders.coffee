@@ -21,7 +21,7 @@ export const SUBMISSION_PULL_REQUEST_LIMIT =
   HACKATHON_SUBMISSION_PULL_REQUEST_MAX;
 export const SUBMISSION_AI_TOOL_LIMIT = HACKATHON_SUBMISSION_AI_TOOL_MAX;
 
-const httpsUrlSchema = z
+export const submissionUrlSchema = z
   .string()
   .trim()
   .max(HACKATHON_SUBMISSION_URL_MAX)
@@ -35,10 +35,10 @@ export const submissionSchema = z.strictObject({
     .trim()
     .min(20)
     .max(HACKATHON_SUBMISSION_DESCRIPTION_MAX),
-  repositoryUrl: httpsUrlSchema,
-  demoVideoUrl: httpsUrlSchema.nullable().default(null),
+  repositoryUrl: submissionUrlSchema,
+  demoVideoUrl: submissionUrlSchema.nullable().default(null),
   pullRequestUrls: z
-    .array(httpsUrlSchema)
+    .array(submissionUrlSchema)
     .max(SUBMISSION_PULL_REQUEST_LIMIT)
     .default([]),
   aiTools: z
