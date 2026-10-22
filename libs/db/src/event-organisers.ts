@@ -60,6 +60,7 @@ const eventOrganisationsWhere = (db: Db, which: SQL) =>
     .select({
       eventId: eventOrganisers.eventId,
       name: organization.name,
+      slug: organization.slug,
       kind: organization.kind,
       role: eventOrganisers.role,
     })

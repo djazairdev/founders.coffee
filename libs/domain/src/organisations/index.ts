@@ -11,6 +11,7 @@ export {
   organisationDescriptionSchema,
   organisationEditSchema,
   organisationNameSchema,
+  organisationSlugLookupSchema,
   organisationSlugSchema,
   RESERVED_ORGANISATION_SLUGS,
   INVITABLE_ORGANISATION_ROLES,

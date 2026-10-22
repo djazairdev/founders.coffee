@@ -151,7 +151,12 @@ export const EventDetail = ({
         <h1 className="mt-4 font-display text-h3 font-semibold text-balance md:text-h2">
           <bdi>{event.title}</bdi>
         </h1>
-        <EventCoHosts runBy={event.runBy} locale={locale} className="mt-3" />
+        <EventCoHosts
+          runBy={event.runBy}
+          locale={locale}
+          isLinked
+          className="mt-3"
+        />
         {event.description ? (
           <p className="mt-4 max-w-3xl whitespace-pre-line text-body-lg leading-relaxed text-neutral">
             <IsolatedLines text={event.description} />

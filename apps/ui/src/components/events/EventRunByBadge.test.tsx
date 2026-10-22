@@ -32,7 +32,13 @@ const ORGANISED_BY = { ar: 'بتنظيم', fr: 'Organisé par', en: 'Organised b
 
 const RUN_BY = {
   platform: { kind: 'platform' },
-  co_hosted: { kind: 'co_hosted', names: ['Code Club Alger', 'GDG Algiers'] },
+  co_hosted: {
+    kind: 'co_hosted',
+    organisations: [
+      { name: 'Code Club Alger', slug: 'code-club-alger' },
+      { name: 'GDG Algiers', slug: 'gdg-algiers' },
+    ],
+  },
   community: { kind: 'community' },
 } as const satisfies Record<EventRunBy['kind'], EventRunBy>;
 
@@ -106,6 +112,29 @@ describe('who runs each event (B-EVT-19)', () => {
           `${ORGANISED_BY[locale]} Code Club Alger`,
         );
       }
+    },
+  );
+
+  it.each(['ar', 'fr', 'en'] as const)(
+    'links each co-host to its page on the %s event page, not inside the card',
+    (locale) => {
+      const page = renderPage(locale, RUN_BY.co_hosted);
+      const card = renderCard(locale, RUN_BY.co_hosted);
+
+      expect(
+        [...page.querySelectorAll('a')]
+          .filter((link) => link.querySelector('bdi'))
+          .map((link) => [link.textContent, link.getAttribute('href')]),
+      ).toEqual([
+        ['Code Club Alger', `/${locale}/o/code-club-alger`],
+        ['GDG Algiers', `/${locale}/o/gdg-algiers`],
+      ]);
+      expect(card.querySelectorAll('a a')).toHaveLength(0);
+      expect(
+        [...card.querySelectorAll('a[href*="/o/"]')].map((link) =>
+          link.getAttribute('href'),
+        ),
+      ).toEqual([]);
     },
   );
 

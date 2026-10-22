@@ -7,6 +7,7 @@ const organiser = (
   overrides: Partial<EventOrganiserSummary> = {},
 ): EventOrganiserSummary => ({
   name,
+  slug: name.toLowerCase().replaceAll(/[^a-z0-9]+/gu, '-'),
   kind: 'club',
   role: 'co_host',
   ...overrides,
@@ -37,7 +38,11 @@ describe('who runs an event (B-EVT-19)', () => {
       ]),
     ).toEqual({
       kind: 'co_hosted',
-      names: ['Code Club Alger', 'GDG Algiers', 'USTHB Robotics'],
+      organisations: [
+        { name: 'Code Club Alger', slug: 'code-club-alger' },
+        { name: 'GDG Algiers', slug: 'gdg-algiers' },
+        { name: 'USTHB Robotics', slug: 'usthb-robotics' },
+      ],
     });
   });
 
@@ -49,7 +54,10 @@ describe('who runs an event (B-EVT-19)', () => {
       ]),
     ).toEqual({
       kind: 'co_hosted',
-      names: ['Code Club Alger', 'founders.coffee'],
+      organisations: [
+        { name: 'Code Club Alger', slug: 'code-club-alger' },
+        { name: 'founders.coffee', slug: 'founders-coffee' },
+      ],
     });
   });
 

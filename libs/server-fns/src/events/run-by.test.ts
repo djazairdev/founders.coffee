@@ -63,7 +63,13 @@ describe('who runs each event (B-EVT-19, real D1)', () => {
       [alone, { kind: 'community' }],
       [
         coHosted,
-        { kind: 'co_hosted', names: ['Code Club Alger', 'GDG Algiers'] },
+        {
+          kind: 'co_hosted',
+          organisations: [
+            { name: 'Code Club Alger', slug: 'org_runby_club' },
+            { name: 'GDG Algiers', slug: 'org_runby_gdg' },
+          ],
+        },
       ],
       [platform, { kind: 'platform' }],
       [suspended, { kind: 'community' }],

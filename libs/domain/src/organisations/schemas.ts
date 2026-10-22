@@ -38,7 +38,7 @@ const SLUG_SHAPE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 export const isReservedOrganisationSlug = (slug: string): boolean =>
   (RESERVED_ORGANISATION_SLUGS as readonly string[]).includes(slug);
 
-export const organisationSlugSchema = z
+export const organisationSlugLookupSchema = z
   .string()
   .trim()
   .toLowerCase()
@@ -47,11 +47,12 @@ export const organisationSlugSchema = z
   .regex(
     SLUG_SHAPE,
     'Use lowercase letters and digits, joined by single hyphens',
-  )
-  .refine(
-    (slug) => !isReservedOrganisationSlug(slug),
-    'This address is reserved',
   );
+
+export const organisationSlugSchema = organisationSlugLookupSchema.refine(
+  (slug) => !isReservedOrganisationSlug(slug),
+  'This address is reserved',
+);
 
 export const organisationNameSchema = z
   .string()

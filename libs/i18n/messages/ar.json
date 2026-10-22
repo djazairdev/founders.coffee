@@ -1136,5 +1136,10 @@
   "org_invitation_declined_body": "رفضت هذه الدعوة.",
   "org_invitation_unavailable_body": "لا تستطيع {organisation} ضمّ أعضاء جدد حاليًا.",
   "org_invitation_already_member_body": "أنت عضو في {organisation} بالفعل.",
-  "org_invitation_error_failed": "تعذّر حفظ ردّك. حاول مجددًا."
+  "org_invitation_error_failed": "تعذّر حفظ ردّك. حاول مجددًا.",
+  "org_page_upcoming": "الفعاليات القادمة",
+  "org_page_past": "الفعاليات السابقة",
+  "org_page_no_upcoming": "لا توجد فعاليات قادمة حاليًا.",
+  "org_page_no_past": "لا توجد فعاليات سابقة بعد.",
+  "org_page_website": "الموقع الإلكتروني"
 }

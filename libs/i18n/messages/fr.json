@@ -1262,5 +1262,10 @@
   "org_invitation_declined_body": "Vous avez refusé cette invitation.",
   "org_invitation_unavailable_body": "{organisation} ne peut pas accueillir de nouveaux membres pour le moment.",
   "org_invitation_already_member_body": "Vous faites déjà partie de {organisation}.",
-  "org_invitation_error_failed": "Votre réponse n’a pas pu être enregistrée. Réessayez."
+  "org_invitation_error_failed": "Votre réponse n’a pas pu être enregistrée. Réessayez.",
+  "org_page_upcoming": "Événements à venir",
+  "org_page_past": "Événements passés",
+  "org_page_no_upcoming": "Aucun événement à venir pour le moment.",
+  "org_page_no_past": "Aucun événement passé pour l’instant.",
+  "org_page_website": "Site web"
 }

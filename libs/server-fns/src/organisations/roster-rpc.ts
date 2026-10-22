@@ -24,7 +24,7 @@ import { myOrganisationResolver, removeMemberResolver } from './roster.js';
 const { organisationMemberRemove } = RATE_BUDGETS.edit;
 
 const myOrganisationSchema = z.strictObject({
-  slug: organisations.organisationSlugSchema,
+  slug: organisations.organisationSlugLookupSchema,
 });
 
 const removeMemberSchema = z.strictObject({

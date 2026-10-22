@@ -28,6 +28,8 @@ const PRIVATE_PATHS = [
 ];
 const HTML_CONTENT_TYPE = 'text/html';
 const MAX_DYNAMIC_ROUTES = 25;
+const DYNAMIC_TYPES = ['city', 'event', 'organisation'];
+const PLATFORM_ORGANISATION = 'founders-coffee';
 const SITEMAP_SMOKE_QUERY = '?seo_smoke=1';
 
 const argument = (name, fallback) => {
@@ -204,6 +206,7 @@ const run = async () => {
     ...LOCALES.flatMap((locale) => [
       ...COMPANY_PAGES.map((page) => `/${locale}/${page}`),
       `/${locale}/algeria`,
+      `/${locale}/o/${PLATFORM_ORGANISATION}`,
     ]),
   ]);
   let sitemapDynamicCount = 0;
@@ -215,11 +218,10 @@ const run = async () => {
       if (
         type === 'market' ||
         type === 'company' ||
-        (sitemapDynamicCount < maxDynamicRoutes &&
-          (type === 'city' || type === 'event'))
+        (sitemapDynamicCount < maxDynamicRoutes && DYNAMIC_TYPES.includes(type))
       ) {
         paths.add(parsed.pathname);
-        if (type === 'city' || type === 'event') sitemapDynamicCount += 1;
+        if (DYNAMIC_TYPES.includes(type)) sitemapDynamicCount += 1;
       }
     } catch {
       failures.push(`sitemap.xml: invalid URL ${sitemapUrl}`);
@@ -236,7 +238,7 @@ const run = async () => {
   for (const path of discovery) {
     const type = classifyPath(path);
     if (
-      (type === 'market' || type === 'city' || type === 'event') &&
+      (type === 'market' || DYNAMIC_TYPES.includes(type)) &&
       (type === 'market' || dynamicCount < maxDynamicRoutes)
     ) {
       paths.add(path);
@@ -254,7 +256,7 @@ const run = async () => {
     failures.push(...privateRouteFailures({ path, response, body }));
   }
   const coverage = Object.fromEntries(
-    ['company', 'market', 'city', 'event'].map((type) => [
+    ['company', 'market', 'city', 'event', 'organisation'].map((type) => [
       type,
       routes.filter((route) => route.type === type).length,
     ]),

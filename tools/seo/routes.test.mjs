@@ -34,12 +34,14 @@ describe('telling one kind of route from another', () => {
     ['/fr/algeria/host/create', 'utility'],
     ['/ar/o/apply', 'utility'],
     ['/fr/o/invitations/inv_1', 'utility'],
+    ['/en/o/code-club', 'organisation'],
+    ['/ar/o/founders-coffee', 'organisation'],
   ])('reads %s as a %s route', (path, type) => {
     expect(classifyPath(path)).toBe(type);
   });
 
-  it('leaves an organisation address it has no contract for uncovered', () => {
-    expect(classifyPath('/en/o/code-club')).toBeNull();
+  it("leaves an organisation's signed-in pages uncovered", () => {
+    expect(classifyPath('/en/o/code-club/manage')).toBeNull();
   });
 
   it('leaves a path with no locale in front uncovered', () => {

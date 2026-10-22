@@ -7,10 +7,25 @@ vi.mock('@tanstack/react-router', () => ({
   Link: ({
     children,
     className,
+    to = '/',
+    params = {},
   }: {
     children: ReactNode;
     className?: string;
-  }) => createElement('a', { href: '/', className }, children),
+    to?: string;
+    params?: Record<string, string>;
+  }) =>
+    createElement(
+      'a',
+      {
+        href: to.replaceAll(
+          /\$(\w+)/gu,
+          (_, name: string) => params[name] ?? '',
+        ),
+        className,
+      },
+      children,
+    ),
 }));
 
 export const event: EventFeedItem = {

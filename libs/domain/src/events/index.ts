@@ -59,6 +59,7 @@ export {
 } from './format.js';
 export {
   eventRunBy,
+  type EventOrganisationName,
   type EventOrganiserSummary,
   type EventRunBy,
 } from './run-by.js';
