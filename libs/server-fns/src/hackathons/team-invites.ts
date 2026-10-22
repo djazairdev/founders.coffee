@@ -6,12 +6,14 @@ import {
   replaceTeamInvite,
   revokeTeamInvites,
   type Db,
+  type Event,
 } from '@founders-coffee/db';
 import { hackathons } from '@founders-coffee/domain';
 import { logger } from '@founders-coffee/observability';
 
 import { hashSecretToken, newSecretToken } from '../secret-tokens.js';
 import { loadTeamHackathon } from './team-context.js';
+import { noticeTeamJoined } from './team-notices.js';
 
 type Captain = { readonly eventId: string; readonly userId: string };
 
@@ -115,8 +117,7 @@ export const joinTeamByInviteResolver = async (
   const decide = async (): Promise<
     Result<{
       readonly teamId: string;
-      readonly eventId: string;
-      readonly marketCode: string;
+      readonly event: Event;
     }>
   > => {
     const invite = await readTeamInvite(db, tokenHash);
@@ -140,16 +141,13 @@ export const joinTeamByInviteResolver = async (
       teamMax: invite.teamMax,
     });
     return decided.ok
-      ? ok({
-          teamId: invite.teamId,
-          eventId: invite.eventId,
-          marketCode: loaded.data.event.marketCode,
-        })
+      ? ok({ teamId: invite.teamId, event: loaded.data.event })
       : decided;
   };
   const decided = await decide();
   if (!decided.ok) return decided;
-  const { teamId, eventId, marketCode } = decided.data;
+  const { teamId, event } = decided.data;
+  const eventId = event.id;
   const joined = await joinTeamByInvite(db, {
     tokenHash,
     eventId,
@@ -159,6 +157,11 @@ export const joinTeamByInviteResolver = async (
     const again = await decide();
     return again.ok ? inviteInvalid() : again;
   }
-  logger.info('hackathon.team_joined', { eventId, marketCode, via: 'invite' });
+  logger.info('hackathon.team_joined', {
+    eventId,
+    marketCode: event.marketCode,
+    via: 'invite',
+  });
+  await noticeTeamJoined(db, event, { teamId, memberId: input.userId });
   return ok({ eventId, teamId });
 };

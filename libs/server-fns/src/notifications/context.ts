@@ -108,6 +108,16 @@ export const organisationInvitationUrlFor = (
 ): string =>
   `${notificationBaseUrl()}/${locale}/o/invitations/${encodeURIComponent(invitationId)}`;
 
+/** A member's team page in a hackathon (B-TEAM-07), on the same terms as `closeoutUrlFor`. */
+export const hackathonTeamUrlFor = (locale: Locale, eventId: string): string =>
+  `${notificationBaseUrl()}/${locale}/hackathon/${eventId}/team`;
+
+/** Who is looking for a team in a hackathon (B-TEAM-08), on the same terms as `closeoutUrlFor`. */
+export const hackathonLookingUrlFor = (
+  locale: Locale,
+  eventId: string,
+): string => `${notificationBaseUrl()}/${locale}/hackathon/${eventId}/looking`;
+
 /** The screen where an attendee leaves feedback, on the same terms as `closeoutUrlFor`. */
 export const feedbackUrlFor = (locale: Locale, eventId: string): string =>
   `${notificationBaseUrl()}/${locale}/feedback/${eventId}`;

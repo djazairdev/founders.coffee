@@ -34,6 +34,7 @@ import {
 import type {
   HackathonRegistrationTemplateKey,
   HackathonReminderKey,
+  HackathonTeamTemplateKey,
   NotificationTemplateKey,
 } from '@founders-coffee/core';
 
@@ -153,6 +154,7 @@ export const smsBodyFor = (
     | 'chat_unread'
     | HackathonRegistrationTemplateKey
     | HackathonReminderKey
+    | HackathonTeamTemplateKey
   >,
   values: TemplateValues,
   locale: Locale,
@@ -189,7 +191,10 @@ export const smsBodyFor = (
 export const pushPayloadFor = (
   templateKey: Exclude<
     NotificationTemplateKey,
-    'chat_unread' | HackathonRegistrationTemplateKey | HackathonReminderKey
+    | 'chat_unread'
+    | HackathonRegistrationTemplateKey
+    | HackathonReminderKey
+    | HackathonTeamTemplateKey
   >,
   values: TemplateValues,
   locale: Locale,
