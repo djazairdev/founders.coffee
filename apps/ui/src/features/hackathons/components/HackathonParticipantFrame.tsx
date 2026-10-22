@@ -6,7 +6,7 @@ import { hackathon_team_back, type Locale } from '@founders-coffee/i18n';
 import { localizedEvent } from '../../../lib/locale-routing';
 import type { RootMarket } from '../../markets/api';
 
-export const HackathonTeamFrame = ({
+export const HackathonParticipantFrame = ({
   title,
   locale,
   markets,

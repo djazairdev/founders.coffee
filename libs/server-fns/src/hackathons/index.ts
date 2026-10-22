@@ -76,6 +76,8 @@ export type {
   OrganiserMentorView,
 } from './mentors.js';
 export { saveHackathonSubmissionDraft } from './submission-drafts-rpc.js';
+export { getHackathonSubmissionPage } from './submission-page-rpc.js';
+export type { SubmissionPageView, SubmissionStage } from './submission-page.js';
 export type { SubmissionDraftSaved } from './submission-drafts.js';
 export { submitHackathonSubmission } from './submission-submit-rpc.js';
 export type { SubmissionSubmitted } from './submission-submit.js';

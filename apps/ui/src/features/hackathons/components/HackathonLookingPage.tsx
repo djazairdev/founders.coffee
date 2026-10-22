@@ -19,8 +19,8 @@ import type { LookingForTeamView } from '../api';
 import { useLookingForTeam } from '../team-hooks';
 import { HackathonLookingParticipants } from './HackathonLookingParticipants';
 import { HackathonLookingTeams } from './HackathonLookingTeams';
-import { HackathonTeamFrame } from './HackathonTeamFrame';
-import { HackathonTeamQueryStatus } from './HackathonTeamQueryStatus';
+import { HackathonParticipantFrame } from './HackathonParticipantFrame';
+import { HackathonParticipantQueryStatus } from './HackathonParticipantQueryStatus';
 
 const Lists = ({
   view,
@@ -80,7 +80,7 @@ export const HackathonLookingPage = ({
   const query = useLookingForTeam(eventId);
   const view = query.data;
   return (
-    <HackathonTeamFrame
+    <HackathonParticipantFrame
       title={hackathon_looking_title({}, { locale })}
       locale={locale}
       markets={markets}
@@ -97,7 +97,7 @@ export const HackathonLookingPage = ({
           <Lists view={view} locale={locale} />
         </>
       ) : (
-        <HackathonTeamQueryStatus
+        <HackathonParticipantQueryStatus
           isError={query.isError}
           error={query.error}
           onRetry={() => void query.refetch()}
@@ -106,6 +106,6 @@ export const HackathonLookingPage = ({
           locale={locale}
         />
       )}
-    </HackathonTeamFrame>
+    </HackathonParticipantFrame>
   );
 };
