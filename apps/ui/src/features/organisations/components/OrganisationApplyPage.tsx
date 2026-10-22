@@ -1,19 +1,23 @@
+import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 
 import {
   org_apply_intro,
   org_apply_sent,
+  org_apply_sent_link,
   org_apply_sent_title,
   org_apply_title,
   type Locale,
 } from '@founders-coffee/i18n';
 import { StatusMessage } from '@founders-coffee/ui';
 
+import { localizedMyOrganisation } from '../../../lib/locale-routing';
 import type { RootMarket } from '../../markets/api';
 import { OrganisationApplyForm } from './OrganisationApplyForm';
 
 type Stage =
-  { readonly kind: 'form' } | { readonly kind: 'sent'; readonly name: string };
+  | { readonly kind: 'form' }
+  | { readonly kind: 'sent'; readonly name: string; readonly slug: string };
 
 export const OrganisationApplyPage = ({
   locale,
@@ -38,6 +42,12 @@ export const OrganisationApplyPage = ({
           <StatusMessage variant="success">
             {org_apply_sent({ name: stage.name }, { locale })}
           </StatusMessage>
+          <Link
+            {...localizedMyOrganisation(locale, stage.slug)}
+            className="link link-hover font-medium text-secondary"
+          >
+            {org_apply_sent_link({}, { locale })}
+          </Link>
         </section>
       ) : (
         <>
@@ -49,7 +59,7 @@ export const OrganisationApplyPage = ({
               defaultMarketCode={defaultMarketCode}
               locale={locale}
               markets={markets}
-              onSent={(name) => setStage({ kind: 'sent', name })}
+              onSent={(sent) => setStage({ kind: 'sent', ...sent })}
             />
           </div>
         </>

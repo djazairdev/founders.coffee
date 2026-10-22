@@ -1,9 +1,5 @@
 import { AppError, err, ok, type Result } from '@founders-coffee/core';
-import {
-  isAuthRefusal,
-  type AuthInstance,
-  type AuthSession,
-} from '@founders-coffee/auth';
+import type { AuthInstance, AuthSession } from '@founders-coffee/auth';
 import {
   isOrganisationMemberByEmail,
   readOrganisationInvitation,
@@ -12,7 +8,9 @@ import {
   type OrganisationInvitationRecord,
 } from '@founders-coffee/db';
 import { organisations } from '@founders-coffee/domain';
-import { logger, reportError } from '@founders-coffee/observability';
+import { logger } from '@founders-coffee/observability';
+
+import { throughBetterAuth } from './better-auth-call.js';
 
 export type InvitableRole = 'admin' | 'member';
 
@@ -28,30 +26,11 @@ type Invitee = Pick<AuthSession['user'], 'id' | 'email' | 'emailVerified'>;
 const notFound = () =>
   new AppError('organisation_invitation_not_found', 'Invitation not found');
 
-/**
- * Run one Better Auth invitation call, turning a refusal it still makes into our own code.
- *
- * The resolvers refuse every case they can foresee before Better Auth runs, from the rows it would
- * read, so a refusal here is one nobody planned for: it is reported, and the caller learns only that
- * the invitation could not be handled. A failure that is not a refusal is thrown on.
- */
-const throughBetterAuth = async <T>(
-  operation: string,
-  call: () => Promise<T>,
-): Promise<Result<T>> => {
-  try {
-    return ok(await call());
-  } catch (error) {
-    if (!isAuthRefusal(error)) throw error;
-    reportError(error, { operation });
-    return err(
-      new AppError(
-        'organisation_invitation_failed',
-        'The invitation could not be handled',
-      ),
-    );
-  }
-};
+const invitationFailed = () =>
+  new AppError(
+    'organisation_invitation_failed',
+    'The invitation could not be handled',
+  );
 
 /**
  * Invite someone to an organisation by email, as an admin or a member (B-ORG-05).
@@ -83,16 +62,19 @@ export const inviteMemberResolver = async (
         'This address already belongs to the organisation',
       ),
     );
-  const created = await throughBetterAuth('invite_organisation_member', () =>
-    auth.api.createInvitation({
-      headers: input.headers,
-      body: {
-        organizationId: input.organisationId,
-        email: input.email,
-        role: input.role,
-        resend: true,
-      },
-    }),
+  const created = await throughBetterAuth(
+    'invite_organisation_member',
+    invitationFailed(),
+    () =>
+      auth.api.createInvitation({
+        headers: input.headers,
+        body: {
+          organizationId: input.organisationId,
+          email: input.email,
+          role: input.role,
+          resend: true,
+        },
+      }),
   );
   if (!created.ok) return created;
   logger.info('organisation.invited', {
@@ -174,6 +156,7 @@ export const acceptInvitationResolver = async (
     );
   const accepted = await throughBetterAuth(
     'accept_organisation_invitation',
+    invitationFailed(),
     () =>
       auth.api.acceptInvitation({
         headers: input.headers,
@@ -203,6 +186,7 @@ export const rejectInvitationResolver = async (
   if (refusal || !invitation) return err(refusal ?? notFound());
   const rejected = await throughBetterAuth(
     'reject_organisation_invitation',
+    invitationFailed(),
     () =>
       auth.api.rejectInvitation({
         headers: input.headers,
@@ -239,6 +223,7 @@ export const cancelInvitationResolver = async (
     return err(notFound());
   const cancelled = await throughBetterAuth(
     'cancel_organisation_invitation',
+    invitationFailed(),
     () =>
       auth.api.cancelInvitation({
         headers: input.headers,

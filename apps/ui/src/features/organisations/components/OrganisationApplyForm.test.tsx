@@ -123,7 +123,12 @@ describe('applying for an organisation (B-ORG-08)', () => {
 
     send();
 
-    await waitFor(() => expect(onSent).toHaveBeenCalledWith('Oran Makers'));
+    await waitFor(() =>
+      expect(onSent).toHaveBeenCalledWith({
+        name: 'Oran Makers',
+        slug: 'oran-makers',
+      }),
+    );
     expect(mocks.apply).toHaveBeenCalledWith({
       name: 'Oran Makers',
       slug: 'oran-makers',

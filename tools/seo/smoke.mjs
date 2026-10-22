@@ -23,6 +23,7 @@ const PRIVATE_PATHS = [
   '/activity',
   '/algeria/host/create',
   '/en/o/apply',
+  '/en/o/code-club/manage',
 ];
 const HTML_CONTENT_TYPE = 'text/html';
 const MAX_DYNAMIC_ROUTES = 25;

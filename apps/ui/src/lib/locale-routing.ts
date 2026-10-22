@@ -165,6 +165,12 @@ export const localizedOrganisationApply = (locale: Locale) => ({
   params: { locale },
 });
 
+/** The page where a member sees their own organisation and its members (B-ORG-09). */
+export const localizedMyOrganisation = (locale: Locale, slug: string) => ({
+  to: '/$locale/o/$slug/manage' as const,
+  params: { locale, slug },
+});
+
 /** The reader's own activity, on the same terms as {@link localizedProfile}. */
 export const localizedProfileActivity = (locale: Locale) => ({
   to: '/$locale/profile/activity' as const,
