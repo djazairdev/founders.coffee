@@ -257,6 +257,8 @@ export const AUDIT_ACTIONS = [
   'recused',
   'disqualified',
   'results_published',
+  'co_host_added',
+  'co_host_removed',
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 export const auditActionSchema = z.enum(AUDIT_ACTIONS);

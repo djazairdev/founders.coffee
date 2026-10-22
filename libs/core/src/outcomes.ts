@@ -129,6 +129,8 @@ export const ORGANISATION_ERROR_CODES = [
   'organisation_member_not_found',
   'organisation_member_protected',
   'organisation_member_remove_failed',
+  'organisation_already_organiser',
+  'organisation_not_co_host',
 ] as const;
 export type OrganisationErrorCode = (typeof ORGANISATION_ERROR_CODES)[number];
 

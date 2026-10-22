@@ -11,3 +11,13 @@ export type {
   OrganisationReviewItem,
   OrganisationReviewQueue,
 } from './organisation-review.js';
+export {
+  addEventCoHostOrganisation,
+  getEventCoHosts,
+  removeEventCoHostOrganisation,
+} from './event-cohosts-rpc.js';
+export type {
+  EventCoHostChangeRequest,
+  EventCoHostsRequest,
+} from './event-cohosts-rpc.js';
+export type { EventCoHosts } from './event-cohosts.js';
