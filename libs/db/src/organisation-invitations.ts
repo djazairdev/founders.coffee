@@ -17,9 +17,16 @@ export type OrganisationInvitationRecord = {
   readonly status: OrganisationInvitationStatus;
   readonly expiresAt: Date;
   readonly organisationStatus: OrganisationStatus;
+  readonly organisationName: string;
+  readonly organisationSlug: string;
+  readonly organisationMarketCode: string;
+  readonly inviterName: string | null;
 };
 
-/** An invitation with its organisation's review status, in one read; null when there is none. */
+/**
+ * An invitation with its organisation's name, slug, market and review status and its inviter's name, in one
+ * read; null when there is none. The inviter is null once their account is gone.
+ */
 export const readOrganisationInvitation = async (
   db: Db,
   invitationId: string,
@@ -33,9 +40,14 @@ export const readOrganisationInvitation = async (
       status: invitation.status,
       expiresAt: invitation.expiresAt,
       organisationStatus: organization.status,
+      organisationName: organization.name,
+      organisationSlug: organization.slug,
+      organisationMarketCode: organization.marketCode,
+      inviterName: user.name,
     })
     .from(invitation)
     .innerJoin(organization, eq(organization.id, invitation.organizationId))
+    .leftJoin(user, eq(user.id, invitation.inviterId))
     .where(eq(invitation.id, invitationId))
     .limit(1);
   return row ?? null;
