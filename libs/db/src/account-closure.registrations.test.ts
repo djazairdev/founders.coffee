@@ -1,31 +1,13 @@
 import { eq, sql } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
 
-import { id } from '@founders-coffee/core';
-
 import { eraseClosedAccount } from './account-closure.js';
 import { person } from './account-closure.fixtures.js';
 import { setupDb } from './events.fixtures.js';
+import { register } from './hackathon-teams.fixtures.js';
 import { createHackathon, hackathonEventRow } from './hackathons.fixtures.js';
 import type { Db } from './db.js';
 import { hackathonRegistrations, hackathons, user } from './schema.js';
-
-const register = (
-  db: Db,
-  eventId: string,
-  userId: string,
-  status: 'registered' | 'waitlisted',
-) =>
-  db.insert(hackathonRegistrations).values({
-    id: id('reg'),
-    eventId,
-    userId,
-    status,
-    attendanceMode: 'online',
-    codeOfConductAcceptedAt: new Date('2099-01-05T09:00:00Z'),
-    skills: 'TypeScript, product design',
-    isLookingForTeam: true,
-  });
 
 const holding = async (db: Db, eventId: string, count: number) =>
   db

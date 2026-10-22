@@ -428,6 +428,13 @@
       "when": 1792632446470,
       "tag": "0060_hackathon_prizes",
       "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "6",
+      "when": 1792634719459,
+      "tag": "0061_hackathon_teams",
+      "breakpoints": true
     }
   ]
 }

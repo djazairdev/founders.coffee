@@ -32,6 +32,9 @@ import {
   HACKATHON_REGISTRATION_SKILLS_MAX,
   HACKATHON_REGISTRATION_STATUSES,
   HACKATHON_REVIEW_STATUSES,
+  HACKATHON_TEAM_DESCRIPTION_MAX,
+  HACKATHON_TEAM_NAME_MAX,
+  HACKATHON_TEAM_REQUEST_STATUSES,
   HACKATHON_TRACK_KINDS,
   EVENT_ORGANISER_ROLES,
   EVENT_STATUSES,
@@ -745,6 +748,169 @@ export const hackathonRegistrations = sqliteTable(
 export type HackathonRegistration = typeof hackathonRegistrations.$inferSelect;
 export type NewHackathonRegistration =
   typeof hackathonRegistrations.$inferInsert;
+
+/**
+ * A hackathon's teams (B-TEAM-01): our own tables, not Better Auth teams, because participants are
+ * not members of the organising organisation (B8). A name is unique within its hackathon, whatever
+ * its case; `is_looking_for_members` puts the team on the looking-for-a-team page.
+ */
+export const hackathonTeams = sqliteTable(
+  'hackathon_teams',
+  {
+    id: text('id').primaryKey(),
+    eventId: text('event_id')
+      .notNull()
+      .references(() => hackathons.eventId, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    description: text('description'),
+    isLookingForMembers: integer('looking_for_members', { mode: 'boolean' })
+      .notNull()
+      .default(false),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex('hackathon_teams_event_unique').on(table.id, table.eventId),
+    uniqueIndex('hackathon_teams_name_unique').on(
+      table.eventId,
+      sql`lower(${table.name})`,
+    ),
+    index('hackathon_teams_looking_index').on(
+      table.eventId,
+      table.isLookingForMembers,
+    ),
+    check(
+      'hackathon_teams_name_check',
+      sql`length(trim(${table.name})) BETWEEN 1 AND ${sql.raw(String(HACKATHON_TEAM_NAME_MAX))}`,
+    ),
+    check(
+      'hackathon_teams_description_check',
+      sql`${table.description} IS NULL OR length(${table.description}) <= ${sql.raw(String(HACKATHON_TEAM_DESCRIPTION_MAX))}`,
+    ),
+  ],
+);
+
+export type HackathonTeam = typeof hackathonTeams.$inferSelect;
+export type NewHackathonTeam = typeof hackathonTeams.$inferInsert;
+
+/**
+ * Who is in a team. A participant is in one team per hackathon, which the unique `(event_id,
+ * user_id)` holds, and has to be registered for it, which the key on their registration holds; the
+ * team is the hackathon's own. A team has one captain, `is_captain`, held by a partial unique index.
+ */
+export const hackathonTeamMembers = sqliteTable(
+  'hackathon_team_members',
+  {
+    teamId: text('team_id').notNull(),
+    eventId: text('event_id').notNull(),
+    userId: text('user_id').notNull(),
+    isCaptain: integer('is_captain', { mode: 'boolean' })
+      .notNull()
+      .default(false),
+    joinedAt: integer('joined_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    primaryKey({ columns: [table.teamId, table.userId] }),
+    foreignKey({
+      columns: [table.teamId, table.eventId],
+      foreignColumns: [hackathonTeams.id, hackathonTeams.eventId],
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.eventId, table.userId],
+      foreignColumns: [
+        hackathonRegistrations.eventId,
+        hackathonRegistrations.userId,
+      ],
+    }).onDelete('cascade'),
+    uniqueIndex('hackathon_team_members_event_user_unique').on(
+      table.eventId,
+      table.userId,
+    ),
+    uniqueIndex('hackathon_team_members_captain_unique')
+      .on(table.teamId)
+      .where(sql`is_captain = 1`),
+  ],
+);
+
+export type HackathonTeamMember = typeof hackathonTeamMembers.$inferSelect;
+
+/**
+ * A team's invite links (B-TEAM-04). Only the token's hash is kept, so the table never holds a
+ * working link; a link stops working at `expires_at` or once revoked. Who made it stays with the
+ * team, from the tombstone once their account is closed.
+ */
+export const hackathonTeamInvites = sqliteTable(
+  'hackathon_team_invites',
+  {
+    id: text('id').primaryKey(),
+    teamId: text('team_id')
+      .notNull()
+      .references(() => hackathonTeams.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull().unique(),
+    createdBy: text('created_by')
+      .notNull()
+      .references(() => user.id),
+    expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+    revokedAt: integer('revoked_at', { mode: 'timestamp' }),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [index('hackathon_team_invites_team_index').on(table.teamId)],
+);
+
+export type HackathonTeamInvite = typeof hackathonTeamInvites.$inferSelect;
+
+/**
+ * A registered participant asking to join a team (B-TEAM-05), which its captain accepts or
+ * declines, or the participant cancels. One pending request per person per team, held by a partial
+ * unique index; answered ones stay as the record of what happened.
+ */
+export const hackathonTeamRequests = sqliteTable(
+  'hackathon_team_requests',
+  {
+    id: text('id').primaryKey(),
+    teamId: text('team_id').notNull(),
+    eventId: text('event_id').notNull(),
+    userId: text('user_id').notNull(),
+    status: text('status', { enum: [...HACKATHON_TEAM_REQUEST_STATUSES] })
+      .notNull()
+      .default('pending'),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    decidedAt: integer('decided_at', { mode: 'timestamp' }),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.teamId, table.eventId],
+      foreignColumns: [hackathonTeams.id, hackathonTeams.eventId],
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.eventId, table.userId],
+      foreignColumns: [
+        hackathonRegistrations.eventId,
+        hackathonRegistrations.userId,
+      ],
+    }).onDelete('cascade'),
+    uniqueIndex('hackathon_team_requests_pending_unique')
+      .on(table.teamId, table.userId)
+      .where(sql`status = 'pending'`),
+    index('hackathon_team_requests_user_index').on(table.eventId, table.userId),
+    check(
+      'hackathon_team_requests_decided_check',
+      sql`(${table.status} = 'pending') = (${table.decidedAt} IS NULL)`,
+    ),
+  ],
+);
+
+export type HackathonTeamRequest = typeof hackathonTeamRequests.$inferSelect;
 
 /** Event RSVP — one per user per event (UNIQUE constraint). */
 export const eventRsvps = sqliteTable(
