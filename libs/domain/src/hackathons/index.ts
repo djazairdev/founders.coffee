@@ -1,6 +1,8 @@
 export {
   decideRegistration,
+  hackathonRegistrationSchema,
   isAttendanceModeOffered,
+  type HackathonRegistrationInput,
   type RegistrationRequest,
 } from './registration.js';
 export {

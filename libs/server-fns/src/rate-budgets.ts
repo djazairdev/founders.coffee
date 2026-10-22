@@ -38,6 +38,11 @@ export const RATE_BUDGETS = {
       limit: 20,
       windowMs: 10 * MINUTE_MS,
     },
+    hackathonRegister: {
+      action: 'register_for_hackathon',
+      limit: 10,
+      windowMs: 10 * MINUTE_MS,
+    },
     organisationInvitationAnswer: {
       action: 'answer_organisation_invitation',
       limit: 10,

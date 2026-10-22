@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   decideRegistration,
+  hackathonRegistrationSchema,
   isAttendanceModeOffered,
   type RegistrationRequest,
 } from './registration.js';
@@ -115,5 +116,46 @@ describe('registering for a hackathon', () => {
     expect(
       codeOf({ format: 'in_person', attendanceMode: 'online', minimumAge: 18 }),
     ).toBe('attendance_mode_unavailable');
+  });
+});
+
+describe('the registration request (B-REG-03)', () => {
+  const request = {
+    eventId: `evt_${'a'.repeat(32)}`,
+    attendanceMode: 'online',
+    acceptsCodeOfConduct: true,
+  };
+
+  it('takes the code of conduct accepted, and nothing else assumed', () => {
+    expect(hackathonRegistrationSchema.parse(request)).toEqual({
+      ...request,
+      isAgeAttested: false,
+      isLookingForTeam: false,
+      skills: null,
+    });
+  });
+
+  it('keeps one trimmed line of skills, and reads an empty one as none', () => {
+    const parse = (skills: string) =>
+      hackathonRegistrationSchema.parse({ ...request, skills }).skills;
+    expect(parse('  Go, Postgres ')).toBe('Go, Postgres');
+    expect(parse('   ')).toBeNull();
+    expect(
+      hackathonRegistrationSchema.safeParse({
+        ...request,
+        skills: 'x'.repeat(141),
+      }).success,
+    ).toBe(false);
+  });
+
+  it('refuses a request without the code of conduct, or with fields it does not know', () => {
+    const accepts = (input: object) =>
+      hackathonRegistrationSchema.safeParse(input).success;
+    expect(accepts({ ...request, acceptsCodeOfConduct: false })).toBe(false);
+    expect(accepts({ ...request, acceptsCodeOfConduct: undefined })).toBe(
+      false,
+    );
+    expect(accepts({ ...request, status: 'registered' })).toBe(false);
+    expect(accepts({ ...request, eventId: 'evt-1' })).toBe(false);
   });
 });
