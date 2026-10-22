@@ -87,17 +87,24 @@ describe('what the sitemap is willing to have indexed', () => {
       .run();
   });
 
-  const cityPathsInSitemap = async (): Promise<string[]> => {
+  const pathsInSitemap = async (): Promise<string[]> => {
     const sitemap = await worker.fetch(
       new Request('https://founders.coffee/sitemap.xml'),
       env,
       createExecutionContext(),
     );
     const xml = await sitemap.text();
-    return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)]
-      .map((match) => new URL(match[1]).pathname)
-      .filter((path) => /^\/(ar|en|fr)\/[^/]+\/[^/]+$/.test(path));
+    return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+      (match) => new URL(match[1]).pathname,
+    );
   };
+
+  const cityPathsInSitemap = async (): Promise<string[]> =>
+    (await pathsInSitemap()).filter(
+      (path) =>
+        /^\/(ar|en|fr)\/[^/]+\/[^/]+$/.test(path) &&
+        !/^\/(ar|en|fr)\/o\//.test(path),
+    );
 
   const robotsOf = async (path: string): Promise<string> => {
     const response = await fetchDocument(`https://founders.coffee${path}`);
@@ -122,6 +129,16 @@ describe('what the sitemap is willing to have indexed', () => {
       await cityPathsInSitemap(),
       'Reghaia holds a published gathering that is over. Its event page stays indexable and stays in the sitemap; its city page went back to noindex, so the city must not. Building the city list from the event rows instead of the upcoming ones passes every other case here and fails this one',
     ).not.toContain('/fr/algeria/reghaia');
+  });
+
+  it('lists the page of each approved organisation, the platform among them (B-ORG-11)', async () => {
+    expect(await pathsInSitemap()).toEqual(
+      expect.arrayContaining([
+        '/ar/o/founders-coffee',
+        '/fr/o/founders-coffee',
+        '/en/o/founders-coffee',
+      ]),
+    );
   });
 
   it('stays the size of the events, not the size of the atlas', async () => {

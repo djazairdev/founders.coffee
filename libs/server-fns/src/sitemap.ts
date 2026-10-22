@@ -4,6 +4,7 @@ import { geo, markets } from '@founders-coffee/domain';
 import {
   listCitiesWithUpcomingEvents,
   listPublicEventSitemapRows,
+  listPublicOrganisationSlugs,
   listMarkets,
   type Market,
 } from '@founders-coffee/db';
@@ -23,10 +24,13 @@ export type SitemapEvent = {
   readonly updatedAt: Date;
 };
 
+export type SitemapOrganisation = { readonly slug: string };
+
 export type SitemapData = {
   readonly markets: readonly SitemapMarket[];
   readonly cities: readonly SitemapCity[];
   readonly events: readonly SitemapEvent[];
+  readonly organisations: readonly SitemapOrganisation[];
 };
 
 /**
@@ -61,9 +65,10 @@ export const getSitemapData = createServerFn({ strict: false }).handler(
     const marketByCode = new Map(
       visibleMarkets.map((market) => [market.code, market]),
     );
-    const [eventRows, cityRows] = await Promise.all([
+    const [eventRows, cityRows, organisationSlugs] = await Promise.all([
       listPublicEventSitemapRows(db),
       listCitiesWithUpcomingEvents(db),
+      listPublicOrganisationSlugs(db, markets.VISIBLE_STATES),
     ]);
     const events = eventRows.flatMap((row) => {
       const market = marketByCode.get(row.marketCode);
@@ -82,6 +87,7 @@ export const getSitemapData = createServerFn({ strict: false }).handler(
       markets: visibleMarkets.map(({ slug }) => ({ slug })),
       cities: citiesWithSomethingToShow(cityRows, marketByCode),
       events,
+      organisations: organisationSlugs.map((slug) => ({ slug })),
     };
   },
 );

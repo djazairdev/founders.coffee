@@ -1,24 +1,25 @@
+import { Link } from '@tanstack/react-router';
 import { Building2 } from 'lucide-react';
 import { Fragment } from 'react';
 
 import { event_run_by_organisations, type Locale } from '@founders-coffee/i18n';
 
-import {
-  coHostNames,
-  type EventRunBy,
-} from '../../features/events/event-run-by';
+import { coHosts, type EventRunBy } from '../../features/events/event-run-by';
+import { localizedOrganisation } from '../../lib/locale-routing';
 
 export const EventCoHosts = ({
   runBy,
   locale,
+  isLinked = false,
   className = '',
 }: {
   runBy: EventRunBy;
   locale: Locale;
+  isLinked?: boolean;
   className?: string;
 }) => {
-  const names = coHostNames(runBy);
-  if (names.length === 0) return null;
+  const organisations = coHosts(runBy);
+  if (organisations.length === 0) return null;
   const separator = locale === 'ar' ? '، ' : ', ';
 
   return (
@@ -33,10 +34,19 @@ export const EventCoHosts = ({
         <span className="sr-only">
           {event_run_by_organisations({}, { locale })}{' '}
         </span>
-        {names.map((name, index) => (
-          <Fragment key={`${index}-${name}`}>
+        {organisations.map((organisation, index) => (
+          <Fragment key={organisation.slug}>
             {index > 0 ? separator : null}
-            <bdi>{name}</bdi>
+            {isLinked ? (
+              <Link
+                {...localizedOrganisation(locale, organisation.slug)}
+                className="link link-hover"
+              >
+                <bdi>{organisation.name}</bdi>
+              </Link>
+            ) : (
+              <bdi>{organisation.name}</bdi>
+            )}
           </Fragment>
         ))}
       </span>

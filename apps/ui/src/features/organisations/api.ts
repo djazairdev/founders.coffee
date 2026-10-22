@@ -4,6 +4,7 @@ import {
   cancelOrganisationInvitation,
   getMyOrganisation,
   getOrganisationInvitation,
+  getOrganisationPage,
   inviteOrganisationMember,
   rejectOrganisationInvitation,
   removeOrganisationMember,
@@ -12,6 +13,7 @@ import {
   type InvitationPage,
   type InviteMemberRequest,
   type MyOrganisationPage,
+  type OrganisationPage,
   type RemoveMemberRequest,
 } from '@founders-coffee/server-fns';
 
@@ -19,6 +21,7 @@ export const organisationsApi = {
   apply: (application: ApplyForOrganisationRequest) =>
     applyForOrganisation({ data: application }),
   mine: (slug: string) => getMyOrganisation({ data: { slug } }),
+  page: (slug: string) => getOrganisationPage({ data: { slug } }),
   invite: (request: InviteMemberRequest) =>
     inviteOrganisationMember({ data: request }),
   cancelInvitation: (request: CancelInvitationRequest) =>
@@ -39,5 +42,6 @@ export type {
   InvitationPage,
   InviteMemberRequest,
   MyOrganisationPage,
+  OrganisationPage,
   RemoveMemberRequest,
 };

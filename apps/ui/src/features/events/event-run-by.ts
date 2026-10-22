@@ -18,6 +18,11 @@ const LABELS = {
 export const eventRunByLabel = (runBy: EventRunBy, locale: Locale): string =>
   LABELS[runBy.kind]({}, { locale });
 
+export type EventCoHost = Extract<
+  EventRunBy,
+  { readonly kind: 'co_hosted' }
+>['organisations'][number];
+
 /** The organisations a co-hosted event names, the lead first; none for any other event. */
-export const coHostNames = (runBy: EventRunBy): readonly string[] =>
-  runBy.kind === 'co_hosted' ? runBy.names : [];
+export const coHosts = (runBy: EventRunBy): readonly EventCoHost[] =>
+  runBy.kind === 'co_hosted' ? runBy.organisations : [];

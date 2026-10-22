@@ -4,6 +4,7 @@ import {
   organisationApplicationSchema,
   organisationEditSchema,
   organisationInvitationSchema,
+  organisationSlugLookupSchema,
   organisationSlugSchema,
 } from './schemas.js';
 
@@ -39,6 +40,18 @@ describe('organisationSlugSchema', () => {
     ['the platform’s own name', 'founders-coffee'],
   ])('refuses %s', (_case, slug) => {
     expect(organisationSlugSchema.safeParse(slug).success).toBe(false);
+  });
+});
+
+describe('organisationSlugLookupSchema', () => {
+  it('finds a reserved slug, the platform’s own among them, by the same shape', () => {
+    expect(organisationSlugLookupSchema.parse(' Founders-Coffee ')).toBe(
+      'founders-coffee',
+    );
+    expect(organisationSlugLookupSchema.parse('manage')).toBe('manage');
+    expect(organisationSlugLookupSchema.safeParse('gdg--algiers').success).toBe(
+      false,
+    );
   });
 });
 

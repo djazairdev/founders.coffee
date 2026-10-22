@@ -33,3 +33,6 @@ export type {
   OrganisationReview,
 } from './roster.js';
 export type { InvitationPage, InvitationState } from './invitation-page.js';
+export { getOrganisationPage } from './public-page-rpc.js';
+export type { OrganisationPageRequest } from './public-page-rpc.js';
+export type { OrganisationPage } from './public-page.js';

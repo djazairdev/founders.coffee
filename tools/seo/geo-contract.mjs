@@ -16,6 +16,7 @@ const PRIMARY_TYPES = {
   city: 'CollectionPage',
   event: 'Event',
   market: 'CollectionPage',
+  organisation: 'ProfilePage',
 };
 const PRIVATE_KEYS = new Set(['email', 'phone', 'hostid', 'rsvps']);
 
@@ -126,6 +127,12 @@ export const inspectGeoDocument = ({ path, type, body, canonical }) => {
     !text.includes(primary.organizer.name)
   )
     failures.push('event organizer is not visible in the document');
+
+  if (
+    type === 'organisation' &&
+    (!primary.mainEntity || primary.mainEntity['@type'] !== 'Organization')
+  )
+    failures.push('ProfilePage JSON-LD has no Organization main entity');
 
   if (hasPrivateKey(primary))
     failures.push('primary JSON-LD contains private fields');
