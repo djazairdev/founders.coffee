@@ -31,6 +31,9 @@ export type {
 } from './hackathon-review-rpc.js';
 export type {
   HackathonDecided,
+  HackathonReviewCriterion,
   HackathonReviewItem,
+  HackathonReviewPrize,
   HackathonReviewQueue,
+  HackathonReviewTrack,
 } from './hackathon-review.js';

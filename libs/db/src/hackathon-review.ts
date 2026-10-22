@@ -16,35 +16,9 @@ import {
   hackathonCriteria,
   hackathons,
   hackathonTracks,
-  markets,
   member,
-  organization,
   user,
-  type Hackathon,
 } from './schema.js';
-
-export const HACKATHON_REVIEW_PAGE = 50;
-
-export type HackathonForReview = {
-  readonly event: {
-    readonly id: string;
-    readonly title: string;
-    readonly description: string;
-    readonly marketCode: string;
-    readonly cityCode: string;
-    readonly startsAt: Date;
-    readonly endsAt: Date | null;
-  };
-  readonly organisation: { readonly name: string; readonly slug: string };
-  readonly details: Hackathon;
-  readonly timeZone: string;
-  readonly trackTitles: readonly string[];
-};
-
-export type HackathonReviewPage = {
-  readonly items: HackathonForReview[];
-  readonly hasMore: boolean;
-};
 
 /**
  * Whether a hackathon has what review needs (B-HKN-08), in SQL: at least one track, and three or
@@ -94,76 +68,6 @@ export const submitHackathonForReview = async (
   return (results[1] as readonly { version: number }[]).length === 1
     ? next
     : null;
-};
-
-/**
- * One page of the hackathons waiting for review (B-HKN-08), the one sent longest ago first, each
- * with its lead organisation, its market's time zone and its tracks' titles. Reads one row past the
- * page to say whether another follows.
- */
-export const listHackathonsForReview = async (
-  db: Db,
-  page = 0,
-): Promise<HackathonReviewPage> => {
-  const rows = await db
-    .select({
-      event: {
-        id: events.id,
-        title: events.title,
-        description: events.description,
-        marketCode: events.marketCode,
-        cityCode: events.cityCode,
-        startsAt: events.startsAt,
-        endsAt: events.endsAt,
-      },
-      organisation: { name: organization.name, slug: organization.slug },
-      details: hackathons,
-      timeZone: markets.timezone,
-    })
-    .from(hackathons)
-    .innerJoin(events, eq(events.id, hackathons.eventId))
-    .innerJoin(
-      eventOrganisers,
-      and(
-        eq(eventOrganisers.eventId, events.id),
-        eq(eventOrganisers.role, 'lead'),
-      ),
-    )
-    .innerJoin(
-      organization,
-      eq(organization.id, eventOrganisers.organisationId),
-    )
-    .innerJoin(markets, eq(markets.code, events.marketCode))
-    .where(eq(hackathons.reviewStatus, 'submitted'))
-    .orderBy(asc(hackathons.updatedAt), asc(hackathons.eventId))
-    .limit(HACKATHON_REVIEW_PAGE + 1)
-    .offset(page * HACKATHON_REVIEW_PAGE);
-  const shown = rows.slice(0, HACKATHON_REVIEW_PAGE);
-  const tracks =
-    shown.length === 0
-      ? []
-      : await db
-          .select({
-            eventId: hackathonTracks.eventId,
-            title: hackathonTracks.title,
-          })
-          .from(hackathonTracks)
-          .where(
-            inArray(
-              hackathonTracks.eventId,
-              shown.map((row) => row.event.id),
-            ),
-          )
-          .orderBy(asc(hackathonTracks.position));
-  return {
-    items: shown.map((row) => ({
-      ...row,
-      trackTitles: tracks
-        .filter((track) => track.eventId === row.event.id)
-        .map((track) => track.title),
-    })),
-    hasMore: rows.length > HACKATHON_REVIEW_PAGE,
-  };
 };
 
 /** A hackathon's review status, or `null` when there is no such hackathon. */

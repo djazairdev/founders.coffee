@@ -10,8 +10,11 @@ import type {
 } from '@founders-coffee/server-fns/admin';
 
 export type {
+  HackathonReviewCriterion,
   HackathonReviewItem,
+  HackathonReviewPrize,
   HackathonReviewQueue,
+  HackathonReviewTrack,
 } from '@founders-coffee/server-fns/admin';
 
 export const hackathonReviewApi = {
