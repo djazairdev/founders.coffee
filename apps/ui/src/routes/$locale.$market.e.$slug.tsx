@@ -38,6 +38,8 @@ const EventRoute = () => {
     hackathon,
     tracks,
     prizes,
+    rules,
+    judges,
   } = Route.useLoaderData();
   useReloadOnMemberChange();
   const isHost = viewerId === event.hostId;
@@ -63,7 +65,7 @@ const EventRoute = () => {
         phase={phase}
         mapboxToken={mapboxToken}
         hackathon={hackathon}
-        offer={hackathon ? { tracks, prizes } : null}
+        details={rules ? { tracks, prizes, rules, judges } : null}
       />
       {viewerId && isWindowOpen && isAttending && !live.notAttending && (
         <LiveDashboard live={live} currentUserId={viewerId} locale={locale} />

@@ -4,24 +4,17 @@ import { CalendarDays, MapPin, Users } from 'lucide-react';
 import {
   back_to_city,
   cityInputs,
-  event_cancelled_body,
-  event_cancelled_title,
   event_details_title,
   event_timezone,
   event_when,
   formatDate,
   localizedName,
   going_count,
-  ntf_cancel_reason,
   role_host,
   share_event_action,
   type Locale,
 } from '@founders-coffee/i18n';
-import {
-  IsolatedLines,
-  IsolatedValue,
-  StatusMessage,
-} from '@founders-coffee/ui';
+import { IsolatedLines } from '@founders-coffee/ui';
 import type { Market } from '@founders-coffee/db';
 import type {
   EventDetailItem,
@@ -34,12 +27,13 @@ import { eventStreetAddress } from '../../features/events/event-street-address';
 import type { EventPhase } from '../../features/events/live-window';
 import type { UseEventLiveResult } from '../../features/events/useEventLive';
 import type {
-  HackathonOffer as Offer,
+  HackathonPageDetails as Details,
   HackathonSchedule as Schedule,
 } from '../../features/hackathons/api';
-import { HackathonOffer } from '../../features/hackathons/components/HackathonOffer';
+import { HackathonPageDetails } from '../../features/hackathons/components/HackathonPageDetails';
 import { HackathonSchedule } from '../../features/hackathons/components/HackathonSchedule';
 import { localizedCity } from '../../lib/locale-routing';
+import { EventCancelledNotice } from './EventCancelledNotice';
 import { EventFormatBadge } from './EventFormatBadge';
 import { EventHostCard } from './EventHostCard';
 import { EventCoHosts } from './EventCoHosts';
@@ -63,7 +57,7 @@ type EventDetailProps = {
   phase: EventPhase;
   mapboxToken: string | null;
   hackathon?: Schedule | null;
-  offer?: Offer | null;
+  details?: Details | null;
 };
 
 export const EventDetail = ({
@@ -77,7 +71,7 @@ export const EventDetail = ({
   phase,
   mapboxToken,
   hackathon = null,
-  offer = null,
+  details = null,
 }: EventDetailProps) => {
   const hostName = host?.displayName ?? role_host({}, { locale });
   const on = (value: Date, options: Intl.DateTimeFormatOptions) =>
@@ -122,22 +116,10 @@ export const EventDetail = ({
       )}
 
       {isCancelled && (
-        <StatusMessage variant="error" className="mb-4">
-          <p className="font-display text-h4 font-semibold">
-            {event_cancelled_title({}, { locale })}
-          </p>
-          <p className="mt-1 text-neutral">
-            {event_cancelled_body({}, { locale })}
-          </p>
-          {event.cancellationReason ? (
-            <p className="mt-2 text-base-content">
-              <IsolatedValue
-                value={event.cancellationReason}
-                message={(reason) => ntf_cancel_reason({ reason }, { locale })}
-              />
-            </p>
-          ) : null}
-        </StatusMessage>
+        <EventCancelledNotice
+          reason={event.cancellationReason}
+          locale={locale}
+        />
       )}
 
       <header className="rounded-box bg-base-200 p-5 sm:p-8">
@@ -258,7 +240,9 @@ export const EventDetail = ({
             cityName={cityName}
             isHost={isHost}
           />
-          {offer ? <HackathonOffer offer={offer} locale={locale} /> : null}
+          {details ? (
+            <HackathonPageDetails details={details} locale={locale} />
+          ) : null}
         </section>
 
         {hasRsvpBox ? (

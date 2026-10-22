@@ -28,8 +28,8 @@ import { events, hackathons } from './schema.js';
  * rows are the ones `getProfileIdentity`, `getMemberProfile` and the two record counts read, built
  * by the same functions, so the card cannot drift from the host's public profile. The
  * organisations that run the meetup come back in the same batch, found by the same address, and so
- * do a hackathon's dates (B-HKN-17), `null` for any other kind of event, the judges who accepted
- * (B-JDG-03), and its tracks and confirmed prizes (B-HKN-18), none for a meetup.
+ * do a hackathon's dates and rules (B-HKN-17, B-HKN-19), `null` for any other kind of event, the
+ * judges who accepted (B-JDG-03), and its tracks and confirmed prizes (B-HKN-18), none for a meetup.
  */
 export const readEventPageRows = async (
   db: Db,
@@ -84,6 +84,14 @@ export const readEventPageRows = async (
         registrationClosesAt: hackathons.registrationClosesAt,
         submissionDeadlineAt: hackathons.submissionDeadlineAt,
         judgingEndsAt: hackathons.judgingEndsAt,
+        rules: hackathons.rules,
+        minimumAge: hackathons.minimumAge,
+        attendanceModes: hackathons.attendanceModes,
+        teamMin: hackathons.teamMin,
+        teamMax: hackathons.teamMax,
+        aiPolicy: hackathons.aiPolicy,
+        aiPolicyNote: hackathons.aiPolicyNote,
+        licenceNote: hackathons.licenceNote,
       })
       .from(hackathons)
       .where(eq(hackathons.eventId, eventId))

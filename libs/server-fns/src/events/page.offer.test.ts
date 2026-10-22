@@ -37,7 +37,30 @@ const pageOf = async (db: Db, eventId: string) => {
   return page.data;
 };
 
-describe('a hackathon’s tracks and prizes on its page (B-HKN-18, real D1)', () => {
+describe('a hackathon’s tracks, prizes and rules on its page (B-HKN-18, B-HKN-19, real D1)', () => {
+  it('shows the rules, eligibility, AI policy and licence its organisers saved', async () => {
+    const db = await setupHackathonDb();
+    const { eventId } = await hackathonWithDetails(
+      db,
+      { licenceNote: 'Teams keep what they build.' },
+      true,
+    );
+    const saved = (await readDraft(db, eventId)).details;
+
+    const page = await pageOf(db, eventId);
+
+    expect(page.rules).toEqual({
+      rules: saved?.rules,
+      minimumAge: saved?.minimumAge,
+      attendanceModes: saved?.attendanceModes,
+      teamMin: saved?.teamMin,
+      teamMax: saved?.teamMax,
+      aiPolicy: saved?.aiPolicy,
+      aiPolicyNote: saved?.aiPolicyNote,
+      licenceNote: 'Teams keep what they build.',
+    });
+  });
+
   it('shows its tracks in order and only the prizes whose provider confirmed', async () => {
     const db = await setupHackathonDb();
     const { eventId, version } = await hackathonWithDetails(db, {}, true);
@@ -102,5 +125,6 @@ describe('a hackathon’s tracks and prizes on its page (B-HKN-18, real D1)', ()
 
     expect(page.tracks).toEqual([]);
     expect(page.prizes).toEqual([]);
+    expect(page.rules).toBeNull();
   });
 });
