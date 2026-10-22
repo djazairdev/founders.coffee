@@ -17,6 +17,7 @@ export const PRIVATE_SCREENS = [
 export const LOCALE_ONLY_PRIVATE_SCREENS = [
   'hackathon/evt_1/manage',
   'hackathon/evt_1/team',
+  'hackathon/evt_1/looking',
   'hackathon/evt_1/submit',
   'hackathon/evt_1/judge',
   'o/apply',
