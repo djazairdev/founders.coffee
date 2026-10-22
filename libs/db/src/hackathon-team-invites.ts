@@ -2,10 +2,10 @@ import { and, eq, isNull, sql, type SQL } from 'drizzle-orm';
 
 import { batch } from './atomic.js';
 import type { Db } from './db.js';
+import { mayTakeTeamPlace } from './hackathon-team-joining.js';
 import { bound } from './insert-select.js';
 import {
   events,
-  hackathonRegistrations,
   hackathons,
   hackathonTeamInvites,
   hackathonTeamMembers,
@@ -111,12 +111,9 @@ export const readTeamInvite = async (
   return row ? { ...row, teamSize: Number(row.teamSize) } : null;
 };
 
-/**
- * Whether the member may join through the link: it works, the hackathon is published and its
- * submission deadline ahead, the member holds a place and is in no team yet, and the team has room.
- */
+/** Whether the link still works and the member may take a place in its team. */
 const mayJoin = (userId: string): SQL =>
-  sql`${hackathonTeamInvites.revokedAt} IS NULL AND ${hackathonTeamInvites.expiresAt} > unixepoch() AND ${events.status} = 'published' AND ${hackathons.submissionDeadlineAt} > unixepoch() AND EXISTS (SELECT 1 FROM ${hackathonRegistrations} WHERE ${hackathonRegistrations.eventId} = ${hackathonTeams.eventId} AND ${hackathonRegistrations.userId} = ${userId} AND ${hackathonRegistrations.status} = 'registered') AND NOT EXISTS (SELECT 1 FROM ${hackathonTeamMembers} WHERE ${hackathonTeamMembers.eventId} = ${hackathonTeams.eventId} AND ${hackathonTeamMembers.userId} = ${userId}) AND (SELECT count(*) FROM ${hackathonTeamMembers} WHERE ${hackathonTeamMembers.teamId} = ${hackathonTeams.id}) < ${hackathons.teamMax}`;
+  sql`${hackathonTeamInvites.revokedAt} IS NULL AND ${hackathonTeamInvites.expiresAt} > unixepoch() AND ${mayTakeTeamPlace(userId)}`;
 
 /**
  * Join a team through its invite link (B-TEAM-04), in one atomic batch (AGENTS.md §11).

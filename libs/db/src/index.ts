@@ -79,4 +79,5 @@ export * from './hackathon-participants.js';
 export * from './hackathon-withdrawal.js';
 export * from './hackathon-team-creation.js';
 export * from './hackathon-team-invites.js';
+export * from './hackathon-team-requests.js';
 export * from './hackathon-review.js';

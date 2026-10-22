@@ -44,6 +44,11 @@ export {
 } from './team-invites-rpc.js';
 export type { TeamInviteCreated, TeamJoined } from './team-invites.js';
 export {
+  answerHackathonTeamRequest,
+  cancelHackathonTeamRequest,
+  requestToJoinHackathonTeam,
+} from './team-requests-rpc.js';
+export {
   submitHackathonForReview,
   type SubmitHackathonForReviewRequest,
 } from './review-rpc.js';
