@@ -36,6 +36,21 @@ export const hackathonRegistrationStatusSchema = z.enum(
 
 export const HACKATHON_REGISTRATION_SKILLS_MAX = 140;
 
+export const HACKATHON_TEAM_NAME_MAX = 60;
+export const HACKATHON_TEAM_DESCRIPTION_MAX = 500;
+
+export const HACKATHON_TEAM_REQUEST_STATUSES = [
+  'pending',
+  'accepted',
+  'declined',
+  'cancelled',
+] as const;
+export type HackathonTeamRequestStatus =
+  (typeof HACKATHON_TEAM_REQUEST_STATUSES)[number];
+export const hackathonTeamRequestStatusSchema = z.enum(
+  HACKATHON_TEAM_REQUEST_STATUSES,
+);
+
 export const HACKATHON_AI_POLICIES = [
   'disclosed',
   'ai_native',

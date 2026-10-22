@@ -59,5 +59,6 @@
   "0057_hackathon_criteria": "compatible",
   "0058_organisation_review": "compatible",
   "0059_hackathon_registrations": "compatible",
-  "0060_hackathon_prizes": "compatible"
+  "0060_hackathon_prizes": "compatible",
+  "0061_hackathon_teams": "compatible"
 }
