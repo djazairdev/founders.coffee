@@ -9,6 +9,7 @@ type HostWizardHeaderProps = {
   locale: Locale;
   marketName: string;
   step: number;
+  totalSteps?: number;
   children: ReactNode;
 };
 
@@ -16,6 +17,7 @@ export const HostWizardHeader = ({
   locale,
   marketName,
   step,
+  totalSteps = TOTAL_STEPS,
   children,
 }: HostWizardHeaderProps) => (
   <div className="sticky top-0 z-40 border-b border-base-300 bg-base-100 lg:static lg:col-start-1 lg:row-start-1 lg:border-e lg:border-b-0">
@@ -25,7 +27,7 @@ export const HostWizardHeader = ({
           {marketName}
         </span>
         <span className="shrink-0">
-          {host_step_counter({ current: step, total: TOTAL_STEPS }, { locale })}
+          {host_step_counter({ current: step, total: totalSteps }, { locale })}
         </span>
       </div>
       <div className="min-w-0 flex-1">{children}</div>

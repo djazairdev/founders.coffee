@@ -22,6 +22,7 @@ import {
 } from '../hooks';
 import type { OrganisationRoster, RosterMember } from '../types';
 import { InviteMemberForm } from './InviteMemberForm';
+import { OrganisationHackathonList } from './OrganisationHackathonList';
 import { OrganisationInvitationList } from './OrganisationInvitationList';
 import { OrganisationMemberList } from './OrganisationMemberList';
 import { OrganisationReviewCard } from './OrganisationReviewCard';
@@ -97,10 +98,12 @@ export const MyOrganisationPage = ({
   slug,
   locale,
   markets,
+  savedHackathonId = null,
 }: {
   slug: string;
   locale: Locale;
   markets: readonly RootMarket[];
+  savedHackathonId?: string | null;
 }) => {
   const query = useMyOrganisation(slug);
   const roster = query.data;
@@ -120,6 +123,16 @@ export const MyOrganisationPage = ({
             locale={locale}
             timeZone={timeZone}
           />
+          {roster.canCreateHackathon || roster.hackathons.length > 0 ? (
+            <OrganisationHackathonList
+              slug={roster.slug}
+              hackathons={roster.hackathons}
+              canCreate={roster.canCreateHackathon}
+              savedId={savedHackathonId}
+              locale={locale}
+              timeZone={timeZone}
+            />
+          ) : null}
           {roster.canManage ? (
             <RosterSections
               roster={roster}

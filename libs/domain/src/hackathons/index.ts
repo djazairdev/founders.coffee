@@ -36,6 +36,7 @@ export {
   hackathonDraftSchema,
   type HackathonDraft,
 } from './draft.js';
+export { hackathonBasicsSchema, type HackathonBasics } from './basics.js';
 export {
   HACKATHON_TRACK_LIMIT,
   HACKATHON_TRACK_SOURCE_LIMIT,

@@ -16,12 +16,15 @@ export const ownerView: OrganisationRoster = {
   name: 'Oran Makers',
   slug: 'oran-makers',
   marketCode: 'DZ',
+  cityCode: '31',
   role: 'owner',
   review: {
     status: 'approved',
     approvedAt: new Date('2026-10-01T09:00:00Z'),
   },
   canManage: true,
+  canCreateHackathon: true,
+  hackathons: [],
   members: [
     {
       memberId: 'mem_owner',

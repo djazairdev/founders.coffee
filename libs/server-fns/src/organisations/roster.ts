@@ -1,9 +1,16 @@
-import { AppError, err, ok, type Result } from '@founders-coffee/core';
+import {
+  AppError,
+  err,
+  ok,
+  type EventStatus,
+  type Result,
+} from '@founders-coffee/core';
 import {
   organisationRoleAllows,
   type AuthInstance,
 } from '@founders-coffee/auth';
 import {
+  listOrganisationHackathons,
   listOrganisationMembers,
   listPendingOrganisationInvitations,
   readMyOrganisationBySlug,
@@ -43,14 +50,26 @@ export type OrganisationInvitationView = {
   readonly isExpired: boolean;
 };
 
+export type OrganisationHackathonView = {
+  readonly id: string;
+  readonly title: string;
+  readonly cityCode: string;
+  readonly startsAt: Date;
+  readonly endsAt: Date | null;
+  readonly status: EventStatus;
+};
+
 export type MyOrganisationPage = {
   readonly id: string;
   readonly name: string;
   readonly slug: string;
   readonly marketCode: string;
+  readonly cityCode: string | null;
   readonly role: string;
   readonly review: OrganisationReview;
   readonly canManage: boolean;
+  readonly canCreateHackathon: boolean;
+  readonly hackathons: readonly OrganisationHackathonView[];
   readonly members: readonly OrganisationMemberView[];
   readonly invitations: readonly OrganisationInvitationView[];
 };
@@ -78,7 +97,9 @@ const isProtectedRole = (role: string): boolean =>
 
 /**
  * The page a member sees of their own organisation (B-ORG-09): where its review stands and, for an
- * owner or admin of an approved organisation, its members and the invitations still waiting.
+ * owner or admin of an approved organisation, its members and the invitations still waiting. Every
+ * member of an approved organisation also sees the hackathons it leads, drafts included, and may
+ * start one (B-HKN-11).
  *
  * Someone who does not belong to it, or an organisation in a market with hackathons off, answers as
  * not found. An owner cannot be removed, and nobody removes themselves here.
@@ -92,26 +113,30 @@ export const myOrganisationResolver = async (
     return err(
       new AppError('organisation_not_found', 'Organisation not found'),
     );
+  const isActive = organisations.isOrganisationActive(row.status);
   const canManage =
-    organisations.isOrganisationActive(row.status) &&
-    organisationRoleAllows(row.role, 'invitation', 'create');
+    isActive && organisationRoleAllows(row.role, 'invitation', 'create');
+  const canCreateHackathon =
+    isActive && organisationRoleAllows(row.role, 'hackathon', 'create');
   const mayRemoveMembers =
     canManage && organisationRoleAllows(row.role, 'member', 'delete');
-  const [members, invitations] = canManage
-    ? await Promise.all([
-        listOrganisationMembers(db, row.id),
-        listPendingOrganisationInvitations(db, row.id),
-      ])
-    : [[], []];
+  const [members, invitations, hackathons] = await Promise.all([
+    canManage ? listOrganisationMembers(db, row.id) : [],
+    canManage ? listPendingOrganisationInvitations(db, row.id) : [],
+    isActive ? listOrganisationHackathons(db, row.id) : [],
+  ]);
   const now = Date.now();
   return ok({
     id: row.id,
     name: row.name,
     slug: row.slug,
     marketCode: row.marketCode,
+    cityCode: row.cityCode,
     role: row.role,
     review: reviewOf(row),
     canManage,
+    canCreateHackathon,
+    hackathons,
     members: members.map((member) => {
       const isYou = member.userId === input.userId;
       return {

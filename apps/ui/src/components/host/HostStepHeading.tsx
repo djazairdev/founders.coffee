@@ -12,6 +12,7 @@ type HostStepHeadingProps = {
   title: string;
   sub: string | null;
   repeatTitle: string | null;
+  pageTitle?: string;
 };
 
 export const HostStepHeading = ({
@@ -20,9 +21,10 @@ export const HostStepHeading = ({
   title,
   sub,
   repeatTitle,
+  pageTitle,
 }: HostStepHeadingProps) => (
   <div className="max-lg:contents lg:mb-2">
-    <h1 className="sr-only">{host_page_title({}, { locale })}</h1>
+    <h1 className="sr-only">{pageTitle ?? host_page_title({}, { locale })}</h1>
     <h2
       ref={headingRef}
       tabIndex={-1}

@@ -8,6 +8,7 @@ import {
   eventRsvps,
   events,
   getHackathon,
+  hackathons as hackathonDetails,
   organization,
   type Db,
 } from '@founders-coffee/db';
@@ -49,9 +50,9 @@ const approvedOrganisation = (
     })
     .onConflictDoNothing();
 
-const draft = (overrides: Record<string, unknown> = {}) => {
+const basics = (overrides: Record<string, unknown> = {}) => {
   const kickoff = Date.now() + 30 * DAY;
-  return hackathons.hackathonDraftSchema.parse({
+  return hackathons.hackathonBasicsSchema.parse({
     marketCode: 'DZ',
     cityCode: '1',
     title: 'Algiers Builders Hackathon',
@@ -64,16 +65,6 @@ const draft = (overrides: Record<string, unknown> = {}) => {
     endsAt: kickoff + 2 * DAY,
     languages: ['ar', 'fr'],
     tags: ['engineering'],
-    registrationOpensAt: Date.now() + DAY,
-    registrationClosesAt: kickoff - DAY,
-    submissionDeadlineAt: kickoff + 2 * DAY - 3_600_000,
-    judgingEndsAt: kickoff + 9 * DAY,
-    attendanceModes: ['in_person'],
-    teamMin: 2,
-    teamMax: 4,
-    capacity: 120,
-    aiPolicy: 'disclosed',
-    licenceNote: 'Teams keep what they build.',
     ...overrides,
   });
 };
@@ -86,7 +77,7 @@ const create = (
   createHackathonDraftResolver(db, testMapProvider, {
     hostId: TEST_HOST_ID,
     organisationId,
-    draft: draft(overrides),
+    basics: basics(overrides),
   });
 
 describe('creating a hackathon draft (B-HKN-06, real D1)', () => {
@@ -107,31 +98,29 @@ describe('creating a hackathon draft (B-HKN-06, real D1)', () => {
     );
   });
 
-  it('writes a draft hackathon, its details, its lead and its chat in one go', async () => {
+  it('writes a draft hackathon, its lead and its chat in one go, and no details yet', async () => {
     const result = await create(db);
     if (!result.ok) throw result.error;
 
-    const written = await getHackathon(db, result.data.eventId);
-    expect(written?.event).toMatchObject({
+    const [written] = await db
+      .select()
+      .from(events)
+      .where(eq(events.id, result.data.eventId));
+    expect(written).toMatchObject({
       kind: 'hackathon',
       status: 'draft',
       hostId: TEST_HOST_ID,
       marketCode: 'DZ',
+      cityCode: '1',
       slug: result.data.slug,
       tags: ['engineering'],
     });
-    expect(written?.hackathon).toMatchObject({
-      reviewStatus: 'draft',
-      attendanceModes: ['in_person'],
-      teamMin: 2,
-      teamMax: 4,
-      capacity: 120,
-      minimumAge: null,
-      rules: null,
-      aiPolicy: 'disclosed',
-      aiPolicyNote: null,
-      licenceNote: 'Teams keep what they build.',
-    });
+    expect(await getHackathon(db, result.data.eventId)).toBeNull();
+    expect(
+      await db
+        .select({ eventId: hackathonDetails.eventId })
+        .from(hackathonDetails),
+    ).toEqual([]);
     expect(
       await db
         .select({

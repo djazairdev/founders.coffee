@@ -177,6 +177,12 @@ export const localizedMyOrganisation = (locale: Locale, slug: string) => ({
   params: { locale, slug },
 });
 
+/** Where a member of an organisation starts one of its hackathons (B-HKN-11). */
+export const localizedHackathonCreate = (locale: Locale, slug: string) => ({
+  to: '/$locale/o/$slug/hackathons/new' as const,
+  params: { locale, slug },
+});
+
 /** The reader's own activity, on the same terms as {@link localizedProfile}. */
 export const localizedProfileActivity = (locale: Locale) => ({
   to: '/$locale/profile/activity' as const,

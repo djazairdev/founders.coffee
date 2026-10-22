@@ -27,6 +27,7 @@ export const HostDetailsStep = ({
   onDescriptionChange,
   onLanguagesChange,
   onTagsChange,
+  copy,
 }: {
   locale: Locale;
   title: string;
@@ -44,11 +45,21 @@ export const HostDetailsStep = ({
   onDescriptionChange: (value: string) => void;
   onLanguagesChange: (value: MeetupLanguage[]) => void;
   onTagsChange?: (value: Topic[]) => void;
+  copy?: {
+    titleLabel: string;
+    titlePlaceholder: string;
+    descriptionLabel: string;
+    descriptionPlaceholder: string;
+    languagesLabel: string;
+    languagesHint: string;
+  };
 }) => (
   <div className="grid gap-5">
     <div className="flex flex-col">
       <span className="mb-1 flex items-center justify-between gap-3 text-body-sm text-neutral">
-        <label htmlFor="host-title">{host_title_label({}, { locale })}</label>
+        <label htmlFor="host-title">
+          {copy?.titleLabel ?? host_title_label({}, { locale })}
+        </label>
         <span aria-hidden="true" className="text-caption text-neutral">
           {host_required({}, { locale })}
         </span>
@@ -57,7 +68,7 @@ export const HostDetailsStep = ({
         id="host-title"
         value={title}
         onChange={(event) => onTitleChange(event.target.value)}
-        placeholder={host_title_ph({}, { locale })}
+        placeholder={copy?.titlePlaceholder ?? host_title_ph({}, { locale })}
         minLength={constraints.titleMin}
         maxLength={constraints.titleMax}
         required
@@ -83,7 +94,7 @@ export const HostDetailsStep = ({
     <div className="flex flex-col">
       <span className="mb-1 flex items-center justify-between gap-3 text-body-sm text-neutral">
         <label htmlFor="host-description">
-          {host_desc_label({}, { locale })}
+          {copy?.descriptionLabel ?? host_desc_label({}, { locale })}
         </label>
         <span aria-hidden="true" className="text-caption text-neutral">
           {host_required({}, { locale })}
@@ -94,7 +105,9 @@ export const HostDetailsStep = ({
         className="textarea textarea-sm md:textarea-md w-full"
         value={description}
         onChange={(event) => onDescriptionChange(event.target.value)}
-        placeholder={host_desc_ph({}, { locale })}
+        placeholder={
+          copy?.descriptionPlaceholder ?? host_desc_ph({}, { locale })
+        }
         minLength={constraints.descriptionMin}
         maxLength={constraints.descriptionMax}
         required
@@ -128,6 +141,8 @@ export const HostDetailsStep = ({
       locale={locale}
       value={languages}
       error={errors.languages}
+      label={copy?.languagesLabel}
+      hint={copy?.languagesHint}
       onChange={onLanguagesChange}
     />
 
