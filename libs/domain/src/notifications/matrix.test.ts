@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { NOTIFICATION_TEMPLATE_KEYS } from '@founders-coffee/core';
+import {
+  HACKATHON_REGISTRATION_TEMPLATE_KEYS,
+  NOTIFICATION_TEMPLATE_KEYS,
+} from '@founders-coffee/core';
 
 import {
   isHackathonTemplate,
@@ -82,9 +85,13 @@ describe('notification channel matrix', () => {
     }
   });
 
-  it('claims no template of today for the Hackathons category', () => {
+  it("claims only the registration notices among today's templates for the Hackathons category", () => {
+    const registration: readonly string[] =
+      HACKATHON_REGISTRATION_TEMPLATE_KEYS;
     for (const template of NOTIFICATION_TEMPLATE_KEYS)
-      expect(isHackathonTemplate(template)).toBe(false);
+      expect(isHackathonTemplate(template)).toBe(
+        registration.includes(template),
+      );
     expect(isHackathonTemplate(undefined)).toBe(false);
     expect(isHackathonTemplate('hackathons')).toBe(false);
   });

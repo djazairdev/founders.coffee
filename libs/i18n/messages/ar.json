@@ -1303,5 +1303,20 @@
   "hackathon_criterion_error_description": "صفه في 20 إلى 500 حرف.",
   "hackathon_criterion_error_weight": "أدخل عددًا صحيحًا من 1 إلى 100.",
   "hackathon_rubric_error_total": "مجموع الأوزان {total}. اجعله 100.",
-  "hackathon_rubric_error_names": "أعطِ كل معيار اسمًا مختلفًا."
+  "hackathon_rubric_error_names": "أعطِ كل معيار اسمًا مختلفًا.",
+  "ntf_push_hackathon_registered_title": "تم تسجيلك في {title}",
+  "ntf_push_hackathon_registered_body": "الانطلاق {date}. افتح الهاكاثون لمعرفة الخطوات التالية.",
+  "ntf_email_hackathon_registered_subject": "تم تسجيلك: {title}",
+  "ntf_email_hackathon_registered_html": "<p>تم تسجيلك في <strong>{title}</strong>. الانطلاق يوم {date} {where}.</p><p><a href=\"{url}\">افتح الهاكاثون</a></p>",
+  "ntf_email_hackathon_registered_text": "تم تسجيلك في {title}. الانطلاق يوم {date} {where}. {url}",
+  "ntf_push_hackathon_waitlisted_title": "أنت على قائمة الانتظار في {title}",
+  "ntf_push_hackathon_waitlisted_body": "سنخبرك فور حصولك على مكان.",
+  "ntf_email_hackathon_waitlisted_subject": "قائمة الانتظار: {title}",
+  "ntf_email_hackathon_waitlisted_html": "<p>كل الأماكن في <strong>{title}</strong> محجوزة، لذا أنت على قائمة الانتظار. عندما يتوفّر مكان يذهب إلى الشخص التالي في القائمة، وسنخبرك فور حصولك عليه.</p><p><a href=\"{url}\">افتح الهاكاثون</a></p>",
+  "ntf_email_hackathon_waitlisted_text": "كل الأماكن في {title} محجوزة، لذا أنت على قائمة الانتظار. عندما يتوفّر مكان يذهب إلى الشخص التالي في القائمة، وسنخبرك فور حصولك عليه. {url}",
+  "ntf_push_hackathon_promoted_title": "توفّر مكان: أنت مشارك في {title}",
+  "ntf_push_hackathon_promoted_body": "الانطلاق {date}. افتح الهاكاثون لمعرفة الخطوات التالية.",
+  "ntf_email_hackathon_promoted_subject": "أنت مشارك: {title}",
+  "ntf_email_hackathon_promoted_html": "<p>توفّر مكان في <strong>{title}</strong> وأصبح لك: تم تسجيلك. الانطلاق يوم {date} {where}.</p><p><a href=\"{url}\">افتح الهاكاثون</a></p>",
+  "ntf_email_hackathon_promoted_text": "توفّر مكان في {title} وأصبح لك: تم تسجيلك. الانطلاق يوم {date} {where}. {url}"
 }

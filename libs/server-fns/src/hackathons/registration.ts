@@ -9,11 +9,13 @@ import {
 import {
   createHackathonRegistration,
   getHackathon,
+  getUser,
   type Db,
 } from '@founders-coffee/db';
 import { hackathons } from '@founders-coffee/domain';
 import { logger, type Metrics } from '@founders-coffee/observability';
 
+import { enqueueHackathonRegistrationNotice } from '../notifications/hackathon-registration.js';
 import { requireHackathonsEnabled } from './flag.js';
 import { recordHackathonMetric } from './metrics.js';
 
@@ -42,7 +44,8 @@ const notFound = () => new AppError('event_not_found', 'Event not found');
  * conduct is the request's own condition. The write then re-checks the dates and the event in one
  * atomic batch and decides the place against the count it updates, so a hackathon filling up between
  * the read and the write puts the member on the waitlist rather than over capacity. A member already
- * registered, in any status, is told `already_registered`.
+ * registered, in any status, is told `already_registered`. A member who got a place, or a place on
+ * the waitlist, is then told which (B-REG-07).
  */
 export const registerForHackathonResolver = async (
   db: Db,
@@ -103,6 +106,20 @@ export const registerForHackathonResolver = async (
     eventId: event.id,
     marketCode: event.marketCode,
     status: written.status,
+  });
+  await enqueueHackathonRegistrationNotice(db, {
+    templateKey:
+      written.status === 'registered'
+        ? 'hackathon_registered'
+        : 'hackathon_waitlisted',
+    eventId: event.id,
+    userId: input.userId,
+    eventTitle: event.title,
+    eventSlug: event.slug,
+    marketCode: event.marketCode,
+    startsAt: event.startsAt,
+    venue: event.venue,
+    locale: (await getUser(db, input.userId))?.localePref,
   });
   return ok({ registrationId, status: written.status });
 };

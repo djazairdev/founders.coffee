@@ -1429,5 +1429,20 @@
   "hackathon_criterion_error_description": "Décrivez-le en 20 à 500 caractères.",
   "hackathon_criterion_error_weight": "Saisissez un nombre entier de 1 à 100.",
   "hackathon_rubric_error_total": "Les poids font {total} au total. Ils doivent faire 100.",
-  "hackathon_rubric_error_names": "Donnez à chaque critère un nom différent."
+  "hackathon_rubric_error_names": "Donnez à chaque critère un nom différent.",
+  "ntf_push_hackathon_registered_title": "Votre inscription au hackathon « {title} » est confirmée",
+  "ntf_push_hackathon_registered_body": "Lancement {date}. Ouvrez le hackathon pour la suite.",
+  "ntf_email_hackathon_registered_subject": "Inscription confirmée : {title}",
+  "ntf_email_hackathon_registered_html": "<p>Votre inscription au hackathon <strong>{title}</strong> est confirmée. Le lancement a lieu le {date} {where}.</p><p><a href=\"{url}\">Ouvrir le hackathon</a></p>",
+  "ntf_email_hackathon_registered_text": "Votre inscription au hackathon « {title} » est confirmée. Le lancement a lieu le {date} {where}. {url}",
+  "ntf_push_hackathon_waitlisted_title": "Vous êtes sur la liste d’attente du hackathon « {title} »",
+  "ntf_push_hackathon_waitlisted_body": "Nous vous préviendrons dès qu’une place sera pour vous.",
+  "ntf_email_hackathon_waitlisted_subject": "Liste d’attente : {title}",
+  "ntf_email_hackathon_waitlisted_html": "<p>Toutes les places du hackathon <strong>{title}</strong> sont prises : vous êtes sur la liste d’attente. Quand une place se libère, elle revient à la personne suivante sur la liste, et nous vous préviendrons dès qu’elle sera pour vous.</p><p><a href=\"{url}\">Ouvrir le hackathon</a></p>",
+  "ntf_email_hackathon_waitlisted_text": "Toutes les places du hackathon « {title} » sont prises : vous êtes sur la liste d’attente. Quand une place se libère, elle revient à la personne suivante sur la liste, et nous vous préviendrons dès qu’elle sera pour vous. {url}",
+  "ntf_push_hackathon_promoted_title": "Une place s’est libérée : vous participez au hackathon « {title} »",
+  "ntf_push_hackathon_promoted_body": "Lancement {date}. Ouvrez le hackathon pour la suite.",
+  "ntf_email_hackathon_promoted_subject": "Vous participez : {title}",
+  "ntf_email_hackathon_promoted_html": "<p>Une place s’est libérée pour <strong>{title}</strong> et elle est pour vous : votre inscription est confirmée. Le lancement a lieu le {date} {where}.</p><p><a href=\"{url}\">Ouvrir le hackathon</a></p>",
+  "ntf_email_hackathon_promoted_text": "Une place s’est libérée pour {title} et elle est pour vous : votre inscription est confirmée. Le lancement a lieu le {date} {where}. {url}"
 }

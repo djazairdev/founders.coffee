@@ -1,6 +1,7 @@
 import { AppError, err, ok, type Result } from '@founders-coffee/core';
 import {
   getHackathon,
+  getUser,
   readWithdrawalState,
   withdrawHackathonRegistration,
   type Db,
@@ -8,6 +9,7 @@ import {
 import { hackathons } from '@founders-coffee/domain';
 import { logger, type Metrics } from '@founders-coffee/observability';
 
+import { enqueueHackathonRegistrationNotice } from '../notifications/hackathon-registration.js';
 import { hackathonNotFound } from './edit-context.js';
 import { requireHackathonsEnabled } from './flag.js';
 import { recordHackathonMetric } from './metrics.js';
@@ -22,7 +24,8 @@ export type Withdrawn = { readonly isWithdrawn: true };
  * (`not_registered`, `withdrawal_closed`, `captain_must_transfer`). The write then re-checks all of
  * it in one atomic batch that also takes them out of their team and, when they held a place, gives
  * it to the earliest member on the waitlist. When something changed in between, the rule is asked
- * again against where they now stand, so the refusal says why.
+ * again against where they now stand, so the refusal says why. The member given the place is told
+ * it is theirs (B-REG-07).
  */
 export const withdrawFromHackathonResolver = async (
   db: Db,
@@ -67,5 +70,17 @@ export const withdrawFromHackathonResolver = async (
     marketCode: event.marketCode,
     isPlaceGivenOn: written.promotedUserId !== null,
   });
+  if (written.promotedUserId)
+    await enqueueHackathonRegistrationNotice(db, {
+      templateKey: 'hackathon_promoted',
+      eventId: event.id,
+      userId: written.promotedUserId,
+      eventTitle: event.title,
+      eventSlug: event.slug,
+      marketCode: event.marketCode,
+      startsAt: event.startsAt,
+      venue: event.venue,
+      locale: (await getUser(db, written.promotedUserId))?.localePref,
+    });
   return ok({ isWithdrawn: true });
 };
