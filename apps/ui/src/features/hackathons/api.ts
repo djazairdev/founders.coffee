@@ -14,9 +14,11 @@ import {
   requestToJoinHackathonTeam,
   revokeHackathonTeamInvite,
   saveHackathonSubmissionDraft,
+  submitHackathonSubmission,
   type LookingForTeamView,
   type SubmissionDraftSaved,
   type SubmissionPageView,
+  type SubmissionSubmitted,
   type TeamInviteCreated,
   type TeamJoined,
   type TeamPageView,
@@ -151,6 +153,10 @@ export const submissionsApi = {
         },
       },
     }),
+  submit: (request: { readonly eventId: string; readonly version: number }) =>
+    submitHackathonSubmission({
+      data: { ...request, isOriginalWorkAttested: true },
+    }),
 };
 
 export type {
@@ -158,6 +164,7 @@ export type {
   LookingForTeamView,
   SubmissionDraftSaved,
   SubmissionPageView,
+  SubmissionSubmitted,
   TeamInviteCreated,
   TeamJoined,
   TeamPageView,
