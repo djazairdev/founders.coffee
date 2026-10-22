@@ -1563,5 +1563,9 @@
   "admin_hkn_stale": "This hackathon changed since the list loaded. The list is up to date now.",
   "admin_hkn_decision_failed": "The decision could not be saved.",
   "hackathon_market_heading": "Hackathons",
-  "hackathon_market_empty": "No hackathon is coming up here yet."
+  "hackathon_market_empty": "No hackathon is coming up here yet.",
+  "hackathon_mentors_heading": "Mentors",
+  "hackathon_mentor_helps_with": "Helps with",
+  "hackathon_mentor_office_hours": "Office hours",
+  "hackathon_workshops_heading": "Workshops before kickoff"
 }

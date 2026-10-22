@@ -1,8 +1,9 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, asc, eq, sql, type SQL } from 'drizzle-orm';
 
 import type { Db } from './db.js';
 import {
   acceptPlaceInvite,
+  addedOrder,
   changed,
   countOpenPlaces,
   declinePlaceInvite,
@@ -14,10 +15,25 @@ import {
   type OrganiserPlace,
 } from './hackathon-places.js';
 import { bound } from './insert-select.js';
-import { hackathonJudges, hackathonMentors, hackathons } from './schema.js';
+import { visibleIdentity } from './profile-access.js';
+import {
+  hackathonJudges,
+  hackathonMentors,
+  hackathons,
+  memberProfiles,
+  user,
+} from './schema.js';
 
 export type MentorNoteWrite = {
   readonly helpsWith: string;
+  readonly officeHours: string | null;
+};
+
+export type PublicHackathonMentor = {
+  readonly userId: string;
+  readonly name: string;
+  readonly photoAssetId: string | null;
+  readonly helpsWith: string | null;
   readonly officeHours: string | null;
 };
 
@@ -165,3 +181,32 @@ export const listOrganiserHackathonMentors = async (
     officeHours: noteOf.get(place.id)?.officeHours ?? null,
   }));
 };
+
+/**
+ * The mentors a hackathon's page shows (B-HKN-26): those who accepted, in the order they did, with
+ * what they help with and their office hours, each while their identity may still be shown
+ * publicly. `eventId` may be SQL that yields the id, as for the judges.
+ */
+export const acceptedHackathonMentorsQuery = (db: Db, eventId: string | SQL) =>
+  db
+    .select({
+      userId: user.id,
+      name: user.name,
+      photoAssetId: memberProfiles.photoAssetId,
+      helpsWith: hackathonMentors.helpsWith,
+      officeHours: hackathonMentors.officeHours,
+    })
+    .from(hackathonMentors)
+    .innerJoin(user, eq(user.id, hackathonMentors.userId))
+    .leftJoin(memberProfiles, eq(memberProfiles.userId, user.id))
+    .where(
+      and(
+        eq(hackathonMentors.eventId, eventId),
+        eq(hackathonMentors.status, 'accepted'),
+        visibleIdentity(hackathonMentors.userId),
+      ),
+    )
+    .orderBy(
+      asc(hackathonMentors.respondedAt),
+      asc(addedOrder(hackathonMentors)),
+    );

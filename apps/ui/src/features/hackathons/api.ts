@@ -174,9 +174,13 @@ export type HackathonOffer = {
   readonly prizes: readonly PublicHackathonPrizeView[];
 };
 export type HackathonJudgeView = EventPage['judges'][number];
+export type HackathonMentorView = EventPage['mentors'][number];
+export type HackathonWorkshopView = EventPage['workshops'][number];
 export type HackathonPageDetails = HackathonOffer & {
   readonly rules: PublicHackathonRules;
   readonly judges: readonly HackathonJudgeView[];
+  readonly mentors: readonly HackathonMentorView[];
+  readonly workshops: readonly HackathonWorkshopView[];
 };
 export type HackathonPrizeView = HackathonDraftView['prizes'][number];
 export type HackathonBasicsRequest = CreateHackathonDraftRequest['hackathon'];
