@@ -1199,6 +1199,7 @@
   "hackathon_track_brief": "Brief",
   "hackathon_track_brief_ph": "The problem or the goal, and what a good submission looks like.",
   "hackathon_track_partner": "Partner",
+  "hackathon_track_partner_value": "Partner: {name}",
   "hackathon_track_sources": "Repositories and issues",
   "hackathon_track_sources_hint": "GitHub repositories or issues, or djazair.dev Hub links.",
   "hackathon_track_source_label": "Link {n}",

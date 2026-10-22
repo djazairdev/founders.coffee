@@ -6,9 +6,6 @@ import {
   hackathon_track_brief,
   hackathon_track_brief_ph,
   hackathon_track_kind,
-  hackathon_track_kind_founder_problem,
-  hackathon_track_kind_open_source,
-  hackathon_track_kind_partner_technology,
   hackathon_track_move_down,
   hackathon_track_move_up,
   hackathon_track_number,
@@ -26,15 +23,10 @@ import {
   Select,
 } from '@founders-coffee/ui';
 
+import { TRACK_KIND_LABELS } from '../detail-labels';
 import { trackFieldId, type TrackDraft } from '../hackathon-tracks-form';
 import type { useHackathonTracksForm } from '../useHackathonTracksForm';
 import { HackathonTrackSources } from './HackathonTrackSources';
-
-const KIND_LABELS = {
-  founder_problem: hackathon_track_kind_founder_problem,
-  partner_technology: hackathon_track_kind_partner_technology,
-  open_source: hackathon_track_kind_open_source,
-} as const;
 
 export const HackathonTrackEditor = ({
   form,
@@ -112,7 +104,7 @@ export const HackathonTrackEditor = ({
         >
           {HACKATHON_TRACK_KINDS.map((kind) => (
             <option key={kind} value={kind}>
-              {KIND_LABELS[kind]({}, { locale })}
+              {TRACK_KIND_LABELS[kind]({}, { locale })}
             </option>
           ))}
         </Select>

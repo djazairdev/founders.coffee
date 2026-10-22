@@ -15,7 +15,11 @@ export type {
   EventUpdateInput,
 } from '@founders-coffee/domain';
 export type { EventCalendarAnswer } from './calendar.js';
-export type { EventPage } from './page.js';
+export type {
+  EventPage,
+  PublicHackathonPrizeView,
+  PublicHackathonTrack,
+} from './page.js';
 export type { HackathonSchedule } from './hackathon-schedule.js';
 export type {
   EventCalendarRequestInput,

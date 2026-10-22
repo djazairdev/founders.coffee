@@ -4,6 +4,11 @@ import { alias } from 'drizzle-orm/sqlite-core';
 import type { Db } from './db.js';
 import { eventOrganisationsQuery } from './event-organisers.js';
 import { acceptedHackathonJudgesQuery } from './hackathon-judges.js';
+import {
+  publicHackathonPrizesOf,
+  publicHackathonPrizesQuery,
+} from './hackathon-prizes.js';
+import { publicHackathonTracksQuery } from './hackathon-tracks.js';
 import { memberProfileQuery, profileIdentityQuery } from './member-profiles.js';
 import { attendedMeetupsQuery, hostedMeetupsQuery } from './member-record.js';
 import { visibleHost } from './profile-access.js';
@@ -23,8 +28,8 @@ import { events, hackathons } from './schema.js';
  * rows are the ones `getProfileIdentity`, `getMemberProfile` and the two record counts read, built
  * by the same functions, so the card cannot drift from the host's public profile. The
  * organisations that run the meetup come back in the same batch, found by the same address, and so
- * do a hackathon's dates (B-HKN-17), `null` for any other kind of event, and the judges who accepted
- * (B-JDG-03).
+ * do a hackathon's dates (B-HKN-17), `null` for any other kind of event, the judges who accepted
+ * (B-JDG-03), and its tracks and confirmed prizes (B-HKN-18), none for a meetup.
  */
 export const readEventPageRows = async (
   db: Db,
@@ -54,6 +59,8 @@ export const readEventPageRows = async (
     organiserRows,
     hackathonRows,
     judgeRows,
+    trackRows,
+    prizeRows,
   ] = await db.batch([
     db
       .select()
@@ -82,6 +89,8 @@ export const readEventPageRows = async (
       .where(eq(hackathons.eventId, eventId))
       .limit(1),
     acceptedHackathonJudgesQuery(db, eventId),
+    publicHackathonTracksQuery(db, eventId),
+    publicHackathonPrizesQuery(db, eventId),
   ]);
   return {
     event: eventRows[0],
@@ -94,5 +103,7 @@ export const readEventPageRows = async (
     organisers: organiserRows,
     hackathon: hackathonRows[0] ?? null,
     judges: judgeRows,
+    tracks: trackRows,
+    prizes: publicHackathonPrizesOf(prizeRows),
   };
 };

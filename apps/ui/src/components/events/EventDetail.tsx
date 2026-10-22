@@ -33,7 +33,11 @@ import { eventCityName } from '../../features/events/event-city-name';
 import { eventStreetAddress } from '../../features/events/event-street-address';
 import type { EventPhase } from '../../features/events/live-window';
 import type { UseEventLiveResult } from '../../features/events/useEventLive';
-import type { HackathonSchedule as Schedule } from '../../features/hackathons/api';
+import type {
+  HackathonOffer as Offer,
+  HackathonSchedule as Schedule,
+} from '../../features/hackathons/api';
+import { HackathonOffer } from '../../features/hackathons/components/HackathonOffer';
 import { HackathonSchedule } from '../../features/hackathons/components/HackathonSchedule';
 import { localizedCity } from '../../lib/locale-routing';
 import { EventFormatBadge } from './EventFormatBadge';
@@ -59,6 +63,7 @@ type EventDetailProps = {
   phase: EventPhase;
   mapboxToken: string | null;
   hackathon?: Schedule | null;
+  offer?: Offer | null;
 };
 
 export const EventDetail = ({
@@ -72,6 +77,7 @@ export const EventDetail = ({
   phase,
   mapboxToken,
   hackathon = null,
+  offer = null,
 }: EventDetailProps) => {
   const hostName = host?.displayName ?? role_host({}, { locale });
   const on = (value: Date, options: Intl.DateTimeFormatOptions) =>
@@ -252,6 +258,7 @@ export const EventDetail = ({
             cityName={cityName}
             isHost={isHost}
           />
+          {offer ? <HackathonOffer offer={offer} locale={locale} /> : null}
         </section>
 
         {hasRsvpBox ? (

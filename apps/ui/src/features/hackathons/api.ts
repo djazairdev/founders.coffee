@@ -40,6 +40,8 @@ import {
   type HackathonDraftCreated,
   type HackathonDraftView,
   type JoinHackathonInterestRequest,
+  type PublicHackathonPrizeView,
+  type PublicHackathonTrack,
   type RemoveHackathonPrizeRequest,
   type SaveHackathonDetailsRequest,
   type SaveHackathonRubricRequest,
@@ -149,6 +151,8 @@ export type {
   HackathonDraftCreated,
   HackathonDraftView,
   JoinHackathonInterestRequest,
+  PublicHackathonPrizeView,
+  PublicHackathonTrack,
   RemoveHackathonPrizeRequest,
   SaveHackathonDetailsRequest,
   SaveHackathonRubricRequest,
@@ -160,6 +164,10 @@ export type HackathonEditSaved = {
   readonly version: number;
 };
 export type HackathonTrackView = HackathonDraftView['tracks'][number];
+export type HackathonOffer = {
+  readonly tracks: readonly PublicHackathonTrack[];
+  readonly prizes: readonly PublicHackathonPrizeView[];
+};
 export type HackathonPrizeView = HackathonDraftView['prizes'][number];
 export type HackathonBasicsRequest = CreateHackathonDraftRequest['hackathon'];
 export type JoinHackathonInterestArgs = { data: JoinHackathonInterestRequest };
