@@ -1,7 +1,12 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, isNotNull } from 'drizzle-orm';
 
 import type { Db } from './db.js';
-import { hackathonTeamMembers, hackathonTeams, user } from './schema.js';
+import {
+  hackathonSubmissions,
+  hackathonTeamMembers,
+  hackathonTeams,
+  user,
+} from './schema.js';
 
 export type TeamNoticeParties = {
   readonly teamName: string;
@@ -38,4 +43,46 @@ export const readTeamNoticeParties = async (
   const [team] = teams;
   if (!team) return null;
   return { teamName: team.name, members, name: people[0]?.name ?? null };
+};
+
+export type DeadlineReminderStanding = {
+  readonly teamName: string | null;
+  readonly hasSubmitted: boolean;
+};
+
+/**
+ * What a member's submission-deadline reminders say (B-SUB-07): the name of the team they are in,
+ * if any, and whether it has submitted anything, in which case it needs no reminder.
+ */
+export const readDeadlineReminderStanding = async (
+  db: Db,
+  input: { readonly eventId: string; readonly userId: string },
+): Promise<DeadlineReminderStanding> => {
+  const [row] = await db
+    .select({
+      teamName: hackathonTeams.name,
+      submissionId: hackathonSubmissions.id,
+    })
+    .from(hackathonTeamMembers)
+    .innerJoin(
+      hackathonTeams,
+      eq(hackathonTeams.id, hackathonTeamMembers.teamId),
+    )
+    .leftJoin(
+      hackathonSubmissions,
+      and(
+        eq(hackathonSubmissions.teamId, hackathonTeamMembers.teamId),
+        isNotNull(hackathonSubmissions.submittedAt),
+      ),
+    )
+    .where(
+      and(
+        eq(hackathonTeamMembers.eventId, input.eventId),
+        eq(hackathonTeamMembers.userId, input.userId),
+      ),
+    );
+  return {
+    teamName: row?.teamName ?? null,
+    hasSubmitted: (row?.submissionId ?? null) !== null,
+  };
 };

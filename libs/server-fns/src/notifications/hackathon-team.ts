@@ -25,6 +25,9 @@ import {
   ntf_email_hackathon_team_request_html,
   ntf_email_hackathon_team_request_subject,
   ntf_email_hackathon_team_request_text,
+  ntf_email_hackathon_submission_received_html,
+  ntf_email_hackathon_submission_received_subject,
+  ntf_email_hackathon_submission_received_text,
   ntf_push_hackathon_team_accepted_body,
   ntf_push_hackathon_team_accepted_title,
   ntf_push_hackathon_team_declined_body,
@@ -35,12 +38,15 @@ import {
   ntf_push_hackathon_team_left_title,
   ntf_push_hackathon_team_request_body,
   ntf_push_hackathon_team_request_title,
+  ntf_push_hackathon_submission_received_body,
+  ntf_push_hackathon_submission_received_title,
   ntf_team_member_unnamed,
 } from '@founders-coffee/i18n';
 
 import { channelPlanFor } from './channel-plan.js';
 import {
   hackathonLookingUrlFor,
+  hackathonSubmitUrlFor,
   hackathonTeamUrlFor,
   resolveNotificationContext,
 } from './context.js';
@@ -53,6 +59,7 @@ type TeamValues = {
   readonly title: string;
   readonly team: string;
   readonly name: string;
+  readonly project: string;
   readonly url: string;
 };
 
@@ -97,6 +104,20 @@ const MESSAGES: Record<
     ntf_email_hackathon_team_left_html,
     ntf_email_hackathon_team_left_text,
   ],
+  hackathon_submission_received: [
+    ntf_push_hackathon_submission_received_title,
+    ntf_push_hackathon_submission_received_body,
+    ntf_email_hackathon_submission_received_subject,
+    ntf_email_hackathon_submission_received_html,
+    ntf_email_hackathon_submission_received_text,
+  ],
+};
+
+const URLS: Partial<
+  Record<HackathonTeamTemplateKey, (locale: Locale, eventId: string) => string>
+> = {
+  hackathon_team_declined: hackathonLookingUrlFor,
+  hackathon_submission_received: hackathonSubmitUrlFor,
 };
 
 /** The push and email forms of a team notice, in the reader's language. */
@@ -111,6 +132,7 @@ export const hackathonTeamMessage = async (
     title: escapeHtml(values.title),
     team: escapeHtml(values.team),
     name: escapeHtml(values.name),
+    project: escapeHtml(values.project),
     url: escapeHtml(values.url),
   };
   return {
@@ -128,11 +150,13 @@ export const hackathonTeamMessage = async (
 
 /**
  * Tell members of a hackathon what changed in a team (B-TEAM-09): a request to join it, the answer
- * to one, a member who joined, or one who is no longer in it.
+ * to one, a member who joined, or one who is no longer in it; or that its project was submitted,
+ * the receipt every member gets (B-SUB-07).
  *
  * Each notice is written in its reader's language and follows their Hackathons category, push
  * first with email behind it; the category's switch is honoured again at send time. A declined
- * request links to who is looking for a team, every other notice to the reader's team page.
+ * request links to who is looking for a team, a receipt to the team's project, every other notice
+ * to the reader's team page.
  */
 export const enqueueHackathonTeamNotices = async (
   db: Db,
@@ -145,6 +169,7 @@ export const enqueueHackathonTeamNotices = async (
     readonly recipients: readonly string[];
     readonly team: string;
     readonly name: string | null;
+    readonly project?: string;
   },
 ): Promise<void> => {
   const { event } = opts;
@@ -167,10 +192,10 @@ export const enqueueHackathonTeamNotices = async (
       startsAt: event.startsAt.toISOString(),
       locale,
     };
-    const url =
-      opts.templateKey === 'hackathon_team_declined'
-        ? hackathonLookingUrlFor(locale, event.id)
-        : hackathonTeamUrlFor(locale, event.id);
+    const url = (URLS[opts.templateKey] ?? hackathonTeamUrlFor)(
+      locale,
+      event.id,
+    );
     const payload = {
       ...basePayload,
       ...(await hackathonTeamMessage(
@@ -179,6 +204,7 @@ export const enqueueHackathonTeamNotices = async (
           title: event.title,
           team: opts.team,
           name: opts.name ?? ntf_team_member_unnamed({}, { locale }),
+          project: opts.project ?? '',
           url,
         },
         locale,

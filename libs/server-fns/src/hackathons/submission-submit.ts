@@ -11,6 +11,7 @@ import { logger, type Metrics } from '@founders-coffee/observability';
 
 import { recordHackathonMetric } from './metrics.js';
 import { loadTeamHackathon } from './team-context.js';
+import { noticeSubmissionReceived } from './team-notices.js';
 
 export type SubmissionSubmitted = {
   readonly submissionId: string;
@@ -32,7 +33,7 @@ const submissionConflict = () =>
  * again in one atomic statement as of the same moment, and keeps a snapshot of what was submitted.
  * When it lands nothing, the rules are asked again so the refusal says why, and otherwise someone
  * saved in between. A team may submit again before the deadline; each submit keeps its own
- * snapshot.
+ * snapshot, and sends the team its receipt (B-SUB-07).
  */
 export const submitSubmissionResolver = async (
   db: Db,
@@ -52,6 +53,7 @@ export const submitSubmissionResolver = async (
       readonly teamId: string;
       readonly submissionId: string;
       readonly trackId: string;
+      readonly title: string;
     }>
   > => {
     const [standing, tracks] = await Promise.all([
@@ -76,12 +78,13 @@ export const submitSubmissionResolver = async (
           teamId: membership.teamId,
           submissionId: entry.id,
           trackId: decided.data.trackId,
+          title: decided.data.title,
         })
       : submissionConflict();
   };
   const decided = await decide();
   if (!decided.ok) return decided;
-  const { teamId, submissionId, trackId } = decided.data;
+  const { teamId, submissionId, trackId, title } = decided.data;
   const version = await submitTeamSubmission(db, {
     eventId: input.eventId,
     teamId,
@@ -102,6 +105,11 @@ export const submitSubmissionResolver = async (
     marketCode: event.marketCode,
     hackathonId: input.eventId,
     trackId,
+  });
+  await noticeSubmissionReceived(db, event, {
+    teamId,
+    captainId: input.userId,
+    project: title,
   });
   return ok({
     submissionId,

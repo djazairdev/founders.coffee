@@ -7,6 +7,7 @@ import {
 import { hackathons } from '@founders-coffee/domain';
 import { logger, type Metrics } from '@founders-coffee/observability';
 
+import { syncDeadlineReminders } from '../notifications/hackathon-reminders.js';
 import { recordHackathonMetric } from './metrics.js';
 import { loadTeamHackathon } from './team-context.js';
 
@@ -69,5 +70,6 @@ export const createHackathonTeamResolver = async (
     eventId: event.id,
     marketCode: event.marketCode,
   });
+  await syncDeadlineReminders(db, { eventId: event.id, userId: input.userId });
   return ok({ teamId });
 };

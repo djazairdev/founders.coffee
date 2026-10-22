@@ -112,6 +112,12 @@ export const organisationInvitationUrlFor = (
 export const hackathonTeamUrlFor = (locale: Locale, eventId: string): string =>
   `${notificationBaseUrl()}/${locale}/hackathon/${eventId}/team`;
 
+/** The team's project in a hackathon (B-SUB-05), on the same terms as `closeoutUrlFor`. */
+export const hackathonSubmitUrlFor = (
+  locale: Locale,
+  eventId: string,
+): string => `${notificationBaseUrl()}/${locale}/hackathon/${eventId}/submit`;
+
 /** Who is looking for a team in a hackathon (B-TEAM-08), on the same terms as `closeoutUrlFor`. */
 export const hackathonLookingUrlFor = (
   locale: Locale,

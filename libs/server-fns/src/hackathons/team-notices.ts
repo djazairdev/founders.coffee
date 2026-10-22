@@ -6,6 +6,7 @@ import {
   type TeamNoticeParties,
 } from '@founders-coffee/db';
 
+import { syncDeadlineReminders } from '../notifications/hackathon-reminders.js';
 import { enqueueHackathonTeamNotices } from '../notifications/hackathon-team.js';
 
 type Members = TeamNoticeParties['members'];
@@ -129,3 +130,35 @@ export const noticeTeamLeft = (
         membersBut(members, input.memberId, input.actorId),
     },
   ]);
+
+/**
+ * Send every member of a team its receipt once the captain submitted its project (B-SUB-07), each
+ * time they do, naming the project and who submitted it; and, the team having submitted, withdraw
+ * their deadline reminders.
+ */
+export const noticeSubmissionReceived = async (
+  db: Db,
+  event: Event,
+  input: {
+    readonly teamId: string;
+    readonly captainId: string;
+    readonly project: string;
+  },
+): Promise<void> => {
+  const parties = await readTeamNoticeParties(db, {
+    teamId: input.teamId,
+    userId: input.captainId,
+  });
+  if (!parties) return;
+  const memberIds = parties.members.map((member) => member.userId);
+  await enqueueHackathonTeamNotices(db, {
+    templateKey: 'hackathon_submission_received',
+    event,
+    recipients: memberIds,
+    team: parties.teamName,
+    name: parties.name,
+    project: input.project,
+  });
+  for (const userId of memberIds)
+    await syncDeadlineReminders(db, { eventId: event.id, userId });
+};
