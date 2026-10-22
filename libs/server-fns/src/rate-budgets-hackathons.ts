@@ -36,6 +36,11 @@ export const HACKATHON_RATE_BUDGETS = {
     limit: 10,
     windowMs: 10 * MINUTE_MS,
   },
+  hackathonScoreSave: {
+    action: 'save_hackathon_scores',
+    limit: 60,
+    windowMs: 10 * MINUTE_MS,
+  },
   hackathonRecusal: {
     action: 'recuse_hackathon_entry',
     limit: 20,

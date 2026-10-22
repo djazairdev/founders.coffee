@@ -193,3 +193,9 @@ export {
   hackathonReportSchema,
   type HackathonReportInput,
 } from './reports.js';
+export {
+  decideScoreSave,
+  judgeScoresSchema,
+  type JudgeScoresInput,
+  type JudgeScoreValue,
+} from './judge-scores.js';

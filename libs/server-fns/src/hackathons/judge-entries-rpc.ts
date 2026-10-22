@@ -13,8 +13,9 @@ import {
   listJudgeEntriesResolver,
   recuseFromEntryResolver,
 } from './judge-entries.js';
+import { saveJudgeScoresResolver } from './judge-scores.js';
 
-const { hackathonRecusal } = RATE_BUDGETS.edit;
+const { hackathonRecusal, hackathonScoreSave } = RATE_BUDGETS.edit;
 
 /**
  * The entries the signed-in judge reads (B-JDG-04). `judging:score` is every member's; whether
@@ -54,6 +55,33 @@ export const recuseFromHackathonEntry = createServerFn({
     privateNoStore();
     return handleResult(
       recuseFromEntryResolver(getDb(), {
+        ...data,
+        userId: requireAuth(context.session).user.id,
+      }),
+    );
+  });
+
+/**
+ * Save the signed-in judge's scores for one entry (B-JDG-05), within a budget of its own. Saving
+ * again changes them, until the results are published. Authenticated, so no Turnstile.
+ */
+export const saveHackathonScores = createServerFn({
+  method: 'POST',
+  strict: false,
+})
+  .middleware([
+    requirePermission('judging', 'score'),
+    rateLimit(
+      hackathonScoreSave.action,
+      hackathonScoreSave.limit,
+      hackathonScoreSave.windowMs,
+    ),
+  ])
+  .validator(appValidator(hackathons.judgeScoresSchema))
+  .handler(({ context, data }) => {
+    privateNoStore();
+    return handleResult(
+      saveJudgeScoresResolver(getDb(), {
         ...data,
         userId: requireAuth(context.session).user.id,
       }),
