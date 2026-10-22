@@ -13,6 +13,7 @@ import { logger } from '@founders-coffee/observability';
 
 import { hashSecretToken, newSecretToken } from '../secret-tokens.js';
 import { loadTeamHackathon } from './team-context.js';
+import { syncDeadlineReminders } from '../notifications/hackathon-reminders.js';
 import { noticeTeamJoined } from './team-notices.js';
 
 type Captain = { readonly eventId: string; readonly userId: string };
@@ -163,5 +164,6 @@ export const joinTeamByInviteResolver = async (
     via: 'invite',
   });
   await noticeTeamJoined(db, event, { teamId, memberId: input.userId });
+  await syncDeadlineReminders(db, { eventId, userId: input.userId });
   return ok({ eventId, teamId });
 };

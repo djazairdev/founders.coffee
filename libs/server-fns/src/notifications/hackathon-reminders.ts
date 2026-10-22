@@ -1,7 +1,9 @@
 import {
+  HACKATHON_DEADLINE_REMINDER_KEYS,
   HACKATHON_ORGANISER_REMINDER_KEYS,
   HACKATHON_PARTICIPANT_REMINDER_KEYS,
   id,
+  type HackathonDeadlineReminderKey,
 } from '@founders-coffee/core';
 import {
   cancelNotificationsByTemplate,
@@ -11,6 +13,7 @@ import {
   getNotificationContact,
   listHackathonOrganiserContacts,
   moveNotificationsByTemplate,
+  readDeadlineReminderStanding,
   type Db,
   type Event,
   type Hackathon,
@@ -19,16 +22,22 @@ import { hackathons } from '@founders-coffee/domain';
 import { reportError } from '@founders-coffee/observability';
 
 import { channelPlanFor } from './channel-plan.js';
-import { resolveNotificationContext } from './context.js';
+import {
+  hackathonSubmitUrlFor,
+  resolveNotificationContext,
+} from './context.js';
 import { renderNotificationEmail } from './email-templates.js';
-import { REMINDER_MESSAGES } from './hackathon-reminder-messages.js';
+import {
+  REMINDER_MESSAGES,
+  TEAM_DEADLINE_MESSAGES,
+} from './hackathon-reminder-messages.js';
 import {
   validPayload,
   valuesFor,
   type NotificationPayload,
 } from './producer.js';
 import { armNotificationSchedule } from './schedule.js';
-import { escapeValues } from './templates.js';
+import { escapeHtml, escapeValues } from './templates.js';
 
 type Found = { readonly event: Event; readonly hackathon: Hackathon };
 
@@ -58,22 +67,28 @@ const dueReminders = (
         )
     : [];
 
+const isDeadline = (
+  templateKey: string,
+): templateKey is HackathonDeadlineReminderKey =>
+  (HACKATHON_DEADLINE_REMINDER_KEYS as readonly string[]).includes(templateKey);
+
 /**
  * Write one member's reminders, rendered in their language, each at its time. The messages name no
- * date, only how far away the moment is, so a date change moves a row without rewriting it.
+ * date, only how far away the moment is, so a date change moves a row without rewriting it. A
+ * deadline reminder for a member in a team names the team and opens its project (B-SUB-07).
  */
 const enqueueFor = async (
   db: Db,
   found: Found,
   userId: string,
   reminders: readonly hackathons.HackathonReminder[],
-  locale?: string | null,
+  opts: { readonly locale?: string | null; readonly team?: string | null } = {},
 ): Promise<void> => {
   const contact = await getNotificationContact(db, userId);
   if (!contact) return;
   const { event } = found;
   const context = await resolveNotificationContext(db, {
-    preferred: locale ?? contact.localePref,
+    preferred: opts.locale ?? contact.localePref,
     marketCode: event.marketCode,
   });
   const base: NotificationPayload = {
@@ -86,21 +101,38 @@ const enqueueFor = async (
   };
   const values = valuesFor(base, context, true);
   const options = { locale: context.locale };
+  const team = opts.team ?? null;
+  const teamValues =
+    team === null
+      ? null
+      : {
+          ...values,
+          team,
+          url: hackathonSubmitUrlFor(context.locale, event.id),
+        };
   for (const reminder of reminders) {
     const plan = channelPlanFor(contact, reminder.templateKey);
     if (!plan) continue;
+    const named =
+      teamValues && isDeadline(reminder.templateKey)
+        ? {
+            messages: TEAM_DEADLINE_MESSAGES[reminder.templateKey],
+            values: teamValues,
+          }
+        : null;
     const [pushTitle, pushBody, subject, html, text] =
-      REMINDER_MESSAGES[reminder.templateKey];
+      named?.messages ?? REMINDER_MESSAGES[reminder.templateKey];
+    const shown = named?.values ?? { ...values, team: '' };
     const payload = {
       ...base,
-      pushTitle: pushTitle(values, options),
-      pushBody: pushBody(values, options),
-      pushUrl: values.url,
+      pushTitle: pushTitle(shown, options),
+      pushBody: pushBody(shown, options),
+      pushUrl: shown.url,
       ...(await renderNotificationEmail(
         context.locale,
-        subject(values, options),
-        html(escapeValues(values), options),
-        text(values, options),
+        subject(shown, options),
+        html({ ...escapeValues(shown), team: escapeHtml(team ?? '') }, options),
+        text(shown, options),
       )),
     };
     await enqueueNotification(db, {
@@ -185,7 +217,40 @@ export const scheduleParticipantReminders = async (
     const found = await getHackathon(db, opts.eventId);
     const reminders = dueReminders(found, 'participants', now);
     if (!found || reminders.length === 0) return;
-    await enqueueFor(db, found, opts.userId, reminders, opts.locale);
+    await enqueueFor(db, found, opts.userId, reminders, {
+      locale: opts.locale,
+    });
+    await armEarliest(opts.eventId, reminders);
+  });
+
+/**
+ * Rewrite a participant's submission-deadline reminders after their team changed or submitted
+ * (B-SUB-07): they name the team the member is now in, or say they are in none, and a member whose
+ * team has submitted gets none. Called for the member who started, joined or left a team, and for
+ * every member of a team that just submitted.
+ */
+export const syncDeadlineReminders = async (
+  db: Db,
+  opts: { readonly eventId: string; readonly userId: string },
+  now: number = Date.now(),
+): Promise<void> =>
+  quietly('sync_deadline_reminders', opts.eventId, async () => {
+    await cancelNotificationsByUserTemplate(db, {
+      ...opts,
+      templateKeys: HACKATHON_DEADLINE_REMINDER_KEYS,
+    });
+    const [found, standing] = await Promise.all([
+      getHackathon(db, opts.eventId),
+      readDeadlineReminderStanding(db, opts),
+    ]);
+    if (!found || standing.hasSubmitted) return;
+    const reminders = dueReminders(found, 'participants', now).filter(
+      (reminder) => isDeadline(reminder.templateKey),
+    );
+    if (reminders.length === 0) return;
+    await enqueueFor(db, found, opts.userId, reminders, {
+      team: standing.teamName,
+    });
     await armEarliest(opts.eventId, reminders);
   });
 

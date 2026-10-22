@@ -11,6 +11,7 @@ import { hackathons } from '@founders-coffee/domain';
 import { logger } from '@founders-coffee/observability';
 
 import { loadTeamHackathon } from './team-context.js';
+import { syncDeadlineReminders } from '../notifications/hackathon-reminders.js';
 import { noticeTeamLeft } from './team-notices.js';
 
 type Member = { readonly eventId: string; readonly userId: string };
@@ -88,6 +89,7 @@ export const leaveTeamResolver = async (
           memberId: input.userId,
           actorId: input.userId,
         });
+      await syncDeadlineReminders(db, input);
     },
   });
   return left.ok ? ok({ isTeamDeleted: left.data.isTeamDeleted }) : left;
@@ -150,12 +152,17 @@ export const removeTeamMemberResolver = async (
         captainId: input.userId,
         memberId: input.memberId,
       }),
-    notify: ({ teamId }, event) =>
-      noticeTeamLeft(db, event, {
+    notify: async ({ teamId }, event) => {
+      await noticeTeamLeft(db, event, {
         teamId,
         memberId: input.memberId,
         actorId: input.userId,
-      }),
+      });
+      await syncDeadlineReminders(db, {
+        eventId: input.eventId,
+        userId: input.memberId,
+      });
+    },
   });
   return removed.ok ? ok(true) : removed;
 };

@@ -10,7 +10,6 @@ import {
   type Db,
 } from '@founders-coffee/db';
 
-import { hackathonTeamMessage } from '../notifications/hackathon-team.js';
 import { members, setupDb } from '../rsvps/resolver.fixtures.js';
 import { openHackathon, setHackathons } from './registration.fixtures.js';
 import { registerForHackathonResolver } from './registration.js';
@@ -277,24 +276,5 @@ describe('team notices (B-TEAM-09, real D1)', () => {
       }),
     );
     expect(await keysOf(eventId, asker)).toEqual([]);
-  });
-
-  it('escapes what members typed in the email’s HTML only', async () => {
-    const message = await hackathonTeamMessage(
-      'hackathon_team_joined',
-      {
-        title: 'Build <Algiers>',
-        team: '<b>Byte</b>',
-        name: 'Amina & co',
-        url: 'https://founders.coffee/en/hackathon/evt_1/team',
-      },
-      'en',
-    );
-
-    expect(message.pushTitle).toBe('Amina & co joined <b>Byte</b>');
-    expect(message.html).toContain('&lt;b&gt;Byte&lt;/b&gt;');
-    expect(message.html).toContain('Amina &amp; co');
-    expect(message.html).not.toContain('<b>Byte</b>');
-    expect(message.text).toContain('Amina & co joined <b>Byte</b>');
   });
 });

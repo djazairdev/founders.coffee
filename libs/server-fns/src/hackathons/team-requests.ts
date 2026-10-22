@@ -14,6 +14,7 @@ import { hackathons } from '@founders-coffee/domain';
 import { logger } from '@founders-coffee/observability';
 
 import { loadTeamHackathon } from './team-context.js';
+import { syncDeadlineReminders } from '../notifications/hackathon-reminders.js';
 import { noticeTeamAnswer, noticeTeamRequest } from './team-notices.js';
 
 type Member = { readonly eventId: string; readonly userId: string };
@@ -145,6 +146,11 @@ export const answerTeamRequestResolver = async (
     captainId: input.userId,
     decision: input.decision,
   });
+  if (input.decision === 'accept')
+    await syncDeadlineReminders(db, {
+      eventId: input.eventId,
+      userId: decided.data.requesterId,
+    });
   return ok({ teamId: decided.data.teamId });
 };
 
