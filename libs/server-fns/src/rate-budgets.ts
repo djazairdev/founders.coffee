@@ -43,6 +43,11 @@ export const RATE_BUDGETS = {
       limit: 10,
       windowMs: 10 * MINUTE_MS,
     },
+    hackathonTeamCreate: {
+      action: 'create_hackathon_team',
+      limit: 5,
+      windowMs: 10 * MINUTE_MS,
+    },
     hackathonEdit: {
       action: 'edit_hackathon',
       limit: 30,

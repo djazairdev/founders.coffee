@@ -33,3 +33,5 @@ export { registerForHackathon } from './registration-rpc.js';
 export type { RegistrationCreated } from './registration.js';
 export { withdrawFromHackathon } from './withdrawal-rpc.js';
 export type { Withdrawn } from './withdrawal.js';
+export { createHackathonTeam } from './team-creation-rpc.js';
+export type { TeamCreated } from './team-creation.js';

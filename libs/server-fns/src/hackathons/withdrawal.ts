@@ -2,7 +2,7 @@ import { AppError, err, ok, type Result } from '@founders-coffee/core';
 import {
   getHackathon,
   getUser,
-  readWithdrawalState,
+  readParticipantStanding,
   withdrawHackathonRegistration,
   type Db,
 } from '@founders-coffee/db';
@@ -50,7 +50,7 @@ export const withdrawFromHackathonResolver = async (
     hackathons.decideWithdrawal({
       timeline,
       now,
-      ...(await readWithdrawalState(db, input)),
+      ...(await readParticipantStanding(db, input)),
     });
   const decided = await decide();
   if (!decided.ok) return decided;

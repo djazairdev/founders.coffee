@@ -145,6 +145,7 @@ export const HACKATHON_ERROR_CODES = [
   'not_registered',
   'already_in_team',
   'team_full',
+  'team_name_taken',
   'not_team_member',
   'not_team_captain',
   'captain_must_transfer',
