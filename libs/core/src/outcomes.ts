@@ -178,6 +178,12 @@ export const HACKATHON_ERROR_CODES = [
   'judge_removed',
   'already_judge',
   'judge_not_found',
+  'mentor_limit_reached',
+  'mentor_invite_invalid',
+  'mentor_removed',
+  'already_mentor',
+  'mentor_not_found',
+  'not_mentor',
 ] as const;
 export type HackathonErrorCode = (typeof HACKATHON_ERROR_CODES)[number];
 export const hackathonErrorCodeSchema = z.enum(HACKATHON_ERROR_CODES);

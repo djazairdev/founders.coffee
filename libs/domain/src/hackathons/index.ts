@@ -37,14 +37,30 @@ export {
   type HackathonTeamRequestDecision,
 } from './team-requests.js';
 export {
-  decideJudgeAnswer,
-  decideJudgeChange,
   HACKATHON_JUDGE_LIMIT,
   hackathonJudgeAnswerSchema,
   hackathonJudgeInviteSchema,
   hackathonJudgeRemoveSchema,
   type HackathonJudgeAnswerInput,
 } from './judges.js';
+export {
+  decideMentorNote,
+  HACKATHON_MENTOR_HELPS_WITH_MIN,
+  hackathonMentorAnswerSchema,
+  hackathonMentorInviteSchema,
+  hackathonMentorNoteSaveSchema,
+  hackathonMentorNoteSchema,
+  hackathonMentorRemoveSchema,
+  type HackathonMentorAnswerInput,
+  type HackathonMentorNote,
+} from './mentors.js';
+export {
+  decidePlaceAnswer,
+  decidePlaceChange,
+  HACKATHON_PLACE_LIMIT,
+  placeRefusal,
+  type PlaceRole,
+} from './places.js';
 export {
   decideJoinByInvite,
   decideTeamInvite,
