@@ -21,12 +21,14 @@ export const HostOnlineCityField = ({
   marketCode,
   city,
   isDisabled = false,
+  hint,
   onCitySelect,
 }: {
   locale: Locale;
   marketCode: string;
   city: geo.GeoCity | null;
   isDisabled?: boolean;
+  hint?: string;
   onCitySelect: (city: geo.GeoCity) => void;
 }) => {
   const [region, setRegion] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export const HostOnlineCityField = ({
         region === null || region === city?.stateCode ? (city?.code ?? '') : ''
       }
       cityId={ONLINE_CITY_ID}
-      cityNote={host_online_city_hint({}, { locale })}
+      cityNote={hint ?? host_online_city_hint({}, { locale })}
       isDisabled={isDisabled}
       isOptional={false}
       labels={{

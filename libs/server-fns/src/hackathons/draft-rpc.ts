@@ -19,7 +19,7 @@ import { createHackathonDraftResolver } from './draft.js';
 const createHackathonDraftSchema = z
   .object({
     organisationId: organisationIdSchema,
-    hackathon: hackathons.hackathonDraftSchema,
+    hackathon: hackathons.hackathonBasicsSchema,
   })
   .strict();
 
@@ -28,7 +28,7 @@ export type CreateHackathonDraftRequest = z.infer<
 >;
 
 /**
- * Create a hackathon draft as an approved organisation (B-HKN-06).
+ * Create a hackathon draft as an approved organisation (B-HKN-06), from its basics (B-HKN-11).
  *
  * The signed-in member needs `hackathon:create` in the organisation the input names; every role in
  * an approved organisation has it. A hackathon is an event, so it shares the `create_event` bucket
@@ -51,7 +51,7 @@ export const createHackathonDraft = createServerFn({
       createHackathonDraftResolver(getDb(), getMapProvider(), {
         hostId: session.user.id,
         organisationId: context.organisationId,
-        draft: data.hackathon,
+        basics: data.hackathon,
       }),
     );
   });

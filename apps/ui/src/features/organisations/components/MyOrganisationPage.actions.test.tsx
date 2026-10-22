@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { ReactNode } from 'react';
 import {
   cleanup,
   fireEvent,
@@ -21,6 +22,19 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('../api', () => ({ organisationsApi: mocks }));
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({
+    children,
+    className,
+  }: {
+    children: ReactNode;
+    className?: string;
+  }) => (
+    <a href="#" className={className}>
+      {children}
+    </a>
+  ),
+}));
 
 beforeEach(() => {
   mocks.mine.mockResolvedValue(ownerView);

@@ -13,7 +13,10 @@ import {
 import { Button } from '@founders-coffee/ui';
 
 import { TOTAL_STEPS } from '../../features/events/useHostCreateWizard';
-import { localizedHome } from '../../lib/locale-routing';
+import {
+  localizedHome,
+  localizedMyOrganisation,
+} from '../../lib/locale-routing';
 
 export const HostWizardActions = ({
   locale,
@@ -24,6 +27,11 @@ export const HostWizardActions = ({
   isPublishing,
   onBack,
   onNext,
+  totalSteps = TOTAL_STEPS,
+  finishLabel,
+  busyLabel,
+  exitTo,
+  exitLabel,
 }: {
   locale: Locale;
   marketSlug: string;
@@ -33,13 +41,20 @@ export const HostWizardActions = ({
   isPublishing: boolean;
   onBack: () => void;
   onNext: () => void;
+  totalSteps?: number;
+  finishLabel?: string;
+  busyLabel?: string;
+  exitTo?: ReturnType<typeof localizedMyOrganisation>;
+  exitLabel?: string;
 }) => {
   const primaryLabel =
-    step < TOTAL_STEPS
+    step < totalSteps
       ? host_next({}, { locale })
-      : isAuthenticated
-        ? host_confirm_publish({}, { locale })
-        : host_continue_login({}, { locale });
+      : (finishLabel ??
+        (isAuthenticated
+          ? host_confirm_publish({}, { locale })
+          : host_continue_login({}, { locale })));
+  const exit = exitTo ?? localizedHome(locale, marketSlug);
 
   return (
     <div className="sticky inset-x-0 bottom-0 z-30 border-t border-base-300 bg-base-100 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-10px_30px_rgba(0,0,0,0.08)] backdrop-blur lg:static lg:col-start-1 lg:row-start-3 lg:border-e lg:px-7 lg:py-5 lg:shadow-none">
@@ -55,8 +70,8 @@ export const HostWizardActions = ({
           </Button>
         ) : (
           <Link
-            {...localizedHome(locale, marketSlug)}
-            aria-label={back_home({}, { locale })}
+            {...exit}
+            aria-label={exitLabel ?? back_home({}, { locale })}
             className="btn btn-ghost btn-square btn-xs sm:btn-sm md:btn-md shrink-0 lg:hidden"
           >
             <ArrowLeft className="size-5 rtl:rotate-180" aria-hidden="true" />
@@ -71,7 +86,7 @@ export const HostWizardActions = ({
           {isPublishing ? (
             <span className="flex items-center gap-2">
               <span className="loading loading-spinner loading-sm" />
-              {host_publishing({}, { locale })}
+              {busyLabel ?? host_publishing({}, { locale })}
             </span>
           ) : (
             primaryLabel

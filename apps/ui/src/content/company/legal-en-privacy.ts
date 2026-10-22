@@ -74,9 +74,9 @@ export const privacyEnglish: CompanyPageContent = translatedPage(
       ),
       subheading('Maps and place search'),
       ...text(
-        'The platform shows maps through **Mapbox** when you create a gathering or edit its venue, and on the page of a gathering with a venue. Your browser loads the map directly from Mapbox, which therefore receives your IP address, a description of your browser, and the area the map shows. The page of a gathering shows the map as a picture and does not load the map library. When you create a gathering or edit its venue, the map library also stores a random identifier in your browser and sends it to Mapbox with technical usage data that Mapbox uses to count use of its service; Mapbox processes that data under its own privacy policy.',
+        'The platform shows maps through **Mapbox** when you create a gathering or a hackathon or edit a gathering’s venue, and on the page of a gathering with a venue. Your browser loads the map directly from Mapbox, which therefore receives your IP address, a description of your browser, and the area the map shows. The page of a gathering shows the map as a picture and does not load the map library. When you create a gathering or a hackathon, or edit a gathering’s venue, the map library also stores a random identifier in your browser and sends it to Mapbox with technical usage data that Mapbox uses to count use of its service; Mapbox processes that data under its own privacy policy.',
         'When you search for a venue or pick a point on the map, our server sends your search text or the point’s position, with the area being shown, to Mapbox to find matching places. We do not send your name or email with it.',
-        'If you press “Locate me” on the map where you choose a gathering’s venue, your browser gives the page your location, if you allow it to, and the map moves there. Your browser then loads the map of that area from Mapbox and sends the map’s centre to our server so we can show you the places near it, as happens when you move the map yourself. We ask for your location only when you press the button, and we do not save it to your account.',
+        'If you press “Locate me” on the map where you choose the venue of a gathering or a hackathon, your browser gives the page your location, if you allow it to, and the map moves there. Your browser then loads the map of that area from Mapbox and sends the map’s centre to our server so we can show you the places near it, as happens when you move the map yourself. We ask for your location only when you press the button, and we do not save it to your account.',
       ),
       ...text(
         'We also count landing, city and gathering views, hosting and RSVP actions, and use of sharing buttons. These first-party action records contain only action type, market, city code, language and validated campaign codes. They contain no account or visitor identifier, IP address, full URL or message text, and use no tracking cookies or browser storage. We suppress these reports when your browser sends Do Not Track or Global Privacy Control. Successful hosting and RSVP actions are counted after they are saved. Sharing-button use does not prove someone received the link. Community health reports use existing private attendance and closeout records and expose aggregates only.',
@@ -243,5 +243,5 @@ export const privacyEnglish: CompanyPageContent = translatedPage(
       ),
     ),
   ],
-  '21 October 2026',
+  '22 October 2026',
 );

@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { ReactNode } from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -11,6 +12,19 @@ import { MyOrganisationPage } from './MyOrganisationPage';
 const mocks = vi.hoisted(() => ({ mine: vi.fn() }));
 
 vi.mock('../api', () => ({ organisationsApi: { mine: mocks.mine } }));
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({
+    children,
+    className,
+  }: {
+    children: ReactNode;
+    className?: string;
+  }) => (
+    <a href="#" className={className}>
+      {children}
+    </a>
+  ),
+}));
 
 afterEach(() => {
   cleanup();
