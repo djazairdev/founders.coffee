@@ -2,12 +2,18 @@ import { and, eq, or, sql, type SQL } from 'drizzle-orm';
 
 import {
   CHAT_KEPT_DAYS_AFTER_MEETUP,
+  CHAT_OPEN_DAYS_AFTER_HACKATHON_RESULTS,
   CHAT_OPEN_DAYS_AFTER_MEETUP,
 } from '@founders-coffee/core';
 
 import type { Db } from './db.js';
 import { eventEndsAt } from './events-end.js';
-import { chatChannels, events, type ChatChannelRow } from './schema.js';
+import {
+  chatChannels,
+  events,
+  hackathons,
+  type ChatChannelRow,
+} from './schema.js';
 
 const DAY_SECONDS = 24 * 60 * 60;
 
@@ -15,6 +21,8 @@ export const CHAT_OPEN_AFTER_MEETUP_SECONDS =
   CHAT_OPEN_DAYS_AFTER_MEETUP * DAY_SECONDS;
 export const CHAT_KEPT_AFTER_MEETUP_SECONDS =
   CHAT_KEPT_DAYS_AFTER_MEETUP * DAY_SECONDS;
+export const CHAT_OPEN_AFTER_RESULTS_SECONDS =
+  CHAT_OPEN_DAYS_AFTER_HACKATHON_RESULTS * DAY_SECONDS;
 
 /**
  * The database's clock in epoch milliseconds, for the chat's timestamps.
@@ -28,29 +36,58 @@ export const chatNowMs = (): SQL =>
   sql`cast(round((julianday('now') - 2440587.5) * 86400000) as integer)`;
 
 /**
- * When the meetup in the statement's `events` row is over for its chat, in epoch seconds: the
- * moment it was cancelled, or when it ends.
+ * When the event in the statement's `events` row is over for its chat, in epoch seconds: the moment
+ * it was cancelled, or `endedAt` otherwise.
  *
  * A cancellation older than `cancelled_at` has no time of its own, so it falls back to the row's
  * last change, which is the cancellation for any meetup cancelled since.
  */
-const meetupOverAt = (): SQL =>
-  sql`(case when ${events.status} = 'cancelled' then coalesce(${events.cancelledAt}, ${events.updatedAt}) else ${eventEndsAt()} end)`;
+const overAt = (endedAt: SQL): SQL =>
+  sql`(case when ${events.status} = 'cancelled' then coalesce(${events.cancelledAt}, ${events.updatedAt}) else ${endedAt} end)`;
+
+/** How long the chat stays open once its event is over: not at all after a cancellation. */
+const openFor = (seconds: number): SQL =>
+  sql`(case when ${events.status} = 'cancelled' then 0 else ${seconds} end)`;
+
+/**
+ * When the hackathon in the statement's `events` row has its results (B-HKN-22): when they were
+ * published, or, until they are, when judging is due to end. A hackathon whose details are not
+ * saved yet has neither, and counts from its event's end the way a meetup does.
+ */
+const resultsAt = (): SQL =>
+  sql`coalesce((select coalesce(${hackathons.resultsPublishedAt}, ${hackathons.judgingEndsAt}) from ${hackathons} where ${hackathons.eventId} = ${events.id}), ${eventEndsAt()})`;
 
 /**
  * When the chat of the meetup in the statement's `events` row stops taking messages: at its
- * cancellation, or {@link CHAT_OPEN_AFTER_MEETUP_SECONDS} after it ends.
- *
- * This and {@link chatExpiresAt} are the one derivation of a chat's lifetime. Every write that can
- * move a meetup's end or status runs them in its own batch, and migration 0041 spells the same
- * expression out in SQL for its backfill, which its test holds equal to this one.
+ * cancellation, or {@link CHAT_OPEN_AFTER_MEETUP_SECONDS} after it ends. Migration 0041 spells the
+ * same expression out in SQL for its backfill, which its test holds equal to this one.
  */
-export const chatReadOnlyAt = (): SQL =>
-  sql`(${meetupOverAt()} + (case when ${events.status} = 'cancelled' then 0 else ${CHAT_OPEN_AFTER_MEETUP_SECONDS} end))`;
+export const meetupChatReadOnlyAt = (): SQL =>
+  sql`(${overAt(eventEndsAt())} + ${openFor(CHAT_OPEN_AFTER_MEETUP_SECONDS)})`;
 
 /** When the chat of the meetup in the statement's `events` row is deleted with its messages. */
+export const meetupChatExpiresAt = (): SQL =>
+  sql`(${overAt(eventEndsAt())} + ${CHAT_KEPT_AFTER_MEETUP_SECONDS})`;
+
+/**
+ * When the chat of the event in the statement's `events` row stops taking messages. A hackathon's
+ * stays open {@link CHAT_OPEN_AFTER_RESULTS_SECONDS} after its results (B-HKN-22), and a meetup's
+ * as {@link meetupChatReadOnlyAt} says.
+ *
+ * This and {@link chatExpiresAt} are the one derivation of a chat's lifetime. Every write that can
+ * move what they read runs {@link syncChatChannel} in its own batch: publishing, an edit and a
+ * cancellation of the event, and saving a hackathon's details. Publishing a hackathon's results
+ * moves them too, so the write that publishes them has to run it as well.
+ */
+export const chatReadOnlyAt = (): SQL =>
+  sql`(case when ${events.kind} = 'hackathon' then (${overAt(resultsAt())} + ${openFor(CHAT_OPEN_AFTER_RESULTS_SECONDS)}) else ${meetupChatReadOnlyAt()} end)`;
+
+/**
+ * When the chat of the event in the statement's `events` row is deleted with its messages:
+ * {@link CHAT_KEPT_AFTER_MEETUP_SECONDS} after it is over, which for a hackathon is its results.
+ */
 export const chatExpiresAt = (): SQL =>
-  sql`(${meetupOverAt()} + ${CHAT_KEPT_AFTER_MEETUP_SECONDS})`;
+  sql`(case when ${events.kind} = 'hackathon' then (${overAt(resultsAt())} + ${CHAT_KEPT_AFTER_MEETUP_SECONDS}) else ${meetupChatExpiresAt()} end)`;
 
 /**
  * Write the chat of the meetup `eventId`, taking its market and lifetime from the meetup's own row.

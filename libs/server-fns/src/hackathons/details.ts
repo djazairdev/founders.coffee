@@ -1,7 +1,11 @@
 import { z } from 'zod';
 
 import { AppError, err, type Result } from '@founders-coffee/core';
-import { hackathonDetailsWrite, type Db } from '@founders-coffee/db';
+import {
+  hackathonDetailsWrite,
+  syncChatChannel,
+  type Db,
+} from '@founders-coffee/db';
 import { hackathons } from '@founders-coffee/domain';
 
 import { moveHackathonReminders } from '../notifications/hackathon-reminders.js';
@@ -86,6 +90,7 @@ export const saveHackathonDetailsResolver = async (
         version: input.version,
         details: storedDetails(checked.data),
       }),
+      syncChatChannel(db, input.eventId),
     ],
   });
   if (saved.ok) await moveHackathonReminders(db, input.eventId, now);
