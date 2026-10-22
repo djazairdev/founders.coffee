@@ -1,6 +1,11 @@
+import { z } from 'zod';
+
 import {
   AppError,
+  attendanceModeSchema,
   err,
+  HACKATHON_REGISTRATION_SKILLS_MAX,
+  idSchema,
   ok,
   type AttendanceMode,
   type EventFormat,
@@ -20,6 +25,25 @@ export type RegistrationRequest = {
   readonly registeredCount: number;
   readonly now: number;
 };
+
+export const hackathonRegistrationSchema = z.strictObject({
+  eventId: idSchema,
+  attendanceMode: attendanceModeSchema,
+  acceptsCodeOfConduct: z.literal(true),
+  isAgeAttested: z.boolean().default(false),
+  isLookingForTeam: z.boolean().default(false),
+  skills: z
+    .string()
+    .trim()
+    .max(HACKATHON_REGISTRATION_SKILLS_MAX)
+    .transform((value) => value || null)
+    .nullable()
+    .default(null),
+});
+
+export type HackathonRegistrationInput = z.input<
+  typeof hackathonRegistrationSchema
+>;
 
 const MODES_BY_FORMAT: Record<EventFormat, readonly AttendanceMode[]> = {
   in_person: ['in_person'],

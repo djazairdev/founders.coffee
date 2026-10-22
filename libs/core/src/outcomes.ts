@@ -136,6 +136,7 @@ export const HACKATHON_ERROR_CODES = [
   'hackathons_disabled',
   'hackathon_requires_registration',
   'registration_closed',
+  'already_registered',
   'attendance_mode_unavailable',
   'not_eligible',
   'teams_locked',

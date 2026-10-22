@@ -4,3 +4,5 @@ export type { JoinHackathonInterestResult } from './interest.js';
 export { createHackathonDraft } from './draft-rpc.js';
 export type { CreateHackathonDraftRequest } from './draft-rpc.js';
 export type { HackathonDraftCreated } from './draft.js';
+export { registerForHackathon } from './registration-rpc.js';
+export type { RegistrationCreated } from './registration.js';
