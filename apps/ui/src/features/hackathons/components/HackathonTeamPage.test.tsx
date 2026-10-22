@@ -106,6 +106,9 @@ describe('HackathonTeamPage (B-TEAM-07)', () => {
     expect(
       screen.getByRole('link', { name: /Algiers Builders Weekend/u }),
     ).toBeTruthy();
+    expect(
+      screen.getByRole('link', { name: 'See who is looking for a team' }),
+    ).toBeTruthy();
   });
 
   it('asks someone not registered, or waitlisted, to wait for a place', () => {
@@ -117,6 +120,9 @@ describe('HackathonTeamPage (B-TEAM-07)', () => {
 
     renderPage(teamView({ registration: 'waitlisted' }, null));
     expect(screen.getByText(/^You are on the waitlist/u)).toBeTruthy();
+    expect(
+      screen.queryByRole('link', { name: 'See who is looking for a team' }),
+    ).toBeNull();
     expect(screen.queryByRole('heading', { name: 'Start a team' })).toBeNull();
   });
 

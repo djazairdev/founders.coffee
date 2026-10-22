@@ -189,6 +189,18 @@ export const localizedHackathonManage = (locale: Locale, eventId: string) => ({
   params: { locale, eventId },
 });
 
+/** The reader's own team in a hackathon (B-TEAM-07). */
+export const localizedHackathonTeam = (locale: Locale, eventId: string) => ({
+  to: '/$locale/hackathon/$eventId/team' as const,
+  params: { locale, eventId },
+});
+
+/** The teams and participants looking for each other in a hackathon (B-TEAM-08). */
+export const localizedHackathonLooking = (locale: Locale, eventId: string) => ({
+  to: '/$locale/hackathon/$eventId/looking' as const,
+  params: { locale, eventId },
+});
+
 /** The reader's own activity, on the same terms as {@link localizedProfile}. */
 export const localizedProfileActivity = (locale: Locale) => ({
   to: '/$locale/profile/activity' as const,

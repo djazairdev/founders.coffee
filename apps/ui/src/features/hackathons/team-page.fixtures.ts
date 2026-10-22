@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-import type { TeamPageView } from './api';
+import type { LookingForTeamView, TeamPageView } from './api';
 
 export const EVENT_ID = 'evt_0123456789abcdef0123456789abcdef';
 
@@ -45,6 +45,45 @@ export const teamView = (
           ...team,
         },
   ownRequests: [],
+  ...changes,
+});
+
+export const lookingView = (
+  changes: Partial<LookingForTeamView> = {},
+): LookingForTeamView => ({
+  event: {
+    id: EVENT_ID,
+    title: 'Algiers Builders Weekend',
+    slug: 'algiers-builders-weekend',
+    marketCode: 'DZ',
+  },
+  canChangeTeams: true,
+  teamMax: 4,
+  registration: 'registered',
+  isInTeam: false,
+  teams: [
+    {
+      id: 'tea_byte',
+      name: 'Byte Club',
+      description: 'Payments for corner shops.',
+      size: 2,
+      isRequested: false,
+    },
+    {
+      id: 'tea_solo',
+      name: 'Solo Builders',
+      description: null,
+      size: 1,
+      isRequested: true,
+    },
+  ],
+  hasMoreTeams: false,
+  participants: [
+    { userId: 'usr_lina', name: 'Lina', skills: 'Design, React' },
+    { userId: 'usr_omar', name: 'Omar', skills: null },
+  ],
+  hasMoreParticipants: false,
+  listLimit: 100,
   ...changes,
 });
 
