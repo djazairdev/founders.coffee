@@ -91,6 +91,7 @@ const MarketRoute = () => {
         nextCursor={data.eventsNextCursor}
         type={data.type}
         trending={data.trending}
+        hackathons={data.hackathons}
       />
     );
   }

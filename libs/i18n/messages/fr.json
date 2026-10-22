@@ -1754,5 +1754,7 @@
   "admin_hkn_reject": "Refuser",
   "admin_hkn_decided": "Décision enregistrée. Les organisateurs sont prévenus par e-mail.",
   "admin_hkn_stale": "Ce hackathon a changé depuis le chargement de la liste. La liste est à jour.",
-  "admin_hkn_decision_failed": "La décision n’a pas pu être enregistrée."
+  "admin_hkn_decision_failed": "La décision n’a pas pu être enregistrée.",
+  "hackathon_market_heading": "Hackathons",
+  "hackathon_market_empty": "Aucun hackathon à venir ici pour l’instant."
 }

@@ -1561,5 +1561,7 @@
   "admin_hkn_reject": "Reject",
   "admin_hkn_decided": "Decision saved. The organisers are told by email.",
   "admin_hkn_stale": "This hackathon changed since the list loaded. The list is up to date now.",
-  "admin_hkn_decision_failed": "The decision could not be saved."
+  "admin_hkn_decision_failed": "The decision could not be saved.",
+  "hackathon_market_heading": "Hackathons",
+  "hackathon_market_empty": "No hackathon is coming up here yet."
 }
