@@ -1,5 +1,10 @@
 import { AppError, err, ok, type Result } from '@founders-coffee/core';
-import { readEventPageRows, type Db, type Market } from '@founders-coffee/db';
+import {
+  readEventPageRows,
+  type Db,
+  type Market,
+  type PublicHackathonJudge,
+} from '@founders-coffee/db';
 import { reportError } from '@founders-coffee/observability';
 
 import { resolveMarket } from '../markets/resolver.js';
@@ -20,6 +25,7 @@ export interface EventPage {
   readonly host: PublicProfile | null;
   readonly viewerId: string | null;
   readonly hackathon: HackathonSchedule | null;
+  readonly judges: readonly PublicHackathonJudge[];
 }
 
 type PageRows = Awaited<ReturnType<typeof readEventPageRows>>;
@@ -80,7 +86,8 @@ const hostCard = (
  * rendered for one reader (`private, no-store`), and whether they host the meetup has to be in the
  * HTML the server sends, as whether they are going already is. The browser's own session answers
  * only after hydration, and until it did, a host's own meetup showed them a guest's RSVP box. A
- * hackathon's schedule and current phase come back with it, read in the same batch (B-HKN-17).
+ * hackathon's schedule and current phase come back with it, read in the same batch (B-HKN-17), and
+ * so do the judges who accepted (B-JDG-03), none for a meetup.
  */
 export const readEventPage = async (
   db: Db,
@@ -107,5 +114,6 @@ export const readEventPage = async (
     host: hostCard(event.data.hostId, rows.data.host),
     viewerId: viewerId ?? null,
     hackathon: hackathonScheduleOf(event.data, rows.data.hackathon, Date.now()),
+    judges: event.data.kind === 'hackathon' ? rows.data.judges : [],
   });
 };

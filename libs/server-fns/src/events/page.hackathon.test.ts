@@ -1,16 +1,21 @@
 import { describe, expect, it } from 'vitest';
 
-import { eq, events, type Db } from '@founders-coffee/db';
+import { eq, events, user, type Db } from '@founders-coffee/db';
 
 import {
   DAY,
   HOUR,
   hackathonWithDetails,
+  ORGANISATION,
   setupHackathonDb,
 } from '../hackathons/edit.fixtures.js';
+import {
+  answerJudgeInviteResolver,
+  createJudgeInviteResolver,
+} from '../hackathons/judges.js';
 import { hackathonScheduleOf } from './hackathon-schedule.js';
 import { readEventPage } from './page.js';
-import { createTestEvent } from './resolver.fixtures.js';
+import { createTestEvent, TEST_HOST_ID } from './resolver.fixtures.js';
 
 const anonymous = () => Promise.resolve(undefined);
 
@@ -49,6 +54,50 @@ describe('a hackathon’s schedule on its page (B-HKN-17, real D1)', () => {
     );
   });
 
+  it('names the judges who accepted, while they may be shown (B-JDG-03)', async () => {
+    const db = await setupHackathonDb();
+    const { eventId } = await hackathonWithDetails(db, {}, true);
+    const judges = ['usr_page_judge_a', 'usr_page_judge_b', 'usr_page_judge_c'];
+    await db.insert(user).values(
+      judges.map((userId, index) => ({
+        id: userId,
+        name: `Page Judge ${index}`,
+        email: `${userId}@judges.test`,
+        emailVerified: true,
+        role: 'member' as const,
+      })),
+    );
+    for (const [index, userId] of judges.entries()) {
+      const made = await createJudgeInviteResolver(db, {
+        eventId,
+        userId: TEST_HOST_ID,
+        organisationId: ORGANISATION,
+      });
+      if (!made.ok) throw made.error;
+      if (index < 2)
+        await answerJudgeInviteResolver(db, {
+          token: made.data.token,
+          answer: 'accept',
+          userId,
+        });
+    }
+    await db
+      .update(user)
+      .set({ banned: true })
+      .where(eq(user.id, 'usr_page_judge_b'));
+
+    const page = await readEventPage(
+      db,
+      { marketCode: 'DZ', slug: await slugOf(db, eventId) },
+      anonymous(),
+    );
+
+    if (!page.ok) throw page.error;
+    expect(page.data.judges).toEqual([
+      { userId: 'usr_page_judge_a', name: 'Page Judge 0', photoAssetId: null },
+    ]);
+  });
+
   it('carries no schedule for a meetup', async () => {
     const db = await setupHackathonDb();
     const { slug } = await createTestEvent(db);
@@ -61,6 +110,7 @@ describe('a hackathon’s schedule on its page (B-HKN-17, real D1)', () => {
 
     if (!page.ok) throw page.error;
     expect(page.data.hackathon).toBeNull();
+    expect(page.data.judges).toEqual([]);
   });
 });
 

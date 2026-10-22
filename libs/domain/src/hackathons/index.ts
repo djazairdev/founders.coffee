@@ -37,6 +37,15 @@ export {
   type HackathonTeamRequestDecision,
 } from './team-requests.js';
 export {
+  decideJudgeAnswer,
+  decideJudgeChange,
+  HACKATHON_JUDGE_LIMIT,
+  hackathonJudgeAnswerSchema,
+  hackathonJudgeInviteSchema,
+  hackathonJudgeRemoveSchema,
+  type HackathonJudgeAnswerInput,
+} from './judges.js';
+export {
   decideJoinByInvite,
   decideTeamInvite,
   hackathonTeamInviteSchema,
