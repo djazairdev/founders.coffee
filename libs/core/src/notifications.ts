@@ -53,6 +53,11 @@ export const NOTIFICATION_TEMPLATE_KEYS = [
   'hackathon_deadline_24h',
   'hackathon_deadline_1h',
   'hackathon_judging_open',
+  'hackathon_team_request',
+  'hackathon_team_accepted',
+  'hackathon_team_declined',
+  'hackathon_team_joined',
+  'hackathon_team_left',
 ] as const;
 export type NotificationTemplateKey =
   (typeof NOTIFICATION_TEMPLATE_KEYS)[number];
@@ -74,6 +79,16 @@ export const HACKATHON_REGISTRATION_TEMPLATE_KEYS = [
 ] as const satisfies readonly NotificationTemplateKey[];
 export type HackathonRegistrationTemplateKey =
   (typeof HACKATHON_REGISTRATION_TEMPLATE_KEYS)[number];
+
+export const HACKATHON_TEAM_TEMPLATE_KEYS = [
+  'hackathon_team_request',
+  'hackathon_team_accepted',
+  'hackathon_team_declined',
+  'hackathon_team_joined',
+  'hackathon_team_left',
+] as const satisfies readonly NotificationTemplateKey[];
+export type HackathonTeamTemplateKey =
+  (typeof HACKATHON_TEAM_TEMPLATE_KEYS)[number];
 
 export const HACKATHON_ORGANISER_REMINDER_KEYS = [
   'hackathon_registration_closing',

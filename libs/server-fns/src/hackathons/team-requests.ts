@@ -14,6 +14,7 @@ import { hackathons } from '@founders-coffee/domain';
 import { logger } from '@founders-coffee/observability';
 
 import { loadTeamHackathon } from './team-context.js';
+import { noticeTeamAnswer, noticeTeamRequest } from './team-notices.js';
 
 type Member = { readonly eventId: string; readonly userId: string };
 
@@ -63,6 +64,10 @@ export const requestToJoinTeamResolver = async (
     eventId: input.eventId,
     marketCode: loaded.data.event.marketCode,
   });
+  await noticeTeamRequest(db, loaded.data.event, {
+    teamId: input.teamId,
+    requesterId: input.userId,
+  });
   return ok({ requestId });
 };
 
@@ -81,7 +86,9 @@ export const answerTeamRequestResolver = async (
 ): Promise<Result<{ readonly teamId: string }>> => {
   const loaded = await loadTeamHackathon(db, input.eventId);
   if (!loaded.ok) return loaded;
-  const decide = async (): Promise<Result<{ readonly teamId: string }>> => {
+  const decide = async (): Promise<
+    Result<{ readonly teamId: string; readonly requesterId: string }>
+  > => {
     const request = await readTeamRequest(db, input);
     if (!request) return requestNotFound();
     const team = await readTeam(db, request);
@@ -103,7 +110,9 @@ export const answerTeamRequestResolver = async (
         teamMax: team.teamMax,
       },
     });
-    return decided.ok ? ok({ teamId: request.teamId }) : decided;
+    return decided.ok
+      ? ok({ teamId: request.teamId, requesterId: request.userId })
+      : decided;
   };
   const decided = await decide();
   if (!decided.ok) return decided;
@@ -130,7 +139,13 @@ export const answerTeamRequestResolver = async (
       via: 'request',
     },
   );
-  return decided;
+  await noticeTeamAnswer(db, loaded.data.event, {
+    teamId: decided.data.teamId,
+    requesterId: decided.data.requesterId,
+    captainId: input.userId,
+    decision: input.decision,
+  });
+  return ok({ teamId: decided.data.teamId });
 };
 
 /** Take back the member's own pending request to join a team (B-TEAM-05). */

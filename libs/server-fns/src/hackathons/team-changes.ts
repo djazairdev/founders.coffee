@@ -5,11 +5,13 @@ import {
   readParticipantStanding,
   removeTeamMember,
   type Db,
+  type Event,
 } from '@founders-coffee/db';
 import { hackathons } from '@founders-coffee/domain';
 import { logger } from '@founders-coffee/observability';
 
 import { loadTeamHackathon } from './team-context.js';
+import { noticeTeamLeft } from './team-notices.js';
 
 type Member = { readonly eventId: string; readonly userId: string };
 
@@ -21,7 +23,8 @@ const notTeamMember = () =>
 /**
  * Run a team change: load the hackathon, decide by the team rules, write, and when the write found
  * things changed, decide again so the refusal says why (B-TEAM-06). A change the rules still allow
- * after a failed write was overtaken by another change to the team.
+ * after a failed write was overtaken by another change to the team. Once the write lands, the team
+ * is told what changed (B-TEAM-09).
  */
 const runTeamChange = async <T>(
   db: Db,
@@ -32,6 +35,7 @@ const runTeamChange = async <T>(
       timeline: hackathons.HackathonTimeline,
     ) => Promise<Result<T>>;
     readonly write: (decided: T) => Promise<boolean>;
+    readonly notify?: (decided: T, event: Event) => Promise<void>;
   },
 ): Promise<Result<T>> => {
   const loaded = await loadTeamHackathon(db, eventId);
@@ -46,6 +50,7 @@ const runTeamChange = async <T>(
     eventId,
     marketCode: loaded.data.event.marketCode,
   });
+  await change.notify?.(decided.data, loaded.data.event);
   return decided;
 };
 
@@ -76,6 +81,14 @@ export const leaveTeamResolver = async (
       });
     },
     write: ({ teamId }) => leaveTeam(db, { ...input, teamId }),
+    notify: async ({ teamId, isTeamDeleted }, event) => {
+      if (!isTeamDeleted)
+        await noticeTeamLeft(db, event, {
+          teamId,
+          memberId: input.userId,
+          actorId: input.userId,
+        });
+    },
   });
   return left.ok ? ok({ isTeamDeleted: left.data.isTeamDeleted }) : left;
 };
@@ -113,20 +126,23 @@ export const removeTeamMemberResolver = async (
   db: Db,
   input: Member & { readonly memberId: string },
   now: number = Date.now(),
-): Promise<Result<true>> =>
-  runTeamChange(db, input.eventId, {
+): Promise<Result<true>> => {
+  const removed = await runTeamChange(db, input.eventId, {
     operation: 'hackathon.team_member_removed',
     decide: async (timeline) => {
       const [actor, member] = await Promise.all([
         readParticipantStanding(db, input),
         readParticipantStanding(db, { ...input, userId: input.memberId }),
       ]);
-      return hackathons.decideRemoveMember({
+      const decided = hackathons.decideRemoveMember({
         timeline,
         now,
         actor: actor.membership,
         member: member.membership,
       });
+      if (!decided.ok) return decided;
+      if (!actor.membership) return notTeamMember();
+      return ok({ teamId: actor.membership.teamId });
     },
     write: () =>
       removeTeamMember(db, {
@@ -134,4 +150,12 @@ export const removeTeamMemberResolver = async (
         captainId: input.userId,
         memberId: input.memberId,
       }),
+    notify: ({ teamId }, event) =>
+      noticeTeamLeft(db, event, {
+        teamId,
+        memberId: input.memberId,
+        actorId: input.userId,
+      }),
   });
+  return removed.ok ? ok(true) : removed;
+};
