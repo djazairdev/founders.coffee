@@ -43,6 +43,7 @@ describe('public event discovery listing (real D1)', () => {
         'slug',
         'title',
         'description',
+        'format',
         'venue',
         'venueAddress',
         'startsAt',

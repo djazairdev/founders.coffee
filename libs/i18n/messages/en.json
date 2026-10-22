@@ -995,5 +995,9 @@
   "host_online_city_choose": "Choose a city",
   "host_online_city_hint": "The meetup is listed on this city’s page.",
   "host_online_panel_title": "No map needed",
-  "host_online_panel": "An online meetup has no venue. Members going see its link on the meetup page."
+  "host_online_panel": "An online meetup has no venue. Members going see its link on the meetup page.",
+  "event_format_online": "Online",
+  "event_format_hybrid": "Online and in person",
+  "event_meeting_join": "Join the meeting",
+  "event_meeting_link_members": "Members going see the meeting link here."
 }

@@ -13,6 +13,7 @@ const page: PublicEventFeedPage = {
       slug: 'coffee-and-code',
       title: 'Coffee and Code',
       description: 'A local meetup for founders and builders.',
+      format: 'in_person',
       venue: 'Café des Délices',
       venueAddress: 'Hydra, Algiers',
       startsAt: '2099-01-15T18:00:00.000Z',

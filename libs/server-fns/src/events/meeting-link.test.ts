@@ -121,8 +121,31 @@ describe('who is given an event’s meeting link (real D1, B-EVT-11)', () => {
     ];
 
     expect(feed.ok).toBe(true);
+    expect(
+      feed.ok && feed.data.items.find((item) => item.slug === event.slug),
+      'an online event is listed, with no venue, since B-EVT-12',
+    ).toMatchObject({ format: 'online', venue: null });
     expect(upcoming.map((item) => item.id)).toContain(event.id);
     for (const shape of shapes)
       expect(JSON.stringify(shape)).not.toContain(LINK);
+  });
+
+  it('puts it in the calendar entry of a reader it is for, and no one else’s (B-EVT-12)', async () => {
+    const entry = async (viewerId?: string | null) => {
+      const answer = await answerEventCalendar(db, {
+        id: event.id,
+        locale: 'en',
+        target: 'ics',
+        origin: 'https://founders.coffee',
+        viewerId,
+      });
+      return answer?.kind === 'file' ? answer.body : '';
+    };
+
+    expect(await entry(GUEST_ID)).toContain(`LOCATION:${LINK}`);
+    expect(await entry(TEST_HOST_ID)).toContain(LINK);
+    expect(await entry(ORGANISER_ID)).toContain(LINK);
+    expect(await entry(STRANGER_ID)).not.toContain(LINK);
+    expect(await entry(null)).not.toContain(LINK);
   });
 });

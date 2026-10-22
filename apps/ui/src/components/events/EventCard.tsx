@@ -17,6 +17,7 @@ import { eventCityName } from '../../features/events/event-city-name';
 import { localizedEvent } from '../../lib/locale-routing';
 import { AvatarGroup } from './AvatarGroup';
 import { EventCoHosts } from './EventCoHosts';
+import { EventFormatBadge } from './EventFormatBadge';
 import { EventKindBadge } from './EventKindBadge';
 import { EventRunByBadge } from './EventRunByBadge';
 import { HostFace } from './HostFace';
@@ -82,6 +83,7 @@ export const EventCard = ({
             <span className="flex flex-wrap items-center gap-1.5">
               <EventKindBadge kind={event.kind} locale={locale} />
               <EventRunByBadge runBy={event.runBy} locale={locale} />
+              <EventFormatBadge format={event.format} locale={locale} />
             </span>
             <h3
               dir="auto"

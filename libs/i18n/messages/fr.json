@@ -1188,5 +1188,9 @@
   "host_online_city_choose": "Choisissez une ville",
   "host_online_city_hint": "La rencontre apparaît sur la page de cette ville.",
   "host_online_panel_title": "Pas besoin de carte",
-  "host_online_panel": "Une rencontre en ligne n’a pas de lieu. Les membres inscrits voient son lien sur la page de la rencontre."
+  "host_online_panel": "Une rencontre en ligne n’a pas de lieu. Les membres inscrits voient son lien sur la page de la rencontre.",
+  "event_format_online": "En ligne",
+  "event_format_hybrid": "En ligne et sur place",
+  "event_meeting_join": "Rejoindre la réunion",
+  "event_meeting_link_members": "Les membres inscrits voient ici le lien de la réunion."
 }

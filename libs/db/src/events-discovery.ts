@@ -12,6 +12,7 @@ export type PublicEventDiscoveryRow = {
   readonly slug: string;
   readonly title: string;
   readonly description: string;
+  readonly format: Event['format'];
   readonly venue: string | null;
   readonly venueAddress: string | null;
   readonly startsAt: Date;
@@ -61,6 +62,7 @@ export const listPublicEventDiscoveryRows = async (
       slug: events.slug,
       title: events.title,
       description: events.description,
+      format: events.format,
       venue: events.venue,
       venueAddress: events.venueAddress,
       startsAt: events.startsAt,

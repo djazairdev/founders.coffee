@@ -9,7 +9,6 @@ import {
   event_details_title,
   event_timezone,
   event_when,
-  event_where,
   formatDate,
   localizedName,
   going_count,
@@ -37,11 +36,13 @@ import { eventStreetAddress } from '../../features/events/event-street-address';
 import type { EventPhase } from '../../features/events/live-window';
 import type { UseEventLiveResult } from '../../features/events/useEventLive';
 import { localizedCity } from '../../lib/locale-routing';
+import { EventFormatBadge } from './EventFormatBadge';
 import { EventHostCard } from './EventHostCard';
 import { EventCoHosts } from './EventCoHosts';
 import { EventKindBadge } from './EventKindBadge';
 import { EventRunByBadge } from './EventRunByBadge';
 import { EventTopics } from './EventTopics';
+import { EventWhere } from './EventWhere';
 import { EventLocationMap } from './EventLocationMap';
 import { EventRsvpBox } from './EventRsvpBox';
 import { ShareEventButton } from './ShareEventButton';
@@ -141,6 +142,7 @@ export const EventDetail = ({
         <div className="flex flex-wrap items-center gap-2">
           <EventKindBadge kind={event.kind} locale={locale} />
           <EventRunByBadge runBy={event.runBy} locale={locale} />
+          <EventFormatBadge format={event.format} locale={locale} />
           <span className="inline-flex items-center gap-1.5 text-body-sm text-neutral">
             <MapPin className="size-4 text-secondary" aria-hidden="true" />
             <span dir="auto">{cityName}</span>
@@ -235,23 +237,12 @@ export const EventDetail = ({
                 </span>
               </dd>
             </div>
-            <div className="rounded-box border border-base-300 bg-base-100 p-4">
-              <dt className="eyebrow">{event_where({}, { locale })}</dt>
-              {event.venue !== null ? (
-                <dd className="mt-1.5 flex items-start gap-2 font-medium">
-                  <MapPin
-                    className="mt-0.5 size-4 shrink-0 text-secondary"
-                    aria-hidden="true"
-                  />
-                  <span>
-                    <bdi>{event.venue}</bdi>
-                  </span>
-                </dd>
-              ) : null}
-              <dd className="mt-0.5 ps-6 text-body-sm text-neutral">
-                <bdi>{streetAddress ?? cityName}</bdi>
-              </dd>
-            </div>
+            <EventWhere
+              locale={locale}
+              event={event}
+              place={streetAddress ?? cityName}
+              isCancelled={isCancelled}
+            />
           </dl>
 
           <EventHostCard

@@ -1062,5 +1062,9 @@
   "host_online_city_choose": "اختر المدينة",
   "host_online_city_hint": "يظهر اللقاء في صفحة هذه المدينة.",
   "host_online_panel_title": "لا حاجة إلى خريطة",
-  "host_online_panel": "ليس للقاء عبر الإنترنت مكان. يرى الأعضاء المسجّلون رابطه في صفحة اللقاء."
+  "host_online_panel": "ليس للقاء عبر الإنترنت مكان. يرى الأعضاء المسجّلون رابطه في صفحة اللقاء.",
+  "event_format_online": "عبر الإنترنت",
+  "event_format_hybrid": "عبر الإنترنت وحضوريًا",
+  "event_meeting_join": "انضم إلى الاجتماع",
+  "event_meeting_link_members": "يرى الأعضاء المسجَّلون رابط الاجتماع هنا."
 }

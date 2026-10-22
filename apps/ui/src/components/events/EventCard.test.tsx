@@ -181,3 +181,22 @@ describe('where the card says the event is', () => {
     expect(view.container.textContent).not.toContain('null');
   });
 });
+
+describe('how the card says where the meetup happens (B-EVT-12)', () => {
+  it('labels an online meetup Online, with no venue', () => {
+    const view = show({ format: 'online', venue: null, venueAddress: null });
+
+    expect(view.container.textContent).toContain('Online');
+  });
+
+  it('labels a hybrid meetup online and in person, beside its venue', () => {
+    const view = show({ format: 'hybrid' });
+
+    expect(view.container.textContent).toContain('Online and in person');
+    expect(view.container.textContent).toContain(event.venue ?? '');
+  });
+
+  it('labels an in-person meetup with nothing new', () => {
+    expect(show().container.textContent).not.toContain('Online');
+  });
+});

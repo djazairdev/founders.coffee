@@ -15,6 +15,7 @@ const BREAKFAST: StructuredEventData = {
   createdAt: new Date('2026-09-01T08:30:00Z'),
   timezone: 'Africa/Algiers',
   status: 'published',
+  format: 'in_person',
   venue: 'Café Atlas',
   cityName: 'Alger',
   regionName: 'Alger',
