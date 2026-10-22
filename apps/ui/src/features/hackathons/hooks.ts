@@ -11,6 +11,7 @@ import {
   type ChangeHackathonPrizeRequest,
   type ConfirmHackathonPrizeRequest,
   type CreateHackathonDraftRequest,
+  type HackathonDashboard,
   type HackathonDraftCreated,
   type HackathonEditSaved,
   type HackathonDraftView,
@@ -48,6 +49,17 @@ export const useHackathonDraft = (eventId: string) =>
   useQuery<HackathonDraftView>({
     queryKey: [...DRAFT, eventId],
     queryFn: () => hackathonsApi.draft(eventId),
+  });
+
+/**
+ * A hackathon at a glance for its organisers (B-OPS-01), once it has its details. It sits under the
+ * hackathon's own key, so every edit that reads the hackathon again reads it again too.
+ */
+export const useHackathonDashboard = (eventId: string, isEnabled: boolean) =>
+  useQuery<HackathonDashboard>({
+    queryKey: [...DRAFT, eventId, 'dashboard'],
+    queryFn: () => hackathonsApi.dashboard(eventId),
+    enabled: isEnabled,
   });
 
 /**

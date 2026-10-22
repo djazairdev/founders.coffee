@@ -15,6 +15,11 @@ const mocks = vi.hoisted(() => ({
     error: null as unknown,
     refetch: vi.fn(),
   },
+  dashboard: {
+    data: undefined,
+    isError: false,
+    refetch: vi.fn(),
+  },
   saveTracks: {
     mutate: vi.fn(),
     reset: vi.fn(),
@@ -56,6 +61,7 @@ vi.mock('@tanstack/react-router', () => ({
 
 vi.mock('../hooks', () => ({
   useHackathonDraft: () => mocks.draft,
+  useHackathonDashboard: () => mocks.dashboard,
   useSaveHackathonDetails: () => mocks.save,
   useSaveHackathonTracks: () => mocks.saveTracks,
   useSaveHackathonRubric: () => mocks.saveTracks,
