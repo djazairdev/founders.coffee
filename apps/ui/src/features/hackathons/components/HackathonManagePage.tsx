@@ -22,6 +22,7 @@ import type { RootMarket } from '../../markets/api';
 import { hackathonStatusLabel } from '../../organisations/hackathon-labels';
 import { isHackathonMissing, isHackathonsDisabled } from '../errors';
 import { useHackathonDraft } from '../hooks';
+import { HackathonDashboard } from './HackathonDashboard';
 import { HackathonDetailsForm } from './HackathonDetailsForm';
 import { HackathonPrizesSection } from './HackathonPrizesSection';
 import { HackathonReviewSection } from './HackathonReviewSection';
@@ -121,6 +122,12 @@ export const HackathonManagePage = ({
           {hackathon_manage_created({}, { locale })}
         </StatusMessage>
       ) : null}
+      <HackathonDashboard
+        draft={draft}
+        locale={locale}
+        timeZone={timeZone}
+        markets={markets}
+      />
       {draft.isEditable ? (
         <>
           <section aria-labelledby="hackathon-details-heading" className="mt-8">
