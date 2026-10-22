@@ -51,6 +51,24 @@ export const hackathonTeamRequestStatusSchema = z.enum(
   HACKATHON_TEAM_REQUEST_STATUSES,
 );
 
+export const HACKATHON_SUBMISSION_TITLE_MAX = 100;
+export const HACKATHON_SUBMISSION_DESCRIPTION_MAX = 2000;
+export const HACKATHON_SUBMISSION_AI_STATEMENT_MAX = 1000;
+export const HACKATHON_SUBMISSION_URL_MAX = 2048;
+export const HACKATHON_SUBMISSION_PULL_REQUEST_MAX = 10;
+export const HACKATHON_SUBMISSION_AI_TOOL_MAX = 10;
+
+export const HACKATHON_SUBMISSION_STATUSES = [
+  'draft',
+  'submitted',
+  'disqualified',
+] as const;
+export type HackathonSubmissionStatus =
+  (typeof HACKATHON_SUBMISSION_STATUSES)[number];
+export const hackathonSubmissionStatusSchema = z.enum(
+  HACKATHON_SUBMISSION_STATUSES,
+);
+
 export const HACKATHON_AI_POLICIES = [
   'disclosed',
   'ai_native',
