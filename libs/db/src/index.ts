@@ -84,3 +84,4 @@ export * from './hackathon-team-changes.js';
 export * from './hackathon-submission-drafts.js';
 export * from './notification-reminders.js';
 export * from './hackathon-review.js';
+export * from './hackathon-review-queue.js';

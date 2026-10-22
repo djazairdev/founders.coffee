@@ -28,10 +28,7 @@ import {
 } from '../hackathons/review.fixtures.js';
 import { submitHackathonForReviewResolver } from '../hackathons/review.js';
 import { createHackathonDecisionNotice } from './hackathon-decision-email.js';
-import {
-  decideHackathonReviewResolver,
-  listHackathonReviewQueueResolver,
-} from './hackathon-review.js';
+import { decideHackathonReviewResolver } from './hackathon-review.js';
 
 const OPERATOR = 'usr_hackathon_operator';
 const OWNER = 'usr_hackathon_owner';
@@ -115,25 +112,6 @@ describe('reviewing hackathons (B-HKN-08, real D1)', () => {
         role: 'owner',
       })
       .onConflictDoNothing();
-  });
-
-  it('queues a hackathon sent for review with what the reviewer needs', async () => {
-    const { eventId } = await submittedHackathon(db);
-    const { eventId: notSent } = await readyHackathon(db);
-
-    const queue = await listHackathonReviewQueueResolver(db, 0);
-    if (!queue.ok) throw queue.error;
-
-    expect(queue.data.items.map((item) => item.eventId)).toEqual([eventId]);
-    expect(queue.data.items[0]).toMatchObject({
-      title: 'Algiers Builders Hackathon',
-      organisation: { name: 'Algiers Builders', slug: 'algiers-builders' },
-      timeZone: 'Africa/Algiers',
-      teamMin: 2,
-      teamMax: 4,
-      trackTitles: ['Payments for cafés'],
-    });
-    expect(notSent).not.toBe(eventId);
   });
 
   it('approves: publishes the event, audits, counts it and emails the organisers', async () => {

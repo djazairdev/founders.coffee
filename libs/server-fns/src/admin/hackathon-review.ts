@@ -1,10 +1,23 @@
-import { AppError, err, id, ok, type Result } from '@founders-coffee/core';
+import {
+  AppError,
+  err,
+  eventLanguages,
+  id,
+  ok,
+  type EventFormat,
+  type HackathonAiPolicy,
+  type HackathonCriterionScale,
+  type AttendanceMode,
+  type HackathonTrackKind,
+  type Result,
+} from '@founders-coffee/core';
 import {
   decideHackathonReview,
   getHackathon,
   listHackathonsForReview,
   type Db,
   type HackathonForReview,
+  type HackathonReviewPrize,
 } from '@founders-coffee/db';
 import { hackathons } from '@founders-coffee/domain';
 import { logger, type Metrics } from '@founders-coffee/observability';
@@ -33,8 +46,36 @@ export type HackathonReviewItem = {
   readonly teamMin: number;
   readonly teamMax: number;
   readonly rules: string | null;
-  readonly trackTitles: readonly string[];
+  readonly format: EventFormat;
+  readonly venue: string | null;
+  readonly meetingUrl: string | null;
+  readonly languages: readonly string[];
+  readonly attendanceModes: readonly AttendanceMode[];
+  readonly aiPolicy: HackathonAiPolicy;
+  readonly aiPolicyNote: string | null;
+  readonly licenceNote: string | null;
+  readonly tracks: readonly HackathonReviewTrack[];
+  readonly prizes: readonly HackathonReviewPrize[];
+  readonly criteria: readonly HackathonReviewCriterion[];
 };
+
+export type HackathonReviewTrack = {
+  readonly id: string;
+  readonly kind: HackathonTrackKind;
+  readonly title: string;
+  readonly brief: string;
+  readonly partnerName: string | null;
+  readonly sourceUrls: readonly string[];
+};
+
+export type HackathonReviewCriterion = {
+  readonly name: string;
+  readonly description: string;
+  readonly weight: number;
+  readonly scale: HackathonCriterionScale;
+};
+
+export type { HackathonReviewPrize };
 
 export type HackathonReviewQueue = {
   readonly items: readonly HackathonReviewItem[];
@@ -66,7 +107,29 @@ const itemOf = (row: HackathonForReview): HackathonReviewItem => ({
   teamMin: row.details.teamMin,
   teamMax: row.details.teamMax,
   rules: row.details.rules,
-  trackTitles: row.trackTitles,
+  format: row.event.format,
+  venue: row.event.venue,
+  meetingUrl: row.event.meetingUrl,
+  languages: eventLanguages(row.event),
+  attendanceModes: row.details.attendanceModes,
+  aiPolicy: row.details.aiPolicy,
+  aiPolicyNote: row.details.aiPolicyNote,
+  licenceNote: row.details.licenceNote,
+  tracks: row.tracks.map((track) => ({
+    id: track.id,
+    kind: track.kind,
+    title: track.title,
+    brief: track.brief,
+    partnerName: track.partnerName,
+    sourceUrls: track.sourceUrls,
+  })),
+  prizes: row.prizes,
+  criteria: row.criteria.map((criterion) => ({
+    name: criterion.name,
+    description: criterion.description,
+    weight: criterion.weight,
+    scale: criterion.scale,
+  })),
 });
 
 /** One page of the hackathons waiting for review, for the operator's queue (B-HKN-08). */

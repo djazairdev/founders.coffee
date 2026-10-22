@@ -22,6 +22,7 @@ import {
 import type { HackathonReviewItem } from '../api';
 import type { HackathonDecision } from '../decisions';
 import { HackathonDecisionForm } from './HackathonDecisionForm';
+import { HackathonReviewPreview } from './HackathonReviewPreview';
 
 export const HackathonReviewCard = ({
   locale,
@@ -93,9 +94,9 @@ export const HackathonReviewCard = ({
         <dt className="text-neutral">{admin_hkn_tracks({}, options)}</dt>
         <dd>
           <ul className="list-inside list-disc">
-            {item.trackTitles.map((title) => (
-              <li key={title}>
-                <bdi>{title}</bdi>
+            {item.tracks.map((track) => (
+              <li key={track.id}>
+                <bdi>{track.title}</bdi>
               </li>
             ))}
           </ul>
@@ -111,6 +112,7 @@ export const HackathonReviewCard = ({
           </p>
         </div>
       ) : null}
+      <HackathonReviewPreview item={item} locale={locale} />
       <p className="text-caption text-neutral">
         {admin_hkn_submitted_on({ date: momentOf(item.submittedAt) }, options)}
       </p>
