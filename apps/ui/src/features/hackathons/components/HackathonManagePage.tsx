@@ -25,6 +25,7 @@ import { useHackathonDraft } from '../hooks';
 import { HackathonDashboard } from './HackathonDashboard';
 import { HackathonDetailsForm } from './HackathonDetailsForm';
 import { HackathonPrizesSection } from './HackathonPrizesSection';
+import { HackathonReviewBanner } from './HackathonReviewBanner';
 import { HackathonReviewSection } from './HackathonReviewSection';
 import { HackathonRubricSection } from './HackathonRubricSection';
 import { HackathonTracksSection } from './HackathonTracksSection';
@@ -122,6 +123,7 @@ export const HackathonManagePage = ({
           {hackathon_manage_created({}, { locale })}
         </StatusMessage>
       ) : null}
+      <HackathonReviewBanner draft={draft} locale={locale} />
       <HackathonDashboard
         draft={draft}
         locale={locale}
@@ -152,10 +154,18 @@ export const HackathonManagePage = ({
             timeZone={timeZone}
           />
           <HackathonRubricSection draft={draft} locale={locale} />
-          <HackathonReviewSection draft={draft} locale={locale} />
+          <HackathonReviewSection
+            draft={draft}
+            locale={locale}
+            timeZone={timeZone}
+          />
         </>
       ) : draft.review.status === 'submitted' ? (
-        <HackathonReviewSection draft={draft} locale={locale} />
+        <HackathonReviewSection
+          draft={draft}
+          locale={locale}
+          timeZone={timeZone}
+        />
       ) : (
         <StatusMessage variant="info" className="mt-6">
           {hackathon_manage_locked({}, { locale })}

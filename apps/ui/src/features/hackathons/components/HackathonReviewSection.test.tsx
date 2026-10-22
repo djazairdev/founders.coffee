@@ -31,7 +31,13 @@ const review = (
 });
 
 const renderSection = (draft: HackathonDraftView, locale: Locale = 'en') =>
-  render(<HackathonReviewSection draft={draft} locale={locale} />);
+  render(
+    <HackathonReviewSection
+      draft={draft}
+      locale={locale}
+      timeZone="Africa/Algiers"
+    />,
+  );
 
 afterEach(() => {
   cleanup();
@@ -43,7 +49,7 @@ afterEach(() => {
   });
 });
 
-describe('HackathonReviewSection (B-HKN-08)', () => {
+describe('HackathonReviewSection (B-HKN-08, B-HKN-16)', () => {
   it('links what is missing and holds the button back until it is done', () => {
     renderSection(
       draftView({ review: review({ gaps: ['tracks', 'rubric'] }) }),
@@ -76,31 +82,30 @@ describe('HackathonReviewSection (B-HKN-08)', () => {
       eventId: 'evt_draft',
       version: 4,
     });
-    expect(screen.queryByRole('link')).toBeNull();
+    expect(
+      screen.queryByRole('link', { name: 'At least one track' }),
+    ).toBeNull();
   });
 
-  it('shows the reviewers’ note on one they sent back', () => {
+  it('lets the organisers send one the reviewers sent back again, leaving the note to the banner', () => {
     renderSection(
       draftView({
         review: review({ status: 'rejected', note: 'Name your judges.' }),
       }),
     );
 
-    expect(
-      screen.getByText(
-        'The reviewers sent it back. Change it as their note says, then send it again.',
-      ),
-    ).toBeTruthy();
-    expect(screen.getByText('Name your judges.')).toBeTruthy();
+    expect(screen.queryByText('Name your judges.')).toBeNull();
     expect(
       screen.getByRole('button', { name: 'Send for review' }),
     ).toBeTruthy();
   });
 
-  it('says a hackathon with the reviewers is waiting, with nothing to press', () => {
+  it('shows what was sent while it is with the reviewers, with nothing to press', () => {
     renderSection(draftView({ review: review({ status: 'submitted' }) }));
 
-    expect(screen.getByText(/^Sent for review\./)).toBeTruthy();
+    expect(
+      screen.getByRole('heading', { name: 'What you are sending' }),
+    ).toBeTruthy();
     expect(screen.queryByRole('button')).toBeNull();
   });
 

@@ -10,13 +10,12 @@ import {
   hackathon_details_team_hint,
   hackathon_details_team_max,
   hackathon_details_team_min,
-  host_format_in_person,
-  host_format_online,
   optional,
   type Locale,
 } from '@founders-coffee/i18n';
 import { fieldNoteId, FormField, Input } from '@founders-coffee/ui';
 
+import { ATTENDANCE_LABELS } from '../detail-labels';
 import { TEAM_SIZE_MAX, type DetailsField } from '../hackathon-details-form';
 import {
   detailsFieldId,
@@ -24,11 +23,6 @@ import {
 } from '../useHackathonDetailsForm';
 
 type Form = ReturnType<typeof useHackathonDetailsForm>;
-
-const MODE_LABELS = {
-  in_person: host_format_in_person,
-  online: host_format_online,
-} as const;
 
 const NumberField = ({
   form,
@@ -121,7 +115,7 @@ export const HackathonParticipationFields = ({
                 disabled={form.isLocked('attendanceModes')}
                 onChange={(event) => toggleMode(mode, event.target.checked)}
               />
-              {MODE_LABELS[mode]({}, { locale })}
+              {ATTENDANCE_LABELS[mode]({}, { locale })}
             </label>
           ))}
         </div>
