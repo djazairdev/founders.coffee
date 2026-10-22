@@ -1,4 +1,9 @@
-import { err, ok, type Result } from '@founders-coffee/core';
+import {
+  err,
+  ok,
+  type HackathonAiPolicy,
+  type Result,
+} from '@founders-coffee/core';
 import { getHackathon, type Db, type Event } from '@founders-coffee/db';
 import { hackathons } from '@founders-coffee/domain';
 
@@ -9,6 +14,7 @@ export type TeamHackathon = {
   readonly event: Event;
   readonly teamMin: number;
   readonly teamMax: number;
+  readonly aiPolicy: HackathonAiPolicy;
   readonly timeline: hackathons.HackathonTimeline;
 };
 
@@ -29,6 +35,7 @@ export const loadTeamHackathon = async (
     event,
     teamMin: hackathon.teamMin,
     teamMax: hackathon.teamMax,
+    aiPolicy: hackathon.aiPolicy,
     timeline: {
       registrationOpensAt: hackathon.registrationOpensAt.getTime(),
       registrationClosesAt: hackathon.registrationClosesAt.getTime(),

@@ -1,25 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { id } from '@founders-coffee/core';
-import {
-  addHackathonTrack,
-  eq,
-  events,
-  hackathons as hackathonRows,
-  hackathonSubmissions,
-  type Db,
-} from '@founders-coffee/db';
+import { eq, hackathonSubmissions, type Db } from '@founders-coffee/db';
 import { hackathons } from '@founders-coffee/domain';
 
 import { members, setupDb } from '../rsvps/resolver.fixtures.js';
-import { openHackathon, setHackathons } from './registration.fixtures.js';
-import { registerForHackathonResolver } from './registration.js';
+import { setHackathons } from './registration.fixtures.js';
 import { saveSubmissionDraftResolver } from './submission-drafts.js';
-import { createHackathonTeamResolver } from './team-creation.js';
-import {
-  createTeamInviteResolver,
-  joinTeamByInviteResolver,
-} from './team-invites.js';
+import { building } from './submission.fixtures.js';
 
 let db: Db;
 
@@ -31,60 +18,6 @@ const codeOf = (result: { ok: boolean; error?: { code: string } }) =>
 
 const draft = (values: Record<string, unknown> = {}) =>
   hackathons.submissionDraftSchema.parse({ title: 'Ledger', ...values });
-
-/**
- * A hackathon whose captain's team has two members, moved on to building: registration closed two
- * hours ago and kickoff an hour ago.
- */
-const building = async () => {
-  const eventId = await openHackathon(db);
-  for (const userId of [captain, member]) {
-    const registered = await registerForHackathonResolver(db, null, {
-      eventId,
-      userId,
-      attendanceMode: 'in_person',
-      isAgeAttested: false,
-      isLookingForTeam: true,
-      skills: null,
-    });
-    if (!registered.ok) throw registered.error;
-  }
-  const team = await createHackathonTeamResolver(db, null, {
-    eventId,
-    userId: captain,
-    name: 'Byte Club',
-    description: null,
-    isLookingForMembers: true,
-  });
-  if (!team.ok) throw team.error;
-  const link = await createTeamInviteResolver(db, { eventId, userId: captain });
-  if (!link.ok) throw link.error;
-  await joinTeamByInviteResolver(db, {
-    token: link.data.token,
-    userId: member,
-  });
-  await db
-    .update(hackathonRows)
-    .set({ registrationClosesAt: new Date(Date.now() - 2 * HOUR) })
-    .where(eq(hackathonRows.eventId, eventId));
-  await db
-    .update(events)
-    .set({ startsAt: new Date(Date.now() - HOUR) })
-    .where(eq(events.id, eventId));
-  const trackId = id('trk');
-  await addHackathonTrack(db, {
-    id: trackId,
-    eventId,
-    track: {
-      kind: 'founder_problem',
-      title: 'Payments',
-      brief: 'Build a tool that a founder in Algiers would use every week.',
-      partnerName: null,
-      sourceUrls: [],
-    },
-  });
-  return { eventId, teamId: team.data.teamId, trackId };
-};
 
 const save = (
   eventId: string,
@@ -114,7 +47,7 @@ describe('saving a submission draft (B-SUB-03, real D1)', () => {
   });
 
   it('saves the first draft at version 1, then each save at the version the captain saw', async () => {
-    const { eventId, teamId, trackId } = await building();
+    const { eventId, teamId, trackId } = await building(db, [captain, member]);
 
     const first = await save(eventId, 0);
     if (!first.ok) throw first.error;
@@ -139,7 +72,7 @@ describe('saving a submission draft (B-SUB-03, real D1)', () => {
   });
 
   it('refuses a stale version, a second first save, and a track of no such hackathon', async () => {
-    const { eventId } = await building();
+    const { eventId } = await building(db, [captain, member]);
     await save(eventId, 0);
 
     expect(codeOf(await save(eventId, 0))).toBe('submission_conflict');
@@ -150,7 +83,7 @@ describe('saving a submission draft (B-SUB-03, real D1)', () => {
   });
 
   it('lets only the captain save, and only while the team is building', async () => {
-    const { eventId } = await building();
+    const { eventId } = await building(db, [captain, member]);
 
     expect(codeOf(await save(eventId, 0, {}, member))).toBe('not_team_captain');
     expect(
@@ -164,7 +97,7 @@ describe('saving a submission draft (B-SUB-03, real D1)', () => {
   });
 
   it('keeps a submitted entry complete, and a disqualified one as it was', async () => {
-    const { eventId, teamId, trackId } = await building();
+    const { eventId, teamId, trackId } = await building(db, [captain, member]);
     await save(eventId, 0);
     const complete = {
       trackId,
