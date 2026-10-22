@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   organisationApplicationSchema,
   organisationEditSchema,
+  organisationInvitationSchema,
   organisationSlugSchema,
 } from './schemas.js';
 
@@ -103,6 +104,27 @@ describe('organisationEditSchema', () => {
     expect(
       organisationEditSchema.safeParse({ name: 'GDG Alger', ...change })
         .success,
+    ).toBe(false);
+  });
+});
+
+describe('organisationInvitationSchema', () => {
+  it('keeps the address lowercase and takes an admin or a member', () => {
+    expect(
+      organisationInvitationSchema.parse({
+        email: '  Amina@Example.ORG ',
+        role: 'admin',
+      }),
+    ).toEqual({ email: 'amina@example.org', role: 'admin' });
+  });
+
+  it('refuses an owner, an address that is not one, and fields it does not know', () => {
+    const parse = (input: object) =>
+      organisationInvitationSchema.safeParse(input).success;
+    expect(parse({ email: 'a@example.org', role: 'owner' })).toBe(false);
+    expect(parse({ email: 'not an address', role: 'member' })).toBe(false);
+    expect(
+      parse({ email: 'a@example.org', role: 'member', organisationId: 'x' }),
     ).toBe(false);
   });
 });

@@ -94,7 +94,17 @@ export const organisationEditSchema = z
     'Change at least one field',
   );
 
+export const INVITABLE_ORGANISATION_ROLES = ['admin', 'member'] as const;
+
+export const organisationInvitationSchema = z.strictObject({
+  email: z.string().trim().toLowerCase().email().max(254),
+  role: z.enum(INVITABLE_ORGANISATION_ROLES),
+});
+
 export type OrganisationApplication = z.infer<
   typeof organisationApplicationSchema
 >;
 export type OrganisationEdit = z.infer<typeof organisationEditSchema>;
+export type OrganisationInvitationInput = z.infer<
+  typeof organisationInvitationSchema
+>;

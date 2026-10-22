@@ -7,6 +7,7 @@ import {
   handleResult,
   organisationIdSchema,
 } from '@founders-coffee/core';
+import { organisations } from '@founders-coffee/domain';
 
 import {
   requireOrganisationPermission,
@@ -32,10 +33,8 @@ const {
 
 const invitationIdSchema = z.string().trim().min(1).max(128);
 
-const inviteMemberSchema = z.strictObject({
+const inviteMemberSchema = organisations.organisationInvitationSchema.extend({
   organisationId: organisationIdSchema,
-  email: z.string().trim().toLowerCase().email().max(254),
-  role: z.enum(['admin', 'member']),
 });
 
 const cancelInvitationSchema = z.strictObject({

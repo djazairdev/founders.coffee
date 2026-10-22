@@ -96,6 +96,35 @@ export const listOrganisationsOfUser = async (
   return rows.map(({ organisation, role }) => ({ ...organisation, role }));
 };
 
+/**
+ * The organisation with this slug, with the user's role in it, when the user belongs to it and its
+ * market has switched hackathons on; null otherwise, and callers must not tell the cases apart.
+ */
+export const readMyOrganisationBySlug = async (
+  db: Db,
+  input: { readonly slug: string; readonly userId: string },
+): Promise<MyOrganisation | null> => {
+  const [row] = await db
+    .select({ organisation: organization, role: member.role })
+    .from(organization)
+    .innerJoin(
+      member,
+      and(
+        eq(member.organizationId, organization.id),
+        eq(member.userId, input.userId),
+      ),
+    )
+    .innerJoin(markets, eq(markets.code, organization.marketCode))
+    .where(
+      and(
+        eq(organization.slug, input.slug),
+        sql`json_type(${markets.featureFlags}, '$.hackathons') = 'true'`,
+      ),
+    )
+    .limit(1);
+  return row ? { ...row.organisation, role: row.role } : null;
+};
+
 /** An organisation by id, or `null`. */
 export const getOrganisation = async (
   db: Db,

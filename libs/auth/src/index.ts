@@ -10,6 +10,7 @@ export type {
   OrganisationAction,
   OrganisationResource,
 } from './organisation-access.js';
+export { organisationRoleAllows } from './organisation-access.js';
 export {
   INVITATION_LIFETIME_SECONDS,
   type OrganisationInvitationMail,

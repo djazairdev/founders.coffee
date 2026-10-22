@@ -58,7 +58,7 @@ export const OrganisationApplyForm = ({
   locale: Locale;
   markets: readonly RootMarket[];
   defaultMarketCode: string;
-  onSent: (name: string) => void;
+  onSent: (sent: { readonly name: string; readonly slug: string }) => void;
 }) => {
   const [draft, setDraft] = useState(() => emptyApplication(defaultMarketCode));
   const [invalid, setInvalid] = useState<Field | null>(null);
@@ -99,7 +99,10 @@ export const OrganisationApplyForm = ({
     }
     try {
       await apply.mutateAsync(checked.application);
-      onSent(checked.application.name);
+      onSent({
+        name: checked.application.name,
+        slug: checked.application.slug,
+      });
     } catch (caught) {
       const refusal = applicationRefusal(caught);
       if (refusal.kind === 'hackathons_disabled') setProblem('unavailable');
