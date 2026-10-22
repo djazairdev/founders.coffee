@@ -179,18 +179,23 @@ export const getEventCardData = createServerFn({ strict: false })
  * A meetup as a calendar entry: its `.ics` file, a redirect to Google Calendar's form, or, for a
  * cancelled meetup, a redirect to the page that says so.
  *
- * Public and sessionless, like the social card. What fetches it is a calendar app or a download,
- * which carries no cookie, so it answers the same for everyone; the entry links back on the origin
- * that served it.
+ * Public, and the same for everyone except in one field: a reader the meeting link is for, signed
+ * in when they follow Add to calendar from the page, gets the link in their entry (B-EVT-12). A
+ * calendar app or a download that carries no cookie gets the entry without it. Nothing here is
+ * cached, so one reader's entry is never another's. The entry links back on the origin that
+ * served it.
  */
 export const getEventCalendarAnswer = createServerFn({ strict: false })
   .validator(appValidator(eventCalendarRequestSchema))
-  .handler(({ data }) =>
-    answerEventCalendar(getDb(), {
+  .handler(async ({ data }) => {
+    const request = getRequest();
+    const session = await resolveSession(request.headers);
+    return answerEventCalendar(getDb(), {
       ...data,
-      origin: new URL(getRequest().url).origin,
-    }),
-  );
+      origin: new URL(request.url).origin,
+      viewerId: session?.user?.id,
+    });
+  });
 
 /**
  * List upcoming published events (composite cursor). Public. Pass `afterStartsAt` (a startsAt epoch

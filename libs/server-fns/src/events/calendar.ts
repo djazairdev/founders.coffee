@@ -3,8 +3,15 @@ import {
   type CalendarTarget,
   type Locale,
 } from '@founders-coffee/core';
-import { getEventCalendar, type Db } from '@founders-coffee/db';
+import {
+  getEvent,
+  getEventCalendar,
+  getRsvpsForEvents,
+  type Db,
+} from '@founders-coffee/db';
 import { events } from '@founders-coffee/domain';
+
+import { meetingLinkFor } from './meeting-link.js';
 
 export type EventCalendarAnswer =
   | { readonly kind: 'file'; readonly body: string }
@@ -15,6 +22,30 @@ export type EventCalendarRequest = {
   readonly locale: Locale;
   readonly target: CalendarTarget;
   readonly origin: string;
+  readonly viewerId?: string | null;
+};
+
+/**
+ * The meeting link this reader's entry carries, read only for a signed-in reader. The entry itself
+ * is read through columns that are the same for everyone; the link is the one part that is theirs,
+ * and the same rule as the page decides it.
+ */
+const readerMeetingLink = async (
+  db: Db,
+  id: string,
+  viewerId: string | null | undefined,
+): Promise<string | null> => {
+  if (!viewerId) return null;
+  const event = await getEvent(db, id);
+  if (!event || event.meetingUrl === null) return null;
+  const rsvps = await getRsvpsForEvents(db, {
+    eventIds: [id],
+    userId: viewerId,
+  });
+  return meetingLinkFor(db, event, {
+    id: viewerId,
+    isGoing: rsvps.get(id) === 'going',
+  });
 };
 
 /**
@@ -29,6 +60,10 @@ export type EventCalendarRequest = {
  * in a confirmation email sent before the host called it off, lands somewhere that explains.
  *
  * A draft answers as no meetup at all, so its address gives away nothing until it is published.
+ *
+ * The meeting link of an online or hybrid meetup goes only into the entry of a reader who may have
+ * it, the host and the members going, as on the page; a download that carries no session gets an
+ * entry without it.
  */
 export const answerEventCalendar = async (
   db: Db,
@@ -38,7 +73,12 @@ export const answerEventCalendar = async (
   if (!row || row.status === 'draft') return null;
   const page = `${request.origin}${eventShortPath(request.locale, request.id)}`;
   if (row.status !== 'published') return { kind: 'redirect', location: page };
-  const entry = { ...row, id: request.id, url: page };
+  const entry = {
+    ...row,
+    id: request.id,
+    url: page,
+    meetingLink: await readerMeetingLink(db, request.id, request.viewerId),
+  };
   return request.target === 'google'
     ? { kind: 'redirect', location: events.googleCalendarUrlFor(entry) }
     : { kind: 'file', body: events.icsFor(entry) };

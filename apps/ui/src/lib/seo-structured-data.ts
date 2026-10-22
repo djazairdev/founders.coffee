@@ -5,7 +5,7 @@ export type StructuredListItem = {
   readonly url: string;
 };
 
-import type { EventStatus } from '@founders-coffee/core';
+import type { EventFormat, EventStatus } from '@founders-coffee/core';
 import { zonedIsoString } from '@founders-coffee/i18n';
 
 export type StructuredEventData = {
@@ -16,6 +16,7 @@ export type StructuredEventData = {
   readonly createdAt: Date;
   readonly timezone: string;
   readonly status: EventStatus;
+  readonly format: EventFormat;
   readonly venue: string | null;
   readonly cityName: string;
   readonly regionName: string | null;
@@ -28,6 +29,26 @@ export type StructuredEventData = {
   readonly image?: string;
   readonly currency: string;
   readonly organizer: { readonly name: string; readonly url: string } | null;
+};
+
+const ATTENDANCE_MODE: Readonly<Record<EventFormat, string>> = {
+  in_person: 'https://schema.org/OfflineEventAttendanceMode',
+  online: 'https://schema.org/OnlineEventAttendanceMode',
+  hybrid: 'https://schema.org/MixedEventAttendanceMode',
+};
+
+/**
+ * Where schema.org is told the event happens: its place, a virtual location, or both for a hybrid
+ * one. The virtual location carries no URL, because the meeting link is for the host and the
+ * members going, and anything in the page's structured data is public.
+ */
+const locationFor = (
+  format: EventFormat,
+  place: JsonLdObject,
+): JsonLdObject | JsonLdObject[] => {
+  const virtual: JsonLdObject = { '@type': 'VirtualLocation' };
+  if (format === 'online') return virtual;
+  return format === 'hybrid' ? [place, virtual] : place;
 };
 
 export const itemListJsonLd = (
@@ -90,7 +111,7 @@ export const eventJsonLd = (
 ): JsonLdObject => {
   const localTime = (date: Date): string =>
     zonedIsoString(date.getTime(), event.timezone);
-  const location: JsonLdObject = {
+  const place: JsonLdObject = {
     '@type': 'Place',
     ...(event.venue === null ? {} : { name: event.venue }),
     address: {
@@ -124,11 +145,11 @@ export const eventJsonLd = (
       event.status === 'cancelled'
         ? 'https://schema.org/EventCancelled'
         : 'https://schema.org/EventScheduled',
-    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    eventAttendanceMode: ATTENDANCE_MODE[event.format],
     inLanguage:
       event.languages.length === 1 ? event.languages[0] : event.languages,
     isAccessibleForFree: true,
-    location,
+    location: locationFor(event.format, place),
     ...(event.status === 'published' && event.startsAt.getTime() > now
       ? {
           offers: {

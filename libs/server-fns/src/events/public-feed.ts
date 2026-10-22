@@ -66,6 +66,7 @@ const discoveryItem = (
     slug: row.slug,
     title: row.title,
     description: row.description,
+    format: row.format,
     venue: row.venue,
     venueAddress: row.venueAddress,
     startsAt: row.startsAt.toISOString(),
