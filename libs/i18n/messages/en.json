@@ -1282,7 +1282,7 @@
   "hackathon_dashboard_capacity": "of {capacity} places",
   "hackathon_dashboard_waitlisted": "Waitlisted",
   "hackathon_dashboard_teams": "Teams",
-  "hackathon_dashboard_submissions": "Entries submitted",
+  "hackathon_dashboard_submissions": "Submissions",
   "hackathon_dashboard_judges": "Judges",
   "hackathon_dashboard_reviews": "Reviews done",
   "hackathon_dashboard_reviews_count": "{done} of {expected}",
