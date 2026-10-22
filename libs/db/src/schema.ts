@@ -569,6 +569,7 @@ export const hackathonTracks = sqliteTable(
       table.eventId,
       table.position,
     ),
+    uniqueIndex('hackathon_tracks_event_unique').on(table.id, table.eventId),
     check(
       'hackathon_tracks_partner_check',
       sql`(${table.kind} = 'partner_technology') = (${table.partnerName} IS NOT NULL)`,
@@ -583,6 +584,61 @@ export const hackathonTracks = sqliteTable(
 
 export type HackathonTrack = typeof hackathonTracks.$inferSelect;
 export type NewHackathonTrack = typeof hackathonTracks.$inferInsert;
+
+/**
+ * What a hackathon's teams can win (B-HKN-04): a place, overall or in one of its own tracks, a title,
+ * what the prize is and who provides it, and what it is worth as an indicative `Money` value when the
+ * provider gives one. A track is the hackathon's own, which the composite key holds, and cannot be
+ * removed while a prize names it.
+ *
+ * Nothing is promised before it is confirmed (V2): `confirmed_at` is when the provider confirmed the
+ * prize in writing and `confirmation_note` the organisers' private record of who confirmed it and
+ * how; they are set together. Public reads return confirmed prizes only and never the note.
+ */
+export const hackathonPrizes = sqliteTable(
+  'hackathon_prizes',
+  {
+    id: text('id').primaryKey(),
+    eventId: text('event_id')
+      .notNull()
+      .references(() => hackathons.eventId, { onDelete: 'cascade' }),
+    trackId: text('track_id'),
+    place: integer('place').notNull(),
+    title: text('title').notNull(),
+    description: text('description').notNull(),
+    providerName: text('provider_name').notNull(),
+    valueAmountMinor: integer('value_amount_minor'),
+    valueCurrency: text('value_currency', { enum: [...CURRENCY_CODES] }),
+    confirmedAt: integer('confirmed_at', { mode: 'timestamp' }),
+    confirmationNote: text('confirmation_note'),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.trackId, table.eventId],
+      foreignColumns: [hackathonTracks.id, hackathonTracks.eventId],
+    }),
+    index('hackathon_prizes_event_idx').on(table.eventId, table.place),
+    index('hackathon_prizes_track_idx').on(table.trackId, table.eventId),
+    check('hackathon_prizes_place_check', sql`${table.place} >= 1`),
+    check(
+      'hackathon_prizes_value_check',
+      sql`(${table.valueAmountMinor} IS NULL AND ${table.valueCurrency} IS NULL) OR (${table.valueAmountMinor} > 0 AND ${table.valueCurrency} IS NOT NULL)`,
+    ),
+    check(
+      'hackathon_prizes_confirmation_check',
+      sql`(${table.confirmedAt} IS NULL) = (${table.confirmationNote} IS NULL)`,
+    ),
+  ],
+);
+
+export type HackathonPrize = typeof hackathonPrizes.$inferSelect;
+export type NewHackathonPrize = typeof hackathonPrizes.$inferInsert;
 
 /**
  * A hackathon's published rubric (B-HKN-05): each criterion its judges score, how much it weighs and

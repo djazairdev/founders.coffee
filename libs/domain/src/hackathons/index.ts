@@ -43,6 +43,11 @@ export {
   type HackathonTrackInput,
 } from './tracks.js';
 export {
+  HACKATHON_PRIZE_PLACE_MAX,
+  hackathonPrizeSchema,
+  type HackathonPrizeInput,
+} from './prizes.js';
+export {
   HACKATHON_CRITERIA_MAX,
   HACKATHON_CRITERIA_MIN,
   HACKATHON_WEIGHT_TOTAL,
