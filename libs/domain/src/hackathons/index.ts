@@ -188,3 +188,8 @@ export {
   recusalSchema,
   type RecusalInput,
 } from './judge-entries.js';
+export {
+  decideHackathonReport,
+  hackathonReportSchema,
+  type HackathonReportInput,
+} from './reports.js';

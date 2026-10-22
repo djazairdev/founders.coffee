@@ -29,6 +29,7 @@ import { processNotificationDue } from './jobs/notifications.js';
 import { sweepProfileAssets } from './jobs/profile-asset-sweep.js';
 import { backfillCloseoutPrompts } from './jobs/closeout-prompt-backfill.js';
 import { sweepChatRetention } from './jobs/chat-retention.js';
+import { sweepExpiredHackathonReports } from './jobs/hackathon-report-retention.js';
 import {
   processHackathonInterestLaunch,
   sweepHackathonInterestLaunches,
@@ -186,6 +187,7 @@ export default {
         await sweepExpiredWaitlistEntries(db);
         await sweepExpiredHackathonInterest(db);
         await sweepChatRetention(db);
+        await sweepExpiredHackathonReports(db);
       }
     },
   ),

@@ -80,6 +80,7 @@ export {
   recuseFromHackathonEntry,
 } from './judge-entries-rpc.js';
 export type { JudgeEntryView } from './judge-entries.js';
+export { reportHackathonTarget } from './reports-rpc.js';
 export {
   getHackathonPullRequests,
   setHackathonPullRequestStatus,

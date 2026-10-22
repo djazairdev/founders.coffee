@@ -145,3 +145,26 @@ export const hackathonCriterionScaleSchema = z.union([
   z.literal(5),
   z.literal(10),
 ]);
+
+export const HACKATHON_REPORT_TARGETS = ['submission', 'team'] as const;
+export type HackathonReportTarget = (typeof HACKATHON_REPORT_TARGETS)[number];
+export const hackathonReportTargetSchema = z.enum(HACKATHON_REPORT_TARGETS);
+
+export const HACKATHON_REPORT_REASONS = [
+  'plagiarism',
+  'rule_breaking',
+  'harassment',
+  'spam',
+  'other',
+] as const;
+export type HackathonReportReason = (typeof HACKATHON_REPORT_REASONS)[number];
+export const hackathonReportReasonSchema = z.enum(HACKATHON_REPORT_REASONS);
+
+export const HACKATHON_REPORT_STATUSES = [
+  'open',
+  'dismissed',
+  'disqualified',
+] as const;
+export type HackathonReportStatus = (typeof HACKATHON_REPORT_STATUSES)[number];
+
+export const HACKATHON_REPORT_KEPT_MONTHS = 24;

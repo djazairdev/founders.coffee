@@ -38,6 +38,9 @@ import {
   HACKATHON_REGISTRATION_SKILLS_MAX,
   HACKATHON_REGISTRATION_STATUSES,
   HACKATHON_PULL_REQUEST_STATUSES,
+  HACKATHON_REPORT_REASONS,
+  HACKATHON_REPORT_STATUSES,
+  HACKATHON_REPORT_TARGETS,
   HACKATHON_REVIEW_STATUSES,
   HACKATHON_SCORE_COMMENT_MAX,
   HACKATHON_SUBMISSION_AI_STATEMENT_MAX,
@@ -1103,6 +1106,64 @@ export const hackathonPullRequests = sqliteTable(
 );
 
 export type HackathonPullRequest = typeof hackathonPullRequests.$inferSelect;
+
+/**
+ * A member's report about an entry or a team of a hackathon (B-SAFE-01), for an administrator to
+ * review: one per member and target, with a reason from a fixed list and no free text. The target is
+ * kept by its type and id without a foreign key, so a report outlives a team that disbands, as chat
+ * reports outlive their message. The reporter is never shown to the people reported. A report is
+ * kept 24 months after its decision, and an open one until it is decided.
+ */
+export const hackathonReports = sqliteTable(
+  'hackathon_reports',
+  {
+    id: text('id').primaryKey(),
+    eventId: text('event_id')
+      .notNull()
+      .references(() => hackathons.eventId, { onDelete: 'cascade' }),
+    marketCode: text('market_code')
+      .notNull()
+      .references(() => markets.code),
+    targetType: text('target_type', {
+      enum: HACKATHON_REPORT_TARGETS,
+    }).notNull(),
+    targetId: text('target_id').notNull(),
+    reporterId: text('reporter_id')
+      .notNull()
+      .references(() => user.id),
+    reason: text('reason', { enum: HACKATHON_REPORT_REASONS }).notNull(),
+    status: text('status', { enum: HACKATHON_REPORT_STATUSES })
+      .notNull()
+      .default('open'),
+    reviewedBy: text('reviewed_by').references(() => user.id),
+    reviewedAt: integer('reviewed_at', { mode: 'timestamp' }),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex('hackathon_reports_target_reporter_unique').on(
+      table.targetType,
+      table.targetId,
+      table.reporterId,
+    ),
+    index('hackathon_reports_market_status_index').on(
+      table.marketCode,
+      table.status,
+      table.createdAt,
+    ),
+    index('hackathon_reports_reporter_index').on(table.reporterId),
+    index('hackathon_reports_reviewed_at_index')
+      .on(table.reviewedAt)
+      .where(sql`reviewed_at IS NOT NULL`),
+    check(
+      'hackathon_reports_decision_check',
+      sql`(${table.status} = 'open') = (${table.reviewedAt} IS NULL)`,
+    ),
+  ],
+);
+
+export type HackathonReport = typeof hackathonReports.$inferSelect;
 
 /**
  * A hackathon's judges (B-JDG-01). Each place starts as an invite link the organisers make for one
