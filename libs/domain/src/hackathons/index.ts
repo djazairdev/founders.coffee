@@ -22,6 +22,11 @@ export {
   type TeamSizeLimits,
 } from './teams.js';
 export {
+  decideRemoveMember,
+  hackathonTeamLeaveSchema,
+  hackathonTeamMemberSchema,
+} from './team-changes.js';
+export {
   decideTeamRequest,
   decideTeamRequestAnswer,
   decideTeamRequestCancel,
