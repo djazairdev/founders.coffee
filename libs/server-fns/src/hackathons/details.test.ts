@@ -41,6 +41,7 @@ describe("a hackathon's details (B-HKN-12, B-HKN-07, real D1)", () => {
         title: 'Algiers Builders Hackathon',
         format: 'online',
         status: 'draft',
+        currency: 'DZD',
         startsAt: kickoff,
         endsAt: kickoff + 2 * DAY,
       },

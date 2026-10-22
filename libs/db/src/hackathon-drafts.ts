@@ -1,10 +1,13 @@
 import { and, eq } from 'drizzle-orm';
 
+import type { CurrencyCode } from '@founders-coffee/core';
+
 import type { Db } from './db.js';
 import {
   eventOrganisers,
   events,
   hackathons,
+  markets,
   organization,
   type Event,
   type Hackathon,
@@ -20,6 +23,7 @@ export type HackathonDraftRows = {
   readonly event: Event;
   readonly organisation: HackathonLead;
   readonly details: Hackathon | null;
+  readonly currency: CurrencyCode;
 };
 
 const leadOf = and(
@@ -43,7 +47,8 @@ export const readHackathonLeadOrganisation = async (
 
 /**
  * A hackathon as its organisers manage it (B-HKN-12): its event, the organisation that leads it,
- * and its details once the second step has saved them, `null` before. One query, whatever its status.
+ * its details once the second step has saved them, `null` before, and its market's currency, which
+ * its prizes are valued in (B-HKN-14). One query, whatever its status.
  */
 export const readHackathonDraft = async (
   db: Db,
@@ -58,8 +63,10 @@ export const readHackathonDraft = async (
         slug: organization.slug,
       },
       details: hackathons,
+      currency: markets.defaultCurrency,
     })
     .from(events)
+    .innerJoin(markets, eq(markets.code, events.marketCode))
     .innerJoin(eventOrganisers, leadOf)
     .innerJoin(
       organization,

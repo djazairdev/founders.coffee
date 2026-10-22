@@ -23,6 +23,7 @@ import { hackathonStatusLabel } from '../../organisations/hackathon-labels';
 import { isHackathonMissing, isHackathonsDisabled } from '../errors';
 import { useHackathonDraft } from '../hooks';
 import { HackathonDetailsForm } from './HackathonDetailsForm';
+import { HackathonPrizesSection } from './HackathonPrizesSection';
 import { HackathonReviewSection } from './HackathonReviewSection';
 import { HackathonRubricSection } from './HackathonRubricSection';
 import { HackathonTracksSection } from './HackathonTracksSection';
@@ -138,6 +139,11 @@ export const HackathonManagePage = ({
             />
           </section>
           <HackathonTracksSection draft={draft} locale={locale} />
+          <HackathonPrizesSection
+            draft={draft}
+            locale={locale}
+            timeZone={timeZone}
+          />
           <HackathonRubricSection draft={draft} locale={locale} />
           <HackathonReviewSection draft={draft} locale={locale} />
         </>

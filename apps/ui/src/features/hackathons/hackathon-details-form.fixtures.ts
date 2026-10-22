@@ -16,6 +16,7 @@ export const draftView = (
     endsAt: DEMO_DAY,
     format: 'online',
     status: 'draft',
+    currency: 'DZD',
     ...event,
   },
   organisation: {
