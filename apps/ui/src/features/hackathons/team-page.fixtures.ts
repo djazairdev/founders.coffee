@@ -89,9 +89,11 @@ export const lookingView = (
 
 export const mutation = () => ({
   mutate: vi.fn(),
+  reset: vi.fn(),
   isPending: false,
   isError: false,
   error: null as unknown,
+  data: undefined as unknown,
 });
 
 export const markets = [

@@ -23,6 +23,8 @@ const mocks = vi.hoisted(() => ({
   },
   save: undefined as
     ReturnType<typeof import('../team-page.fixtures').mutation> | undefined,
+  send: undefined as
+    ReturnType<typeof import('../team-page.fixtures').mutation> | undefined,
 }));
 
 vi.mock('@tanstack/react-router', () => ({
@@ -55,6 +57,10 @@ vi.mock('../submission-hooks', () => ({
     mocks.save ??= mutation();
     return mocks.save;
   },
+  useSubmitSubmission: () => {
+    mocks.send ??= mutation();
+    return mocks.send;
+  },
 }));
 
 afterEach(() => {
@@ -66,6 +72,7 @@ afterEach(() => {
     refetch: vi.fn(),
   };
   mocks.save = undefined;
+  mocks.send = undefined;
 });
 
 const renderPage = (

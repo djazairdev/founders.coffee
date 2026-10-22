@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from 'react';
+import type { FormEvent } from 'react';
 
+import type { HackathonAiPolicy } from '@founders-coffee/core';
 import {
   hackathon_submission_save,
   hackathon_submission_saved,
@@ -9,101 +10,95 @@ import { Button, StatusMessage } from '@founders-coffee/ui';
 
 import type { SubmissionPageView } from '../api';
 import { submissionErrorMessage } from '../submission-errors';
-import {
-  checkSubmissionDraft,
-  formDraftOf,
-  SUBMISSION_FIELD_IDS,
-  SUBMISSION_FIELD_ORDER,
-  type SubmissionField,
-  type SubmissionFormDraft,
-} from '../submission-form';
-import { useSaveSubmissionDraft } from '../submission-hooks';
+import { useHackathonSubmissionForm } from '../useHackathonSubmissionForm';
+import { HackathonSubmissionAiFields } from './HackathonSubmissionAiFields';
 import { HackathonSubmissionFields } from './HackathonSubmissionFields';
+import { HackathonSubmissionSend } from './HackathonSubmissionSend';
+import { HackathonSubmissionSubmitted } from './HackathonSubmissionSubmitted';
 
 export const HackathonSubmissionForm = ({
   eventId,
   tracks,
   entry,
+  aiPolicy,
   isReadOnly,
+  isOpen,
   locale,
+  timeZone,
 }: {
   eventId: string;
   tracks: SubmissionPageView['tracks'];
   entry: SubmissionPageView['entry'];
+  aiPolicy: HackathonAiPolicy;
   isReadOnly: boolean;
+  isOpen: boolean;
   locale: Locale;
+  timeZone: string;
 }) => {
-  const save = useSaveSubmissionDraft(eventId);
-  const [form, setForm] = useState<SubmissionFormDraft>(() =>
-    formDraftOf(entry),
-  );
-  const [errors, setErrors] = useState<
-    Partial<Record<SubmissionField, string>>
-  >({});
-  const [savedVersion, setSavedVersion] = useState(0);
-  const [isSaved, setIsSaved] = useState(false);
-  const isOpenSource =
-    tracks.find((track) => track.id === form.trackId)?.kind === 'open_source';
+  const project = useHackathonSubmissionForm({
+    eventId,
+    tracks,
+    entry,
+    aiPolicy,
+    locale,
+  });
 
-  const change = (patch: Partial<SubmissionFormDraft>) => {
-    setForm({ ...form, ...patch });
-    setIsSaved(false);
-  };
-
-  const submit = (event: FormEvent) => {
+  const saveOnly = (event: FormEvent) => {
     event.preventDefault();
-    if (isReadOnly || save.isPending) return;
-    const checked = checkSubmissionDraft(form, { isOpenSource, entry, locale });
-    if (!checked.ok) {
-      setErrors(checked.errors);
-      const first = SUBMISSION_FIELD_ORDER.find(
-        (field) => checked.errors[field],
-      );
-      if (first) document.getElementById(SUBMISSION_FIELD_IDS[first])?.focus();
-      return;
-    }
-    setErrors({});
-    save.mutate(
-      {
-        version: Math.max(savedVersion, entry?.version ?? 0),
-        draft: checked.draft,
-      },
-      {
-        onSuccess: (saved) => {
-          setSavedVersion(saved.version);
-          setIsSaved(true);
-        },
-      },
-    );
+    if (!isReadOnly) project.saveOnly();
   };
 
   return (
-    <form className="mt-6 grid gap-4" noValidate onSubmit={submit}>
+    <form className="mt-6 grid gap-4" noValidate onSubmit={saveOnly}>
+      {project.submittedAt === null ? null : (
+        <HackathonSubmissionSubmitted
+          submittedAt={project.submittedAt}
+          isOpen={isOpen}
+          locale={locale}
+          timeZone={timeZone}
+        />
+      )}
       <HackathonSubmissionFields
-        form={form}
+        form={project.form}
         tracks={tracks}
-        errors={errors}
-        isOpenSource={isOpenSource}
+        errors={project.errors}
+        isOpenSource={project.isOpenSource}
         isReadOnly={isReadOnly}
         locale={locale}
-        onChange={change}
+        onChange={project.change}
       />
-      {save.isError ? (
+      <HackathonSubmissionAiFields
+        form={project.form}
+        aiPolicy={aiPolicy}
+        errors={project.errors}
+        isReadOnly={isReadOnly}
+        locale={locale}
+        onChange={project.change}
+      />
+      {project.failure ? (
         <StatusMessage variant="error">
-          {submissionErrorMessage(save.error, locale)}
+          {submissionErrorMessage(project.failure, locale)}
         </StatusMessage>
       ) : null}
-      {isSaved ? (
+      {project.isSaved ? (
         <StatusMessage variant="success">
           {hackathon_submission_saved({}, { locale })}
         </StatusMessage>
       ) : null}
       {isReadOnly ? null : (
-        <div>
-          <Button type="submit" variant="primary" aria-busy={save.isPending}>
+        <HackathonSubmissionSend
+          isAttested={project.isOriginalWorkAttested}
+          error={project.errors.original}
+          hasSubmitted={project.submittedAt !== null}
+          isSubmitting={project.isSubmitting}
+          locale={locale}
+          onAttest={project.attest}
+          onSubmit={project.submit}
+        >
+          <Button type="submit" variant="outline" aria-busy={project.isSaving}>
             {hackathon_submission_save({}, { locale })}
           </Button>
-        </div>
+        </HackathonSubmissionSend>
       )}
     </form>
   );

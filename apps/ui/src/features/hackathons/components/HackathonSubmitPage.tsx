@@ -82,6 +82,7 @@ const Entry = ({
       </>
     );
   const isLocked = view.entry?.status === 'disqualified';
+  const isOpen = view.stage === 'building' && !isLocked;
   return (
     <>
       <p className="mt-3 text-body-sm text-neutral">
@@ -100,10 +101,11 @@ const Entry = ({
         eventId={view.event.id}
         tracks={view.tracks}
         entry={view.entry}
-        isReadOnly={
-          !view.team.isCaptain || view.stage !== 'building' || isLocked
-        }
+        aiPolicy={view.aiPolicy}
+        isReadOnly={!view.team.isCaptain || !isOpen}
+        isOpen={isOpen}
         locale={locale}
+        timeZone={timeZone}
       />
     </>
   );

@@ -11,7 +11,7 @@ import {
   optional,
   type Locale,
 } from '@founders-coffee/i18n';
-import { fieldNoteId, FormField, Input, Select } from '@founders-coffee/ui';
+import { FormField, Input, Select } from '@founders-coffee/ui';
 
 import type { SubmissionPageView } from '../api';
 import {
@@ -20,14 +20,10 @@ import {
   SUBMISSION_TITLE_MAX,
   SUBMISSION_FIELD_IDS,
   SUBMISSION_URL_MAX,
-  type SubmissionField,
   type SubmissionFormDraft,
 } from '../submission-form';
-
-const noted = (id: string, error: string | undefined, hasHint = false) => ({
-  'aria-invalid': error ? true : undefined,
-  'aria-describedby': error || hasHint ? fieldNoteId(id) : undefined,
-});
+import { noted } from '../submission-field-notes';
+import type { SubmissionFormErrors } from '../submission-ready';
 
 export const HackathonSubmissionFields = ({
   form,
@@ -40,7 +36,7 @@ export const HackathonSubmissionFields = ({
 }: {
   form: SubmissionFormDraft;
   tracks: SubmissionPageView['tracks'];
-  errors: Partial<Record<SubmissionField, string>>;
+  errors: SubmissionFormErrors;
   isOpenSource: boolean;
   isReadOnly: boolean;
   locale: Locale;
@@ -55,11 +51,13 @@ export const HackathonSubmissionFields = ({
         id={ids.trackId}
         label={hackathon_submission_track({}, options)}
         optionalLabel={optionalLabel}
+        error={errors.trackId}
       >
         <Select
           id={ids.trackId}
           value={form.trackId}
           disabled={isReadOnly}
+          {...noted(ids.trackId, errors.trackId)}
           onChange={(event) => onChange({ trackId: event.target.value })}
         >
           <option value="">
