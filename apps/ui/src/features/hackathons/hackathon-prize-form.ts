@@ -91,7 +91,7 @@ const toLatinDigits = (text: string) =>
  * integers, never through a float.
  */
 export const minorUnitsOf = (text: string): number | null => {
-  const plain = toLatinDigits(text).replace(/[\s  ]/gu, '');
+  const plain = toLatinDigits(text).replace(/[\s\u00a0\u202f]/gu, '');
   const match = /^(\d{1,12})(?:[.,](\d{1,2}))?$/u.exec(plain);
   if (!match) return null;
   const [, whole = '0', fraction = ''] = match;

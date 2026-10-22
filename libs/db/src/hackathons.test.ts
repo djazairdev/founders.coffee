@@ -9,7 +9,7 @@ import {
   hackathonDetails,
   hackathonEventRow,
 } from './hackathons.fixtures.js';
-import { getHackathon, type HackathonDetails } from './hackathons.js';
+import { getHackathon } from './hackathons.js';
 import { events, hackathons } from './schema.js';
 
 let db: Db;
