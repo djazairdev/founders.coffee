@@ -52,6 +52,7 @@ vi.mock('../hooks', () => ({
   useHackathonDraft: () => mocks.draft,
   useSaveHackathonDetails: () => mocks.save,
   useSaveHackathonTracks: () => mocks.saveTracks,
+  useSaveHackathonRubric: () => mocks.saveTracks,
 }));
 
 const markets = [

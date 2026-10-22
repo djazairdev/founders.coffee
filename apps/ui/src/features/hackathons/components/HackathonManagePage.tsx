@@ -22,6 +22,7 @@ import { hackathonStatusLabel } from '../../organisations/hackathon-labels';
 import { isHackathonMissing, isHackathonsDisabled } from '../errors';
 import { useHackathonDraft } from '../hooks';
 import { HackathonDetailsForm } from './HackathonDetailsForm';
+import { HackathonRubricSection } from './HackathonRubricSection';
 import { HackathonTracksSection } from './HackathonTracksSection';
 import { HackathonsUnavailable } from './HackathonsUnavailable';
 
@@ -133,6 +134,7 @@ export const HackathonManagePage = ({
             />
           </section>
           <HackathonTracksSection draft={draft} locale={locale} />
+          <HackathonRubricSection draft={draft} locale={locale} />
         </>
       ) : (
         <StatusMessage variant="info" className="mt-6">
