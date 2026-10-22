@@ -13,6 +13,7 @@ import { eventWhen } from './event-when';
 import {
   breadcrumbJsonLd,
   eventJsonLd,
+  jsonLdText,
   type StructuredEventData,
   type StructuredListItem,
 } from './seo-structured-data';
@@ -119,11 +120,11 @@ export const eventPageHead = ({
     scripts: [
       {
         type: 'application/ld+json',
-        children: JSON.stringify(eventSchema),
+        children: jsonLdText(eventSchema),
       },
       {
         type: 'application/ld+json',
-        children: JSON.stringify(breadcrumbJsonLd(breadcrumbs)),
+        children: jsonLdText(breadcrumbJsonLd(breadcrumbs)),
       },
     ],
   };

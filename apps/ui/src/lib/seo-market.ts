@@ -14,6 +14,7 @@ import {
 } from './seo';
 import {
   collectionPageJsonLd,
+  jsonLdText,
   type StructuredListItem,
 } from './seo-structured-data';
 
@@ -112,7 +113,7 @@ export const marketPageHead = ({
     scripts: [
       {
         type: 'application/ld+json',
-        children: JSON.stringify(
+        children: jsonLdText(
           collectionPageJsonLd({
             name: marketName,
             description,

@@ -43,6 +43,7 @@ import {
 } from '../lib/indexation';
 import { getRequestPath } from '../lib/seo';
 import { organizationJsonLd, websiteJsonLd } from '../lib/seo-company';
+import { jsonLdText } from '../lib/seo-structured-data';
 import { errorPageHead, errorPageKind } from '../lib/seo-error';
 import { installCaptureScript } from '../lib/install-prompt';
 import { installedAppMeta } from '../lib/installed-app-head';
@@ -185,9 +186,12 @@ export const Route = createRootRoute({
         ...(pageHead?.scripts ?? [
           {
             type: 'application/ld+json',
-            children: organizationJsonLd(locale),
+            children: jsonLdText(organizationJsonLd(locale)),
           },
-          { type: 'application/ld+json', children: websiteJsonLd() },
+          {
+            type: 'application/ld+json',
+            children: jsonLdText(websiteJsonLd()),
+          },
         ]),
       ],
     };
