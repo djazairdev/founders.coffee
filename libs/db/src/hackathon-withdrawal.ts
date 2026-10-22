@@ -1,7 +1,5 @@
 import { and, eq, sql, type SQL } from 'drizzle-orm';
 
-import type { HackathonRegistrationStatus } from '@founders-coffee/core';
-
 import { batch } from './atomic.js';
 import type { Db } from './db.js';
 import {
@@ -18,56 +16,6 @@ export type Withdrawal =
   | { readonly outcome: 'not_withdrawn' };
 
 type Participant = { readonly eventId: string; readonly userId: string };
-
-export type WithdrawalState = {
-  readonly status: HackathonRegistrationStatus | null;
-  readonly membership: {
-    readonly teamId: string;
-    readonly isCaptain: boolean;
-  } | null;
-  readonly teamSize: number;
-};
-
-/**
- * Where a member stands before withdrawing (B-REG-04): their registration's status, the team they
- * are in and whether they captain it, and how many people are in it. One query.
- */
-export const readWithdrawalState = async (
-  db: Db,
-  { eventId, userId }: Participant,
-): Promise<WithdrawalState> => {
-  const [row] = await db
-    .select({
-      status: hackathonRegistrations.status,
-      teamId: hackathonTeamMembers.teamId,
-      isCaptain: hackathonTeamMembers.isCaptain,
-      teamSize: sql<number>`(SELECT count(*) FROM ${hackathonTeamMembers} other WHERE other.team_id = ${hackathonTeamMembers.teamId})`,
-    })
-    .from(hackathonRegistrations)
-    .leftJoin(
-      hackathonTeamMembers,
-      and(
-        eq(hackathonTeamMembers.eventId, hackathonRegistrations.eventId),
-        eq(hackathonTeamMembers.userId, hackathonRegistrations.userId),
-      ),
-    )
-    .where(
-      and(
-        eq(hackathonRegistrations.eventId, eventId),
-        eq(hackathonRegistrations.userId, userId),
-      ),
-    )
-    .limit(1);
-  if (!row) return { status: null, membership: null, teamSize: 0 };
-  return {
-    status: row.status,
-    membership:
-      row.teamId === null
-        ? null
-        : { teamId: row.teamId, isCaptain: row.isCaptain ?? false },
-    teamSize: row.teamId === null ? 0 : Number(row.teamSize),
-  };
-};
 
 /**
  * Whether the member may still withdraw: they hold a place or wait for one, the hackathon is

@@ -22,6 +22,11 @@ export {
   type TeamSizeLimits,
 } from './teams.js';
 export {
+  decideCreateTeam,
+  hackathonTeamCreateSchema,
+  type HackathonTeamCreateInput,
+} from './team-creation.js';
+export {
   checkSubmission,
   SUBMISSION_AI_TOOL_LIMIT,
   SUBMISSION_PULL_REQUEST_LIMIT,
