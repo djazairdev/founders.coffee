@@ -43,6 +43,8 @@ export {
   revokeHackathonTeamInvite,
 } from './team-invites-rpc.js';
 export type { TeamInviteCreated, TeamJoined } from './team-invites.js';
+export { getHackathonTeamPage } from './team-page-rpc.js';
+export type { TeamPageView } from './team-page.js';
 export {
   getHackathonDashboard,
   type HackathonDashboardRequest,

@@ -7,6 +7,7 @@ import { requireHackathonsEnabled } from './flag.js';
 
 export type TeamHackathon = {
   readonly event: Event;
+  readonly teamMin: number;
   readonly teamMax: number;
   readonly timeline: hackathons.HackathonTimeline;
 };
@@ -26,6 +27,7 @@ export const loadTeamHackathon = async (
   if (disabled) return err(disabled);
   return ok({
     event,
+    teamMin: hackathon.teamMin,
     teamMax: hackathon.teamMax,
     timeline: {
       registrationOpensAt: hackathon.registrationOpensAt.getTime(),

@@ -1,5 +1,17 @@
 import {
   addHackathonPrize,
+  answerHackathonTeamRequest,
+  cancelHackathonTeamRequest,
+  createHackathonTeam,
+  createHackathonTeamInvite,
+  getHackathonTeamPage,
+  joinHackathonTeam,
+  leaveHackathonTeam,
+  passHackathonTeamCaptaincy,
+  removeHackathonTeamMember,
+  revokeHackathonTeamInvite,
+  type TeamInviteCreated,
+  type TeamPageView,
   changeHackathonPrize,
   confirmHackathonPrize,
   createHackathonDraft,
@@ -50,8 +62,39 @@ export const hackathonsApi = {
     confirmHackathonPrize({ data: request }),
 };
 
+type EventScoped = { readonly eventId: string };
+type TeamMemberRequest = EventScoped & { readonly memberId: string };
+type TeamRequestAnswer = EventScoped & { readonly requestId: string };
+
+export const teamsApi = {
+  page: (eventId: string) => getHackathonTeamPage({ data: { eventId } }),
+  create: (request: {
+    readonly eventId: string;
+    readonly name: string;
+    readonly description: string | null;
+    readonly isLookingForMembers: boolean;
+  }) => createHackathonTeam({ data: request }),
+  createInvite: (request: EventScoped) =>
+    createHackathonTeamInvite({ data: request }),
+  revokeInvite: (request: EventScoped) =>
+    revokeHackathonTeamInvite({ data: request }),
+  join: (token: string) => joinHackathonTeam({ data: { token } }),
+  answerRequest: (
+    request: TeamRequestAnswer & { readonly decision: 'accept' | 'decline' },
+  ) => answerHackathonTeamRequest({ data: request }),
+  cancelRequest: (request: TeamRequestAnswer) =>
+    cancelHackathonTeamRequest({ data: request }),
+  leave: (request: EventScoped) => leaveHackathonTeam({ data: request }),
+  passCaptaincy: (request: TeamMemberRequest) =>
+    passHackathonTeamCaptaincy({ data: request }),
+  removeMember: (request: TeamMemberRequest) =>
+    removeHackathonTeamMember({ data: request }),
+};
+
 export type {
   AddHackathonPrizeRequest,
+  TeamInviteCreated,
+  TeamPageView,
   HackathonSchedule,
   ChangeHackathonPrizeRequest,
   ConfirmHackathonPrizeRequest,
