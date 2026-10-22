@@ -1,8 +1,12 @@
-import { asc, eq, sql } from 'drizzle-orm';
+import { and, asc, eq, sql } from 'drizzle-orm';
 
 import type { HackathonCriterionScale } from '@founders-coffee/core';
 
 import type { Db } from './db.js';
+import {
+  hackathonAtVersion,
+  type HackathonEditWrite,
+} from './hackathon-edits.js';
 import { bound, nextPosition } from './insert-select.js';
 import {
   hackathonCriteria,
@@ -58,3 +62,46 @@ export const listHackathonCriteria = (
     .from(hackathonCriteria)
     .where(eq(hackathonCriteria.eventId, eventId))
     .orderBy(asc(hackathonCriteria.position));
+
+/**
+ * The writes that replace a hackathon's rubric with the one an organiser saved (B-HKN-07), in its
+ * order, each criterion keeping the id it was given. Nothing scores a rubric before registration
+ * opens, so the old criteria are simply deleted. Every write needs the hackathon at `version`, for
+ * {@link applyHackathonEdit} to run with the version bump.
+ */
+export const hackathonRubricWrites = (
+  db: Db,
+  input: {
+    readonly eventId: string;
+    readonly version: number;
+    readonly criteria: readonly {
+      readonly id: string;
+      readonly criterion: HackathonCriterionFields;
+    }[];
+  },
+): HackathonEditWrite[] => {
+  const isCurrent = hackathonAtVersion(input.eventId, input.version);
+  return [
+    db
+      .delete(hackathonCriteria)
+      .where(and(eq(hackathonCriteria.eventId, input.eventId), isCurrent)),
+    ...input.criteria.map(({ id, criterion }, position) =>
+      db.insert(hackathonCriteria).select(
+        db
+          .select({
+            id: bound(id, 'id'),
+            eventId: hackathons.eventId,
+            name: bound(criterion.name, 'name'),
+            description: bound(criterion.description, 'description'),
+            weight: bound(criterion.weight, 'weight'),
+            scale: bound(criterion.scale, 'scale'),
+            position: bound(position, 'position'),
+            createdAt: sql`unixepoch()`.as('created_at'),
+            updatedAt: sql`unixepoch()`.as('updated_at'),
+          })
+          .from(hackathons)
+          .where(and(eq(hackathons.eventId, input.eventId), isCurrent)),
+      ),
+    ),
+  ];
+};

@@ -32,7 +32,7 @@ const filled = (
 });
 
 const check = (values: DetailsFormValues, locale: Locale = 'en') =>
-  checkDetails(values, draftView().event, ALGIERS, locale);
+  checkDetails(values, draftView(), ALGIERS, locale);
 
 describe('the market’s wall clock in a datetime field', () => {
   it('reads and writes an instant in the market’s time zone', () => {
@@ -142,6 +142,24 @@ describe('checkDetails', () => {
       aiPolicy: 'Choisissez une politique sur l’IA.',
       capacity: 'Saisissez un nombre entier jusqu’à 100000, ou laissez vide.',
     });
+  });
+
+  it('sends a saved date the organiser left alone exactly as saved, seconds and all', () => {
+    const saved = {
+      ...savedDetails,
+      registrationOpensAt: savedDetails.registrationOpensAt + 42_000,
+    };
+    const draft = draftView({ details: saved });
+    const checked = checkDetails(
+      initialDetailsValues(draft, ALGIERS),
+      draft,
+      ALGIERS,
+      'en',
+    );
+
+    expect(checked.ok && checked.details.registrationOpensAt).toBe(
+      saved.registrationOpensAt,
+    );
   });
 
   it('asks for an empty date rather than for its order', () => {

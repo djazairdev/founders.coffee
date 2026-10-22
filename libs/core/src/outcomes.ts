@@ -152,6 +152,11 @@ export const HACKATHON_ERROR_CODES = [
   'ai_tools_required',
   'hackathon_not_editable',
   'hackathon_save_failed',
+  'hackathon_conflict',
+  'hackathon_field_locked',
+  'hackathon_details_required',
+  'hackathon_track_has_prizes',
+  'hackathon_prize_not_found',
 ] as const;
 export type HackathonErrorCode = (typeof HACKATHON_ERROR_CODES)[number];
 export const hackathonErrorCodeSchema = z.enum(HACKATHON_ERROR_CODES);

@@ -1131,7 +1131,7 @@
   "hackathon_manage_not_found": "This hackathon was not found, or you do not organise it.",
   "hackathon_manage_error": "The hackathon could not be loaded.",
   "hackathon_manage_created": "Draft saved. Now set the rules and who can take part.",
-  "hackathon_manage_locked": "This hackathon is no longer a draft, so these details cannot be changed here.",
+  "hackathon_manage_locked": "These details can no longer be changed: the hackathon is cancelled, with the reviewers, or over.",
   "hackathon_details_heading": "Rules and eligibility",
   "hackathon_details_sub": "What participants agree to, who can take part, and when.",
   "hackathon_details_timeline": "Timeline",
@@ -1179,5 +1179,8 @@
   "org_hackathon_manage": "Manage",
   "hackathon_details_error_registration_closes_missing": "Choose when registration closes.",
   "hackathon_details_error_submission_deadline_missing": "Choose when submissions close.",
-  "hackathon_details_error_judging_ends_missing": "Choose when judging ends."
+  "hackathon_details_error_judging_ends_missing": "Choose when judging ends.",
+  "hackathon_details_locked_notice": "Registration is open, so the rules people signed up under stay as they are. Places can grow, and dates still ahead can only move later.",
+  "hackathon_details_error_conflict": "This hackathon changed since you opened it. Reload the page to see the latest, then save again.",
+  "hackathon_details_error_locked": "Registration is open, so places can only grow and dates can only move later."
 }

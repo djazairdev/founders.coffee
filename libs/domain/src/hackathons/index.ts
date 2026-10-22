@@ -72,3 +72,15 @@ export {
   type RankingInput,
   type Recusal,
 } from './ranking.js';
+export {
+  areTracksEditable,
+  editStageAt,
+  HACKATHON_LOCKED_FIELDS,
+  isPrizeAddable,
+  isPrizeChangeable,
+  isRubricEditable,
+  isTrackRemovable,
+  lockedDetailChanges,
+  type HackathonDetailsField,
+  type HackathonEditStage,
+} from './edits.js';

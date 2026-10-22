@@ -1324,7 +1324,7 @@
   "hackathon_manage_not_found": "Ce hackathon est introuvable, ou vous ne l’organisez pas.",
   "hackathon_manage_error": "Le hackathon n’a pas pu être chargé.",
   "hackathon_manage_created": "Brouillon enregistré. Fixez maintenant les règles et qui peut participer.",
-  "hackathon_manage_locked": "Ce hackathon n’est plus un brouillon : ces informations ne peuvent plus être modifiées ici.",
+  "hackathon_manage_locked": "Ces informations ne peuvent plus être modifiées : le hackathon est annulé, en cours de validation ou terminé.",
   "hackathon_details_heading": "Règles et conditions",
   "hackathon_details_sub": "Ce que les participants acceptent, qui peut participer, et quand.",
   "hackathon_details_timeline": "Calendrier",
@@ -1372,5 +1372,8 @@
   "org_hackathon_manage": "Gérer",
   "hackathon_details_error_registration_closes_missing": "Choisissez quand les inscriptions ferment.",
   "hackathon_details_error_submission_deadline_missing": "Choisissez quand les dépôts ferment.",
-  "hackathon_details_error_judging_ends_missing": "Choisissez quand l’évaluation se termine."
+  "hackathon_details_error_judging_ends_missing": "Choisissez quand l’évaluation se termine.",
+  "hackathon_details_locked_notice": "Les inscriptions sont ouvertes : les règles acceptées par les participants restent telles quelles. Les places peuvent augmenter, et les dates à venir ne peuvent qu’être repoussées.",
+  "hackathon_details_error_conflict": "Ce hackathon a changé depuis que vous l’avez ouvert. Rechargez la page pour voir la dernière version, puis enregistrez à nouveau.",
+  "hackathon_details_error_locked": "Les inscriptions sont ouvertes : les places ne peuvent qu’augmenter et les dates ne peuvent qu’être repoussées."
 }

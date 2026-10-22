@@ -69,6 +69,7 @@ export const HackathonAiPolicyFields = ({
                 value={policy}
                 className="radio radio-sm radio-primary mt-0.5"
                 checked={form.values.aiPolicy === policy}
+                disabled={form.isLocked('aiPolicy')}
                 onChange={() => form.set('aiPolicy', policy)}
               />
               <span>

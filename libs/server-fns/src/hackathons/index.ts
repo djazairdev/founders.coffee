@@ -10,6 +10,24 @@ export {
   type HackathonDraftRequest,
   type SaveHackathonDetailsRequest,
 } from './details-rpc.js';
-export type { HackathonDetailsView, HackathonDraftView } from './details.js';
+export type {
+  HackathonCriterionView,
+  HackathonDetailsView,
+  HackathonDraftView,
+  HackathonPrizeView,
+  HackathonTrackView,
+} from './draft-view.js';
+export {
+  addHackathonPrize,
+  changeHackathonPrize,
+  removeHackathonPrize,
+  saveHackathonRubric,
+  saveHackathonTracks,
+  type AddHackathonPrizeRequest,
+  type ChangeHackathonPrizeRequest,
+  type RemoveHackathonPrizeRequest,
+  type SaveHackathonRubricRequest,
+  type SaveHackathonTracksRequest,
+} from './edits-rpc.js';
 export { registerForHackathon } from './registration-rpc.js';
 export type { RegistrationCreated } from './registration.js';

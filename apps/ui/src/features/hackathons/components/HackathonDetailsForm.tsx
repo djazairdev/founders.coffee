@@ -1,6 +1,7 @@
 import {
   hackathon_details_licence,
   hackathon_details_licence_ph,
+  hackathon_details_locked_notice,
   hackathon_details_save,
   hackathon_details_saved,
   hackathon_details_saving,
@@ -39,6 +40,11 @@ export const HackathonDetailsForm = ({
         form.submit();
       }}
     >
+      {draft.stage === 'locked' ? (
+        <StatusMessage variant="info">
+          {hackathon_details_locked_notice({}, { locale })}
+        </StatusMessage>
+      ) : null}
       <HackathonTimelineFields
         form={form}
         locale={locale}
