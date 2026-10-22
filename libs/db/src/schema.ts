@@ -37,6 +37,7 @@ import {
   HACKATHON_RECUSAL_REASON_MAX,
   HACKATHON_REGISTRATION_SKILLS_MAX,
   HACKATHON_REGISTRATION_STATUSES,
+  HACKATHON_PULL_REQUEST_STATUSES,
   HACKATHON_REVIEW_STATUSES,
   HACKATHON_SCORE_COMMENT_MAX,
   HACKATHON_SUBMISSION_AI_STATEMENT_MAX,
@@ -1073,6 +1074,35 @@ export const hackathonSubmissionVersions = sqliteTable(
 
 export type HackathonSubmissionVersion =
   typeof hackathonSubmissionVersions.$inferSelect;
+
+/**
+ * What the maintainers did with each pull request an open-source entry linked (B-SUB-08), as the
+ * hackathon's organisers record it: reviewed or merged. A pull request without a row is simply
+ * submitted. Rows are keyed by the link, so the results count only those still in the entry's last
+ * submitted version.
+ */
+export const hackathonPullRequests = sqliteTable(
+  'hackathon_pull_requests',
+  {
+    submissionId: text('submission_id')
+      .notNull()
+      .references(() => hackathonSubmissions.id, { onDelete: 'cascade' }),
+    url: text('url').notNull(),
+    status: text('status', { enum: HACKATHON_PULL_REQUEST_STATUSES }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    primaryKey({ columns: [table.submissionId, table.url] }),
+    check(
+      'hackathon_pull_requests_status_check',
+      sql`${table.status} IN ('submitted', 'reviewed', 'merged')`,
+    ),
+  ],
+);
+
+export type HackathonPullRequest = typeof hackathonPullRequests.$inferSelect;
 
 /**
  * A hackathon's judges (B-JDG-01). Each place starts as an invite link the organisers make for one

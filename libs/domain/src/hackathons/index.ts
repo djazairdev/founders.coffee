@@ -173,3 +173,11 @@ export {
   type HackathonReviewDecision,
   type HackathonReviewDecisionInput,
 } from './review.js';
+export {
+  countPullRequests,
+  decidePullRequestStatus,
+  hackathonPullRequestsSchema,
+  pullRequestStatusChangeSchema,
+  type PullRequestCounts,
+  type PullRequestStatusChange,
+} from './pull-requests.js';
