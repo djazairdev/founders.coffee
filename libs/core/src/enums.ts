@@ -124,6 +124,9 @@ export const NOTIFICATION_TEMPLATE_KEYS = [
   'event_did_not_happen',
   'feedback_invitation',
   'chat_unread',
+  'hackathon_registered',
+  'hackathon_waitlisted',
+  'hackathon_promoted',
 ] as const;
 export type NotificationTemplateKey =
   (typeof NOTIFICATION_TEMPLATE_KEYS)[number];
@@ -137,6 +140,14 @@ export const RSVP_LIFECYCLE_TEMPLATE_KEYS = [
   'event_rescheduled',
   'event_relocated',
 ] as const satisfies readonly NotificationTemplateKey[];
+
+export const HACKATHON_REGISTRATION_TEMPLATE_KEYS = [
+  'hackathon_registered',
+  'hackathon_waitlisted',
+  'hackathon_promoted',
+] as const satisfies readonly NotificationTemplateKey[];
+export type HackathonRegistrationTemplateKey =
+  (typeof HACKATHON_REGISTRATION_TEMPLATE_KEYS)[number];
 
 export const PUSH_PLATFORMS = ['ios', 'android', 'web'] as const;
 export type PushPlatform = (typeof PUSH_PLATFORMS)[number];

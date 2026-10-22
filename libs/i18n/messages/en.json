@@ -1236,5 +1236,20 @@
   "hackathon_criterion_error_description": "Describe it in 20 to 500 characters.",
   "hackathon_criterion_error_weight": "Enter a whole number from 1 to 100.",
   "hackathon_rubric_error_total": "The weights add up to {total}. Make them add up to 100.",
-  "hackathon_rubric_error_names": "Give each criterion a different name."
+  "hackathon_rubric_error_names": "Give each criterion a different name.",
+  "ntf_push_hackathon_registered_title": "You're registered for {title}",
+  "ntf_push_hackathon_registered_body": "Kickoff {date}. Open the hackathon to see what comes next.",
+  "ntf_email_hackathon_registered_subject": "You're registered: {title}",
+  "ntf_email_hackathon_registered_html": "<p>You're registered for <strong>{title}</strong>. Kickoff is on {date} {where}.</p><p><a href=\"{url}\">Open the hackathon</a></p>",
+  "ntf_email_hackathon_registered_text": "You're registered for {title}. Kickoff is on {date} {where}. {url}",
+  "ntf_push_hackathon_waitlisted_title": "You're on the waitlist for {title}",
+  "ntf_push_hackathon_waitlisted_body": "We'll tell you as soon as a place is yours.",
+  "ntf_email_hackathon_waitlisted_subject": "On the waitlist: {title}",
+  "ntf_email_hackathon_waitlisted_html": "<p>Every place for <strong>{title}</strong> is taken, so you're on the waitlist. When a place opens up it goes to the next person on the list, and we'll tell you as soon as it's yours.</p><p><a href=\"{url}\">Open the hackathon</a></p>",
+  "ntf_email_hackathon_waitlisted_text": "Every place for {title} is taken, so you're on the waitlist. When a place opens up it goes to the next person on the list, and we'll tell you as soon as it's yours. {url}",
+  "ntf_push_hackathon_promoted_title": "A place opened up: you're in {title}",
+  "ntf_push_hackathon_promoted_body": "Kickoff {date}. Open the hackathon to see what comes next.",
+  "ntf_email_hackathon_promoted_subject": "You're in: {title}",
+  "ntf_email_hackathon_promoted_html": "<p>A place opened up for <strong>{title}</strong> and it's yours: you're registered. Kickoff is on {date} {where}.</p><p><a href=\"{url}\">Open the hackathon</a></p>",
+  "ntf_email_hackathon_promoted_text": "A place opened up for {title} and it's yours: you're registered. Kickoff is on {date} {where}. {url}"
 }

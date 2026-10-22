@@ -42,7 +42,10 @@ import {
   ntf_email_rsvp_received_text,
   type Locale,
 } from '@founders-coffee/i18n';
-import type { NotificationTemplateKey } from '@founders-coffee/core';
+import type {
+  HackathonRegistrationTemplateKey,
+  NotificationTemplateKey,
+} from '@founders-coffee/core';
 
 import {
   escapeValues,
@@ -120,7 +123,10 @@ export const renderNotificationEmail = async (
 
 /** The email form of a message. A meetup's chat never emails, so `chat_unread` has none. */
 export const emailPayloadFor = async (
-  templateKey: Exclude<NotificationTemplateKey, 'chat_unread'>,
+  templateKey: Exclude<
+    NotificationTemplateKey,
+    'chat_unread' | HackathonRegistrationTemplateKey
+  >,
   values: TemplateValues,
   locale: Locale,
 ): Promise<EmailPayload> => {
