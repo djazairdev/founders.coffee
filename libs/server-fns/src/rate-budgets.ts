@@ -48,6 +48,16 @@ export const RATE_BUDGETS = {
       limit: 5,
       windowMs: 10 * MINUTE_MS,
     },
+    hackathonTeamInvite: {
+      action: 'share_hackathon_team',
+      limit: 10,
+      windowMs: 10 * MINUTE_MS,
+    },
+    hackathonTeamJoin: {
+      action: 'join_hackathon_team',
+      limit: 10,
+      windowMs: 10 * MINUTE_MS,
+    },
     hackathonEdit: {
       action: 'edit_hackathon',
       limit: 30,

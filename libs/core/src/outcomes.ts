@@ -148,6 +148,7 @@ export const HACKATHON_ERROR_CODES = [
   'team_name_taken',
   'not_team_member',
   'not_team_captain',
+  'team_invite_invalid',
   'captain_must_transfer',
   'track_not_in_hackathon',
   'ai_tools_required',

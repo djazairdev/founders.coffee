@@ -22,6 +22,14 @@ export {
   type TeamSizeLimits,
 } from './teams.js';
 export {
+  decideJoinByInvite,
+  decideTeamInvite,
+  hackathonTeamInviteSchema,
+  hackathonTeamJoinSchema,
+  TEAM_INVITE_LIFETIME_MS,
+  type HackathonTeamJoinInput,
+} from './team-invites.js';
+export {
   decideCreateTeam,
   hackathonTeamCreateSchema,
   type HackathonTeamCreateInput,
