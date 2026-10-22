@@ -1266,6 +1266,7 @@
   "hackathon_track_brief": "الوصف",
   "hackathon_track_brief_ph": "المشكلة أو الهدف، وما الذي يجعل التسليم جيدًا.",
   "hackathon_track_partner": "الشريك",
+  "hackathon_track_partner_value": "الشريك: {name}",
   "hackathon_track_sources": "المستودعات والمسائل",
   "hackathon_track_sources_hint": "مستودعات أو مسائل على GitHub، أو روابط من Hub على djazair.dev.",
   "hackathon_track_source_label": "الرابط {n}",

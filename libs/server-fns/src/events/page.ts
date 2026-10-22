@@ -1,9 +1,16 @@
-import { AppError, err, ok, type Result } from '@founders-coffee/core';
+import {
+  AppError,
+  err,
+  ok,
+  type HackathonTrackKind,
+  type Result,
+} from '@founders-coffee/core';
 import {
   readEventPageRows,
   type Db,
   type Market,
   type PublicHackathonJudge,
+  type PublicHackathonPrize,
 } from '@founders-coffee/db';
 import { reportError } from '@founders-coffee/observability';
 
@@ -19,6 +26,20 @@ import {
 import { availableToReader } from './resolver.js';
 import type { EventPageRequestInput } from './schemas.js';
 
+export type PublicHackathonTrack = {
+  readonly id: string;
+  readonly kind: HackathonTrackKind;
+  readonly title: string;
+  readonly brief: string;
+  readonly partnerName: string | null;
+  readonly sourceUrls: readonly string[];
+};
+
+export type PublicHackathonPrizeView = Omit<
+  PublicHackathonPrize,
+  'confirmedAt'
+>;
+
 export interface EventPage {
   readonly market: Market;
   readonly event: EventDetailItem;
@@ -26,9 +47,23 @@ export interface EventPage {
   readonly viewerId: string | null;
   readonly hackathon: HackathonSchedule | null;
   readonly judges: readonly PublicHackathonJudge[];
+  readonly tracks: readonly PublicHackathonTrack[];
+  readonly prizes: readonly PublicHackathonPrizeView[];
 }
 
 type PageRows = Awaited<ReturnType<typeof readEventPageRows>>;
+
+const publicPrizeOf = (
+  prize: PublicHackathonPrize,
+): PublicHackathonPrizeView => ({
+  id: prize.id,
+  trackId: prize.trackId,
+  place: prize.place,
+  title: prize.title,
+  description: prize.description,
+  providerName: prize.providerName,
+  value: prize.value,
+});
 
 /** Read the meetup and its host's rows, answering a failed read with a typed error. */
 const pageRows = async (
@@ -87,7 +122,8 @@ const hostCard = (
  * HTML the server sends, as whether they are going already is. The browser's own session answers
  * only after hydration, and until it did, a host's own meetup showed them a guest's RSVP box. A
  * hackathon's schedule and current phase come back with it, read in the same batch (B-HKN-17), and
- * so do the judges who accepted (B-JDG-03), none for a meetup.
+ * so do the judges who accepted (B-JDG-03) and its tracks and confirmed prizes (B-HKN-18), none
+ * for a meetup.
  */
 export const readEventPage = async (
   db: Db,
@@ -108,12 +144,15 @@ export const readEventPage = async (
     viewerId,
   );
   if (!event.ok) return event;
+  const isHackathon = event.data.kind === 'hackathon';
   return ok({
     market: market.data,
     event: await eventDetail(db, event.data, viewerId, rows.data.organisers),
     host: hostCard(event.data.hostId, rows.data.host),
     viewerId: viewerId ?? null,
     hackathon: hackathonScheduleOf(event.data, rows.data.hackathon, Date.now()),
-    judges: event.data.kind === 'hackathon' ? rows.data.judges : [],
+    judges: isHackathon ? rows.data.judges : [],
+    tracks: isHackathon ? rows.data.tracks : [],
+    prizes: isHackathon ? rows.data.prizes.map(publicPrizeOf) : [],
   });
 };

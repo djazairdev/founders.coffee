@@ -28,8 +28,17 @@ type EventRouteData = EventPage & {
 };
 
 const EventRoute = () => {
-  const { locale, market, event, host, viewerId, mapboxToken, hackathon } =
-    Route.useLoaderData();
+  const {
+    locale,
+    market,
+    event,
+    host,
+    viewerId,
+    mapboxToken,
+    hackathon,
+    tracks,
+    prizes,
+  } = Route.useLoaderData();
   useReloadOnMemberChange();
   const isHost = viewerId === event.hostId;
   const isWindowOpen =
@@ -54,6 +63,7 @@ const EventRoute = () => {
         phase={phase}
         mapboxToken={mapboxToken}
         hackathon={hackathon}
+        offer={hackathon ? { tracks, prizes } : null}
       />
       {viewerId && isWindowOpen && isAttending && !live.notAttending && (
         <LiveDashboard live={live} currentUserId={viewerId} locale={locale} />

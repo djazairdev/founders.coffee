@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, sql, type SQL } from 'drizzle-orm';
 
 import type { HackathonTrackKind } from '@founders-coffee/core';
 
@@ -57,6 +57,24 @@ export const listHackathonTracks = (
 ): Promise<HackathonTrack[]> =>
   db
     .select()
+    .from(hackathonTracks)
+    .where(eq(hackathonTracks.eventId, eventId))
+    .orderBy(asc(hackathonTracks.position));
+
+/**
+ * A hackathon's tracks as its public page shows them, in their order (B-HKN-18), named by id or by
+ * the event page's subquery.
+ */
+export const publicHackathonTracksQuery = (db: Db, eventId: string | SQL) =>
+  db
+    .select({
+      id: hackathonTracks.id,
+      kind: hackathonTracks.kind,
+      title: hackathonTracks.title,
+      brief: hackathonTracks.brief,
+      partnerName: hackathonTracks.partnerName,
+      sourceUrls: hackathonTracks.sourceUrls,
+    })
     .from(hackathonTracks)
     .where(eq(hackathonTracks.eventId, eventId))
     .orderBy(asc(hackathonTracks.position));

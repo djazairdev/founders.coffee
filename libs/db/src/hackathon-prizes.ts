@@ -63,14 +63,11 @@ export const addHackathonPrize = (
 };
 
 /**
- * A hackathon's prizes as the public sees them (V2): confirmed prizes only, without the private
- * confirmation note. Overall prizes come first, then each track's in the tracks' order, each by place.
+ * The query behind {@link listPublicHackathonPrizes}, for a batch that names the hackathon by a
+ * subquery rather than an id it already holds (the event page, B-HKN-18).
  */
-export const listPublicHackathonPrizes = async (
-  db: Db,
-  eventId: string,
-): Promise<PublicHackathonPrize[]> => {
-  const rows = await db
+export const publicHackathonPrizesQuery = (db: Db, eventId: string | SQL) =>
+  db
     .select({
       id: hackathonPrizes.id,
       trackId: hackathonPrizes.trackId,
@@ -97,22 +94,37 @@ export const listPublicHackathonPrizes = async (
       asc(hackathonPrizes.createdAt),
       asc(hackathonPrizes.id),
     );
-  return rows.flatMap(
-    ({ valueAmountMinor, valueCurrency, confirmedAt, ...prize }) =>
-      confirmedAt
-        ? [
-            {
-              ...prize,
-              value:
-                valueAmountMinor !== null && valueCurrency !== null
-                  ? { amount_minor: valueAmountMinor, currency: valueCurrency }
-                  : null,
-              confirmedAt,
-            },
-          ]
-        : [],
+
+/**
+ * The rows of {@link publicHackathonPrizesQuery} as prizes, each value a `Money`.
+ */
+export const publicHackathonPrizesOf = (
+  rows: Awaited<ReturnType<typeof publicHackathonPrizesQuery>>,
+): PublicHackathonPrize[] =>
+  rows.flatMap(({ valueAmountMinor, valueCurrency, confirmedAt, ...prize }) =>
+    confirmedAt
+      ? [
+          {
+            ...prize,
+            value:
+              valueAmountMinor !== null && valueCurrency !== null
+                ? { amount_minor: valueAmountMinor, currency: valueCurrency }
+                : null,
+            confirmedAt,
+          },
+        ]
+      : [],
   );
-};
+
+/**
+ * A hackathon's prizes as the public sees them (V2): confirmed prizes only, without the private
+ * confirmation note. Overall prizes come first, then each track's in the tracks' order, each by place.
+ */
+export const listPublicHackathonPrizes = async (
+  db: Db,
+  eventId: string,
+): Promise<PublicHackathonPrize[]> =>
+  publicHackathonPrizesOf(await publicHackathonPrizesQuery(db, eventId));
 
 const prizeAtVersion = (eventId: string, prizeId: string, version: number) =>
   and(

@@ -1392,6 +1392,7 @@
   "hackathon_track_brief": "Description",
   "hackathon_track_brief_ph": "Le problème ou l’objectif, et ce qu’est un bon dépôt.",
   "hackathon_track_partner": "Partenaire",
+  "hackathon_track_partner_value": "Partenaire : {name}",
   "hackathon_track_sources": "Dépôts GitHub et tickets",
   "hackathon_track_sources_hint": "Des dépôts ou tickets GitHub, ou des liens du Hub djazair.dev.",
   "hackathon_track_source_label": "Lien {n}",
