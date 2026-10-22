@@ -187,6 +187,9 @@ export const HACKATHON_ERROR_CODES = [
   'submission_not_found',
   'pull_request_not_found',
   'results_published',
+  'not_judge',
+  'judging_not_started',
+  'already_recused',
 ] as const;
 export type HackathonErrorCode = (typeof HACKATHON_ERROR_CODES)[number];
 export const hackathonErrorCodeSchema = z.enum(HACKATHON_ERROR_CODES);

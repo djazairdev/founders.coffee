@@ -76,6 +76,11 @@ export type {
   OrganiserMentorView,
 } from './mentors.js';
 export {
+  getHackathonJudgeEntries,
+  recuseFromHackathonEntry,
+} from './judge-entries-rpc.js';
+export type { JudgeEntryView } from './judge-entries.js';
+export {
   getHackathonPullRequests,
   setHackathonPullRequestStatus,
 } from './pull-requests-rpc.js';

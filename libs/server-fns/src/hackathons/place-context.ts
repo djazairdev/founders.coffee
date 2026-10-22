@@ -9,6 +9,7 @@ export type PlaceHackathon = {
   readonly marketCode: string;
   readonly timeline: hackathons.HackathonTimeline;
   readonly isCancelled: boolean;
+  readonly isResultsPublished: boolean;
 };
 
 /**
@@ -28,6 +29,7 @@ export const loadPlaceHackathon = async (
   return ok({
     marketCode: event.marketCode,
     isCancelled: event.status === 'cancelled',
+    isResultsPublished: hackathon.resultsPublishedAt !== null,
     timeline: {
       registrationOpensAt: hackathon.registrationOpensAt.getTime(),
       registrationClosesAt: hackathon.registrationClosesAt.getTime(),

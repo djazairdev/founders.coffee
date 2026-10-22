@@ -181,3 +181,10 @@ export {
   type PullRequestCounts,
   type PullRequestStatusChange,
 } from './pull-requests.js';
+export {
+  decideJudgeAccess,
+  decideRecusal,
+  judgeEntriesSchema,
+  recusalSchema,
+  type RecusalInput,
+} from './judge-entries.js';
