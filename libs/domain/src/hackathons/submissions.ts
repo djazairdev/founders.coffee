@@ -3,6 +3,12 @@ import { z } from 'zod';
 import {
   AppError,
   err,
+  HACKATHON_SUBMISSION_AI_STATEMENT_MAX,
+  HACKATHON_SUBMISSION_AI_TOOL_MAX,
+  HACKATHON_SUBMISSION_DESCRIPTION_MAX,
+  HACKATHON_SUBMISSION_PULL_REQUEST_MAX,
+  HACKATHON_SUBMISSION_TITLE_MAX,
+  HACKATHON_SUBMISSION_URL_MAX,
   idSchema,
   ok,
   type HackathonAiPolicy,
@@ -11,19 +17,24 @@ import {
 
 import { isCredentialFreeHttpsUrl } from '../profile/schemas.js';
 
-export const SUBMISSION_PULL_REQUEST_LIMIT = 10;
-export const SUBMISSION_AI_TOOL_LIMIT = 10;
+export const SUBMISSION_PULL_REQUEST_LIMIT =
+  HACKATHON_SUBMISSION_PULL_REQUEST_MAX;
+export const SUBMISSION_AI_TOOL_LIMIT = HACKATHON_SUBMISSION_AI_TOOL_MAX;
 
 const httpsUrlSchema = z
   .string()
   .trim()
-  .max(2048)
+  .max(HACKATHON_SUBMISSION_URL_MAX)
   .refine(isCredentialFreeHttpsUrl, 'A credential-free HTTPS URL is required');
 
 export const submissionSchema = z.strictObject({
   trackId: idSchema,
-  title: z.string().trim().min(3).max(100),
-  description: z.string().trim().min(20).max(2000),
+  title: z.string().trim().min(3).max(HACKATHON_SUBMISSION_TITLE_MAX),
+  description: z
+    .string()
+    .trim()
+    .min(20)
+    .max(HACKATHON_SUBMISSION_DESCRIPTION_MAX),
   repositoryUrl: httpsUrlSchema,
   demoVideoUrl: httpsUrlSchema.nullable().default(null),
   pullRequestUrls: z
@@ -34,7 +45,11 @@ export const submissionSchema = z.strictObject({
     .array(z.string().trim().min(1).max(60))
     .max(SUBMISSION_AI_TOOL_LIMIT)
     .default([]),
-  aiStatement: z.string().trim().min(20).max(1000),
+  aiStatement: z
+    .string()
+    .trim()
+    .min(20)
+    .max(HACKATHON_SUBMISSION_AI_STATEMENT_MAX),
   isOriginalWorkAttested: z.literal(true, {
     error: 'The team must attest that the work is its own',
   }),

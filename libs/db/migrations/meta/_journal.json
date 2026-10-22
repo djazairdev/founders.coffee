@@ -435,6 +435,13 @@
       "when": 1792634719459,
       "tag": "0061_hackathon_teams",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "6",
+      "when": 1792657157440,
+      "tag": "0062_hackathon_submissions",
+      "breakpoints": true
     }
   ]
 }

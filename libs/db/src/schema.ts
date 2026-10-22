@@ -32,6 +32,13 @@ import {
   HACKATHON_REGISTRATION_SKILLS_MAX,
   HACKATHON_REGISTRATION_STATUSES,
   HACKATHON_REVIEW_STATUSES,
+  HACKATHON_SUBMISSION_AI_STATEMENT_MAX,
+  HACKATHON_SUBMISSION_AI_TOOL_MAX,
+  HACKATHON_SUBMISSION_DESCRIPTION_MAX,
+  HACKATHON_SUBMISSION_PULL_REQUEST_MAX,
+  HACKATHON_SUBMISSION_STATUSES,
+  HACKATHON_SUBMISSION_TITLE_MAX,
+  HACKATHON_SUBMISSION_URL_MAX,
   HACKATHON_TEAM_DESCRIPTION_MAX,
   HACKATHON_TEAM_NAME_MAX,
   HACKATHON_TEAM_REQUEST_STATUSES,
@@ -911,6 +918,140 @@ export const hackathonTeamRequests = sqliteTable(
 );
 
 export type HackathonTeamRequest = typeof hackathonTeamRequests.$inferSelect;
+
+/**
+ * What a team builds and enters, one row per team (B-SUB-01). Stage D turns a submission into a
+ * project page, so its fields stay close to a project's: a track, a title, a description, the
+ * repository, a demo video and the pull requests behind it, the AI tools the team used and its
+ * statement about them, and when it attested that the work is its own.
+ *
+ * A `draft` is the team's work in progress and may be incomplete; `submitted` holds everything a
+ * submission needs and `submitted_at`, which the checks enforce; `disqualified` keeps what was
+ * submitted. `version` guards the captain's saves, as an event's does, and each submit keeps a
+ * snapshot in `hackathon_submission_versions`. The track and the team are the hackathon's own, by
+ * composite keys; everything goes with the hackathon or the team.
+ */
+export const hackathonSubmissions = sqliteTable(
+  'hackathon_submissions',
+  {
+    id: text('id').primaryKey(),
+    eventId: text('event_id')
+      .notNull()
+      .references(() => hackathons.eventId, { onDelete: 'cascade' }),
+    teamId: text('team_id').notNull(),
+    trackId: text('track_id'),
+    title: text('title').notNull(),
+    description: text('description').notNull().default(''),
+    repositoryUrl: text('repository_url'),
+    demoVideoUrl: text('demo_video_url'),
+    pullRequestUrls: text('pull_request_urls', { mode: 'json' })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    aiTools: text('ai_tools', { mode: 'json' })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    aiStatement: text('ai_statement'),
+    originalWorkAttestedAt: integer('original_work_attested_at', {
+      mode: 'timestamp',
+    }),
+    status: text('status', { enum: HACKATHON_SUBMISSION_STATUSES })
+      .notNull()
+      .default('draft'),
+    submittedAt: integer('submitted_at', { mode: 'timestamp' }),
+    version: integer('version').notNull().default(1),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.teamId, table.eventId],
+      foreignColumns: [hackathonTeams.id, hackathonTeams.eventId],
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.trackId, table.eventId],
+      foreignColumns: [hackathonTracks.id, hackathonTracks.eventId],
+    }),
+    uniqueIndex('hackathon_submissions_team_unique').on(table.teamId),
+    index('hackathon_submissions_event_status_index').on(
+      table.eventId,
+      table.status,
+    ),
+    index('hackathon_submissions_track_index').on(table.trackId, table.eventId),
+    check(
+      'hackathon_submissions_title_check',
+      sql`length(trim(${table.title})) BETWEEN 1 AND ${sql.raw(String(HACKATHON_SUBMISSION_TITLE_MAX))}`,
+    ),
+    check(
+      'hackathon_submissions_description_check',
+      sql`length(${table.description}) <= ${sql.raw(String(HACKATHON_SUBMISSION_DESCRIPTION_MAX))}`,
+    ),
+    check(
+      'hackathon_submissions_urls_check',
+      sql`(${table.repositoryUrl} IS NULL OR length(${table.repositoryUrl}) <= ${sql.raw(String(HACKATHON_SUBMISSION_URL_MAX))}) AND (${table.demoVideoUrl} IS NULL OR length(${table.demoVideoUrl}) <= ${sql.raw(String(HACKATHON_SUBMISSION_URL_MAX))})`,
+    ),
+    check(
+      'hackathon_submissions_lists_check',
+      sql`json_array_length(${table.pullRequestUrls}) <= ${sql.raw(String(HACKATHON_SUBMISSION_PULL_REQUEST_MAX))} AND json_array_length(${table.aiTools}) <= ${sql.raw(String(HACKATHON_SUBMISSION_AI_TOOL_MAX))}`,
+    ),
+    check(
+      'hackathon_submissions_statement_check',
+      sql`${table.aiStatement} IS NULL OR length(${table.aiStatement}) <= ${sql.raw(String(HACKATHON_SUBMISSION_AI_STATEMENT_MAX))}`,
+    ),
+    check(
+      'hackathon_submissions_submitted_check',
+      sql`(${table.status} = 'draft') = (${table.submittedAt} IS NULL)`,
+    ),
+    check(
+      'hackathon_submissions_complete_check',
+      sql`${table.status} = 'draft' OR (${table.trackId} IS NOT NULL AND ${table.repositoryUrl} IS NOT NULL AND ${table.aiStatement} IS NOT NULL AND ${table.originalWorkAttestedAt} IS NOT NULL)`,
+    ),
+    check('hackathon_submissions_version_check', sql`${table.version} >= 1`),
+  ],
+);
+
+export type HackathonSubmission = typeof hackathonSubmissions.$inferSelect;
+export type NewHackathonSubmission = typeof hackathonSubmissions.$inferInsert;
+
+/**
+ * What a team submitted, as it was, each time it submitted (B-SUB-01): a snapshot keyed by the
+ * submission and the version submitted, so a later draft never rewrites what judges saw. The
+ * snapshot is complete by construction, since only a submit writes one. `submitted_by` is who
+ * pressed submit; it stays with the snapshot after their account closes, as the tombstone.
+ */
+export const hackathonSubmissionVersions = sqliteTable(
+  'hackathon_submission_versions',
+  {
+    submissionId: text('submission_id')
+      .notNull()
+      .references(() => hackathonSubmissions.id, { onDelete: 'cascade' }),
+    version: integer('version').notNull(),
+    trackId: text('track_id').notNull(),
+    title: text('title').notNull(),
+    description: text('description').notNull(),
+    repositoryUrl: text('repository_url').notNull(),
+    demoVideoUrl: text('demo_video_url'),
+    pullRequestUrls: text('pull_request_urls', { mode: 'json' })
+      .$type<string[]>()
+      .notNull(),
+    aiTools: text('ai_tools', { mode: 'json' }).$type<string[]>().notNull(),
+    aiStatement: text('ai_statement').notNull(),
+    originalWorkAttestedAt: integer('original_work_attested_at', {
+      mode: 'timestamp',
+    }).notNull(),
+    submittedAt: integer('submitted_at', { mode: 'timestamp' }).notNull(),
+    submittedBy: text('submitted_by').references(() => user.id),
+  },
+  (table) => [primaryKey({ columns: [table.submissionId, table.version] })],
+);
+
+export type HackathonSubmissionVersion =
+  typeof hackathonSubmissionVersions.$inferSelect;
 
 /** Event RSVP — one per user per event (UNIQUE constraint). */
 export const eventRsvps = sqliteTable(
