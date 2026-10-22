@@ -53,6 +53,11 @@ export const RATE_BUDGETS = {
       limit: 60,
       windowMs: 10 * MINUTE_MS,
     },
+    eventCoHost: {
+      action: 'change_event_co_host',
+      limit: 60,
+      windowMs: 10 * MINUTE_MS,
+    },
   },
   read: {
     publicProfile: {

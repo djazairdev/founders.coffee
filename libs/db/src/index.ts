@@ -10,6 +10,7 @@ export * from './event-card.js';
 export * from './events.js';
 export * from './events-publish.js';
 export * from './event-organisers.js';
+export * from './event-cohosts.js';
 export * from './hackathons.js';
 export * from './hackathon-tracks.js';
 export * from './hackathon-prizes.js';
