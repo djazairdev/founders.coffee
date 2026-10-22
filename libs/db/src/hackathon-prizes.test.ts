@@ -6,6 +6,7 @@ import type { Db } from './db.js';
 import { setupDb } from './events.fixtures.js';
 import {
   addHackathonPrize,
+  hackathonPrizeChange,
   listPublicHackathonPrizes,
   type HackathonPrizeFields,
 } from './hackathon-prizes.js';
@@ -188,6 +189,39 @@ describe('hackathon prizes (B-HKN-04, real D1)', () => {
         .where(eq(hackathonPrizes.id, id)),
     ).rejects.toThrow();
     expect(await listPublicHackathonPrizes(db, eventId)).toEqual([]);
+  });
+
+  it('keeps a confirmation through a change that leaves the title, value and provider, even with no value', async () => {
+    const eventId = await newHackathon();
+    const id = await add(eventId, { value: null });
+    await confirm(id);
+    const [event] = await db
+      .select({ version: events.version })
+      .from(events)
+      .where(eq(events.id, eventId));
+    const change = (prize: Partial<HackathonPrizeFields>) =>
+      hackathonPrizeChange(db, {
+        eventId,
+        version: event?.version ?? 0,
+        prizeId: id,
+        prize: { ...firstPlace, value: null, ...prize },
+      });
+
+    await change({
+      place: 2,
+      description: 'Two years of cloud credits for the winning team.',
+    });
+    expect((await prizesOf(eventId))[0]).toMatchObject({
+      place: 2,
+      confirmationNote: 'Confirmed by email from the partner on 1 December.',
+    });
+
+    await change({ value: { amount_minor: 100, currency: 'DZD' } });
+    expect((await prizesOf(eventId))[0]).toMatchObject({
+      valueAmountMinor: 100,
+      confirmedAt: null,
+      confirmationNote: null,
+    });
   });
 
   it('keeps a track while a prize names it, and deletes the prizes with their hackathon', async () => {

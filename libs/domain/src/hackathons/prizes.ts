@@ -16,3 +16,12 @@ export const hackathonPrizeSchema = z.strictObject({
 });
 
 export type HackathonPrizeInput = z.infer<typeof hackathonPrizeSchema>;
+
+export const HACKATHON_PRIZE_CONFIRMATION_NOTE_MIN_LENGTH = 10;
+export const HACKATHON_PRIZE_CONFIRMATION_NOTE_MAX_LENGTH = 1000;
+
+export const hackathonPrizeConfirmationSchema = z
+  .string()
+  .trim()
+  .min(HACKATHON_PRIZE_CONFIRMATION_NOTE_MIN_LENGTH)
+  .max(HACKATHON_PRIZE_CONFIRMATION_NOTE_MAX_LENGTH);

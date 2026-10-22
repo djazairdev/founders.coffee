@@ -61,7 +61,10 @@ export type HackathonPrizeView = {
   readonly description: string;
   readonly providerName: string;
   readonly value: Money | null;
-  readonly isConfirmed: boolean;
+  readonly confirmation: {
+    readonly confirmedAt: number;
+    readonly note: string;
+  } | null;
 };
 
 export type HackathonCriterionView = {
@@ -167,9 +170,12 @@ export const hackathonDraftResolver = async (
       partnerName: track.partnerName,
       sourceUrls: track.sourceUrls,
     })),
-    prizes: prizes.map(({ confirmedAt, ...prize }) => ({
+    prizes: prizes.map(({ confirmedAt, confirmationNote, ...prize }) => ({
       ...prize,
-      isConfirmed: confirmedAt !== null,
+      confirmation:
+        confirmedAt && confirmationNote !== null
+          ? { confirmedAt: confirmedAt.getTime(), note: confirmationNote }
+          : null,
     })),
     criteria: criteria.map((criterion) => ({
       id: criterion.id,

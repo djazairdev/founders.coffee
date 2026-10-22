@@ -6,6 +6,8 @@ import {
   editStageAt,
   isPrizeAddable,
   isPrizeChangeable,
+  isPrizeConfirmable,
+  isPrizeRemovable,
   isRubricEditable,
   isTrackRemovable,
   lockedDetailChanges,
@@ -172,15 +174,24 @@ describe('what each stage allows beyond the details (B-HKN-07)', () => {
     ]);
   });
 
-  it('lets prizes be added until the end, and changed only unconfirmed and before opening', () => {
+  it('lets prizes be added and confirmed until the end, changed before opening, and withdrawn unconfirmed', () => {
     expect([isPrizeAddable('locked'), isPrizeAddable('closed')]).toEqual([
       true,
       false,
     ]);
+    expect([isPrizeChangeable('open'), isPrizeChangeable('locked')]).toEqual([
+      true,
+      false,
+    ]);
     expect([
-      isPrizeChangeable('open', false),
-      isPrizeChangeable('open', true),
-      isPrizeChangeable('locked', false),
+      isPrizeRemovable('open', false),
+      isPrizeRemovable('open', true),
+      isPrizeRemovable('locked', false),
+    ]).toEqual([true, false, false]);
+    expect([
+      isPrizeConfirmable('locked', false),
+      isPrizeConfirmable('open', true),
+      isPrizeConfirmable('closed', false),
     ]).toEqual([true, false, false]);
   });
 });

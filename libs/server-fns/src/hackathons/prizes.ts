@@ -3,6 +3,7 @@ import {
   addHackathonPrize,
   hackathonAtVersion,
   hackathonPrizeChange,
+  hackathonPrizeConfirmation,
   hackathonPrizeRemoval,
   listHackathonTracks,
   listOrganiserHackathonPrizes,
@@ -84,23 +85,27 @@ export const addHackathonPrizeResolver = async (
   });
 };
 
+type PrizeRule = (
+  stage: hackathons.HackathonEditStage,
+  isConfirmed: boolean,
+) => boolean;
+
 /**
- * Find a prize an organiser wants to change or withdraw, and refuse when the hackathon's stage or
- * the prize's confirmation no longer allows it (B-HKN-07).
+ * Find a prize an organiser wants to act on, and refuse when the hackathon's stage or the prize's
+ * confirmation no longer allows it under `isAllowed` (B-HKN-07, B-HKN-10).
  */
-const loadChangeablePrize = async (
+const loadPrizeFor = async (
   db: Db,
   input: EditInput & { readonly prizeId: string },
   now: number,
+  isAllowed: PrizeRule,
 ): Promise<Result<HackathonEditTarget>> => {
   const loaded = await loadPrizeEdit(db, input, now);
   if (!loaded.ok) return loaded;
   const prizes = await listOrganiserHackathonPrizes(db, input.eventId);
   const prize = prizes.find((saved) => saved.id === input.prizeId);
   if (!prize) return prizeNotFound();
-  if (
-    !hackathons.isPrizeChangeable(loaded.data.stage, prize.confirmedAt !== null)
-  )
+  if (!isAllowed(loaded.data.stage, prize.confirmedAt !== null))
     return err(
       new AppError(
         'hackathon_field_locked',
@@ -112,8 +117,9 @@ const loadChangeablePrize = async (
 };
 
 /**
- * Reword a prize (B-HKN-07): only before registration opens, and only while its provider has not
- * confirmed it, since a confirmation is to the terms as they were. Answers the new version.
+ * Reword a prize (B-HKN-07): only before registration opens. A confirmed prize may be reworded
+ * too, but a new title, value or provider takes its confirmation away (B-HKN-10). Answers the new
+ * version.
  */
 export const changeHackathonPrizeResolver = async (
   db: Db,
@@ -123,7 +129,12 @@ export const changeHackathonPrizeResolver = async (
   },
   now: number = Date.now(),
 ): Promise<Saved> => {
-  const loaded = await loadChangeablePrize(db, input, now);
+  const loaded = await loadPrizeFor(
+    db,
+    input,
+    now,
+    hackathons.isPrizeChangeable,
+  );
   if (!loaded.ok) return loaded;
   const trackRefused = await checkPrizeTrack(db, input.eventId, input.prize);
   if (trackRefused) return err(trackRefused);
@@ -135,18 +146,53 @@ export const changeHackathonPrizeResolver = async (
   });
 };
 
-/** Withdraw a prize, under the same terms as rewording it (B-HKN-07). Answers the new version. */
+/**
+ * Withdraw a prize (B-HKN-07): only before registration opens, and only while its provider has not
+ * confirmed it. Answers the new version.
+ */
 export const removeHackathonPrizeResolver = async (
   db: Db,
   input: EditInput & { readonly prizeId: string },
   now: number = Date.now(),
 ): Promise<Saved> => {
-  const loaded = await loadChangeablePrize(db, input, now);
+  const loaded = await loadPrizeFor(
+    db,
+    input,
+    now,
+    hackathons.isPrizeRemovable,
+  );
   if (!loaded.ok) return loaded;
   return runHackathonEdit(db, loaded.data, {
     operation: 'hackathon_prize_removed',
     organisationId: input.organisationId,
     writes: [hackathonPrizeRemoval(db, input)],
+    isSingleRow: true,
+  });
+};
+
+/**
+ * Mark a prize confirmed by its provider (B-HKN-10), with the organisers' private note of who
+ * confirmed it, when and how; from then the public sees it. Allowed until the hackathon is over, so
+ * a late sponsor's prize can be confirmed too. Answers the new version.
+ */
+export const confirmHackathonPrizeResolver = async (
+  db: Db,
+  input: EditInput & { readonly prizeId: string; readonly note: string },
+  now: number = Date.now(),
+): Promise<Saved> => {
+  const loaded = await loadPrizeFor(
+    db,
+    input,
+    now,
+    hackathons.isPrizeConfirmable,
+  );
+  if (!loaded.ok) return loaded;
+  return runHackathonEdit(db, loaded.data, {
+    operation: 'hackathon_prize_confirmed',
+    organisationId: input.organisationId,
+    writes: [
+      hackathonPrizeConfirmation(db, { ...input, confirmedAt: new Date(now) }),
+    ],
     isSingleRow: true,
   });
 };

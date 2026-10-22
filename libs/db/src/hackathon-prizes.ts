@@ -114,18 +114,31 @@ export const listPublicHackathonPrizes = async (
   );
 };
 
-const unconfirmedPrize = (eventId: string, prizeId: string, version: number) =>
+const prizeAtVersion = (eventId: string, prizeId: string, version: number) =>
   and(
     eq(hackathonPrizes.eventId, eventId),
     eq(hackathonPrizes.id, prizeId),
-    isNull(hackathonPrizes.confirmedAt),
     hackathonAtVersion(eventId, version),
   );
 
+const unconfirmedPrize = (eventId: string, prizeId: string, version: number) =>
+  and(
+    prizeAtVersion(eventId, prizeId, version),
+    isNull(hackathonPrizes.confirmedAt),
+  );
+
 /**
- * The write that rewords a prize its provider has not confirmed (B-HKN-07), only while the
- * hackathon is at `version`; a confirmed prize is never rewritten, since its provider confirmed the
- * terms as they were.
+ * Whether a prize keeps its confirmation through a change (B-HKN-10): its provider confirmed a
+ * title and a value, so it holds while they and the provider stay as they were, compared against
+ * the row before the change, as SQLite evaluates every assignment of an `UPDATE`.
+ */
+const keepsConfirmation = (prize: HackathonPrizeFields): SQL =>
+  sql`${hackathonPrizes.title} = ${prize.title} AND ${hackathonPrizes.providerName} = ${prize.providerName} AND ${hackathonPrizes.valueAmountMinor} IS ${prize.value?.amount_minor ?? null} AND ${hackathonPrizes.valueCurrency} IS ${prize.value?.currency ?? null}`;
+
+/**
+ * The write that rewords a prize (B-HKN-07), only while the hackathon is at `version`. A new title,
+ * value or provider takes a confirmed prize's confirmation and note away in the same statement
+ * (B-HKN-10), so it is off the public page until its provider confirms the new terms.
  */
 export const hackathonPrizeChange = (
   db: Db,
@@ -146,9 +159,11 @@ export const hackathonPrizeChange = (
       providerName: input.prize.providerName,
       valueAmountMinor: input.prize.value?.amount_minor ?? null,
       valueCurrency: input.prize.value?.currency ?? null,
+      confirmedAt: sql`CASE WHEN ${keepsConfirmation(input.prize)} THEN ${hackathonPrizes.confirmedAt} END`,
+      confirmationNote: sql`CASE WHEN ${keepsConfirmation(input.prize)} THEN ${hackathonPrizes.confirmationNote} END`,
       updatedAt: new Date(),
     })
-    .where(unconfirmedPrize(input.eventId, input.prizeId, input.version));
+    .where(prizeAtVersion(input.eventId, input.prizeId, input.version));
 
 /** The write that withdraws a prize its provider has not confirmed (B-HKN-07), at `version`. */
 export const hackathonPrizeRemoval = (
@@ -163,14 +178,38 @@ export const hackathonPrizeRemoval = (
     .delete(hackathonPrizes)
     .where(unconfirmedPrize(input.eventId, input.prizeId, input.version));
 
+/**
+ * The write that marks a prize confirmed (B-HKN-10), with the organisers' private note of who
+ * confirmed it, when and how, only while it is unconfirmed and the hackathon is at `version`.
+ */
+export const hackathonPrizeConfirmation = (
+  db: Db,
+  input: {
+    readonly eventId: string;
+    readonly version: number;
+    readonly prizeId: string;
+    readonly note: string;
+    readonly confirmedAt: Date;
+  },
+) =>
+  db
+    .update(hackathonPrizes)
+    .set({
+      confirmedAt: input.confirmedAt,
+      confirmationNote: input.note,
+      updatedAt: new Date(),
+    })
+    .where(unconfirmedPrize(input.eventId, input.prizeId, input.version));
+
 export type OrganiserHackathonPrize = HackathonPrizeFields & {
   readonly id: string;
   readonly confirmedAt: Date | null;
+  readonly confirmationNote: string | null;
 };
 
 /**
- * Every prize of a hackathon as its organisers see them (B-HKN-07), confirmed or not, without the
- * confirmation note, overall prizes first, then by place.
+ * Every prize of a hackathon as its organisers see them (B-HKN-07), confirmed or not, with their
+ * private confirmation note (B-HKN-10), overall prizes first, then by place.
  */
 export const listOrganiserHackathonPrizes = async (
   db: Db,
@@ -187,6 +226,7 @@ export const listOrganiserHackathonPrizes = async (
       valueAmountMinor: hackathonPrizes.valueAmountMinor,
       valueCurrency: hackathonPrizes.valueCurrency,
       confirmedAt: hackathonPrizes.confirmedAt,
+      confirmationNote: hackathonPrizes.confirmationNote,
     })
     .from(hackathonPrizes)
     .where(eq(hackathonPrizes.eventId, eventId))

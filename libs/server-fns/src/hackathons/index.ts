@@ -20,11 +20,13 @@ export type {
 export {
   addHackathonPrize,
   changeHackathonPrize,
+  confirmHackathonPrize,
   removeHackathonPrize,
   saveHackathonRubric,
   saveHackathonTracks,
   type AddHackathonPrizeRequest,
   type ChangeHackathonPrizeRequest,
+  type ConfirmHackathonPrizeRequest,
   type RemoveHackathonPrizeRequest,
   type SaveHackathonRubricRequest,
   type SaveHackathonTracksRequest,

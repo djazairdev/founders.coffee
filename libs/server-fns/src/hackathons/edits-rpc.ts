@@ -13,6 +13,7 @@ import { hackathonVersionSchema } from './details-rpc.js';
 import {
   addHackathonPrizeResolver,
   changeHackathonPrizeResolver,
+  confirmHackathonPrizeResolver,
   removeHackathonPrizeResolver,
 } from './prizes.js';
 import { saveHackathonRubricResolver } from './rubric.js';
@@ -65,6 +66,10 @@ const removeHackathonPrizeSchema = z.strictObject({
   prizeId: idSchema,
 });
 
+const confirmHackathonPrizeSchema = removeHackathonPrizeSchema.extend({
+  note: hackathons.hackathonPrizeConfirmationSchema,
+});
+
 export type SaveHackathonTracksRequest = z.input<
   typeof saveHackathonTracksSchema
 >;
@@ -77,6 +82,9 @@ export type ChangeHackathonPrizeRequest = z.input<
 >;
 export type RemoveHackathonPrizeRequest = z.input<
   typeof removeHackathonPrizeSchema
+>;
+export type ConfirmHackathonPrizeRequest = z.input<
+  typeof confirmHackathonPrizeSchema
 >;
 
 const editMiddleware = [
@@ -135,7 +143,7 @@ export const addHackathonPrize = createServerFn({
     );
   });
 
-/** Reword an unconfirmed prize, on the version the organiser saw (B-HKN-07). */
+/** Reword a prize, on the version the organiser saw (B-HKN-07, B-HKN-10). */
 export const changeHackathonPrize = createServerFn({
   method: 'POST',
   strict: false,
@@ -163,6 +171,23 @@ export const removeHackathonPrize = createServerFn({
     privateNoStore();
     return handleResult(
       removeHackathonPrizeResolver(getDb(), {
+        ...data,
+        organisationId: context.organisationId,
+      }),
+    );
+  });
+
+/** Mark a prize confirmed, with a private note, on the version the organiser saw (B-HKN-10). */
+export const confirmHackathonPrize = createServerFn({
+  method: 'POST',
+  strict: false,
+})
+  .middleware([...editMiddleware])
+  .validator(appValidator(confirmHackathonPrizeSchema))
+  .handler(({ context, data }) => {
+    privateNoStore();
+    return handleResult(
+      confirmHackathonPrizeResolver(getDb(), {
         ...data,
         organisationId: context.organisationId,
       }),

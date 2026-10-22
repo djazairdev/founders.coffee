@@ -122,10 +122,27 @@ export const isPrizeAddable = (stage: HackathonEditStage): boolean =>
   stage !== 'closed';
 
 /**
- * Whether a prize may be changed or withdrawn: only before registration opens, and only while its
- * provider has not confirmed it, since a confirmation is to the terms as they were written.
+ * Whether a prize may be changed: only before registration opens. A confirmed prize may be too,
+ * but a new title, value or provider takes the confirmation away (B-HKN-10), since its provider
+ * confirmed the terms as they were written.
  */
-export const isPrizeChangeable = (
+export const isPrizeChangeable = (stage: HackathonEditStage): boolean =>
+  stage === 'open';
+
+/**
+ * Whether a prize may be withdrawn: only before registration opens, and only while its provider
+ * has not confirmed it, since a confirmed prize may already be on the hackathon's page.
+ */
+export const isPrizeRemovable = (
   stage: HackathonEditStage,
   isConfirmed: boolean,
 ): boolean => stage === 'open' && !isConfirmed;
+
+/**
+ * Whether a prize may be marked confirmed (B-HKN-10): until the hackathon is over, like adding one,
+ * so a late sponsor's prize still can; and only once.
+ */
+export const isPrizeConfirmable = (
+  stage: HackathonEditStage,
+  isConfirmed: boolean,
+): boolean => stage !== 'closed' && !isConfirmed;

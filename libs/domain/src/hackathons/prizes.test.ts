@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { HACKATHON_PRIZE_PLACE_MAX, hackathonPrizeSchema } from './prizes.js';
+import {
+  HACKATHON_PRIZE_CONFIRMATION_NOTE_MAX_LENGTH,
+  HACKATHON_PRIZE_PLACE_MAX,
+  hackathonPrizeConfirmationSchema,
+  hackathonPrizeSchema,
+} from './prizes.js';
 
 const prize = {
   trackId: null,
@@ -44,5 +49,18 @@ describe('hackathon prizes (B-HKN-04)', () => {
     expect(accepts({ trackId: 'track-1' })).toBe(false);
     expect(accepts({ confirmedAt: new Date() })).toBe(false);
     expect(accepts({ providerName: ' ' })).toBe(false);
+  });
+});
+
+describe('a prize confirmation note (B-HKN-10)', () => {
+  const takes = (note: string) =>
+    hackathonPrizeConfirmationSchema.safeParse(note).success;
+
+  it('needs a note that says who confirmed, when and how, trimmed', () => {
+    expect(takes('Signed letter from Amina, Djazair Cloud, 3 Nov')).toBe(true);
+    expect(takes('   Email   ')).toBe(false);
+    expect(
+      takes('x'.repeat(HACKATHON_PRIZE_CONFIRMATION_NOTE_MAX_LENGTH + 1)),
+    ).toBe(false);
   });
 });
