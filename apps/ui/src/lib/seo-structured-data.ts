@@ -31,6 +31,10 @@ export type StructuredEventData = {
   readonly organizer: { readonly name: string; readonly url: string } | null;
 };
 
+/** JSON-LD as the text of a `<script>`, with `<` escaped so that no value can end the script. */
+export const jsonLdText = (value: JsonLdObject): string =>
+  JSON.stringify(value).replace(/</gu, '\\u003c');
+
 const ATTENDANCE_MODE: Readonly<Record<EventFormat, string>> = {
   in_person: 'https://schema.org/OfflineEventAttendanceMode',
   online: 'https://schema.org/OnlineEventAttendanceMode',

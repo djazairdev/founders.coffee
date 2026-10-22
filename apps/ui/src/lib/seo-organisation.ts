@@ -1,7 +1,7 @@
 import type { Locale } from '@founders-coffee/i18n';
 
 import { buildPageMetadata, canonicalUrl, type CanonicalRoute } from './seo';
-import type { JsonLdObject } from './seo-structured-data';
+import { jsonLdText, type JsonLdObject } from './seo-structured-data';
 
 type OrganisationHeadInput = {
   readonly locale: Locale;
@@ -11,10 +11,6 @@ type OrganisationHeadInput = {
   readonly marketCode: string;
   readonly route: Extract<CanonicalRoute, { readonly type: 'organisation' }>;
 };
-
-/** JSON for a script element, with `<` escaped so that no text in it can close the element. */
-const scriptJson = (value: JsonLdObject): string =>
-  JSON.stringify(value).replaceAll('<', '\\u003c');
 
 /**
  * The schema.org description of an organisation's page: a `ProfilePage`, in the page's language,
@@ -62,7 +58,7 @@ export const organisationPageHead = ({
     scripts: [
       {
         type: 'application/ld+json',
-        children: scriptJson(
+        children: jsonLdText(
           organisationPageJsonLd({
             name,
             description,

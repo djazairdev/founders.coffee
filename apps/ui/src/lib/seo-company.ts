@@ -3,6 +3,7 @@ import { LOCALES, llms_description, type Locale } from '@founders-coffee/i18n';
 import { CONTACT_EMAIL, type CompanyPageContent } from '../content/company';
 
 import { faqJsonLd } from './faq-jsonld';
+import { jsonLdText, type JsonLdObject } from './seo-structured-data';
 
 import {
   buildPageMetadata,
@@ -20,32 +21,30 @@ import {
  * on every page, as the Organization does, and is there wherever `/` sends Googlebot. Without it
  * Google printed the bare domain, "founders.coffee".
  */
-export const websiteJsonLd = () =>
-  JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: SITE_NAME,
-    url: `${getSiteOrigin()}/`,
-  });
+export const websiteJsonLd = (): JsonLdObject => ({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE_NAME,
+  url: `${getSiteOrigin()}/`,
+});
 
-export const organizationJsonLd = (locale: Locale) =>
-  JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Founders Coffee',
-    url: getSiteOrigin(),
-    logo: `${getSiteOrigin()}/android-chrome-512x512.png`,
-    email: CONTACT_EMAIL,
-    description: llms_description({}, { locale }),
-    contactPoint: [
-      {
-        '@type': 'ContactPoint',
-        email: CONTACT_EMAIL,
-        contactType: 'customer support',
-        availableLanguage: [...LOCALES],
-      },
-    ],
-  });
+export const organizationJsonLd = (locale: Locale): JsonLdObject => ({
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Founders Coffee',
+  url: getSiteOrigin(),
+  logo: `${getSiteOrigin()}/android-chrome-512x512.png`,
+  email: CONTACT_EMAIL,
+  description: llms_description({}, { locale }),
+  contactPoint: [
+    {
+      '@type': 'ContactPoint',
+      email: CONTACT_EMAIL,
+      contactType: 'customer support',
+      availableLanguage: [...LOCALES],
+    },
+  ],
+});
 
 type CompanyHeadInput = {
   readonly locale: Locale;
@@ -87,7 +86,7 @@ export const companyPageHead = ({
 
   const webPage = {
     type: 'application/ld+json',
-    children: JSON.stringify({
+    children: jsonLdText({
       '@context': 'https://schema.org',
       '@type': 'WebPage',
       name: metadata.meta[0].title,
@@ -107,7 +106,10 @@ export const companyPageHead = ({
     scripts: faq
       ? [
           webPage,
-          { type: 'application/ld+json', children: faqJsonLd(faq, url) },
+          {
+            type: 'application/ld+json',
+            children: jsonLdText(faqJsonLd(faq, url)),
+          },
         ]
       : [webPage],
   };

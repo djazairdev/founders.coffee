@@ -67,9 +67,7 @@ describe('FAQ structured data', () => {
 
   it('emits a FAQPage node carrying every question', () => {
     const page = content('ar');
-    const jsonLd = JSON.parse(
-      faqJsonLd(page, 'https://founders.coffee/ar/faq'),
-    ) as {
+    const jsonLd = faqJsonLd(page, 'https://founders.coffee/ar/faq') as {
       '@type': string;
       url: string;
       mainEntity: Array<{ name: string; acceptedAnswer: { text: string } }>;

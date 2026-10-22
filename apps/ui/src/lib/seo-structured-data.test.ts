@@ -4,6 +4,7 @@ import {
   breadcrumbJsonLd,
   collectionPageJsonLd,
   eventJsonLd,
+  jsonLdText,
   type StructuredEventData,
 } from './seo-structured-data';
 
@@ -218,5 +219,24 @@ describe('structured discovery data', () => {
       ],
     });
     expect(JSON.stringify(schema)).not.toContain('email');
+  });
+});
+
+describe('jsonLdText', () => {
+  const probe = 'Probe</script><i id="fc-probe">x</i><!--';
+
+  it('leaves no `<` that could end the script or open a comment', () => {
+    const text = jsonLdText(eventJsonLd({ ...BREAKFAST, title: probe }));
+
+    expect(text).not.toContain('<');
+    expect(text).toContain('Probe\\u003c/script>');
+  });
+
+  it('parses back to the very same values', () => {
+    const schema = breadcrumbJsonLd([
+      { name: probe, url: 'https://founders.coffee/en/algeria' },
+    ]);
+
+    expect(JSON.parse(jsonLdText(schema))).toEqual(schema);
   });
 });

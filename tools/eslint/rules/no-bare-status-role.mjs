@@ -1,28 +1,6 @@
+import { constantValue, TYPE_WRAPPERS } from './static-values.mjs';
+
 const LIVE_ROLES = new Set(['alert', 'status']);
-
-const TYPE_WRAPPERS = new Set(['TSAsExpression', 'TSSatisfiesExpression']);
-
-/**
- * What a `const` holds, when an identifier names one. Anything that can be reassigned, or that
- * is not a plain variable, holds nothing this rule can know, so it resolves to nothing.
- */
-const constantValue = (context, identifier) => {
-  for (
-    let scope = context.sourceCode.getScope(identifier);
-    scope;
-    scope = scope.upper
-  ) {
-    const variable = scope.set.get(identifier.name);
-    if (!variable) continue;
-    const [definition] = variable.defs;
-    const isConstant =
-      definition?.type === 'Variable' &&
-      definition.parent.kind === 'const' &&
-      definition.node.id.type === 'Identifier';
-    return isConstant ? definition.node.init : null;
-  }
-  return null;
-};
 
 /**
  * Every string an expression can evaluate to without running anything: a literal, a template

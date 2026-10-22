@@ -13,6 +13,7 @@ import { openGraphLocale, xDefaultLocale } from './seo-alternates';
 import {
   breadcrumbJsonLd,
   collectionPageJsonLd,
+  jsonLdText,
   type StructuredListItem,
 } from './seo-structured-data';
 
@@ -268,7 +269,7 @@ export const cityPageHead = ({
     scripts: [
       {
         type: 'application/ld+json',
-        children: JSON.stringify(
+        children: jsonLdText(
           collectionPageJsonLd({
             name: `${cityName} · ${marketName}`,
             description,
@@ -280,7 +281,7 @@ export const cityPageHead = ({
       },
       {
         type: 'application/ld+json',
-        children: JSON.stringify(breadcrumbJsonLd(breadcrumbs)),
+        children: jsonLdText(breadcrumbJsonLd(breadcrumbs)),
       },
     ],
   };
