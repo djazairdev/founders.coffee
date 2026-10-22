@@ -75,6 +75,11 @@ export type {
   MentorInviteCreated,
   OrganiserMentorView,
 } from './mentors.js';
+export {
+  getHackathonPullRequests,
+  setHackathonPullRequestStatus,
+} from './pull-requests-rpc.js';
+export type { HackathonPullRequestEntry } from './pull-requests.js';
 export { saveHackathonSubmissionDraft } from './submission-drafts-rpc.js';
 export { getHackathonSubmissionPage } from './submission-page-rpc.js';
 export type { SubmissionPageView, SubmissionStage } from './submission-page.js';

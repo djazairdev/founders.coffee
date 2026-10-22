@@ -184,6 +184,9 @@ export const HACKATHON_ERROR_CODES = [
   'already_mentor',
   'mentor_not_found',
   'not_mentor',
+  'submission_not_found',
+  'pull_request_not_found',
+  'results_published',
 ] as const;
 export type HackathonErrorCode = (typeof HACKATHON_ERROR_CODES)[number];
 export const hackathonErrorCodeSchema = z.enum(HACKATHON_ERROR_CODES);

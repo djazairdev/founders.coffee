@@ -66,6 +66,17 @@ export const HACKATHON_SUBMISSION_URL_MAX = 2048;
 export const HACKATHON_SUBMISSION_PULL_REQUEST_MAX = 10;
 export const HACKATHON_SUBMISSION_AI_TOOL_MAX = 10;
 
+export const HACKATHON_PULL_REQUEST_STATUSES = [
+  'submitted',
+  'reviewed',
+  'merged',
+] as const;
+export type HackathonPullRequestStatus =
+  (typeof HACKATHON_PULL_REQUEST_STATUSES)[number];
+export const hackathonPullRequestStatusSchema = z.enum(
+  HACKATHON_PULL_REQUEST_STATUSES,
+);
+
 export const HACKATHON_SUBMISSION_STATUSES = [
   'draft',
   'submitted',

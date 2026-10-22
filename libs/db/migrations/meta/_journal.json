@@ -470,6 +470,13 @@
       "when": 1792674812367,
       "tag": "0066_hackathon_interest_launch",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "6",
+      "when": 1792681567506,
+      "tag": "0067_hackathon_pull_requests",
+      "breakpoints": true
     }
   ]
 }
