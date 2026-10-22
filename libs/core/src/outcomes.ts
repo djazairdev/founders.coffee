@@ -193,6 +193,8 @@ export const HACKATHON_ERROR_CODES = [
   'report_target_not_found',
   'own_team_report',
   'already_reported',
+  'report_not_found',
+  'report_decided',
   'judge_recused',
   'criterion_not_found',
   'score_out_of_range',

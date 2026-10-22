@@ -16,6 +16,9 @@ import {
   ntf_email_hackathon_team_declined_html,
   ntf_email_hackathon_team_declined_subject,
   ntf_email_hackathon_team_declined_text,
+  ntf_email_hackathon_team_disqualified_html,
+  ntf_email_hackathon_team_disqualified_subject,
+  ntf_email_hackathon_team_disqualified_text,
   ntf_email_hackathon_team_joined_html,
   ntf_email_hackathon_team_joined_subject,
   ntf_email_hackathon_team_joined_text,
@@ -32,6 +35,8 @@ import {
   ntf_push_hackathon_team_accepted_title,
   ntf_push_hackathon_team_declined_body,
   ntf_push_hackathon_team_declined_title,
+  ntf_push_hackathon_team_disqualified_body,
+  ntf_push_hackathon_team_disqualified_title,
   ntf_push_hackathon_team_joined_body,
   ntf_push_hackathon_team_joined_title,
   ntf_push_hackathon_team_left_body,
@@ -60,6 +65,7 @@ type TeamValues = {
   readonly team: string;
   readonly name: string;
   readonly project: string;
+  readonly reason: string;
   readonly url: string;
 };
 
@@ -111,6 +117,13 @@ const MESSAGES: Record<
     ntf_email_hackathon_submission_received_html,
     ntf_email_hackathon_submission_received_text,
   ],
+  hackathon_team_disqualified: [
+    ntf_push_hackathon_team_disqualified_title,
+    ntf_push_hackathon_team_disqualified_body,
+    ntf_email_hackathon_team_disqualified_subject,
+    ntf_email_hackathon_team_disqualified_html,
+    ntf_email_hackathon_team_disqualified_text,
+  ],
 };
 
 const URLS: Partial<
@@ -133,6 +146,7 @@ export const hackathonTeamMessage = async (
     team: escapeHtml(values.team),
     name: escapeHtml(values.name),
     project: escapeHtml(values.project),
+    reason: escapeHtml(values.reason),
     url: escapeHtml(values.url),
   };
   return {
@@ -151,7 +165,8 @@ export const hackathonTeamMessage = async (
 /**
  * Tell members of a hackathon what changed in a team (B-TEAM-09): a request to join it, the answer
  * to one, a member who joined, or one who is no longer in it; or that its project was submitted,
- * the receipt every member gets (B-SUB-07).
+ * the receipt every member gets (B-SUB-07); or that an administrator disqualified it, with the reason
+ * they gave (B-SAFE-02).
  *
  * Each notice is written in its reader's language and follows their Hackathons category, push
  * first with email behind it; the category's switch is honoured again at send time. A declined
@@ -170,6 +185,7 @@ export const enqueueHackathonTeamNotices = async (
     readonly team: string;
     readonly name: string | null;
     readonly project?: string;
+    readonly reason?: string;
   },
 ): Promise<void> => {
   const { event } = opts;
@@ -205,6 +221,7 @@ export const enqueueHackathonTeamNotices = async (
           team: opts.team,
           name: opts.name ?? ntf_team_member_unnamed({}, { locale }),
           project: opts.project ?? '',
+          reason: opts.reason ?? '',
           url,
         },
         locale,

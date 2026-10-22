@@ -37,3 +37,16 @@ export type {
   HackathonReviewQueue,
   HackathonReviewTrack,
 } from './hackathon-review.js';
+export {
+  decideHackathonReport,
+  listHackathonReportQueue,
+} from './hackathon-reports-rpc.js';
+export type {
+  ReportDecisionRequest,
+  ReportQueueRequest,
+} from './hackathon-reports-rpc.js';
+export type {
+  ReportDecided,
+  ReportQueue,
+  ReportQueueItem,
+} from './hackathon-reports.js';

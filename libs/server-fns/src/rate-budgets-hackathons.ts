@@ -86,4 +86,9 @@ export const HACKATHON_RATE_BUDGETS = {
     limit: 60,
     windowMs: 10 * MINUTE_MS,
   },
+  hackathonReportDecision: {
+    action: 'decide_hackathon_report',
+    limit: 60,
+    windowMs: 10 * MINUTE_MS,
+  },
 } as const satisfies Record<string, RateBudget>;

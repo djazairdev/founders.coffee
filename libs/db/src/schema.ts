@@ -1113,6 +1113,10 @@ export type HackathonPullRequest = typeof hackathonPullRequests.$inferSelect;
  * kept by its type and id without a foreign key, so a report outlives a team that disbands, as chat
  * reports outlive their message. The reporter is never shown to the people reported. A report is
  * kept 24 months after its decision, and an open one until it is decided.
+ *
+ * The administrator's decision (B-SAFE-02) dismisses it or disqualifies the team. A disqualification
+ * keeps the reason the team is told in `decision_reason` and what it rests on in `evidence`, on
+ * every report it decided; a dismissal keeps neither.
  */
 export const hackathonReports = sqliteTable(
   'hackathon_reports',
@@ -1137,6 +1141,8 @@ export const hackathonReports = sqliteTable(
       .default('open'),
     reviewedBy: text('reviewed_by').references(() => user.id),
     reviewedAt: integer('reviewed_at', { mode: 'timestamp' }),
+    decisionReason: text('decision_reason'),
+    evidence: text('evidence'),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),
