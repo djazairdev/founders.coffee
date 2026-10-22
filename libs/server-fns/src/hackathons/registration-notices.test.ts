@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { HACKATHON_REGISTRATION_TEMPLATE_KEYS } from '@founders-coffee/core';
 import {
   accountPreferences,
   and,
@@ -16,6 +17,9 @@ import { registerForHackathonResolver } from './registration.js';
 import { withdrawFromHackathonResolver } from './withdrawal.js';
 
 let db: Db;
+
+const isRegistrationNotice = (key: string) =>
+  (HACKATHON_REGISTRATION_TEMPLATE_KEYS as readonly string[]).includes(key);
 
 const register = (eventId: string, userId: string) =>
   registerForHackathonResolver(db, null, {
@@ -90,6 +94,7 @@ describe('registration notices (B-REG-07, real D1)', () => {
     expect(
       (await noticesOf(eventId, second))
         .map((notice) => notice.templateKey)
+        .filter((key) => isRegistrationNotice(key))
         .sort(),
     ).toEqual(['hackathon_promoted', 'hackathon_waitlisted']);
   });

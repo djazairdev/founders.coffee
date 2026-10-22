@@ -245,6 +245,7 @@ export const decideHackathonReview = async (
 };
 
 export type HackathonOrganiserContact = {
+  readonly userId: string;
   readonly email: string;
   readonly localePref: Locale | null;
 };
@@ -274,7 +275,11 @@ export const listHackathonOrganiserContacts = async (
     .from(events)
     .where(eq(events.id, eventId));
   return db
-    .selectDistinct({ email: user.email, localePref: user.localePref })
+    .selectDistinct({
+      userId: user.id,
+      email: user.email,
+      localePref: user.localePref,
+    })
     .from(user)
     .where(sql`${user.id} IN (${owners}) OR ${user.id} IN (${creator})`)
     .orderBy(asc(user.email));

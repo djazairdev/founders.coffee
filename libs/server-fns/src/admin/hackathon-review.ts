@@ -10,6 +10,7 @@ import { hackathons } from '@founders-coffee/domain';
 import { logger, type Metrics } from '@founders-coffee/observability';
 
 import { recordHackathonMetric } from '../hackathons/metrics.js';
+import { scheduleOrganiserReminders } from '../notifications/hackathon-reminders.js';
 import type { HackathonDecisionNotice } from './hackathon-decision-email.js';
 
 export type HackathonReviewItem = {
@@ -84,7 +85,8 @@ export const listHackathonReviewQueueResolver = async (
  * the event is still an unpublished draft, with the audit entry in the same batch, so two operators
  * deciding at once cannot both win (`invalid_hackathon_transition`). Approving publishes the event
  * and counts it; rejecting leaves it a draft with the note, for the organisers to change and send
- * again. Either way the organisers are emailed, best effort, once the decision is written.
+ * again. Either way the organisers are emailed, best effort, once the decision is written, and an
+ * approval schedules their reminders (B-HKN-21).
  */
 export const decideHackathonReviewResolver = async (
   db: Db,
@@ -123,11 +125,13 @@ export const decideHackathonReviewResolver = async (
       ),
     );
   const { event } = found;
-  if (decision === 'approve')
+  if (decision === 'approve') {
     recordHackathonMetric(metrics, 'hackathon_published', {
       marketCode: event.marketCode,
       hackathonId: event.id,
     });
+    await scheduleOrganiserReminders(db, event.id);
+  }
   logger.info('hackathon.reviewed', {
     eventId: event.id,
     marketCode: event.marketCode,

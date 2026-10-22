@@ -5,6 +5,7 @@ export {
   type HackathonRegistrationInput,
   type RegistrationRequest,
 } from './registration.js';
+export { hackathonReminders, type HackathonReminder } from './reminders.js';
 export {
   hackathonTimelineSchema,
   phaseAt,

@@ -44,6 +44,7 @@ import {
 } from '@founders-coffee/i18n';
 import type {
   HackathonRegistrationTemplateKey,
+  HackathonReminderKey,
   NotificationTemplateKey,
 } from '@founders-coffee/core';
 
@@ -125,7 +126,7 @@ export const renderNotificationEmail = async (
 export const emailPayloadFor = async (
   templateKey: Exclude<
     NotificationTemplateKey,
-    'chat_unread' | HackathonRegistrationTemplateKey
+    'chat_unread' | HackathonRegistrationTemplateKey | HackathonReminderKey
   >,
   values: TemplateValues,
   locale: Locale,

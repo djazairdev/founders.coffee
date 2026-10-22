@@ -16,6 +16,7 @@ import { hackathons } from '@founders-coffee/domain';
 import { logger, type Metrics } from '@founders-coffee/observability';
 
 import { enqueueHackathonRegistrationNotice } from '../notifications/hackathon-registration.js';
+import { scheduleParticipantReminders } from '../notifications/hackathon-reminders.js';
 import { requireHackathonsEnabled } from './flag.js';
 import { recordHackathonMetric } from './metrics.js';
 
@@ -107,6 +108,7 @@ export const registerForHackathonResolver = async (
     marketCode: event.marketCode,
     status: written.status,
   });
+  const locale = (await getUser(db, input.userId))?.localePref;
   await enqueueHackathonRegistrationNotice(db, {
     templateKey:
       written.status === 'registered'
@@ -119,7 +121,13 @@ export const registerForHackathonResolver = async (
     marketCode: event.marketCode,
     startsAt: event.startsAt,
     venue: event.venue,
-    locale: (await getUser(db, input.userId))?.localePref,
+    locale,
   });
+  if (written.status === 'registered')
+    await scheduleParticipantReminders(db, {
+      eventId: event.id,
+      userId: input.userId,
+      locale,
+    });
   return ok({ registrationId, status: written.status });
 };

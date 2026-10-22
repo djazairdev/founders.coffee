@@ -12,6 +12,7 @@ import {
   relocatedNotice,
   rescheduledNotice,
 } from '../chat/notices.js';
+import { moveHackathonReminders } from '../notifications/hackathon-reminders.js';
 import { enqueueRsvpNotifications } from '../notifications/producer.js';
 import { meetingLinkFor } from './meeting-link.js';
 import {
@@ -152,6 +153,11 @@ export const announceUpdate = async (
   },
 ): Promise<number> => {
   await announceToChat(db, opts);
+  if (
+    opts.after.kind === 'hackathon' &&
+    opts.before.startsAt.getTime() !== opts.after.startsAt.getTime()
+  )
+    await moveHackathonReminders(db, opts.after.id);
   const rewrite = remindersWouldLie(opts.before, opts.after);
   if (!rewrite && !opts.notice) return 0;
 

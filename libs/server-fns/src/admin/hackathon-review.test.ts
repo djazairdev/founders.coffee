@@ -7,6 +7,7 @@ import {
   hackathons as hackathonTable,
   listAuditForTarget,
   member,
+  scheduledNotifications,
   user,
   type Db,
 } from '@founders-coffee/db';
@@ -176,6 +177,40 @@ describe('reviewing hackathons (B-HKN-08, real D1)', () => {
     expect(
       sent.find((email) => email.to === 'owner@review.test')?.subject,
     ).toBe('Algiers Builders Hackathon est publié sur Founders Coffee');
+  });
+
+  it('schedules the organisers’ reminders on approval, each in their language', async () => {
+    const { eventId } = await submittedHackathon(db);
+
+    await decide({ eventId, decision: 'approve' });
+
+    const reminders = await db
+      .select({
+        userId: scheduledNotifications.userId,
+        templateKey: scheduledNotifications.templateKey,
+        payload: scheduledNotifications.payload,
+      })
+      .from(scheduledNotifications)
+      .where(eq(scheduledNotifications.eventId, eventId));
+    expect(
+      reminders.map((row) => `${row.userId} ${row.templateKey}`).sort(),
+    ).toEqual(
+      [
+        `${OWNER} hackathon_judging_open`,
+        `${OWNER} hackathon_registration_closing`,
+        `${TEST_HOST_ID} hackathon_judging_open`,
+        `${TEST_HOST_ID} hackathon_registration_closing`,
+      ].sort(),
+    );
+    expect(
+      reminders.find(
+        (row) =>
+          row.userId === OWNER && row.templateKey === 'hackathon_judging_open',
+      )?.payload,
+    ).toMatchObject({
+      pushTitle:
+        'L’évaluation du hackathon « Algiers Builders Hackathon » a commencé',
+    });
   });
 
   it('rejects with a note: keeps it a draft the organisers can change and send again', async () => {
