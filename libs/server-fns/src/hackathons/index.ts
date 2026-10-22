@@ -31,3 +31,5 @@ export {
 } from './edits-rpc.js';
 export { registerForHackathon } from './registration-rpc.js';
 export type { RegistrationCreated } from './registration.js';
+export { withdrawFromHackathon } from './withdrawal-rpc.js';
+export type { Withdrawn } from './withdrawal.js';

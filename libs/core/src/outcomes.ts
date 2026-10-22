@@ -157,6 +157,7 @@ export const HACKATHON_ERROR_CODES = [
   'hackathon_details_required',
   'hackathon_track_has_prizes',
   'hackathon_prize_not_found',
+  'withdrawal_closed',
 ] as const;
 export type HackathonErrorCode = (typeof HACKATHON_ERROR_CODES)[number];
 export const hackathonErrorCodeSchema = z.enum(HACKATHON_ERROR_CODES);
