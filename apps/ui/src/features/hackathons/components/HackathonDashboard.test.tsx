@@ -113,7 +113,7 @@ describe('HackathonDashboard (B-OPS-01)', () => {
     expect(statOf('Registered')).toBe('Registered86of 120 places');
     expect(statOf('Waitlisted')).toBe('Waitlisted4');
     expect(statOf('Teams')).toBe('Teams21');
-    expect(statOf('Entries submitted')).toBe('Entries submitted0');
+    expect(statOf('Submissions')).toBe('Submissions0');
     expect(statOf('Judges')).toBe('Judges3');
     expect(statOf('Reviews done')).toBe('Reviews done0 of 0');
   });
