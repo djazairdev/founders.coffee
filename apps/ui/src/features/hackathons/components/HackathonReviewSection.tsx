@@ -7,10 +7,7 @@ import {
   hackathon_review_need_details,
   hackathon_review_need_rubric,
   hackathon_review_need_tracks,
-  hackathon_review_note,
-  hackathon_review_rejected,
   hackathon_review_submit,
-  hackathon_review_submitted,
   hackathon_review_submitting,
   hackathon_review_todo,
   hackathon_review_unready,
@@ -22,6 +19,7 @@ import type { HackathonDraftView } from '../api';
 import { hackathonEditError } from '../edit-errors';
 import { READINESS_ITEMS } from '../review-items';
 import { useSubmitHackathonForReview } from '../hooks';
+import { HackathonReviewSummary } from './HackathonReviewSummary';
 
 const HEADING_ID = 'hackathon-review-heading';
 const UNREADY_ID = 'hackathon-review-unready';
@@ -71,9 +69,11 @@ const Checklist = ({
 export const HackathonReviewSection = ({
   draft,
   locale,
+  timeZone,
 }: {
   draft: HackathonDraftView;
   locale: Locale;
+  timeZone: string;
 }) => {
   const submit = useSubmitHackathonForReview();
   const { review } = draft;
@@ -87,32 +87,24 @@ export const HackathonReviewSection = ({
         {hackathon_review_heading({}, { locale })}
       </h2>
       {review.status === 'submitted' ? (
-        <StatusMessage variant="info" className="mt-4">
-          {hackathon_review_submitted({}, { locale })}
-        </StatusMessage>
+        <div className="mt-4">
+          <HackathonReviewSummary
+            draft={draft}
+            locale={locale}
+            timeZone={timeZone}
+          />
+        </div>
       ) : (
         <div className="mt-4 grid gap-4">
-          {review.status === 'rejected' ? (
-            <div className="grid gap-2">
-              <StatusMessage variant="warning">
-                {hackathon_review_rejected({}, { locale })}
-              </StatusMessage>
-              {review.note ? (
-                <div className="rounded-box bg-base-200 p-3 text-body-sm">
-                  <p className="text-caption text-neutral">
-                    {hackathon_review_note({}, { locale })}
-                  </p>
-                  <p className="whitespace-pre-line">
-                    <bdi>{review.note}</bdi>
-                  </p>
-                </div>
-              ) : null}
-            </div>
-          ) : null}
           <p className="text-body-sm text-neutral">
             {hackathon_review_hint({}, { locale })}
           </p>
           <Checklist draft={draft} locale={locale} />
+          <HackathonReviewSummary
+            draft={draft}
+            locale={locale}
+            timeZone={timeZone}
+          />
           {submit.isError ? (
             <StatusMessage variant="error">
               {hackathonEditError(submit.error, locale)}

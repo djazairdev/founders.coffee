@@ -51,7 +51,10 @@ describe('HackathonManagePage (B-HKN-12)', () => {
     renderPage('ar');
 
     expect(
-      screen.getByRole('heading', { name: 'القواعد وشروط المشاركة' }),
+      screen.getByRole('heading', {
+        name: 'القواعد وشروط المشاركة',
+        level: 2,
+      }),
     ).toBeTruthy();
     expect(screen.getByLabelText('بدء التسجيل')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'حفظ' })).toBeTruthy();

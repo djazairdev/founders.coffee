@@ -1,18 +1,13 @@
 import { HACKATHON_AI_POLICIES } from '@founders-coffee/core';
 import {
   hackathon_details_ai,
-  hackathon_details_ai_disclosed,
-  hackathon_details_ai_disclosed_hint,
-  hackathon_details_ai_native,
-  hackathon_details_ai_native_hint,
   hackathon_details_ai_note,
   hackathon_details_ai_policy,
-  hackathon_details_ai_restricted,
-  hackathon_details_ai_restricted_hint,
   type Locale,
 } from '@founders-coffee/i18n';
 import { fieldNoteId } from '@founders-coffee/ui';
 
+import { AI_POLICY_LABELS } from '../detail-labels';
 import {
   detailsFieldId,
   type useHackathonDetailsForm,
@@ -20,21 +15,6 @@ import {
 import { HackathonNoteField } from './HackathonNoteField';
 
 type Form = ReturnType<typeof useHackathonDetailsForm>;
-
-const POLICIES = {
-  disclosed: {
-    name: hackathon_details_ai_disclosed,
-    hint: hackathon_details_ai_disclosed_hint,
-  },
-  ai_native: {
-    name: hackathon_details_ai_native,
-    hint: hackathon_details_ai_native_hint,
-  },
-  restricted: {
-    name: hackathon_details_ai_restricted,
-    hint: hackathon_details_ai_restricted_hint,
-  },
-} as const;
 
 export const HackathonAiPolicyFields = ({
   form,
@@ -74,10 +54,10 @@ export const HackathonAiPolicyFields = ({
               />
               <span>
                 <span className="block text-body-sm font-medium">
-                  {POLICIES[policy].name({}, { locale })}
+                  {AI_POLICY_LABELS[policy].name({}, { locale })}
                 </span>
                 <span className="block text-body-sm text-neutral">
-                  {POLICIES[policy].hint({}, { locale })}
+                  {AI_POLICY_LABELS[policy].hint({}, { locale })}
                 </span>
               </span>
             </label>
