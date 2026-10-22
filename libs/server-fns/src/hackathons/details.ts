@@ -4,6 +4,7 @@ import { AppError, err, type Result } from '@founders-coffee/core';
 import { hackathonDetailsWrite, type Db } from '@founders-coffee/db';
 import { hackathons } from '@founders-coffee/domain';
 
+import { moveHackathonReminders } from '../notifications/hackathon-reminders.js';
 import { loadHackathonEdit, runHackathonEdit } from './edit-context.js';
 
 /** The details the database stores, with every optional value the organiser left out as `null`. */
@@ -76,7 +77,7 @@ export const saveHackathonDetailsResolver = async (
         { fields: locked },
       ),
     );
-  return runHackathonEdit(db, loaded.data, {
+  const saved = await runHackathonEdit(db, loaded.data, {
     operation: 'hackathon_details_saved',
     organisationId: input.organisationId,
     writes: [
@@ -87,4 +88,6 @@ export const saveHackathonDetailsResolver = async (
       }),
     ],
   });
+  if (saved.ok) await moveHackathonReminders(db, input.eventId, now);
+  return saved;
 };

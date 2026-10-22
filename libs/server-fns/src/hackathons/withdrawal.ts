@@ -10,6 +10,10 @@ import { hackathons } from '@founders-coffee/domain';
 import { logger, type Metrics } from '@founders-coffee/observability';
 
 import { enqueueHackathonRegistrationNotice } from '../notifications/hackathon-registration.js';
+import {
+  cancelParticipantReminders,
+  scheduleParticipantReminders,
+} from '../notifications/hackathon-reminders.js';
 import { hackathonNotFound } from './edit-context.js';
 import { requireHackathonsEnabled } from './flag.js';
 import { recordHackathonMetric } from './metrics.js';
@@ -70,7 +74,12 @@ export const withdrawFromHackathonResolver = async (
     marketCode: event.marketCode,
     isPlaceGivenOn: written.promotedUserId !== null,
   });
-  if (written.promotedUserId)
+  await cancelParticipantReminders(db, {
+    eventId: event.id,
+    userId: input.userId,
+  });
+  if (written.promotedUserId) {
+    const locale = (await getUser(db, written.promotedUserId))?.localePref;
     await enqueueHackathonRegistrationNotice(db, {
       templateKey: 'hackathon_promoted',
       eventId: event.id,
@@ -80,7 +89,13 @@ export const withdrawFromHackathonResolver = async (
       marketCode: event.marketCode,
       startsAt: event.startsAt,
       venue: event.venue,
-      locale: (await getUser(db, written.promotedUserId))?.localePref,
+      locale,
     });
+    await scheduleParticipantReminders(db, {
+      eventId: event.id,
+      userId: written.promotedUserId,
+      locale,
+    });
+  }
   return ok({ isWithdrawn: true });
 };

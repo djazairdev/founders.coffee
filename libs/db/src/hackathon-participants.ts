@@ -57,3 +57,20 @@ export const readParticipantStanding = async (
     teamSize: row.teamId === null ? 0 : Number(row.teamSize),
   };
 };
+
+/** The members holding a place in a hackathon (B-HKN-21), not those waiting for one or gone. */
+export const listRegisteredParticipantIds = async (
+  db: Db,
+  eventId: string,
+): Promise<string[]> =>
+  (
+    await db
+      .select({ userId: hackathonRegistrations.userId })
+      .from(hackathonRegistrations)
+      .where(
+        and(
+          eq(hackathonRegistrations.eventId, eventId),
+          eq(hackathonRegistrations.status, 'registered'),
+        ),
+      )
+  ).map((row) => row.userId);
