@@ -190,6 +190,9 @@ export const HACKATHON_ERROR_CODES = [
   'not_judge',
   'judging_not_started',
   'already_recused',
+  'report_target_not_found',
+  'own_team_report',
+  'already_reported',
 ] as const;
 export type HackathonErrorCode = (typeof HACKATHON_ERROR_CODES)[number];
 export const hackathonErrorCodeSchema = z.enum(HACKATHON_ERROR_CODES);

@@ -58,6 +58,10 @@ const KEPT: Readonly<Record<string, string>> = {
     'A report about the member stays until its retention runs out (CH-09).',
   'chat_reports.reviewed_by':
     'The moderator who decided a report stays named in the decision.',
+  'hackathon_reports.reporter_id':
+    'A report about an entry or a team stays until its retention runs out (B-SAFE-01); the reporter is the tombstone.',
+  'hackathon_reports.reviewed_by':
+    'The administrator who decided a hackathon report stays named in the decision.',
   'hackathon_team_invites.created_by':
     'An invite link belongs to its team; one the member made stays with the team, from the tombstone, until it expires or is revoked.',
   'hackathon_submission_versions.submitted_by':
