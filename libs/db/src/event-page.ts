@@ -97,6 +97,8 @@ export const readEventPageRows = async (
         aiPolicy: hackathons.aiPolicy,
         aiPolicyNote: hackathons.aiPolicyNote,
         licenceNote: hackathons.licenceNote,
+        capacity: hackathons.capacity,
+        registeredCount: hackathons.registeredCount,
       })
       .from(hackathons)
       .where(eq(hackathons.eventId, eventId))

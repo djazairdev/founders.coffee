@@ -146,3 +146,30 @@ export const isRegisteredParticipant = async (
     .limit(1);
   return row !== undefined;
 };
+
+/**
+ * A member's own registration for a hackathon, in whatever status it is, or `null` when they never
+ * registered (B-REG-06). Only the member's own page reads it.
+ */
+export const readHackathonRegistration = async (
+  db: Db,
+  input: { readonly eventId: string; readonly userId: string },
+): Promise<{
+  readonly status: HackathonRegistrationStatus;
+  readonly attendanceMode: AttendanceMode;
+} | null> => {
+  const [row] = await db
+    .select({
+      status: hackathonRegistrations.status,
+      attendanceMode: hackathonRegistrations.attendanceMode,
+    })
+    .from(hackathonRegistrations)
+    .where(
+      and(
+        eq(hackathonRegistrations.eventId, input.eventId),
+        eq(hackathonRegistrations.userId, input.userId),
+      ),
+    )
+    .limit(1);
+  return row ?? null;
+};

@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import {
   AppError,
+  ATTENDANCE_MODES_BY_FORMAT,
   attendanceModeSchema,
   err,
   HACKATHON_REGISTRATION_SKILLS_MAX,
@@ -45,17 +46,11 @@ export type HackathonRegistrationInput = z.input<
   typeof hackathonRegistrationSchema
 >;
 
-const MODES_BY_FORMAT: Record<EventFormat, readonly AttendanceMode[]> = {
-  in_person: ['in_person'],
-  online: ['online'],
-  hybrid: ['in_person', 'online'],
-};
-
 /** Whether a hackathon of this format can be attended this way. */
 export const isAttendanceModeOffered = (
   format: EventFormat,
   mode: AttendanceMode,
-): boolean => MODES_BY_FORMAT[format].includes(mode);
+): boolean => ATTENDANCE_MODES_BY_FORMAT[format].includes(mode);
 
 /**
  * Decide a registration from the hackathon's rules, or refuse it with a typed error.

@@ -38,6 +38,11 @@ vi.mock('../../features/chat/components/EventChat', () => ({
   EventChat: () => null,
 }));
 
+vi.mock(
+  '../../features/hackathons/components/HackathonRegistrationCard',
+  () => ({ HackathonRegistrationCard: () => null }),
+);
+
 export const market = {
   code: 'DZ',
   name: 'Algeria',

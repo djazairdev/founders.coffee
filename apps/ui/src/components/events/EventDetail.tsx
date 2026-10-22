@@ -31,7 +31,7 @@ import type {
   HackathonSchedule as Schedule,
 } from '../../features/hackathons/api';
 import { HackathonPageDetails } from '../../features/hackathons/components/HackathonPageDetails';
-import { HackathonSchedule } from '../../features/hackathons/components/HackathonSchedule';
+import { HackathonAside } from '../../features/hackathons/components/HackathonAside';
 import { localizedCity } from '../../lib/locale-routing';
 import { EventCancelledNotice } from './EventCancelledNotice';
 import { EventFormatBadge } from './EventFormatBadge';
@@ -263,11 +263,14 @@ export const EventDetail = ({
           />
         ) : null}
         {hackathon ? (
-          <HackathonSchedule
+          <HackathonAside
+            eventId={event.id}
+            format={event.format}
             schedule={hackathon}
-            locale={locale}
-            timeZone={market.timezone}
+            details={details}
             isCancelled={isCancelled}
+            timeZone={market.timezone}
+            locale={locale}
           />
         ) : null}
       </div>
