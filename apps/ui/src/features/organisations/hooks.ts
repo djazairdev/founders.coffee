@@ -53,3 +53,34 @@ export const useRemoveMember = () =>
   useRosterChange((request: RemoveMemberRequest) =>
     organisationsApi.removeMember(request),
   );
+
+const INVITATION = ['organisations', 'invitation'] as const;
+
+/** An invitation addressed to the signed-in member, as its page shows it. */
+export const useOrganisationInvitation = (invitationId: string) =>
+  useQuery({
+    queryKey: [...INVITATION, invitationId],
+    queryFn: () => organisationsApi.invitation(invitationId),
+  });
+
+/** Accept or decline an invitation; the invitation and the member's organisations are read again. */
+export const useAnswerInvitation = () => {
+  const cache = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      invitationId,
+      answer,
+    }: {
+      invitationId: string;
+      answer: 'accept' | 'decline';
+    }) =>
+      answer === 'accept'
+        ? organisationsApi.acceptInvitation(invitationId)
+        : organisationsApi.declineInvitation(invitationId),
+    onSettled: () =>
+      Promise.all([
+        cache.invalidateQueries({ queryKey: INVITATION }),
+        cache.invalidateQueries({ queryKey: MINE }),
+      ]),
+  });
+};

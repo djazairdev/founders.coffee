@@ -14,10 +14,12 @@ import {
   requirePermission,
 } from '../auth-middleware.js';
 import { requireAuth } from '../authz.js';
+import { getDb } from '../db.js';
 import { RATE_BUDGETS } from '../rate-budgets.js';
 import { rateLimit } from '../rate-limit.js';
 import { privateNoStore } from '../response-cache.js';
 import { invitationAuth } from './invitation-auth.js';
+import { invitationPageResolver } from './invitation-page.js';
 import {
   acceptInvitationResolver,
   cancelInvitationResolver,
@@ -98,6 +100,20 @@ export const cancelOrganisationInvitation = createServerFn({
       cancelInvitationResolver(db, auth, {
         headers: getRequest().headers,
         organisationId: context.organisationId,
+        invitationId: data.invitationId,
+      }),
+    );
+  });
+
+/** An invitation addressed to the signed-in member, as its page shows it (B-ORG-10). */
+export const getOrganisationInvitation = createServerFn({ strict: false })
+  .middleware([requirePermission('profile', 'read')])
+  .validator(appValidator(answerInvitationSchema))
+  .handler(({ context, data }) => {
+    privateNoStore();
+    return handleResult(
+      invitationPageResolver(getDb(), {
+        invitee: requireAuth(context.session).user,
         invitationId: data.invitationId,
       }),
     );

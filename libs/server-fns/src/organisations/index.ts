@@ -11,6 +11,7 @@ export type { OrganisationView } from './resolver.js';
 export {
   acceptOrganisationInvitation,
   cancelOrganisationInvitation,
+  getOrganisationInvitation,
   inviteOrganisationMember,
   rejectOrganisationInvitation,
 } from './invitation-rpc.js';
@@ -31,3 +32,4 @@ export type {
   OrganisationMemberView,
   OrganisationReview,
 } from './roster.js';
+export type { InvitationPage, InvitationState } from './invitation-page.js';

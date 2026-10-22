@@ -1,11 +1,15 @@
 import {
+  acceptOrganisationInvitation,
   applyForOrganisation,
   cancelOrganisationInvitation,
   getMyOrganisation,
+  getOrganisationInvitation,
   inviteOrganisationMember,
+  rejectOrganisationInvitation,
   removeOrganisationMember,
   type ApplyForOrganisationRequest,
   type CancelInvitationRequest,
+  type InvitationPage,
   type InviteMemberRequest,
   type MyOrganisationPage,
   type RemoveMemberRequest,
@@ -21,11 +25,18 @@ export const organisationsApi = {
     cancelOrganisationInvitation({ data: request }),
   removeMember: (request: RemoveMemberRequest) =>
     removeOrganisationMember({ data: request }),
+  invitation: (invitationId: string) =>
+    getOrganisationInvitation({ data: { invitationId } }),
+  acceptInvitation: (invitationId: string) =>
+    acceptOrganisationInvitation({ data: { invitationId } }),
+  declineInvitation: (invitationId: string) =>
+    rejectOrganisationInvitation({ data: { invitationId } }),
 };
 
 export type {
   ApplyForOrganisationRequest,
   CancelInvitationRequest,
+  InvitationPage,
   InviteMemberRequest,
   MyOrganisationPage,
   RemoveMemberRequest,

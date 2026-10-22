@@ -57,3 +57,11 @@ export const isOrganisationNotFound = (error: unknown): boolean => {
   const code = appErrorCode(error);
   return code === 'organisation_not_found' || code === 'validation_failed';
 };
+
+/** Whether the invitation page was refused because the invitation is not the reader's to see. */
+export const isInvitationNotFound = (error: unknown): boolean => {
+  const code = appErrorCode(error);
+  return (
+    code === 'organisation_invitation_not_found' || code === 'validation_failed'
+  );
+};
