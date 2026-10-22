@@ -2,7 +2,6 @@ import {
   type Campaign,
   AppError,
   err,
-  hasVenue,
   id,
   ok,
   type Result,
@@ -28,6 +27,7 @@ import {
   cancelRsvpNotifications,
   enqueueRsvpNotifications,
 } from '../notifications/producer.js';
+import { meetingLinkFor } from '../events/meeting-link.js';
 
 export interface RsvpResult {
   readonly status: 'going';
@@ -108,8 +108,6 @@ export const createRsvpResolver = async (
   if (event.hostId !== opts.userId)
     recordRsvpCreated(opts.metrics, event, opts.attribution);
 
-  if (!hasVenue(event)) return ok({ status: 'going' });
-
   const user = await getUser(db, opts.userId);
   if (user) {
     await enqueueRsvpNotifications(db, {
@@ -120,6 +118,10 @@ export const createRsvpResolver = async (
       marketCode: event.marketCode,
       startsAt: event.startsAt,
       venue: event.venue,
+      meetingLink: await meetingLinkFor(db, event, {
+        id: opts.userId,
+        isGoing: true,
+      }),
       phoneNumber: user.phoneNumber,
       email: user.email,
       locale: user.localePref,
@@ -209,7 +211,6 @@ export const cancelRsvpResolver = async (
     eventId: opts.eventId,
     hostId: event.hostId,
   });
-  if (!hasVenue(event)) return ok({ deleted: true });
   await enqueueHostRsvpCancellationNotice(db, {
     eventId: opts.eventId,
     hostId: event.hostId,

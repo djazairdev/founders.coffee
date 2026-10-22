@@ -1,4 +1,3 @@
-import { hasVenue } from '@founders-coffee/core';
 import type { Db, Event } from '@founders-coffee/db';
 import { logger } from '@founders-coffee/observability';
 
@@ -33,13 +32,6 @@ export const scheduleEventCloseoutPrompt = async (
   db: Db,
   event: Event,
 ): Promise<void> => {
-  if (!hasVenue(event)) {
-    logger.info('closeout_prompt_skipped', {
-      eventId: event.id,
-      outcome: 'no_venue',
-    });
-    return;
-  }
   try {
     const outcome = await enqueueCloseoutPrompt(db, {
       id: event.id,

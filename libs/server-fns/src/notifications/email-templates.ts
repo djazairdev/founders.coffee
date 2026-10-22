@@ -13,8 +13,12 @@ import {
   ntf_did_not_happen_title,
   ntf_email_did_not_happen_text,
   ntf_email_event_cancelled_html,
+  ntf_email_event_cancelled_online_html,
+  ntf_email_event_cancelled_online_text,
   ntf_event_cancelled_title,
   ntf_email_event_cancelled_text,
+  ntf_email_meeting_link_html,
+  ntf_email_meeting_link_text,
   ntf_email_event_relocated_html,
   ntf_event_relocated_title,
   ntf_email_event_relocated_text,
@@ -71,6 +75,31 @@ const withCalendarText = (
   locale: Locale,
 ): string =>
   links ? `${text}\n\n${ntf_email_calendar_text(links, { locale })}` : text;
+
+/**
+ * Follow a message to a member going with the meeting link of an online or hybrid meetup, when
+ * this reader is given it (B-EVT-13): the confirmation and both reminders, which are what a member
+ * opens to find how to join. It is never in a subject, which an email provider logs, nor in a push,
+ * which a locked phone shows to anyone holding it.
+ */
+const withMeetingLinkHtml = (
+  html: string,
+  meetingLink: string | undefined,
+  locale: Locale,
+): string =>
+  meetingLink
+    ? `${html}${ntf_email_meeting_link_html({ meetingLink }, { locale })}`
+    : html;
+
+/** The plain-text form of {@link withMeetingLinkHtml}: the raw link, after a blank line. */
+const withMeetingLinkText = (
+  text: string,
+  meetingLink: string | undefined,
+  locale: Locale,
+): string =>
+  meetingLink
+    ? `${text}\n\n${ntf_email_meeting_link_text({ meetingLink }, { locale })}`
+    : text;
 
 /**
  * Wrap a notification's body in the shared email layout, with its subject as the inbox preview.
@@ -138,12 +167,20 @@ export const emailPayloadFor = async (
         locale,
         ntf_email_confirmation_subject(values, options),
         withCalendarHtml(
-          ntf_email_confirmation_html(safe, options),
+          withMeetingLinkHtml(
+            ntf_email_confirmation_html(safe, options),
+            safe.meetingLink,
+            locale,
+          ),
           safe.calendar,
           locale,
         ),
         withCalendarText(
-          ntf_email_confirmation_text(values, options),
+          withMeetingLinkText(
+            ntf_email_confirmation_text(values, options),
+            values.meetingLink,
+            locale,
+          ),
           values.calendar,
           locale,
         ),
@@ -152,27 +189,47 @@ export const emailPayloadFor = async (
       return renderNotificationEmail(
         locale,
         ntf_email_reminder_72h_subject(values, options),
-        ntf_email_reminder_72h_html(safe, options),
-        ntf_email_reminder_72h_text(values, options),
+        withMeetingLinkHtml(
+          ntf_email_reminder_72h_html(safe, options),
+          safe.meetingLink,
+          locale,
+        ),
+        withMeetingLinkText(
+          ntf_email_reminder_72h_text(values, options),
+          values.meetingLink,
+          locale,
+        ),
       );
     case 'reminder_24h':
       return renderNotificationEmail(
         locale,
         ntf_reminder_24h_title(values, options),
-        ntf_email_reminder_24h_html(safe, options),
-        ntf_email_reminder_24h_text(values, options),
+        withMeetingLinkHtml(
+          ntf_email_reminder_24h_html(safe, options),
+          safe.meetingLink,
+          locale,
+        ),
+        withMeetingLinkText(
+          ntf_email_reminder_24h_text(values, options),
+          values.meetingLink,
+          locale,
+        ),
       );
     case 'event_cancelled':
       return renderNotificationEmail(
         locale,
         ntf_event_cancelled_title(values, options),
         withReason(
-          ntf_email_event_cancelled_html(safe, options),
+          values.isOnline
+            ? ntf_email_event_cancelled_online_html(safe, options)
+            : ntf_email_event_cancelled_html(safe, options),
           safe.reason,
           locale,
         ),
         withReason(
-          ntf_email_event_cancelled_text(values, options),
+          values.isOnline
+            ? ntf_email_event_cancelled_online_text(values, options)
+            : ntf_email_event_cancelled_text(values, options),
           values.reason,
           locale,
         ),

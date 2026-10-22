@@ -1,10 +1,4 @@
-import {
-  AppError,
-  err,
-  hasVenue,
-  ok,
-  type Result,
-} from '@founders-coffee/core';
+import { AppError, err, ok, type Result } from '@founders-coffee/core';
 import {
   cancelCityWaitlistLaunch,
   cancelNotificationsByEvent,
@@ -119,17 +113,16 @@ export const cancelEventResolver = async (
   let notified = 0;
   try {
     await cancelNotificationsByEvent(db, { eventId: opts.eventId });
-    if (hasVenue(event))
-      notified = await enqueueEventCancellationNotices(db, {
-        eventId: event.id,
-        hostId: event.hostId,
-        eventTitle: event.title,
-        eventSlug: event.slug,
-        marketCode: event.marketCode,
-        startsAt: event.startsAt,
-        venue: event.venue,
-        reason,
-      });
+    notified = await enqueueEventCancellationNotices(db, {
+      eventId: event.id,
+      hostId: event.hostId,
+      eventTitle: event.title,
+      eventSlug: event.slug,
+      marketCode: event.marketCode,
+      startsAt: event.startsAt,
+      venue: event.venue,
+      reason,
+    });
   } catch (error) {
     reportError(error, {
       operation: 'cancel_event_notices',

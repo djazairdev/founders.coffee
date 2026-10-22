@@ -61,7 +61,7 @@ export const enqueueEventCancellationNotices = async (
     eventSlug: string;
     marketCode: string;
     startsAt: Date;
-    venue: string;
+    venue: string | null;
     reason?: string | null;
   },
 ): Promise<number> => {
@@ -97,7 +97,7 @@ export const enqueueEventCancellationNotices = async (
       eventSlug: opts.eventSlug,
       marketCode: opts.marketCode,
       startsAt: opts.startsAt.toISOString(),
-      venue: opts.venue,
+      ...(opts.venue ? { venue: opts.venue } : {}),
       locale: context.locale,
     };
     const smsBody = smsBodyFor(

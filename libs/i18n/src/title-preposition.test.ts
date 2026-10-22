@@ -21,6 +21,7 @@ const FR = { locale: 'fr' } as const;
 const MEETUP = {
   title: 'Le Grand Café',
   venue: 'Ifri Hub',
+  where: 'à Ifri Hub',
   date: 'samedi 3 octobre',
   url: 'https://founders.coffee/e/1',
 } as const;

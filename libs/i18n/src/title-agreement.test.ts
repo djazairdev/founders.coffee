@@ -27,6 +27,7 @@ const LINK = 'https://founders.coffee/e/1';
 const ARABIC_MEETUP = {
   title: 'قهوة تعارف',
   venue: 'مقهى الروضة',
+  where: 'في مقهى الروضة',
   date: 'السبت 3 أكتوبر',
   url: LINK,
 } as const;
@@ -34,6 +35,7 @@ const ARABIC_MEETUP = {
 const FRENCH_MEETUP = {
   title: 'Les Matinales',
   venue: 'Ifri Hub',
+  where: 'à Ifri Hub',
   date: 'samedi 3 octobre',
   url: LINK,
 } as const;
