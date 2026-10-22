@@ -22,6 +22,7 @@ import { hackathonStatusLabel } from '../../organisations/hackathon-labels';
 import { isHackathonMissing, isHackathonsDisabled } from '../errors';
 import { useHackathonDraft } from '../hooks';
 import { HackathonDetailsForm } from './HackathonDetailsForm';
+import { HackathonTracksSection } from './HackathonTracksSection';
 import { HackathonsUnavailable } from './HackathonsUnavailable';
 
 const momentOf = (epochMs: number, locale: Locale, timeZone: string) =>
@@ -115,21 +116,24 @@ export const HackathonManagePage = ({
         </StatusMessage>
       ) : null}
       {draft.isEditable ? (
-        <section aria-labelledby="hackathon-details-heading" className="mt-8">
-          <h2 id="hackathon-details-heading" className="font-display text-h4">
-            {hackathon_details_heading({}, { locale })}
-          </h2>
-          <p className="mt-1 mb-6 text-body-sm text-neutral">
-            {hackathon_details_sub({}, { locale })}
-          </p>
-          <HackathonDetailsForm
-            draft={draft}
-            locale={locale}
-            timeZone={timeZone}
-            kickoff={kickoff}
-            demoDay={demoDay}
-          />
-        </section>
+        <>
+          <section aria-labelledby="hackathon-details-heading" className="mt-8">
+            <h2 id="hackathon-details-heading" className="font-display text-h4">
+              {hackathon_details_heading({}, { locale })}
+            </h2>
+            <p className="mt-1 mb-6 text-body-sm text-neutral">
+              {hackathon_details_sub({}, { locale })}
+            </p>
+            <HackathonDetailsForm
+              draft={draft}
+              locale={locale}
+              timeZone={timeZone}
+              kickoff={kickoff}
+              demoDay={demoDay}
+            />
+          </section>
+          <HackathonTracksSection draft={draft} locale={locale} />
+        </>
       ) : (
         <StatusMessage variant="info" className="mt-6">
           {hackathon_manage_locked({}, { locale })}

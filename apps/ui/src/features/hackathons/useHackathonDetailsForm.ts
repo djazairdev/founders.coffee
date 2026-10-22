@@ -1,20 +1,12 @@
 import { useMemo, useState } from 'react';
 import { flushSync } from 'react-dom';
 
-import { appErrorCode } from '@founders-coffee/core';
-import {
-  hackathon_details_error_conflict,
-  hackathon_details_error_locked,
-  hackathon_details_error_rate_limited,
-  hackathon_details_error_save,
-  hackathon_manage_locked,
-  host_error_invalid,
-  type Locale,
-} from '@founders-coffee/i18n';
+import type { Locale } from '@founders-coffee/i18n';
 
 import { seekField } from '../events/seek-field';
 import type { HackathonDraftView } from './api';
 import { lockedFieldsOf } from './details-locks';
+import { hackathonEditError } from './edit-errors';
 import {
   checkDetails,
   DETAILS_FIELD_ORDER,
@@ -38,23 +30,6 @@ const seekDetailsField = (field: DetailsField): void => {
       ? element
       : (element.querySelector<HTMLElement>(FOCUSABLE) ?? element),
   );
-};
-
-const saveErrorMessage = (error: unknown, locale: Locale): string => {
-  switch (appErrorCode(error)) {
-    case 'rate_limited':
-      return hackathon_details_error_rate_limited({}, { locale });
-    case 'hackathon_not_editable':
-      return hackathon_manage_locked({}, { locale });
-    case 'hackathon_conflict':
-      return hackathon_details_error_conflict({}, { locale });
-    case 'hackathon_field_locked':
-      return hackathon_details_error_locked({}, { locale });
-    case 'validation_failed':
-      return host_error_invalid({}, { locale });
-    default:
-      return hackathon_details_error_save({}, { locale });
-  }
 };
 
 /**
@@ -120,6 +95,6 @@ export const useHackathonDetailsForm = ({
     isLocked: (field: DetailsField) => lockedFields.has(field),
     isSaving: save.isPending,
     isSaved: save.isSuccess,
-    saveError: save.isError ? saveErrorMessage(save.error, locale) : null,
+    saveError: save.isError ? hackathonEditError(save.error, locale) : null,
   };
 };
