@@ -55,6 +55,11 @@ export type PublicHackathonRules = {
   readonly licenceNote: string | null;
 };
 
+export type HackathonOrganisation = {
+  readonly name: string;
+  readonly slug: string;
+};
+
 export interface EventPage {
   readonly market: Market;
   readonly event: EventDetailItem;
@@ -67,9 +72,18 @@ export interface EventPage {
   readonly prizes: readonly PublicHackathonPrizeView[];
   readonly mentors: readonly PublicHackathonMentor[];
   readonly workshops: readonly HackathonWorkshop[];
+  readonly organisations: readonly HackathonOrganisation[];
 }
 
 type PageRows = Awaited<ReturnType<typeof readEventPageRows>>;
+
+/** The organisations that run a hackathon, the lead first, for its structured data (B-HKN-24). */
+const organisationsOf = (
+  rows: PageRows['organisers'],
+): HackathonOrganisation[] =>
+  [...rows]
+    .sort((a, b) => Number(b.role === 'lead') - Number(a.role === 'lead'))
+    .map(({ name, slug }) => ({ name, slug }));
 
 const rulesOf = (
   row: PageRows['hackathon'],
@@ -159,7 +173,8 @@ const hostCard = (
  * hackathon's schedule and current phase come back with it, read in the same batch (B-HKN-17), with
  * its rules, eligibility, AI policy and licence (B-HKN-19), and
  * so do the judges who accepted (B-JDG-03), its tracks and confirmed prizes (B-HKN-18), and its
- * mentors and its organisers' workshops before kickoff (B-HKN-26), none for a meetup.
+ * mentors and its organisers' workshops before kickoff (B-HKN-26), and the organisations that run
+ * it, for its structured data (B-HKN-24), none for a meetup.
  */
 export const readEventPage = async (
   db: Db,
@@ -193,5 +208,6 @@ export const readEventPage = async (
     prizes: isHackathon ? rows.data.prizes.map(publicPrizeOf) : [],
     mentors: isHackathon ? rows.data.mentors : [],
     workshops: isHackathon ? rows.data.workshops : [],
+    organisations: isHackathon ? organisationsOf(rows.data.organisers) : [],
   });
 };
