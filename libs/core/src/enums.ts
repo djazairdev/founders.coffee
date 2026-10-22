@@ -181,6 +181,7 @@ export const AUDIT_TARGETS = [
   'hackathon',
   'submission',
   'judge',
+  'team',
 ] as const;
 export type AuditTarget = (typeof AUDIT_TARGETS)[number];
 export const auditTargetSchema = z.enum(AUDIT_TARGETS);
@@ -197,6 +198,7 @@ export const AUDIT_ACTIONS = [
   'suspended',
   'recused',
   'disqualified',
+  'dismissed',
   'results_published',
   'co_host_added',
   'co_host_removed',

@@ -4,6 +4,7 @@ import {
   admin_cohost_nav,
   admin_hkn_nav,
   admin_org_nav,
+  admin_rpt_nav,
   type Locale,
 } from '@founders-coffee/i18n';
 
@@ -26,6 +27,15 @@ export const OperationsNav = ({ locale }: { locale: Locale }) => (
           to="/hackathons"
         >
           {admin_hkn_nav({}, { locale })}
+        </Link>
+      </li>
+      <li>
+        <Link
+          className="btn btn-outline btn-xs sm:btn-sm md:btn-md"
+          search={{ page: 0 }}
+          to="/reports"
+        >
+          {admin_rpt_nav({}, { locale })}
         </Link>
       </li>
       <li>

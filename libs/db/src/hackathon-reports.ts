@@ -99,6 +99,8 @@ export const reportHackathonTarget = async (
             status: sql<'open'>`'open'`.as('status'),
             reviewedBy: sql<null>`null`.as('reviewed_by'),
             reviewedAt: sql<null>`null`.as('reviewed_at'),
+            decisionReason: sql<null>`null`.as('decision_reason'),
+            evidence: sql<null>`null`.as('evidence'),
             createdAt: sql<number>`unixepoch()`.as('created_at'),
           })
           .from(events)
