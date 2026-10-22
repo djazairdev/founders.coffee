@@ -19,7 +19,7 @@ const DYNAMIC_IMPORT = /\bimport\(\s*['"]([^'"]+)['"]\s*\)/gu;
 const MODULE_SUFFIXES = ['', '.ts', '.tsx', '/index.ts', '/index.tsx'];
 
 const POLICIES =
-  'the cookie policy (cookies.ts, legal-en-cookies.ts, legal-fr-cookies.ts) and the privacy policy (privacy-data.ts, legal-en-privacy.ts, legal-fr-privacy.ts) tell readers that only creating a meetup and editing its venue load Mapbox’s map library, which keeps an identifier in local storage and sends it to Mapbox: correct both in ar, fr and en, and date them, before changing this list';
+  'the cookie policy (cookies.ts, legal-en-cookies.ts, legal-fr-cookies.ts) and the privacy policy (privacy-data.ts, legal-en-privacy.ts, legal-fr-privacy.ts) tell readers that only creating a meetup or a hackathon and editing a meetup’s venue load Mapbox’s map library, which keeps an identifier in local storage and sends it to Mapbox: correct both in ar, fr and en, and date them, before changing this list';
 
 const SOURCES = new Map(
   readdirSync(SRC, { recursive: true, encoding: 'utf8' })
@@ -95,10 +95,11 @@ describe('the pages the policies say load Mapbox’s map library', () => {
     ]);
   });
 
-  it('reaches it from creating a meetup and editing its venue, and from no other page', () => {
+  it('reaches it from creating a meetup or a hackathon and editing a meetup’s venue, and from no other page', () => {
     expect(PAGES, POLICIES).toEqual([
       'routes/$locale.$market.host.create.tsx',
       'routes/$locale.edit.$eventId.tsx',
+      'routes/$locale.o.$slug.hackathons.new.tsx',
     ]);
   });
 });
