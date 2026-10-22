@@ -1,16 +1,14 @@
 import { AppError, err, id, ok, type Result } from '@founders-coffee/core';
 import {
   createHackathonTeam,
-  getHackathon,
   readParticipantStanding,
   type Db,
 } from '@founders-coffee/db';
 import { hackathons } from '@founders-coffee/domain';
 import { logger, type Metrics } from '@founders-coffee/observability';
 
-import { hackathonNotFound } from './edit-context.js';
-import { requireHackathonsEnabled } from './flag.js';
 import { recordHackathonMetric } from './metrics.js';
+import { loadTeamHackathon } from './team-context.js';
 
 export type TeamCreateInput = {
   readonly eventId: string;
@@ -37,19 +35,9 @@ export const createHackathonTeamResolver = async (
   input: TeamCreateInput,
   now: number = Date.now(),
 ): Promise<Result<TeamCreated>> => {
-  const found = await getHackathon(db, input.eventId);
-  if (!found || found.event.status !== 'published') return hackathonNotFound();
-  const { event, hackathon } = found;
-  const disabled = await requireHackathonsEnabled(db, event.marketCode);
-  if (disabled) return err(disabled);
-  const timeline = {
-    registrationOpensAt: hackathon.registrationOpensAt.getTime(),
-    registrationClosesAt: hackathon.registrationClosesAt.getTime(),
-    kickoffAt: event.startsAt.getTime(),
-    submissionDeadlineAt: hackathon.submissionDeadlineAt.getTime(),
-    endsAt: (event.endsAt ?? event.startsAt).getTime(),
-    judgingEndsAt: hackathon.judgingEndsAt.getTime(),
-  };
+  const loaded = await loadTeamHackathon(db, input.eventId);
+  if (!loaded.ok) return loaded;
+  const { event, timeline } = loaded.data;
   const decide = async () => {
     const standing = await readParticipantStanding(db, input);
     return hackathons.decideCreateTeam({
