@@ -83,7 +83,7 @@ const approvedHackathon = async (
         registrationClosesAt: new Date('2099-01-20T23:00:00Z'),
         submissionDeadlineAt: new Date(opensAt + 27 * 24 * HOUR),
         judgingEndsAt: new Date(opensAt + 30 * 24 * HOUR),
-        aiPolicy: 'allowed',
+        aiPolicy: 'disclosed',
         aiPolicyNote: null,
         licenceNote: null,
       },
