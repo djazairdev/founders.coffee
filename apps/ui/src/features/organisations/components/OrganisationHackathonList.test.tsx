@@ -40,12 +40,10 @@ const draft: OrganisationHackathon = {
 const renderList = ({
   hackathons = [draft],
   canCreate = true,
-  savedId = null,
   locale = 'en',
 }: {
   hackathons?: readonly OrganisationHackathon[];
   canCreate?: boolean;
-  savedId?: string | null;
   locale?: Locale;
 } = {}) =>
   render(
@@ -53,7 +51,6 @@ const renderList = ({
       slug="oran-makers"
       hackathons={hackathons}
       canCreate={canCreate}
-      savedId={savedId}
       locale={locale}
       timeZone="Africa/Algiers"
     />,
@@ -78,13 +75,12 @@ describe('OrganisationHackathonList (B-HKN-11)', () => {
     ).toBe('/en/o/oran-makers/hackathons/new');
   });
 
-  it('confirms the draft just saved, and no other', () => {
-    renderList({ savedId: 'evt_draft' });
-    expect(screen.getByText('Draft saved.')).toBeTruthy();
-    cleanup();
+  it('links each hackathon to the page its organisers manage it on', () => {
+    renderList();
 
-    renderList({ savedId: 'evt_someone_else' });
-    expect(screen.queryByText('Draft saved.')).toBeNull();
+    expect(
+      screen.getByRole('link', { name: 'Manage' }).getAttribute('href'),
+    ).toBe('/en/hackathon/evt_draft/manage');
   });
 
   it('says when there are none yet, and offers nothing to create without the right', () => {

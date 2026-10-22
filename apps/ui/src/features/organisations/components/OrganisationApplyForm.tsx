@@ -4,14 +4,9 @@ import {
   optional,
   org_apply_description,
   org_apply_description_hint,
-  org_apply_error_description,
   org_apply_error_failed,
-  org_apply_error_kind,
-  org_apply_error_name,
   org_apply_error_rate_limited,
-  org_apply_error_slug,
   org_apply_error_slug_taken,
-  org_apply_error_website,
   org_apply_kind,
   org_apply_kind_choose,
   org_apply_name,
@@ -22,7 +17,13 @@ import {
   sending,
   type Locale,
 } from '@founders-coffee/i18n';
-import { Input, Select, StatusMessage } from '@founders-coffee/ui';
+import {
+  fieldNoteId,
+  FormField,
+  Input,
+  Select,
+  StatusMessage,
+} from '@founders-coffee/ui';
 
 import { HackathonsUnavailable } from '../../hackathons/components/HackathonsUnavailable';
 import type { RootMarket } from '../../markets/api';
@@ -40,9 +41,8 @@ import {
   type ApplicationField as Field,
   type ApplicationDraft,
 } from '../application';
-import { applicationRefusal } from '../errors';
+import { applicationFieldError, applicationRefusal } from '../errors';
 import { useApplyForOrganisation } from '../hooks';
-import { ApplicationField, fieldNoteId } from './ApplicationField';
 import { KIND_LABELS } from '../kind-labels';
 import { OrganisationLocationFields } from './OrganisationLocationFields';
 
@@ -118,14 +118,7 @@ export const OrganisationApplyForm = ({
   const errorFor = (field: Field): string | null => {
     if (field === 'slug' && problem === 'slug_taken')
       return org_apply_error_slug_taken({}, { locale });
-    if (invalid !== field) return null;
-    if (field === 'name') return org_apply_error_name(NAME_LENGTH, { locale });
-    if (field === 'slug') return org_apply_error_slug({}, { locale });
-    if (field === 'kind') return org_apply_error_kind({}, { locale });
-    if (field === 'description')
-      return org_apply_error_description(DESCRIPTION_LENGTH, { locale });
-    if (field === 'websiteUrl') return org_apply_error_website({}, { locale });
-    return null;
+    return invalid === field ? applicationFieldError(field, locale) : null;
   };
 
   const describe = (field: Field, id: string, hasHint = false) => ({
@@ -137,7 +130,7 @@ export const OrganisationApplyForm = ({
 
   return (
     <form className="space-y-5" noValidate onSubmit={submit}>
-      <ApplicationField
+      <FormField
         error={errorFor('name')}
         id="organisation-name"
         label={org_apply_name({}, { locale })}
@@ -155,8 +148,8 @@ export const OrganisationApplyForm = ({
           ref={bind('name')}
           value={draft.name}
         />
-      </ApplicationField>
-      <ApplicationField
+      </FormField>
+      <FormField
         error={errorFor('slug')}
         hint={org_apply_slug_hint({}, { locale })}
         id="organisation-slug"
@@ -178,8 +171,8 @@ export const OrganisationApplyForm = ({
           spellCheck={false}
           value={draft.slug}
         />
-      </ApplicationField>
-      <ApplicationField
+      </FormField>
+      <FormField
         error={errorFor('kind')}
         id="organisation-kind"
         label={org_apply_kind({}, { locale })}
@@ -207,7 +200,7 @@ export const OrganisationApplyForm = ({
             </option>
           ))}
         </Select>
-      </ApplicationField>
+      </FormField>
       <OrganisationLocationFields
         cityCode={draft.cityCode}
         cityRef={bind('cityCode')}
@@ -223,7 +216,7 @@ export const OrganisationApplyForm = ({
         onState={(stateCode) => change('cityCode', withState(draft, stateCode))}
         stateCode={draft.stateCode}
       />
-      <ApplicationField
+      <FormField
         aside={
           <span className="shrink-0 text-caption text-neutral" dir="ltr">
             {draft.description.trim().length} / {DESCRIPTION_LENGTH.max}
@@ -252,8 +245,8 @@ export const OrganisationApplyForm = ({
           rows={5}
           value={draft.description}
         />
-      </ApplicationField>
-      <ApplicationField
+      </FormField>
+      <FormField
         error={errorFor('websiteUrl')}
         id="organisation-website"
         isOptional
@@ -274,7 +267,7 @@ export const OrganisationApplyForm = ({
           type="url"
           value={draft.websiteUrl}
         />
-      </ApplicationField>
+      </FormField>
       {problem === 'unavailable' ? (
         <HackathonsUnavailable locale={locale} />
       ) : null}

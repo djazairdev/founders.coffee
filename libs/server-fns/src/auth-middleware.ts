@@ -8,10 +8,16 @@ import {
   type OrganisationAction,
   type OrganisationResource,
 } from '@founders-coffee/auth';
-import { appValidator, organisationIdSchema } from '@founders-coffee/core';
+import {
+  AppError,
+  appValidator,
+  organisationIdSchema,
+} from '@founders-coffee/core';
+import { readHackathonLeadOrganisation } from '@founders-coffee/db';
 
 import { getAuthEnv, resolveSession } from './auth.js';
 import {
+  requireAuth,
   requirePermission as enforcePermission,
   type PermissionAction,
   type PermissionResource,
@@ -84,4 +90,44 @@ export const requireOrganisationPermission = <R extends OrganisationResource>(
         action,
       });
       return next({ context: { organisationId: data.organisationId } });
+    });
+
+const hackathonScopedInput = z.looseObject({
+  eventId: z.string().trim().min(1).max(64),
+});
+
+/**
+ * Server-function middleware factory: require a signed-in member of the organisation that leads the
+ * hackathon named by the input's `eventId`, whose role there is granted `action` on hackathons, in
+ * an approved organisation. The hackathon twin of {@link requireOrganisationPermission}, for the
+ * screens that start from a hackathon rather than an organisation: keep `eventId` in the function's
+ * own schema too. An event that is not a hackathon an organisation leads answers `event_not_found`,
+ * as one that does not exist; the context carries the checked `eventId` and `organisationId`.
+ */
+export const requireHackathonOrganiser = (
+  action: OrganisationAction<'hackathon'>,
+) =>
+  createMiddleware({ type: 'function' })
+    .middleware([authMiddleware])
+    .validator(appValidator(hackathonScopedInput))
+    .server(async ({ context, data, next }) => {
+      requireAuth(context.session);
+      const db = getDb();
+      const organisationId = await readHackathonLeadOrganisation(
+        db,
+        data.eventId,
+      );
+      if (!organisationId)
+        throw new AppError('event_not_found', 'No hackathon for this event');
+      const { auth } = createAuth(getAuthEnv());
+      await authorizeOrganisationAction({
+        auth,
+        db,
+        headers: getRequest().headers,
+        session: context.session,
+        organisationId,
+        resource: 'hackathon',
+        action,
+      });
+      return next({ context: { organisationId, eventId: data.eventId } });
     });

@@ -1,6 +1,18 @@
 import { appErrorCode } from '@founders-coffee/core';
+import {
+  org_apply_error_description,
+  org_apply_error_kind,
+  org_apply_error_name,
+  org_apply_error_slug,
+  org_apply_error_website,
+  type Locale,
+} from '@founders-coffee/i18n';
 
-import type { ApplicationField } from './application';
+import {
+  DESCRIPTION_LENGTH,
+  NAME_LENGTH,
+  type ApplicationField,
+} from './application';
 
 export type ApplicationRefusal =
   | { readonly kind: 'field'; readonly field: ApplicationField }
@@ -64,4 +76,25 @@ export const isInvitationNotFound = (error: unknown): boolean => {
   return (
     code === 'organisation_invitation_not_found' || code === 'validation_failed'
   );
+};
+
+/** What an application field the form found unusable needs, or `null` for one that says nothing. */
+export const applicationFieldError = (
+  field: ApplicationField,
+  locale: Locale,
+): string | null => {
+  switch (field) {
+    case 'name':
+      return org_apply_error_name(NAME_LENGTH, { locale });
+    case 'slug':
+      return org_apply_error_slug({}, { locale });
+    case 'kind':
+      return org_apply_error_kind({}, { locale });
+    case 'description':
+      return org_apply_error_description(DESCRIPTION_LENGTH, { locale });
+    case 'websiteUrl':
+      return org_apply_error_website({}, { locale });
+    default:
+      return null;
+  }
 };

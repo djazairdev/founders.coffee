@@ -1,6 +1,7 @@
 export { Button, buttonVariants, type ButtonProps } from './Button.js';
 export { Card, CardBody, CardTitle } from './Card.js';
 export { ChipGroup } from './ChipGroup.js';
+export { FormField, fieldNoteId } from './FormField.js';
 export { Input, type InputProps } from './Input.js';
 export { IsolatedLines, type IsolatedLinesProps } from './IsolatedLines.js';
 export { IsolatedValue, type IsolatedValueProps } from './IsolatedValue.js';

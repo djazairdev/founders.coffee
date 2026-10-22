@@ -1,11 +1,15 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
   hackathonsApi,
   type CreateHackathonDraftRequest,
   type HackathonDraftCreated,
+  type HackathonDraftView,
   type JoinHackathonInterestArgs,
+  type SaveHackathonDetailsRequest,
 } from './api';
+
+const DRAFT = ['hackathons', 'draft'] as const;
 
 export const useJoinHackathonInterest = () =>
   useMutation({
@@ -24,4 +28,25 @@ export const useCreateHackathonDraft = () => {
         cache.invalidateQueries({ queryKey: ['organisations', 'mine'] }),
     },
   );
+};
+
+/** A hackathon as its organisers manage it. */
+export const useHackathonDraft = (eventId: string) =>
+  useQuery<HackathonDraftView>({
+    queryKey: [...DRAFT, eventId],
+    queryFn: () => hackathonsApi.draft(eventId),
+  });
+
+/** Save a hackathon's second step; the hackathon is read again after. */
+export const useSaveHackathonDetails = () => {
+  const cache = useQueryClient();
+  return useMutation<
+    { readonly eventId: string },
+    Error,
+    SaveHackathonDetailsRequest
+  >({
+    mutationFn: (request) => hackathonsApi.saveDetails(request),
+    onSuccess: (_saved, request) =>
+      cache.invalidateQueries({ queryKey: [...DRAFT, request.eventId] }),
+  });
 };

@@ -28,7 +28,7 @@ import type {
   VenueArea,
   VenueSelection,
 } from '../events/types';
-import { localizedMyOrganisation } from '../../lib/locale-routing';
+import { localizedHackathonManage } from '../../lib/locale-routing';
 import { validateHackathonSchedule } from './hackathon-schedule';
 import { useCreateHackathonDraft } from './hooks';
 import { hackathonSaveError } from './save-errors';
@@ -52,7 +52,7 @@ const scheduleErrorMessage = (
  *
  * Each screen is checked as Next leaves it, the way the host wizard checks its own, and the
  * organiser is taken to the first field holding it back. Saving sends the basics alone; a refusal
- * keeps every field and says what to do, and a saved draft opens the organisation's page with it.
+ * keeps every field and says what to do, and a saved draft opens its second step.
  */
 export const useHackathonCreateWizard = ({
   locale,
@@ -126,8 +126,8 @@ export const useHackathonCreateWizard = ({
       {
         onSuccess: (created) =>
           void navigate({
-            ...localizedMyOrganisation(locale, organisation.slug),
-            search: { saved: created.eventId },
+            ...localizedHackathonManage(locale, created.eventId),
+            search: { created: true },
           }),
       },
     );

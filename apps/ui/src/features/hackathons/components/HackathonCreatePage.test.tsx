@@ -60,7 +60,7 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
     });
   });
 
-  it('opens the organisation’s page on the saved draft', () => {
+  it('opens the saved draft’s second step', () => {
     mocks.mutate.mockImplementation(
       (_request: unknown, options: { onSuccess: (created: unknown) => void }) =>
         options.onSuccess({ eventId: 'evt_saved', slug: 'algiers-builders' }),
@@ -83,9 +83,9 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
       },
     });
     expect(mocks.navigate).toHaveBeenCalledWith({
-      to: '/$locale/o/$slug/manage',
-      params: { locale: 'en', slug: 'oran-makers' },
-      search: { saved: 'evt_saved' },
+      to: '/$locale/hackathon/$eventId/manage',
+      params: { locale: 'en', eventId: 'evt_saved' },
+      search: { created: true },
     });
   });
 

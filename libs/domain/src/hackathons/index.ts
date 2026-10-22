@@ -33,8 +33,12 @@ export {
   HACKATHON_MINIMUM_AGE_MAX,
   HACKATHON_NOTE_MAX_LENGTH,
   HACKATHON_RULES_MAX_LENGTH,
+  hackathonDetailsFor,
+  hackathonDetailsSchema,
   hackathonDraftSchema,
+  type HackathonDetailsInput,
   type HackathonDraft,
+  type HackathonEventFrame,
 } from './draft.js';
 export { hackathonBasicsSchema, type HackathonBasics } from './basics.js';
 export {

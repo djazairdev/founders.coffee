@@ -98,12 +98,10 @@ export const MyOrganisationPage = ({
   slug,
   locale,
   markets,
-  savedHackathonId = null,
 }: {
   slug: string;
   locale: Locale;
   markets: readonly RootMarket[];
-  savedHackathonId?: string | null;
 }) => {
   const query = useMyOrganisation(slug);
   const roster = query.data;
@@ -128,7 +126,6 @@ export const MyOrganisationPage = ({
               slug={roster.slug}
               hackathons={roster.hackathons}
               canCreate={roster.canCreateHackathon}
-              savedId={savedHackathonId}
               locale={locale}
               timeZone={timeZone}
             />
