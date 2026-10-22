@@ -3,6 +3,7 @@ import type { BatchItem } from 'drizzle-orm/batch';
 
 import type { Db } from './db.js';
 import {
+  hackathonMentors,
   hackathonRegistrations,
   hackathons,
   hackathonTeamMembers,
@@ -18,7 +19,8 @@ import {
  * member who joined it earliest after them, and a team left with nobody is deleted, so no team is
  * left without a captain; both are looked for only in the hackathons they were registered for, and
  * a team never stays empty otherwise (B-TEAM-06). Then their registrations go, and the places the
- * registered ones held go back to their hackathons. Invite links they made stay with their teams.
+ * registered ones held go back to their hackathons, and their mentor places go with what they wrote
+ * on them (B-HKN-25). Invite links they made stay with their teams.
  */
 export const hackathonErasure = (
   db: Db,
@@ -80,5 +82,8 @@ export const hackathonErasure = (
     db
       .delete(hackathonRegistrations)
       .where(and(eq(hackathonRegistrations.userId, userId), stillClosing)),
+    db
+      .delete(hackathonMentors)
+      .where(and(eq(hackathonMentors.userId, userId), stillClosing)),
   ];
 };

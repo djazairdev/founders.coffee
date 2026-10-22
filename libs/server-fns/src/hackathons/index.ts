@@ -54,6 +54,18 @@ export type {
   JudgeInviteCreated,
   OrganiserJudgeView,
 } from './judges.js';
+export {
+  answerHackathonMentorInvite,
+  createHackathonMentorInvite,
+  listHackathonMentors,
+  removeHackathonMentor,
+  saveHackathonMentorNote,
+} from './mentors-rpc.js';
+export type {
+  MentorInviteAnswered,
+  MentorInviteCreated,
+  OrganiserMentorView,
+} from './mentors.js';
 export { saveHackathonSubmissionDraft } from './submission-drafts-rpc.js';
 export type { SubmissionDraftSaved } from './submission-drafts.js';
 export {

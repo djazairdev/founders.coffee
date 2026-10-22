@@ -78,6 +78,11 @@ export const HACKATHON_JUDGE_STATUSES = [
 export type HackathonJudgeStatus = (typeof HACKATHON_JUDGE_STATUSES)[number];
 export const hackathonJudgeStatusSchema = z.enum(HACKATHON_JUDGE_STATUSES);
 
+export const HACKATHON_MENTOR_STATUSES = HACKATHON_JUDGE_STATUSES;
+export type HackathonMentorStatus = HackathonJudgeStatus;
+export const HACKATHON_MENTOR_HELPS_WITH_MAX = 160;
+export const HACKATHON_MENTOR_OFFICE_HOURS_MAX = 300;
+
 export const HACKATHON_RECUSAL_REASON_MAX = 500;
 export const HACKATHON_SCORE_COMMENT_MAX = 1000;
 

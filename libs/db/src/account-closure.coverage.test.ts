@@ -22,6 +22,7 @@ const ERASED: readonly string[] = [
   'member.user_id',
   'hackathon_registrations.user_id',
   'project_members.user_id',
+  'hackathon_mentors.user_id',
 ];
 
 const KEPT: Readonly<Record<string, string>> = {
@@ -65,6 +66,8 @@ const KEPT: Readonly<Record<string, string>> = {
     'A judge’s place stays with its hackathon so the scores and recusals behind its results stay reproducible; it names the tombstone.',
   'hackathon_judges.invited_by':
     'An invite link belongs to its hackathon; who made it stays with the judge’s place, as the tombstone.',
+  'hackathon_mentors.invited_by':
+    'An invite link belongs to its hackathon; who made it stays with the mentor’s place, as the tombstone.',
   'invitation.inviter_id':
     'An invitation belongs to its organisation; one the member sent stays, from the tombstone, until it is answered or expires.',
 };

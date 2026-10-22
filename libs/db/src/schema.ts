@@ -30,6 +30,9 @@ import {
   ATTENDANCE_MODES,
   HACKATHON_AI_POLICIES,
   HACKATHON_JUDGE_STATUSES,
+  HACKATHON_MENTOR_HELPS_WITH_MAX,
+  HACKATHON_MENTOR_OFFICE_HOURS_MAX,
+  HACKATHON_MENTOR_STATUSES,
   HACKATHON_RECUSAL_REASON_MAX,
   HACKATHON_REGISTRATION_SKILLS_MAX,
   HACKATHON_REGISTRATION_STATUSES,
@@ -1202,6 +1205,62 @@ export const hackathonScores = sqliteTable(
 );
 
 export type HackathonScore = typeof hackathonScores.$inferSelect;
+
+/**
+ * A hackathon's mentors (B-HKN-25), invited as its judges are: each place starts as an invite link
+ * the organisers make for one mentor, of which only the token's hash is kept, and the mentor
+ * accepts it with their account, which fills `user_id`, or declines it. A mentor says in a short
+ * line what they help with and, optionally, when their office hours are; both are theirs, so a
+ * closed account takes its places with it. A member mentors a hackathon at most once, and an
+ * accepted mentor always has an account and a line.
+ */
+export const hackathonMentors = sqliteTable(
+  'hackathon_mentors',
+  {
+    id: text('id').primaryKey(),
+    eventId: text('event_id')
+      .notNull()
+      .references(() => hackathons.eventId, { onDelete: 'cascade' }),
+    userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+    status: text('status', { enum: [...HACKATHON_MENTOR_STATUSES] })
+      .notNull()
+      .default('invited'),
+    tokenHash: text('token_hash').notNull().unique(),
+    invitedBy: text('invited_by')
+      .notNull()
+      .references(() => user.id),
+    helpsWith: text('helps_with'),
+    officeHours: text('office_hours'),
+    respondedAt: integer('responded_at', { mode: 'timestamp' }),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex('hackathon_mentors_user_unique').on(
+      table.eventId,
+      table.userId,
+    ),
+    index('hackathon_mentors_user_index').on(table.userId),
+    check(
+      'hackathon_mentors_accepted_check',
+      sql`${table.status} != 'accepted' OR (${table.userId} IS NOT NULL AND ${table.helpsWith} IS NOT NULL)`,
+    ),
+    check(
+      'hackathon_mentors_helps_with_check',
+      sql`${table.helpsWith} IS NULL OR length(${table.helpsWith}) <= ${sql.raw(String(HACKATHON_MENTOR_HELPS_WITH_MAX))}`,
+    ),
+    check(
+      'hackathon_mentors_office_hours_check',
+      sql`${table.officeHours} IS NULL OR length(${table.officeHours}) <= ${sql.raw(String(HACKATHON_MENTOR_OFFICE_HOURS_MAX))}`,
+    ),
+  ],
+);
+
+export type HackathonMentor = typeof hackathonMentors.$inferSelect;
 
 /**
  * A project page (B-PRJ-01): what a team or founder is building, the problem it solves, how far it
