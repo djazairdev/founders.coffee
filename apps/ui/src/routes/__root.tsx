@@ -52,6 +52,7 @@ import {
   hasOwnMobileHeader,
   isFocusedTask,
 } from '../lib/route-chrome';
+import { loadMatchedRouteChunks } from '../lib/route-chunks';
 import { manifestHref } from '../lib/web-manifest';
 
 import appCss from '../styles.css?url';
@@ -139,6 +140,7 @@ export const Route = createRootRoute({
   validateSearch: campaignSearchSchema,
   search: { middlewares: [retainSearchParams([...CAMPAIGN_KEYS])] },
   beforeLoad: async ({ params }) => {
+    await loadMatchedRouteChunks();
     const routeParams = params as {
       readonly locale?: string;
       readonly market?: string;
