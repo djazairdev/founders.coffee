@@ -979,5 +979,21 @@
   "org_apply_error_website": "Enter a full web address, such as https://example.org.",
   "org_apply_error_rate_limited": "You have sent several applications recently. Try again in an hour.",
   "org_apply_error_failed": "The application could not be sent. Try again.",
-  "org_apply_link": "Apply for an organisation"
+  "org_apply_link": "Apply for an organisation",
+  "host_format_label": "Format",
+  "host_format_in_person": "In person",
+  "host_format_online": "Online",
+  "host_format_hybrid": "Hybrid",
+  "host_format_in_person_hint": "At a café or another venue.",
+  "host_format_online_hint": "On a video call, with no venue.",
+  "host_format_hybrid_hint": "At a venue, with a link for those who join from afar.",
+  "host_meeting_url_label": "Meeting link",
+  "host_meeting_url_hint": "Only you and the members going see it.",
+  "host_online_region": "Region",
+  "host_online_region_choose": "Choose a region",
+  "host_online_city": "City",
+  "host_online_city_choose": "Choose a city",
+  "host_online_city_hint": "The meetup is listed on this city’s page.",
+  "host_online_panel_title": "No map needed",
+  "host_online_panel": "An online meetup has no venue. Members going see its link on the meetup page."
 }

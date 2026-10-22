@@ -6,7 +6,9 @@ import {
   draftFromEvent,
   hasPlaceMoved,
   locationPatch,
+  meetingUrlProblem,
   nameFor,
+  placePatch,
   storedPin,
 } from './event-edit-draft';
 import type { VenueSelection } from './types';
@@ -143,5 +145,81 @@ describe('naming the place the host just chose', () => {
       nameFor(draftFromEvent(event), picked({ kind: 'address' })),
       'emptying the field because the pin moved would make the host retype a name people already read',
     ).toBe('Café Atlas');
+  });
+});
+
+const LINK = 'https://meet.example.com/founders';
+
+const online = {
+  ...event,
+  format: 'online',
+  venue: null,
+  venueAddress: null,
+  latitude: null,
+  longitude: null,
+  meetingLink: LINK,
+} satisfies EventDetailItem;
+
+const hybrid = {
+  ...event,
+  format: 'hybrid',
+  meetingLink: LINK,
+} satisfies EventDetailItem;
+
+describe('the place fields a save carries, by format', () => {
+  it('starts from the link the host published with', () => {
+    expect(draftFromEvent(online).meetingUrl).toBe(LINK);
+    expect(draftFromEvent(event).meetingUrl).toBe('');
+  });
+
+  it('sends an online event’s link and no venue name, which the server refuses on it', () => {
+    const draft = {
+      ...draftFromEvent(online),
+      meetingUrl: ' https://meet.example.com/later ',
+    };
+
+    expect(placePatch(online, draft)).toEqual({
+      meetingUrl: 'https://meet.example.com/later',
+    });
+  });
+
+  it('sends a hybrid event’s venue name and its link', () => {
+    expect(placePatch(hybrid, draftFromEvent(hybrid))).toEqual({
+      venueName: 'Café Atlas',
+      meetingUrl: LINK,
+    });
+  });
+
+  it('sends an in-person event no link', () => {
+    expect(placePatch(event, draftFromEvent(event))).toEqual({
+      venueName: 'Café Atlas',
+    });
+  });
+});
+
+describe('the meeting link a save will not send', () => {
+  it('is an emptied field, since the event was published with a link', () => {
+    expect(
+      meetingUrlProblem(
+        online,
+        { ...draftFromEvent(online), meetingUrl: ' ' },
+        'en',
+      ),
+    ).toBe('Enter a full https:// link with no username or password.');
+  });
+
+  it('is a link that is not https', () => {
+    expect(
+      meetingUrlProblem(
+        hybrid,
+        { ...draftFromEvent(hybrid), meetingUrl: 'http://meet.example.com' },
+        'en',
+      ),
+    ).not.toBeNull();
+  });
+
+  it('is nothing for an in-person event, or for a link that works', () => {
+    expect(meetingUrlProblem(event, draftFromEvent(event), 'en')).toBeNull();
+    expect(meetingUrlProblem(online, draftFromEvent(online), 'en')).toBeNull();
   });
 });

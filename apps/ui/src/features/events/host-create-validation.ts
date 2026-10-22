@@ -1,3 +1,4 @@
+import type { EventFormat } from '@founders-coffee/core';
 import { events } from '@founders-coffee/domain';
 import {
   host_desc_constraints,
@@ -6,6 +7,7 @@ import {
   host_title_constraints,
   host_venue_name_required,
   host_venue_required,
+  profile_link_invalid,
   type Locale,
 } from '@founders-coffee/i18n';
 
@@ -14,7 +16,14 @@ import type { HostCreateDraft } from './host-create-draft';
 import { seekField } from './seek-field';
 
 export type HostCreateField =
-  'venue' | 'venueName' | 'schedule' | 'title' | 'description' | 'languages';
+  | 'meetingUrl'
+  | 'city'
+  | 'venue'
+  | 'venueName'
+  | 'schedule'
+  | 'title'
+  | 'description'
+  | 'languages';
 
 export type HostCreateFieldErrors = Partial<Record<HostCreateField, string>>;
 
@@ -58,6 +67,34 @@ export const validateVenueStep = (
     return { venue: host_venue_required({}, { locale }) };
   }
   return {};
+};
+
+/**
+ * What holds the first step back, for the format the host chose (B-EVT-10). A venue is checked as
+ * above for an in-person or hybrid meetup; a link is a gap until written and an unusable one says
+ * why, for an online or hybrid one; an online meetup still names its city, which is a gap until
+ * chosen.
+ */
+export const validatePlaceStep = (
+  input: {
+    format: EventFormat;
+    venue: VenueSelection | null;
+    venueName: string;
+    meetingUrl: string;
+    cityCode: string | undefined;
+  },
+  locale: Locale,
+): HostCreateStepCheck => {
+  const check: HostCreateStepCheck = events.hasVenue(input.format)
+    ? validateVenueStep(input.venue, input.venueName, locale)
+    : {};
+  if (events.hasMeetingLink(input.format)) {
+    if (isBlank(input.meetingUrl)) check.meetingUrl = null;
+    else if (!events.eventMeetingUrlSchema.safeParse(input.meetingUrl).success)
+      check.meetingUrl = profile_link_invalid({}, { locale });
+  }
+  if (input.format === 'online' && !input.cityCode) check.city = null;
+  return check;
 };
 
 /**
@@ -133,6 +170,8 @@ export const firstInvalidField = (
 ): HostCreateField | null =>
   (
     [
+      'meetingUrl',
+      'city',
       'venue',
       'venueName',
       'schedule',
@@ -159,7 +198,11 @@ export const shownErrors = (
   return errors;
 };
 
+export const ONLINE_REGION_ID = 'host-online-region';
+export const ONLINE_CITY_ID = 'host-online-city';
+
 const FIELD_IDS: Partial<Record<HostCreateField, string>> = {
+  meetingUrl: 'host-meeting-url',
   venueName: 'host-venue-name',
   schedule: 'host-calendar',
   title: 'host-title',
@@ -170,11 +213,20 @@ const FIELD_IDS: Partial<Record<HostCreateField, string>> = {
 /**
  * Take the host to `field`, the first one Next found holding the step back. A field that cannot
  * take the focus itself hands it to its own tab stop, as the calendar does to the day its arrow
- * keys start from. The venue is no single field: the page offers its places instead.
+ * keys start from. The venue is no single field: the page offers its places instead. An online
+ * meetup's city is two: the city once a region is chosen, else the region.
  */
+const cityField = (): HTMLElement | null => {
+  const city = document.getElementById(ONLINE_CITY_ID);
+  return city && !city.hasAttribute('disabled')
+    ? city
+    : document.getElementById(ONLINE_REGION_ID);
+};
+
 export const focusInvalidField = (field: HostCreateField): void => {
   const id = FIELD_IDS[field];
-  const element = id ? document.getElementById(id) : null;
+  const element =
+    field === 'city' ? cityField() : id ? document.getElementById(id) : null;
   if (!element) return;
   const isFocusable = element.hasAttribute('tabindex') || element.tabIndex >= 0;
   seekField(
@@ -186,11 +238,10 @@ export const focusInvalidField = (field: HostCreateField): void => {
 
 export const restoredDraftStep = (
   draft: HostCreateDraft,
+  cityCode: string | undefined,
   locale: Locale,
 ): number => {
-  if (
-    firstInvalidField(validateVenueStep(draft.venue, draft.venueName, locale))
-  )
+  if (firstInvalidField(validatePlaceStep({ ...draft, cityCode }, locale)))
     return 1;
   if (
     draft.step > 2 &&

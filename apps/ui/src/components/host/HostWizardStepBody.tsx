@@ -3,9 +3,12 @@ import type { geo } from '@founders-coffee/domain';
 import type { Locale } from '@founders-coffee/i18n';
 
 import type { useHostCreateWizard } from '../../features/events/useHostCreateWizard';
+import { EventFormatField } from '../events/EventFormatField';
 import { EventKindField } from '../events/EventKindField';
 import { EventHostAsField } from '../events/EventHostAsField';
 import { HostDetailsStep } from './HostDetailsStep';
+import { HostMeetingLinkField } from './HostMeetingLinkField';
+import { HostOnlineCityField } from './HostOnlineCityField';
 import { HostScheduleStep } from './HostScheduleStep';
 import { HostVenueLine } from './HostVenueLine';
 import { HostVenueStep } from './HostVenueStep';
@@ -14,7 +17,7 @@ import type { useVenueOverlay } from './useVenueOverlay';
 type HostWizardStepBodyProps = {
   locale: Locale;
   market: Market;
-  cityCode: string | undefined;
+  city: geo.GeoCity | null;
   wizard: ReturnType<typeof useHostCreateWizard>;
   venueOverlay: ReturnType<typeof useVenueOverlay>;
   listCenter: { latitude: number; longitude: number };
@@ -25,7 +28,7 @@ type HostWizardStepBodyProps = {
 export const HostWizardStepBody = ({
   locale,
   market,
-  cityCode,
+  city,
   wizard,
   venueOverlay,
   listCenter,
@@ -42,37 +45,62 @@ export const HostWizardStepBody = ({
     )}
 
     {wizard.step === 1 && (
-      <HostVenueStep
-        locale={locale}
-        area={wizard.venueArea}
-        cityCode={cityCode}
-        center={listCenter}
-        marketCode={market.code}
-        searchValue={wizard.searchValue}
-        venue={wizard.venue}
-        venueName={wizard.venueName}
-        nameError={wizard.fieldErrors.venueName}
-        venueError={
-          wizard.fieldErrors.venue
-            ? {
-                message: wizard.fieldErrors.venue,
-                onDismiss: wizard.clearVenueError,
-              }
-            : undefined
-        }
-        overlay={{
-          ...venueOverlay.panel,
-          onPick: () => {
-            venueOverlay.showMap();
-            wizard.setSearchValue('');
-          },
-        }}
-        isDisabled={!isMapReady}
-        onSearchChange={wizard.setSearchValue}
-        onVenueNameChange={wizard.setVenueName}
-        onVenueSelect={wizard.selectVenue}
-        onCitySelect={onCitySelect}
-      />
+      <div className="grid gap-5">
+        <EventFormatField
+          locale={locale}
+          value={wizard.format}
+          onChange={wizard.setFormat}
+        />
+        {wizard.isLinkFormat && (
+          <HostMeetingLinkField
+            locale={locale}
+            value={wizard.meetingUrl}
+            error={wizard.fieldErrors.meetingUrl}
+            onChange={wizard.setMeetingUrl}
+          />
+        )}
+        {wizard.isVenueFormat ? (
+          <HostVenueStep
+            locale={locale}
+            area={wizard.venueArea}
+            cityCode={city?.code}
+            center={listCenter}
+            marketCode={market.code}
+            searchValue={wizard.searchValue}
+            venue={wizard.venue}
+            venueName={wizard.venueName}
+            nameError={wizard.fieldErrors.venueName}
+            venueError={
+              wizard.fieldErrors.venue
+                ? {
+                    message: wizard.fieldErrors.venue,
+                    onDismiss: wizard.clearVenueError,
+                  }
+                : undefined
+            }
+            overlay={{
+              ...venueOverlay.panel,
+              onPick: () => {
+                venueOverlay.showMap();
+                wizard.setSearchValue('');
+              },
+            }}
+            isDisabled={!isMapReady}
+            onSearchChange={wizard.setSearchValue}
+            onVenueNameChange={wizard.setVenueName}
+            onVenueSelect={wizard.selectVenue}
+            onCitySelect={onCitySelect}
+          />
+        ) : (
+          <HostOnlineCityField
+            locale={locale}
+            marketCode={market.code}
+            city={city}
+            isDisabled={!onCitySelect}
+            onCitySelect={(chosen) => onCitySelect?.(chosen)}
+          />
+        )}
+      </div>
     )}
 
     {wizard.step === 2 && (

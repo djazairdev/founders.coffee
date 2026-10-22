@@ -44,7 +44,7 @@ export interface PersistedEvent {
   readonly slug: string;
   readonly title: string;
   readonly description: string;
-  readonly venue: string;
+  readonly venue: string | null;
   readonly venue_address: string | null;
   readonly latitude: number | null;
   readonly longitude: number | null;
@@ -57,6 +57,8 @@ export interface PersistedEvent {
   readonly city_code: string;
   readonly status: string;
   readonly host_id: string;
+  readonly format: 'in_person' | 'online' | 'hybrid';
+  readonly meeting_url: string | null;
 }
 
 export const findEventByTitle = (title: string): PersistedEvent | undefined =>

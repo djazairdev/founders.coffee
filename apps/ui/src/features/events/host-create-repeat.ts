@@ -55,5 +55,7 @@ export const repeatDraftFrom = (
     chosenLanguages: languagesFrom(template),
     hostAs: null,
     tags: [],
+    format: 'in_person',
+    meetingUrl: '',
   };
 };

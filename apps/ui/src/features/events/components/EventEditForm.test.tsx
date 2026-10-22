@@ -9,6 +9,7 @@ import {
   type EventEditDraft,
 } from '../event-edit-draft';
 import type { VenueSelection } from '../types';
+import { editedEvent } from './EventEditForm.fixtures';
 
 vi.mock('../../../components/host/DatetimePicker', () => ({
   DatetimePicker: () => null,
@@ -20,45 +21,7 @@ vi.mock('./EventEditVenue', () => ({
 
 const { EventEditForm } = await import('./EventEditForm');
 
-const event = {
-  id: 'evt_1',
-  hostId: 'usr_1',
-  marketCode: 'DZ',
-  stateCode: '16',
-  cityCode: '556',
-  title: 'Founders breakfast',
-  description: 'A local founder meetup worth showing up to.',
-  venue: 'Café Atlas',
-  startsAt: new Date('2099-09-20T10:00:00Z'),
-  endsAt: new Date('2099-09-20T12:00:00Z'),
-  rsvps: 4,
-  language: 'en',
-  languages: ['en'],
-  latitude: 36.7538,
-  longitude: 3.0588,
-  venueAddress: '12 Rue des Entrepreneurs, Alger',
-  slug: 'founders-breakfast',
-  status: 'published',
-  kind: 'meetup',
-  tags: [],
-  format: 'in_person',
-  version: 3,
-  createdAt: new Date('2026-09-01T00:00:00Z'),
-  updatedAt: new Date('2026-09-01T00:00:00Z'),
-  cancelledAt: null,
-  cancellationReason: null,
-  goingCount: 4,
-  viewerRsvp: 'going',
-  cityName: 'Algiers',
-  cityNameAr: 'الجزائر',
-  cityNameFr: 'Alger',
-  citySlug: 'algiers',
-  stateName: 'Alger',
-  stateNameAr: 'الجزائر',
-  stateNameFr: 'Alger',
-  meetingLink: null,
-  runBy: { kind: 'community' },
-} satisfies EventDetailItem;
+const event = editedEvent;
 
 const ACROSS_TOWN: VenueSelection = {
   providerId: 'osm:1234',
@@ -258,5 +221,60 @@ describe('the languages a meetup is held in', () => {
       notice(),
       'the meetup did not move and did not change its hour; the languages it is held in are not news an attendee has to act on',
     ).toBe('');
+  });
+});
+
+describe('an event that is not only in a room', () => {
+  const LINK = 'https://meet.example.com/founders';
+  const online = {
+    format: 'online',
+    venue: null,
+    venueAddress: null,
+    latitude: null,
+    longitude: null,
+    meetingLink: LINK,
+  } satisfies Partial<EventDetailItem>;
+
+  it('edits an online event’s link, with no venue and no map', () => {
+    show(draftFromEvent({ ...event, ...online }), online);
+
+    expect(
+      screen.getByRole<HTMLInputElement>('textbox', { name: 'Meeting link' })
+        .value,
+    ).toBe(LINK);
+    expect(
+      screen.queryByRole('textbox', {
+        name: 'What is this place called?',
+      }),
+    ).toBeNull();
+    expect(screen.queryByTestId('edit-venue')).toBeNull();
+  });
+
+  it('edits a hybrid event’s venue and its link', () => {
+    const hybrid = { format: 'hybrid', meetingLink: LINK } as const;
+    show(draftFromEvent({ ...event, ...hybrid }), hybrid);
+
+    expect(screen.getByRole('textbox', { name: 'Meeting link' })).toBeTruthy();
+    expect(
+      screen.getByRole('textbox', { name: 'What is this place called?' }),
+    ).toBeTruthy();
+    expect(screen.getByTestId('edit-venue')).toBeTruthy();
+  });
+
+  it('will not save a link that does not work, and says why', () => {
+    show(
+      { ...draftFromEvent({ ...event, ...online }), meetingUrl: '' },
+      online,
+    );
+
+    expect(
+      screen.getByText(
+        'Enter a full https:// link with no username or password.',
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole<HTMLButtonElement>('button', { name: 'Save changes' })
+        .disabled,
+    ).toBe(true);
   });
 });
