@@ -241,7 +241,11 @@ export const EventDetail = ({
             isHost={isHost}
           />
           {details ? (
-            <HackathonPageDetails details={details} locale={locale} />
+            <HackathonPageDetails
+              details={details}
+              market={market}
+              locale={locale}
+            />
           ) : null}
         </section>
 

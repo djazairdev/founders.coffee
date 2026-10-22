@@ -10,8 +10,10 @@ import {
 import {
   readEventPageRows,
   type Db,
+  type HackathonWorkshop,
   type Market,
   type PublicHackathonJudge,
+  type PublicHackathonMentor,
   type PublicHackathonPrize,
 } from '@founders-coffee/db';
 import { reportError } from '@founders-coffee/observability';
@@ -63,6 +65,8 @@ export interface EventPage {
   readonly judges: readonly PublicHackathonJudge[];
   readonly tracks: readonly PublicHackathonTrack[];
   readonly prizes: readonly PublicHackathonPrizeView[];
+  readonly mentors: readonly PublicHackathonMentor[];
+  readonly workshops: readonly HackathonWorkshop[];
 }
 
 type PageRows = Awaited<ReturnType<typeof readEventPageRows>>;
@@ -154,8 +158,8 @@ const hostCard = (
  * only after hydration, and until it did, a host's own meetup showed them a guest's RSVP box. A
  * hackathon's schedule and current phase come back with it, read in the same batch (B-HKN-17), with
  * its rules, eligibility, AI policy and licence (B-HKN-19), and
- * so do the judges who accepted (B-JDG-03) and its tracks and confirmed prizes (B-HKN-18), none
- * for a meetup.
+ * so do the judges who accepted (B-JDG-03), its tracks and confirmed prizes (B-HKN-18), and its
+ * mentors and its organisers' workshops before kickoff (B-HKN-26), none for a meetup.
  */
 export const readEventPage = async (
   db: Db,
@@ -187,5 +191,7 @@ export const readEventPage = async (
     judges: isHackathon ? rows.data.judges : [],
     tracks: isHackathon ? rows.data.tracks : [],
     prizes: isHackathon ? rows.data.prizes.map(publicPrizeOf) : [],
+    mentors: isHackathon ? rows.data.mentors : [],
+    workshops: isHackathon ? rows.data.workshops : [],
   });
 };

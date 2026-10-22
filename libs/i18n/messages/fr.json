@@ -1756,5 +1756,9 @@
   "admin_hkn_stale": "Ce hackathon a changé depuis le chargement de la liste. La liste est à jour.",
   "admin_hkn_decision_failed": "La décision n’a pas pu être enregistrée.",
   "hackathon_market_heading": "Hackathons",
-  "hackathon_market_empty": "Aucun hackathon à venir ici pour l’instant."
+  "hackathon_market_empty": "Aucun hackathon à venir ici pour l’instant.",
+  "hackathon_mentors_heading": "Mentors",
+  "hackathon_mentor_helps_with": "Peut aider sur",
+  "hackathon_mentor_office_hours": "Permanences",
+  "hackathon_workshops_heading": "Ateliers avant le lancement"
 }

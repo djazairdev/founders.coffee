@@ -88,6 +88,7 @@ export * from './hackathon-dashboard.js';
 export * from './hackathon-places.js';
 export * from './hackathon-judges.js';
 export * from './hackathon-mentors.js';
+export * from './hackathon-workshops.js';
 export * from './hackathon-team-requests.js';
 export * from './hackathon-team-changes.js';
 export * from './hackathon-submission-drafts.js';
