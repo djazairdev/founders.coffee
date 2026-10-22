@@ -51,6 +51,7 @@ const details = (changes: Partial<Details> = {}): Details => ({
   ],
   mentors: [],
   workshops: [],
+  registration: null,
   ...changes,
 });
 

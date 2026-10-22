@@ -27,6 +27,10 @@ import {
   hackathonScheduleOf,
   type HackathonSchedule,
 } from './hackathon-schedule.js';
+import {
+  hackathonRegistrationView,
+  type HackathonRegistrationView,
+} from './hackathon-registration-view.js';
 import { availableToReader } from './resolver.js';
 import type { EventPageRequestInput } from './schemas.js';
 
@@ -73,6 +77,7 @@ export interface EventPage {
   readonly mentors: readonly PublicHackathonMentor[];
   readonly workshops: readonly HackathonWorkshop[];
   readonly organisations: readonly HackathonOrganisation[];
+  readonly registration: HackathonRegistrationView | null;
 }
 
 type PageRows = Awaited<ReturnType<typeof readEventPageRows>>;
@@ -174,7 +179,8 @@ const hostCard = (
  * its rules, eligibility, AI policy and licence (B-HKN-19), and
  * so do the judges who accepted (B-JDG-03), its tracks and confirmed prizes (B-HKN-18), and its
  * mentors and its organisers' workshops before kickoff (B-HKN-26), and the organisations that run
- * it, for its structured data (B-HKN-24), none for a meetup.
+ * it, for its structured data (B-HKN-24), and what its registration card needs, with the
+ * reader's own registration read once the reader is known (B-REG-06), none for a meetup.
  */
 export const readEventPage = async (
   db: Db,
@@ -196,9 +202,17 @@ export const readEventPage = async (
   );
   if (!event.ok) return event;
   const isHackathon = event.data.kind === 'hackathon';
+  const [detail, registration] = await Promise.all([
+    eventDetail(db, event.data, viewerId, rows.data.organisers),
+    hackathonRegistrationView(db, {
+      eventId: event.data.id,
+      places: isHackathon ? rows.data.hackathon : null,
+      viewerId,
+    }),
+  ]);
   return ok({
     market: market.data,
-    event: await eventDetail(db, event.data, viewerId, rows.data.organisers),
+    event: detail,
     host: hostCard(event.data.hostId, rows.data.host),
     viewerId: viewerId ?? null,
     hackathon: hackathonScheduleOf(event.data, rows.data.hackathon, Date.now()),
@@ -209,5 +223,6 @@ export const readEventPage = async (
     mentors: isHackathon ? rows.data.mentors : [],
     workshops: isHackathon ? rows.data.workshops : [],
     organisations: isHackathon ? organisationsOf(rows.data.organisers) : [],
+    registration,
   });
 };

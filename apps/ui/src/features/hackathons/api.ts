@@ -26,11 +26,13 @@ import {
   getHackathonDashboard,
   getHackathonDraft,
   joinHackathonInterest,
+  registerForHackathon,
   removeHackathonPrize,
   saveHackathonDetails,
   saveHackathonRubric,
   saveHackathonTracks,
   submitHackathonForReview,
+  withdrawFromHackathon,
   type AddHackathonPrizeRequest,
   type ChangeHackathonPrizeRequest,
   type ConfirmHackathonPrizeRequest,
@@ -40,7 +42,10 @@ import {
   type HackathonSchedule,
   type HackathonDraftCreated,
   type HackathonDraftView,
+  type HackathonRegistrationView,
   type JoinHackathonInterestRequest,
+  type RegistrationCreated,
+  type Withdrawn,
   type MarketHackathon,
   type PublicHackathonPrizeView,
   type PublicHackathonRules,
@@ -73,6 +78,16 @@ export const hackathonsApi = {
     removeHackathonPrize({ data: request }),
   confirmPrize: (request: ConfirmHackathonPrizeRequest) =>
     confirmHackathonPrize({ data: request }),
+};
+
+export type RegisterForHackathonRequest = Parameters<
+  typeof registerForHackathon
+>[0]['data'];
+
+export const registrationApi = {
+  register: (request: RegisterForHackathonRequest) =>
+    registerForHackathon({ data: request }),
+  withdraw: (eventId: string) => withdrawFromHackathon({ data: { eventId } }),
 };
 
 type EventScoped = { readonly eventId: string };
@@ -153,7 +168,10 @@ export type {
   HackathonDashboard,
   HackathonDraftCreated,
   HackathonDraftView,
+  HackathonRegistrationView,
   JoinHackathonInterestRequest,
+  RegistrationCreated,
+  Withdrawn,
   MarketHackathon,
   PublicHackathonPrizeView,
   PublicHackathonRules,
@@ -181,6 +199,7 @@ export type HackathonPageDetails = HackathonOffer & {
   readonly judges: readonly HackathonJudgeView[];
   readonly mentors: readonly HackathonMentorView[];
   readonly workshops: readonly HackathonWorkshopView[];
+  readonly registration: HackathonRegistrationView | null;
 };
 export type HackathonPrizeView = HackathonDraftView['prizes'][number];
 export type HackathonBasicsRequest = CreateHackathonDraftRequest['hackathon'];

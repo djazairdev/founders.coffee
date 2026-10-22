@@ -42,6 +42,7 @@ const EventRoute = () => {
     judges,
     mentors,
     workshops,
+    registration,
   } = Route.useLoaderData();
   useReloadOnMemberChange();
   const isHost = viewerId === event.hostId;
@@ -68,7 +69,17 @@ const EventRoute = () => {
         mapboxToken={mapboxToken}
         hackathon={hackathon}
         details={
-          rules ? { tracks, prizes, rules, judges, mentors, workshops } : null
+          rules
+            ? {
+                tracks,
+                prizes,
+                rules,
+                judges,
+                mentors,
+                workshops,
+                registration,
+              }
+            : null
         }
       />
       {viewerId && isWindowOpen && isAttending && !live.notAttending && (

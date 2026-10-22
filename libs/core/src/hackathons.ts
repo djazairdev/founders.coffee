@@ -19,6 +19,14 @@ export const ATTENDANCE_MODES = ['in_person', 'online'] as const;
 export type AttendanceMode = (typeof ATTENDANCE_MODES)[number];
 export const attendanceModeSchema = z.enum(ATTENDANCE_MODES);
 
+export const ATTENDANCE_MODES_BY_FORMAT: Readonly<
+  Record<EventFormat, readonly AttendanceMode[]>
+> = {
+  in_person: ['in_person'],
+  online: ['online'],
+  hybrid: ['in_person', 'online'],
+};
+
 export const REGISTRATION_STATUSES = ['registered', 'waitlisted'] as const;
 export type RegistrationStatus = (typeof REGISTRATION_STATUSES)[number];
 export const registrationStatusSchema = z.enum(REGISTRATION_STATUSES);

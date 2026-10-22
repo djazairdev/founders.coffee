@@ -22,6 +22,7 @@ export type {
   PublicHackathonTrack,
 } from './page.js';
 export type { HackathonSchedule } from './hackathon-schedule.js';
+export type { HackathonRegistrationView } from './hackathon-registration-view.js';
 export type {
   EventCalendarRequestInput,
   EventCancelRequestInput,
