@@ -2,6 +2,7 @@ import {
   err,
   ok,
   type AttendanceMode,
+  type CurrencyCode,
   type EventFormat,
   type EventStatus,
   type HackathonAiPolicy,
@@ -85,6 +86,7 @@ export type HackathonDraftView = {
     readonly endsAt: number;
     readonly format: EventFormat;
     readonly status: EventStatus;
+    readonly currency: CurrencyCode;
   };
   readonly organisation: HackathonLead;
   readonly version: number;
@@ -140,6 +142,7 @@ export const hackathonDraftResolver = async (
       endsAt: endsAt.getTime(),
       format: event.format,
       status: event.status,
+      currency: rows.currency,
     },
     organisation: rows.organisation,
     version: event.version,
