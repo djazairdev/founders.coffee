@@ -139,7 +139,7 @@ describe('the venue step floating over the map', () => {
     showVenueStep('', undefined, { overlay: listing() });
 
     const hint = venueHint();
-    expect(hint.textContent).toBe('Pick a spot on the map.');
+    expect(hint.textContent).toBe('Choose a location on the map.');
     expect(
       panelOf(hint).className,
       'the alert brings its own surface, and a card around it drew a box in a box',

@@ -133,10 +133,20 @@ export const validateDetailsStep = (
     title: string;
     description: string;
     languages: readonly MeetupLanguage[];
+    meetingUrl?: string;
+    isLinkFormat?: boolean;
   },
   locale: Locale,
 ): HostCreateStepCheck => {
   const errors: HostCreateStepCheck = {};
+  if (input.isLinkFormat) {
+    if (isBlank(input.meetingUrl ?? '')) errors.meetingUrl = null;
+    else if (
+      !events.eventMeetingUrlSchema.safeParse(input.meetingUrl).success
+    ) {
+      errors.meetingUrl = profile_link_invalid({}, { locale });
+    }
+  }
   if (isBlank(input.title)) {
     errors.title = null;
   } else if (!events.eventTitleSchema.safeParse(input.title).success) {

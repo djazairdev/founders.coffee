@@ -19,7 +19,7 @@ import {
   focusInvalidField,
   shownErrors,
   validateDetailsStep,
-  validatePlaceStep,
+  validateVenueStep,
   type HostCreateFieldErrors,
 } from '../events/host-create-validation';
 import { eventPlaceFields } from '../events/host-create-payload';
@@ -68,7 +68,7 @@ export const useHackathonCreateWizard = ({
   const navigate = useNavigate();
   const save = useCreateHackathonDraft();
   const [step, setStep] = useState(1);
-  const [format, setFormat] = useState<EventFormat>('in_person');
+  const [format, setFormat] = useState<EventFormat>('online');
   const [venue, setVenue] = useState<VenueSelection | null>(null);
   const [venueName, setVenueName] = useState('');
   const [searchValue, setSearchValue] = useState('');
@@ -89,13 +89,21 @@ export const useHackathonCreateWizard = ({
   const validateCurrentStep = (): boolean => {
     const check =
       step === 1
-        ? validatePlaceStep(
-            { format, venue, venueName, meetingUrl, cityCode: city?.code },
-            locale,
-          )
+        ? events.hasVenue(format)
+          ? validateVenueStep(venue, venueName, locale)
+          : {}
         : step === 2
           ? validateHackathonSchedule(startsAt, endsAt, locale)
-          : validateDetailsStep({ title, description, languages }, locale);
+          : validateDetailsStep(
+              {
+                title,
+                description,
+                languages,
+                meetingUrl,
+                isLinkFormat: events.hasMeetingLink(format),
+              },
+              locale,
+            );
     flushSync(() => setFieldErrors((shown) => shownErrors(check, shown)));
     const first = firstInvalidField(check);
     if (first) focusInvalidField(first);
@@ -105,7 +113,8 @@ export const useHackathonCreateWizard = ({
   const submit = () => {
     const place = eventPlaceFields(
       { format, venue, venueName, meetingUrl },
-      city?.code,
+      format === 'online' ? undefined : city?.code,
+      format === 'online',
     );
     if (!place || startsAt === null || endsAt === null) return;
     save.mutate(
@@ -113,7 +122,7 @@ export const useHackathonCreateWizard = ({
         organisationId: organisation.id,
         hackathon: {
           marketCode: market.code,
-          cityCode: city?.code,
+          ...(format === 'online' ? {} : { cityCode: city?.code }),
           title,
           description,
           languages: [...languages],

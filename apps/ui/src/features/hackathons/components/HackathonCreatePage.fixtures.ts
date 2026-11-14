@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   navigate: vi.fn(),
   mutate: vi.fn(),
   reset: vi.fn(),
+  mapContext: vi.fn(),
   save: {
     isPending: false,
     isError: false,
@@ -46,15 +47,18 @@ vi.mock('../hooks', () => ({
 }));
 
 vi.mock('../../events/hooks', () => ({
-  useHostMapContext: () => ({
-    data: {
-      center: { latitude: 36.7538, longitude: 3.0588 },
-      bounds: [2.9, 36.6, 3.3, 36.9],
-    },
-    isError: false,
-    error: null,
-    refetch: vi.fn(),
-  }),
+  useHostMapContext: (_input: unknown, enabled: boolean) => {
+    mocks.mapContext(enabled);
+    return {
+      data: {
+        center: { latitude: 36.7538, longitude: 3.0588 },
+        bounds: [2.9, 36.6, 3.3, 36.9],
+      },
+      isError: false,
+      error: null,
+      refetch: vi.fn(),
+    };
+  },
   useIsLocatingVenue: () => false,
   useNearbyVenues: () => ({ data: [], isPending: false }),
   useVenueSearch: () => ({
@@ -64,6 +68,10 @@ vi.mock('../../events/hooks', () => ({
     isFetching: false,
     refetch: vi.fn(),
   }),
+}));
+
+vi.mock('../../organisations/hooks', () => ({
+  useMyOrganisations: () => ({ data: [] }),
 }));
 
 vi.mock('../../geo/hooks', () => ({

@@ -18,11 +18,17 @@ import type { LocationPromptReason } from './useLocationPrompt';
 
 const TYPING_DELAY_MS = 350;
 
+export type HostLocationPromptCopy = {
+  title: string;
+  body: string;
+};
+
 type HostLocationPromptProps = {
   locale: Locale;
   marketCode: string;
   cityCode?: string;
   reason: LocationPromptReason | null;
+  copy?: HostLocationPromptCopy;
   onLocate: () => void;
   onCitySelect: (city: geo.GeoCity) => void;
   onClose: () => void;
@@ -33,6 +39,7 @@ export const HostLocationPrompt = ({
   marketCode,
   cityCode,
   reason,
+  copy,
   onLocate,
   onCitySelect,
   onClose,
@@ -64,7 +71,7 @@ export const HostLocationPrompt = ({
     >
       <div className="modal-box max-w-md rounded-box border border-base-300 bg-base-100">
         <h2 id={titleId} className="font-display text-h4 font-semibold">
-          {host_location_prompt_title({}, { locale })}
+          {copy?.title ?? host_location_prompt_title({}, { locale })}
         </h2>
         {reason === 'missed' && (
           <p id={missedId} className="mt-2 text-body-sm text-base-content">
@@ -75,7 +82,7 @@ export const HostLocationPrompt = ({
           id={bodyId}
           className="mt-2 text-body-sm leading-relaxed text-neutral"
         >
-          {host_location_prompt_body({}, { locale })}
+          {copy?.body ?? host_location_prompt_body({}, { locale })}
         </p>
         <button
           type="button"

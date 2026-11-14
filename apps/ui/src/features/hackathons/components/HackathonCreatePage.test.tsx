@@ -12,6 +12,8 @@ import {
 const mocks = getHackathonCreateMocks();
 const next = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+const nextArabic = () =>
+  fireEvent.click(screen.getByRole('button', { name: 'التالي' }));
 
 const fillDetails = () => {
   fireEvent.change(screen.getByLabelText('Hackathon title'), {
@@ -25,19 +27,37 @@ const fillDetails = () => {
 describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
   afterEach(resetHackathonWizard);
 
-  it('saves an online hackathon as a draft with its link and city, and no venue', () => {
+  it('collects a remote join link in the last step and saves no city or venue', () => {
     renderHackathonWizard();
 
-    fireEvent.click(screen.getByRole('radio', { name: 'Online' }));
-    fireEvent.change(screen.getByLabelText('Meeting link'), {
-      target: { value: 'https://meet.example.com/builders' },
-    });
+    expect(
+      (screen.getByRole('radio', { name: 'Remote' }) as HTMLInputElement)
+        .checked,
+    ).toBe(true);
+    expect(
+      screen
+        .getAllByRole('radio')
+        .map((radio) => (radio as HTMLInputElement).value),
+    ).toEqual(['online', 'in_person']);
+    expect(
+      screen.queryByRole('radio', { name: 'In person and remote' }),
+    ).toBeNull();
+    expect(mocks.mapContext).toHaveBeenLastCalledWith(false);
+    expect(screen.queryByLabelText('Remote join link')).toBeNull();
+    expect(screen.queryByLabelText('City')).toBeNull();
     next();
     expect(
-      screen.getByRole('heading', { name: 'When does it run?' }),
+      screen.getByRole('heading', {
+        name: 'When will the hackathon take place?',
+      }),
     ).toBeTruthy();
+    expect(screen.queryByLabelText('Remote join link')).toBeNull();
+    expect(screen.queryByLabelText('City')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Set schedule' }));
     next();
+    fireEvent.change(screen.getByLabelText('Remote join link'), {
+      target: { value: 'https://meet.example.com/builders' },
+    });
     fillDetails();
     fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
 
@@ -47,7 +67,6 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
       organisationId: 'org_1',
       hackathon: {
         marketCode: 'DZ',
-        cityCode: '1',
         title: 'Algiers Builders Weekend',
         description: 'Two days of building with founders across Algiers.',
         languages: ['en'],
@@ -60,14 +79,18 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
     });
   });
 
-  it('opens the saved draft’s second step', () => {
+  it('opens the saved draft’s second step', async () => {
     mocks.mutate.mockImplementation(
       (_request: unknown, options: { onSuccess: (created: unknown) => void }) =>
         options.onSuccess({ eventId: 'evt_saved', slug: 'algiers-builders' }),
     );
     renderHackathonWizard();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Choose venue' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'In person' }));
+    expect(mocks.mapContext).toHaveBeenLastCalledWith(true);
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Choose venue' }),
+    );
     next();
     fireEvent.click(screen.getByRole('button', { name: 'Set schedule' }));
     next();
@@ -92,15 +115,18 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
   it('holds each step until it is complete', () => {
     renderHackathonWizard();
 
+    fireEvent.click(screen.getByRole('radio', { name: 'In person' }));
     next();
     expect(
-      screen.getByRole('heading', { name: 'Where will the hackathon happen?' }),
+      screen.getByRole('heading', { name: 'How will the hackathon be held?' }),
     ).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Choose venue' }));
     next();
     next();
     expect(
-      screen.getByRole('heading', { name: 'When does it run?' }),
+      screen.getByRole('heading', {
+        name: 'When will the hackathon take place?',
+      }),
     ).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Set schedule' }));
     next();
@@ -128,7 +154,7 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
 
     expect(
       screen.getByText(
-        'Only members of an approved organisation can create its hackathons.',
+        'Only members of an active organiser account can create its hackathons.',
       ),
     ).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Next' })).toBeNull();
@@ -137,13 +163,48 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
   it('asks in Arabic and French too', () => {
     renderHackathonWizard('ar');
     expect(
-      screen.getByRole('heading', { name: 'أين سيُقام الهاكاثون؟' }),
+      screen.getByRole('heading', { name: 'كيف سيُقام الهاكاثون؟' }),
     ).toBeTruthy();
     resetHackathonWizard();
 
     renderHackathonWizard('fr');
     expect(
-      screen.getByRole('heading', { name: 'Où se déroulera le hackathon ?' }),
+      screen.getByRole('heading', {
+        name: 'Comment se déroulera le hackathon ?',
+      }),
     ).toBeTruthy();
+  });
+
+  it('shows format-specific guidance and fields', () => {
+    renderHackathonWizard('ar');
+
+    expect(
+      (screen.getByRole('radio', { name: 'عن بُعد' }) as HTMLInputElement)
+        .checked,
+    ).toBe(true);
+    expect(screen.queryByRole('radio', { name: 'حضوري وعن بُعد' })).toBeNull();
+    expect(
+      screen.queryByRole('heading', { name: 'مكان إقامة الهاكاثون' }),
+    ).toBeNull();
+    expect(mocks.mapContext).toHaveBeenLastCalledWith(false);
+    expect(
+      screen.getByText('يشارك المتسابقون عبر الإنترنت دون الحاجة إلى الحضور.'),
+    ).toBeTruthy();
+    expect(screen.queryByLabelText('رابط الانضمام عن بُعد')).toBeNull();
+    expect(screen.queryByLabelText('المدينة')).toBeNull();
+    nextArabic();
+    fireEvent.click(screen.getByRole('button', { name: 'Set schedule' }));
+    nextArabic();
+    expect(screen.getByLabelText('رابط الانضمام عن بُعد')).toBeTruthy();
+
+    resetHackathonWizard();
+    renderHackathonWizard('ar');
+    fireEvent.click(screen.getByRole('radio', { name: 'حضوري' }));
+    expect(mocks.mapContext).toHaveBeenLastCalledWith(true);
+    expect(
+      screen.getByRole('heading', { name: 'مكان إقامة الهاكاثون' }),
+    ).toBeTruthy();
+    expect(screen.queryByLabelText('رابط الانضمام عن بُعد')).toBeNull();
+    expect(screen.getByText('حدّد الموقع على الخريطة.')).toBeTruthy();
   });
 });

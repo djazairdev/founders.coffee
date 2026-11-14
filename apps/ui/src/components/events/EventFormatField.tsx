@@ -28,22 +28,33 @@ export const EventFormatField = ({
   locale,
   value,
   isDisabled = false,
+  isHintVisible = true,
+  label,
+  names,
+  formats = EVENT_FORMATS,
   onChange,
 }: {
   locale: Locale;
   value: EventFormat;
   isDisabled?: boolean;
+  isHintVisible?: boolean;
+  label?: string;
+  names?: Partial<Record<EventFormat, string>>;
+  formats?: readonly EventFormat[];
   onChange: (next: EventFormat) => void;
 }) => {
   const name = useId();
   const hintId = `${name}-hint`;
   return (
-    <fieldset aria-describedby={hintId} className="flex flex-col">
+    <fieldset
+      aria-describedby={isHintVisible ? hintId : undefined}
+      className="flex flex-col"
+    >
       <legend className="mb-1.5 text-body-sm text-neutral">
-        {host_format_label({}, { locale })}
+        {label ?? host_format_label({}, { locale })}
       </legend>
       <div className="flex flex-wrap gap-2">
-        {EVENT_FORMATS.map((format) => (
+        {formats.map((format) => (
           <label
             className="tap-target inline-flex h-8 cursor-pointer items-center rounded-full bg-base-200 px-3.5 text-body-sm font-medium text-base-content transition-colors duration-[var(--duration-fast)] hover:bg-base-300 has-[:checked]:bg-secondary-tint has-[:checked]:text-accent has-[:checked]:ring-1 has-[:checked]:ring-secondary has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary motion-reduce:transition-none"
             key={format}
@@ -57,13 +68,15 @@ export const EventFormatField = ({
               type="radio"
               value={format}
             />
-            {NAMES[format]({}, { locale })}
+            {names?.[format] ?? NAMES[format]({}, { locale })}
           </label>
         ))}
       </div>
-      <p className="mt-1.5 text-body-sm text-neutral" id={hintId}>
-        {HINTS[value]({}, { locale })}
-      </p>
+      {isHintVisible ? (
+        <p className="mt-1.5 text-body-sm text-neutral" id={hintId}>
+          {HINTS[value]({}, { locale })}
+        </p>
+      ) : null}
     </fieldset>
   );
 };

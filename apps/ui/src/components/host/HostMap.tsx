@@ -23,6 +23,7 @@ import {
 } from '../../lib/mapbox-csp';
 import { HostLocateButton } from './HostLocateButton';
 import { HostLocationPrompt } from './HostLocationPrompt';
+import type { HostLocationPromptCopy } from './HostLocationPrompt';
 import { HostMapFailure } from './HostMapFailure';
 import { HostMapSkeleton } from './HostMapSkeleton';
 import { HostMapToasts } from './HostMapToasts';
@@ -48,6 +49,7 @@ type HostMapProps = {
   locale: Locale;
   isInteractive?: boolean;
   covered?: number;
+  locationPromptCopy?: HostLocationPromptCopy;
   onVenueSelect: (venue: VenueSelection) => void;
   onVenueInvalidate: () => void;
   onCenterChange?: (center: Coordinates) => void;
@@ -68,6 +70,7 @@ export const HostMap = ({
   locale,
   isInteractive = true,
   covered = 0,
+  locationPromptCopy,
   onVenueSelect,
   onVenueInvalidate,
   onCenterChange,
@@ -286,6 +289,7 @@ export const HostMap = ({
           marketCode={marketCode}
           cityCode={cityCode}
           reason={prompt.reason}
+          copy={locationPromptCopy}
           onLocate={() => void chooseWhereVisitorIs()}
           onCitySelect={onCitySelect}
           onClose={prompt.close}

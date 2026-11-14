@@ -15,6 +15,7 @@ import { ErrorBoundary } from '../shell/ErrorBoundary';
 import { ClientOnly } from './ClientOnly';
 import { HostMapFailure } from './HostMapFailure';
 import { HostMapSkeleton } from './HostMapSkeleton';
+import type { HostLocationPromptCopy } from './HostLocationPrompt';
 import type { ControlSize } from './useControlSize';
 
 const HostMap = lazy(() =>
@@ -31,6 +32,7 @@ export const HostMapPanel = ({
   error,
   isInteractive,
   covered,
+  locationPromptCopy,
   onRetry,
   onVenueSelect,
   onVenueInvalidate,
@@ -51,6 +53,7 @@ export const HostMapPanel = ({
   error: unknown;
   isInteractive: boolean;
   covered?: number;
+  locationPromptCopy?: HostLocationPromptCopy;
   onRetry: () => void;
   onVenueSelect: (venue: VenueSelection) => void;
   onVenueInvalidate: () => void;
@@ -83,6 +86,7 @@ export const HostMapPanel = ({
             locale={locale}
             isInteractive={isInteractive}
             covered={covered}
+            locationPromptCopy={locationPromptCopy}
             onVenueSelect={onVenueSelect}
             onVenueInvalidate={onVenueInvalidate}
             onCenterChange={onCenterChange}

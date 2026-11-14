@@ -24,53 +24,61 @@ const renderStep = (
   return { onChange, onError };
 };
 
-const futureMonthDay = (day: number) => {
-  const next = new Date();
-  next.setDate(1);
-  next.setMonth(next.getMonth() + 1);
-  next.setDate(day);
-  return next;
-};
-
 describe('HackathonScheduleStep', () => {
   afterEach(cleanup);
 
-  it('opens on the saved kickoff and demo day', () => {
+  it('opens with the saved start and end dates and times', () => {
     renderStep({
       startsAt: Date.UTC(2099, 2, 12, 8, 30),
       endsAt: Date.UTC(2099, 2, 14, 16, 0),
     });
 
     expect(
-      (screen.getByLabelText('Kickoff time') as HTMLInputElement).value,
+      (screen.getByLabelText('Start date') as HTMLInputElement).value,
+    ).toBe('2099-03-12');
+    expect((screen.getByLabelText('End date') as HTMLInputElement).value).toBe(
+      '2099-03-14',
+    );
+    expect(
+      (screen.getByLabelText('Start time') as HTMLInputElement).value,
     ).toBe('09:30');
-    expect(
-      (screen.getByLabelText('End of demo day') as HTMLInputElement).value,
-    ).toBe('17:00');
-    expect(
-      screen.getByText('Kickoff March 12 · Demo day March 14'),
-    ).toBeTruthy();
+    expect((screen.getByLabelText('End time') as HTMLInputElement).value).toBe(
+      '17:00',
+    );
+    expect(screen.getByText('March 12, 2099 – March 14, 2099')).toBeTruthy();
   });
 
-  it('sets kickoff and demo day from two days on the calendar', () => {
+  it('sets the schedule from separate start and end date fields', () => {
     const { onChange } = renderStep();
-    const kickoff = futureMonthDay(10);
-    const demoDay = futureMonthDay(12);
-
-    fireEvent.click(screen.getByRole('button', { name: /Next month/i }));
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: new RegExp(`${kickoff.getDate()}th`),
-      }),
-    );
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: new RegExp(`${demoDay.getDate()}th`),
-      }),
-    );
+    fireEvent.change(screen.getByLabelText('Start date'), {
+      target: { value: '2099-03-12' },
+    });
+    fireEvent.change(screen.getByLabelText('End date'), {
+      target: { value: '2099-03-14' },
+    });
 
     const [startsAt, endsAt] = onChange.mock.lastCall ?? [];
     expect(endsAt - startsAt).toBe(2 * 86_400_000 + 9 * 3_600_000);
+  });
+
+  it('selects a date from the React Day Picker calendar', () => {
+    const { onChange } = renderStep({
+      startsAt: Date.UTC(2099, 2, 12, 8, 0),
+      endsAt: Date.UTC(2099, 2, 14, 17, 0),
+    });
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Open calendar: Start date' }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: /March 13th, 2099/ }));
+
+    expect(
+      (screen.getByLabelText('Start date') as HTMLInputElement).value,
+    ).toBe('2099-03-13');
+    expect(onChange).toHaveBeenLastCalledWith(
+      Date.UTC(2099, 2, 13, 8, 0),
+      Date.UTC(2099, 2, 14, 17, 0),
+    );
   });
 
   it('reports a time that cannot be read and clears the schedule', () => {
@@ -79,7 +87,7 @@ describe('HackathonScheduleStep', () => {
       endsAt: Date.UTC(2099, 2, 14, 17, 0),
     });
 
-    fireEvent.change(screen.getByLabelText('Kickoff time'), {
+    fireEvent.change(screen.getByLabelText('Start time'), {
       target: { value: '' },
     });
 

@@ -1,29 +1,43 @@
+import type { EventFormat } from '@founders-coffee/core';
 import {
-  event_when,
-  event_where,
+  hackathon_format_hybrid,
+  hackathon_format_label,
+  hackathon_format_online,
+  hackathon_hybrid_description,
+  hackathon_hybrid_location_hint,
+  hackathon_hybrid_location_title,
+  hackathon_location_prompt_body,
+  hackathon_location_prompt_title,
+  hackathon_in_person_description,
+  hackathon_online_description,
+  hackathon_online_link_hint,
+  hackathon_online_link_label,
+  hackathon_venue_title,
+  hackathon_venue_name_placeholder,
   hackathon_desc_label,
   hackathon_desc_ph,
   hackathon_languages_hint,
   hackathon_languages_label,
   hackathon_step_details,
+  hackathon_step_details_short,
   hackathon_step_place,
+  hackathon_step_place_short,
   hackathon_step_schedule,
+  hackathon_step_schedule_short,
   hackathon_step_schedule_sub,
   hackathon_title_label,
   hackathon_title_ph,
-  host_step3_short,
   host_step3_sub,
+  host_venue_empty,
   type Locale,
 } from '@founders-coffee/i18n';
-
-import { HACKATHON_MAX_DAYS } from './hackathon-schedule';
 
 /** The hackathon wizard's step labels, titles and lines under them, in the reader's language. */
 export const hackathonStepCopy = (locale: Locale) => ({
   labels: [
-    event_where({}, { locale }),
-    event_when({}, { locale }),
-    host_step3_short({}, { locale }),
+    hackathon_step_place_short({}, { locale }),
+    hackathon_step_schedule_short({}, { locale }),
+    hackathon_step_details_short({}, { locale }),
   ],
   titles: [
     hackathon_step_place({}, { locale }),
@@ -32,7 +46,7 @@ export const hackathonStepCopy = (locale: Locale) => ({
   ],
   descriptions: [
     null,
-    hackathon_step_schedule_sub({ days: HACKATHON_MAX_DAYS }, { locale }),
+    hackathon_step_schedule_sub({}, { locale }),
     host_step3_sub({}, { locale }),
   ],
 });
@@ -45,4 +59,28 @@ export const hackathonDetailsCopy = (locale: Locale) => ({
   descriptionPlaceholder: hackathon_desc_ph({}, { locale }),
   languagesLabel: hackathon_languages_label({}, { locale }),
   languagesHint: hackathon_languages_hint({}, { locale }),
+});
+
+export const hackathonPlaceCopy = (locale: Locale) => ({
+  formatLabel: hackathon_format_label({}, { locale }),
+  formatNames: {
+    online: hackathon_format_online({}, { locale }),
+    hybrid: hackathon_format_hybrid({}, { locale }),
+  } satisfies Partial<Record<EventFormat, string>>,
+  descriptions: {
+    in_person: hackathon_in_person_description({}, { locale }),
+    online: hackathon_online_description({}, { locale }),
+    hybrid: hackathon_hybrid_description({}, { locale }),
+  } satisfies Record<EventFormat, string>,
+  venueTitle: hackathon_venue_title({}, { locale }),
+  venueNamePlaceholder: hackathon_venue_name_placeholder({}, { locale }),
+  mapHint: host_venue_empty({}, { locale }),
+  onlineLinkLabel: hackathon_online_link_label({}, { locale }),
+  onlineLinkHint: hackathon_online_link_hint({}, { locale }),
+  hybridLocationTitle: hackathon_hybrid_location_title({}, { locale }),
+  hybridLocationHint: hackathon_hybrid_location_hint({}, { locale }),
+  locationPrompt: {
+    title: hackathon_location_prompt_title({}, { locale }),
+    body: hackathon_location_prompt_body({}, { locale }),
+  },
 });
