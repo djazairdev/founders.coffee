@@ -10,14 +10,10 @@ import {
   hackathon_location_prompt_title,
   hackathon_in_person_description,
   hackathon_online_description,
-  hackathon_online_link_hint,
-  hackathon_online_link_label,
   hackathon_venue_title,
   hackathon_venue_name_placeholder,
   hackathon_desc_label,
   hackathon_desc_ph,
-  hackathon_languages_hint,
-  hackathon_languages_label,
   hackathon_step_details,
   hackathon_step_details_short,
   hackathon_step_place,
@@ -57,8 +53,6 @@ export const hackathonDetailsCopy = (locale: Locale) => ({
   titlePlaceholder: hackathon_title_ph({}, { locale }),
   descriptionLabel: hackathon_desc_label({}, { locale }),
   descriptionPlaceholder: hackathon_desc_ph({}, { locale }),
-  languagesLabel: hackathon_languages_label({}, { locale }),
-  languagesHint: hackathon_languages_hint({}, { locale }),
 });
 
 export const hackathonPlaceCopy = (locale: Locale) => ({
@@ -75,8 +69,6 @@ export const hackathonPlaceCopy = (locale: Locale) => ({
   venueTitle: hackathon_venue_title({}, { locale }),
   venueNamePlaceholder: hackathon_venue_name_placeholder({}, { locale }),
   mapHint: host_venue_empty({}, { locale }),
-  onlineLinkLabel: hackathon_online_link_label({}, { locale }),
-  onlineLinkHint: hackathon_online_link_hint({}, { locale }),
   hybridLocationTitle: hackathon_hybrid_location_title({}, { locale }),
   hybridLocationHint: hackathon_hybrid_location_hint({}, { locale }),
   locationPrompt: {

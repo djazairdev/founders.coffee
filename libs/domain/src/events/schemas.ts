@@ -146,7 +146,12 @@ export const addEventCreateIssues = (
 ): void => {
   addScheduleIssues(input, context);
   addFormatIssues(
-    eventFormatIssues(input.format, input, CREATE_VENUE_FIELDS),
+    eventFormatIssues(
+      input.format,
+      input,
+      CREATE_VENUE_FIELDS,
+      input.kind !== 'hackathon' || input.format !== 'online',
+    ),
     context,
   );
   if (

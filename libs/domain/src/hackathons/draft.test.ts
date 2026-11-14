@@ -119,7 +119,7 @@ describe('a hackathon draft (B-HKN-06)', () => {
     ).toEqual([]);
   });
 
-  it('holds the event fields to their own rules: a venue in person, a link online', () => {
+  it('requires a venue in person but no external link online', () => {
     expect(pathsOf(draft({ venueName: undefined }))).toContain('venueName');
     expect(
       pathsOf(
@@ -133,7 +133,7 @@ describe('a hackathon draft (B-HKN-06)', () => {
           attendanceModes: ['online'],
         }),
       ),
-    ).toContain('meetingUrl');
+    ).toEqual([]);
   });
 
   it('keeps its optional limits sane, and refuses anything it does not know', () => {

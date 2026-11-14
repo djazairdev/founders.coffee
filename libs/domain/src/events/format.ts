@@ -44,14 +44,16 @@ export const hasMeetingLink = (format: EventFormat): boolean =>
 
 /**
  * What an event's fields lack, or carry wrongly, for its format: an in-person event needs a venue,
- * an online one a meeting link, and a hybrid one both. An online event carries no venue at all, and
- * an in-person one no link, so a field the format does not use is refused rather than stored unseen.
+ * an online meetup a meeting link, and a hybrid event both. Online hackathons may use their own
+ * page instead of an external meeting link. An online event carries no venue at all, and an
+ * in-person one no link, so a field the format does not use is refused rather than stored unseen.
  * `required` names the venue fields this caller must send, since an edit may keep its point.
  */
 export const eventFormatIssues = (
   format: EventFormat,
   fields: EventFormatFields,
   required: readonly (typeof VENUE_FIELDS)[number][],
+  requireMeetingLink = true,
 ): readonly EventFormatIssue[] => {
   const issues: EventFormatIssue[] = [];
   if (hasVenue(format)) {
@@ -63,7 +65,11 @@ export const eventFormatIssues = (
       if (fields[path] !== undefined)
         issues.push({ path, message: 'An online event has no venue' });
   }
-  if (hasMeetingLink(format) && fields.meetingUrl === undefined)
+  if (
+    hasMeetingLink(format) &&
+    requireMeetingLink &&
+    fields.meetingUrl === undefined
+  )
     issues.push({
       path: 'meetingUrl',
       message: 'This event format needs an HTTPS meeting link',

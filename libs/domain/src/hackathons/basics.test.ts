@@ -38,7 +38,7 @@ describe("a hackathon's basics (B-HKN-11)", () => {
     expect(pathsOf(basics({ endsAt: kickoff + 15 * DAY }))).toContain('endsAt');
   });
 
-  it('holds an online hackathon to a link, and no venue or city', () => {
+  it('allows an online hackathon without an external link, venue, or city', () => {
     const online = {
       format: 'online',
       meetingUrl: 'https://meet.example.com/builders',
@@ -49,9 +49,7 @@ describe("a hackathon's basics (B-HKN-11)", () => {
     };
 
     expect(pathsOf(basics(online))).toEqual([]);
-    expect(pathsOf(basics({ ...online, meetingUrl: undefined }))).toContain(
-      'meetingUrl',
-    );
+    expect(pathsOf(basics({ ...online, meetingUrl: undefined }))).toEqual([]);
     expect(pathsOf(basics({ ...online, cityCode: undefined }))).toEqual([]);
   });
 

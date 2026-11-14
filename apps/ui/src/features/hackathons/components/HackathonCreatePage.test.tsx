@@ -27,7 +27,7 @@ const fillDetails = () => {
 describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
   afterEach(resetHackathonWizard);
 
-  it('collects a remote join link in the last step and saves no city or venue', () => {
+  it('saves an online hackathon without a city, venue, or external meeting link', () => {
     renderHackathonWizard();
 
     expect(
@@ -55,9 +55,10 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
     expect(screen.queryByLabelText('City')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Set schedule' }));
     next();
-    fireEvent.change(screen.getByLabelText('Remote join link'), {
-      target: { value: 'https://meet.example.com/builders' },
-    });
+    expect(screen.queryByLabelText('Remote join link')).toBeNull();
+    expect(
+      screen.queryByText(/^The languages spoken at the hackathon/),
+    ).toBeNull();
     fillDetails();
     fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
 
@@ -74,7 +75,6 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
         startsAt: KICKOFF,
         endsAt: DEMO_DAY,
         format: 'online',
-        meetingUrl: 'https://meet.example.com/builders',
       },
     });
   });
@@ -131,8 +131,8 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Set schedule' }));
     next();
     expect(
-      screen.getByText(/^The languages spoken at the hackathon/),
-    ).toBeTruthy();
+      screen.queryByText(/^The languages spoken at the hackathon/),
+    ).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
     expect(mocks.mutate).not.toHaveBeenCalled();
   });
@@ -195,7 +195,7 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
     nextArabic();
     fireEvent.click(screen.getByRole('button', { name: 'Set schedule' }));
     nextArabic();
-    expect(screen.getByLabelText('رابط الانضمام عن بُعد')).toBeTruthy();
+    expect(screen.queryByLabelText('رابط الانضمام عن بُعد')).toBeNull();
 
     resetHackathonWizard();
     renderHackathonWizard('ar');

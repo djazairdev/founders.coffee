@@ -23,11 +23,7 @@ import {
   type HostCreateFieldErrors,
 } from '../events/host-create-validation';
 import { eventPlaceFields } from '../events/host-create-payload';
-import type {
-  MeetupLanguage,
-  VenueArea,
-  VenueSelection,
-} from '../events/types';
+import type { VenueArea, VenueSelection } from '../events/types';
 import { localizedHackathonManage } from '../../lib/locale-routing';
 import { validateHackathonSchedule } from './hackathon-schedule';
 import { useCreateHackathonDraft } from './hooks';
@@ -72,17 +68,12 @@ export const useHackathonCreateWizard = ({
   const [venue, setVenue] = useState<VenueSelection | null>(null);
   const [venueName, setVenueName] = useState('');
   const [searchValue, setSearchValue] = useState('');
-  const [meetingUrl, setMeetingUrl] = useState('');
   const [startsAt, setStartsAt] = useState<number | null>(null);
   const [endsAt, setEndsAt] = useState<number | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [chosenLanguages, setChosenLanguages] = useState<
-    MeetupLanguage[] | null
-  >(null);
   const [tags, setTags] = useState<Topic[]>([]);
   const [fieldErrors, setFieldErrors] = useState<HostCreateFieldErrors>({});
-  const languages = chosenLanguages ?? [locale];
   const clearError = (field: keyof HostCreateFieldErrors) =>
     setFieldErrors((current) => ({ ...current, [field]: undefined }));
 
@@ -98,9 +89,7 @@ export const useHackathonCreateWizard = ({
               {
                 title,
                 description,
-                languages,
-                meetingUrl,
-                isLinkFormat: events.hasMeetingLink(format),
+                languages: [locale],
               },
               locale,
             );
@@ -112,9 +101,12 @@ export const useHackathonCreateWizard = ({
 
   const submit = () => {
     const place = eventPlaceFields(
-      { format, venue, venueName, meetingUrl },
+      { format, venue, venueName, meetingUrl: '' },
       format === 'online' ? undefined : city?.code,
-      format === 'online',
+      {
+        allowNationwideOnline: true,
+        allowOnlineWithoutMeetingLink: true,
+      },
     );
     if (!place || startsAt === null || endsAt === null) return;
     save.mutate(
@@ -125,7 +117,7 @@ export const useHackathonCreateWizard = ({
           ...(format === 'online' ? {} : { cityCode: city?.code }),
           title,
           description,
-          languages: [...languages],
+          languages: [locale],
           tags: [...tags],
           startsAt,
           endsAt,
@@ -159,12 +151,10 @@ export const useHackathonCreateWizard = ({
     venue,
     venueName,
     searchValue,
-    meetingUrl,
     startsAt,
     endsAt,
     title,
     description,
-    languages,
     tags,
     fieldErrors,
     venueArea,
@@ -182,10 +172,6 @@ export const useHackathonCreateWizard = ({
       setFormat(value);
       setFieldErrors({});
       save.reset();
-    },
-    setMeetingUrl: (value: string) => {
-      setMeetingUrl(value);
-      clearError('meetingUrl');
     },
     setSearchValue,
     setVenueName: (value: string) => {
@@ -224,10 +210,6 @@ export const useHackathonCreateWizard = ({
     setDescription: (value: string) => {
       setDescription(value);
       clearError('description');
-    },
-    setLanguages: (value: MeetupLanguage[]) => {
-      setChosenLanguages(value);
-      clearError('languages');
     },
     setTags,
   };

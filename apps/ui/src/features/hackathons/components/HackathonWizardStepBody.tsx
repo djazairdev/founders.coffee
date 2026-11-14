@@ -6,7 +6,6 @@ import { type Locale } from '@founders-coffee/i18n';
 
 import { EventFormatField } from '../../../components/events/EventFormatField';
 import { HostDetailsStep } from '../../../components/host/HostDetailsStep';
-import { HostMeetingLinkField } from '../../../components/host/HostMeetingLinkField';
 import { HostVenueLine } from '../../../components/host/HostVenueLine';
 import { HostVenueStep } from '../../../components/host/HostVenueStep';
 import type { useVenueOverlay } from '../../../components/host/useVenueOverlay';
@@ -149,29 +148,16 @@ export const HackathonWizardStepBody = ({
 
       {wizard.step === 3 && (
         <div className="grid gap-5">
-          {wizard.isLinkFormat ? (
-            <HostMeetingLinkField
-              locale={locale}
-              value={wizard.meetingUrl}
-              error={wizard.fieldErrors.meetingUrl}
-              label={placeCopy.onlineLinkLabel}
-              hint={placeCopy.onlineLinkHint}
-              labelClassName="mb-1.5 font-display text-h5 font-semibold text-base-content"
-              onChange={wizard.setMeetingUrl}
-            />
-          ) : null}
           <HostDetailsStep
             locale={locale}
             title={wizard.title}
             description={wizard.description}
-            languages={wizard.languages}
             tags={wizard.tags}
             constraints={hostCreateViewCopy().constraints}
             errors={wizard.fieldErrors}
             copy={hackathonDetailsCopy(locale)}
             onTitleChange={wizard.setTitle}
             onDescriptionChange={wizard.setDescription}
-            onLanguagesChange={wizard.setLanguages}
             onTagsChange={wizard.setTags}
           />
         </div>
