@@ -99,8 +99,7 @@ export const getSitemapData = createServerFn({ strict: false }).handler(
     );
     const events = eventRows.flatMap((row) => {
       const market = marketByCode.get(row.marketCode);
-      const city = market && geo.findCity(market.code, row.cityCode);
-      return market && city
+      return market
         ? [
             {
               market: market.slug,

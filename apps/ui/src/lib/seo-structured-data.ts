@@ -18,7 +18,7 @@ export type StructuredEventData = {
   readonly status: EventStatus;
   readonly format: EventFormat;
   readonly venue: string | null;
-  readonly cityName: string;
+  readonly cityName: string | null;
   readonly regionName: string | null;
   readonly venueAddress: string | null;
   readonly latitude: number | null;
@@ -159,7 +159,7 @@ export const eventJsonLd = (
     address: {
       '@type': 'PostalAddress',
       ...(event.venueAddress ? { streetAddress: event.venueAddress } : {}),
-      addressLocality: event.cityName,
+      ...(event.cityName ? { addressLocality: event.cityName } : {}),
       ...(event.regionName ? { addressRegion: event.regionName } : {}),
       addressCountry: event.marketCode,
     },

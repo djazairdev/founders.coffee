@@ -16,9 +16,9 @@ import type { EventAttendance } from './attendance.js';
 import { publicEvent, type PublicEvent } from './public-event.js';
 
 export type EventFeedItemBase = PublicEvent & {
-  readonly cityName: string;
-  readonly cityNameAr: string;
-  readonly cityNameFr: string;
+  readonly cityName: string | null;
+  readonly cityNameAr: string | null;
+  readonly cityNameFr: string | null;
   readonly citySlug: string | null;
   readonly hostName: string | null;
   readonly hostPhotoAssetId: string | null;
@@ -53,13 +53,15 @@ export const attachCityNames = (
   organisers: EventOrganisersById = new Map(),
 ): EventFeedItemBase[] =>
   rows.map((event) => {
-    const city = geo.findCity(event.marketCode, event.cityCode);
+    const city = event.cityCode
+      ? geo.findCity(event.marketCode, event.cityCode)
+      : null;
     const host = hosts.get(event.hostId);
     return {
       ...publicEvent(event),
-      cityName: city?.name ?? event.cityCode,
-      cityNameAr: city?.nameAr ?? city?.name ?? event.cityCode,
-      cityNameFr: city?.nameFr ?? city?.name ?? event.cityCode,
+      cityName: city?.name ?? null,
+      cityNameAr: city?.nameAr ?? city?.name ?? null,
+      cityNameFr: city?.nameFr ?? city?.name ?? null,
       citySlug: city?.slug ?? null,
       hostName: host ? profile.safeProfileDisplayName(host.name) || null : null,
       hostPhotoAssetId: host?.photoAssetId ?? null,

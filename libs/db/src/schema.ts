@@ -408,8 +408,8 @@ export const events = sqliteTable(
     marketCode: text('market_code')
       .notNull()
       .references(() => markets.code),
-    stateCode: text('state_code').notNull(),
-    cityCode: text('city_code').notNull(),
+    stateCode: text('state_code'),
+    cityCode: text('city_code'),
     title: text('title').notNull(),
     description: text('description').notNull(),
     venue: text('venue'),
@@ -462,7 +462,10 @@ export const events = sqliteTable(
 );
 
 export type Event = typeof events.$inferSelect;
-export type VenuedEvent = Event & { readonly venue: string };
+export type VenuedEvent = Event & {
+  readonly venue: string;
+  readonly cityCode: string;
+};
 export type NewEvent = typeof events.$inferInsert;
 
 /**
@@ -2267,8 +2270,8 @@ export const eventCloseouts = sqliteTable(
     marketCode: text('market_code')
       .notNull()
       .references(() => markets.code),
-    stateCode: text('state_code').notNull(),
-    cityCode: text('city_code').notNull(),
+    stateCode: text('state_code'),
+    cityCode: text('city_code'),
     outcome: text('outcome', { enum: [...CLOSEOUT_OUTCOMES] }).notNull(),
     walkInCount: integer('walk_in_count').notNull().default(0),
     wouldHostAgain: integer('would_host_again', { mode: 'boolean' }),
@@ -2319,8 +2322,8 @@ export const eventAttendance = sqliteTable(
     marketCode: text('market_code')
       .notNull()
       .references(() => markets.code),
-    stateCode: text('state_code').notNull(),
-    cityCode: text('city_code').notNull(),
+    stateCode: text('state_code'),
+    cityCode: text('city_code'),
     outcome: text('outcome', { enum: [...ATTENDANCE_OUTCOMES] }).notNull(),
     recordedByUserId: text('recorded_by_user_id')
       .notNull()
@@ -2361,8 +2364,8 @@ export const eventFeedback = sqliteTable(
     marketCode: text('market_code')
       .notNull()
       .references(() => markets.code),
-    stateCode: text('state_code').notNull(),
-    cityCode: text('city_code').notNull(),
+    stateCode: text('state_code'),
+    cityCode: text('city_code'),
     valueRating: text('value_rating', {
       enum: [...FEEDBACK_RATINGS],
     }).notNull(),

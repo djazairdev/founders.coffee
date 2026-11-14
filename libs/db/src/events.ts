@@ -206,7 +206,8 @@ export const countUpcomingByCity = async (
     )
     .groupBy(events.cityCode);
   const counts: Record<string, number> = {};
-  for (const row of rows) counts[row.cityCode] = Number(row.count);
+  for (const row of rows)
+    if (row.cityCode !== null) counts[row.cityCode] = Number(row.count);
   return counts;
 };
 
@@ -227,7 +228,8 @@ export const countUpcomingByState = async (
     )
     .groupBy(events.stateCode);
   const counts: Record<string, number> = {};
-  for (const row of rows) counts[row.stateCode] = Number(row.count);
+  for (const row of rows)
+    if (row.stateCode !== null) counts[row.stateCode] = Number(row.count);
   return counts;
 };
 

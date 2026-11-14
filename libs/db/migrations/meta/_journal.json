@@ -554,6 +554,13 @@
       "when": 1794497353460,
       "tag": "0078_organiser_registration",
       "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "6",
+      "when": 1794565009146,
+      "tag": "0079_thankful_rogue",
+      "breakpoints": true
     }
   ]
 }

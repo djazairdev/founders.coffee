@@ -32,11 +32,12 @@ export type EventPlaceFields = Pick<
 export const eventPlaceFields = (
   place: EventPlace,
   cityCode: string | undefined,
+  allowNationwideOnline = false,
 ): EventPlaceFields | null => {
   const { venue, format } = place;
   const hasVenue = events.hasVenue(format);
   if (hasVenue && !venue) return null;
-  if (format === 'online' && !cityCode) return null;
+  if (format === 'online' && !cityCode && !allowNationwideOnline) return null;
   const meetingUrl = place.meetingUrl.trim();
   if (events.hasMeetingLink(format) && !meetingUrl) return null;
   return {

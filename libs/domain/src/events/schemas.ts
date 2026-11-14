@@ -14,7 +14,6 @@ import {
   CREATE_VENUE_FIELDS,
   eventFormatIssues,
   eventMeetingUrlSchema,
-  hasVenue,
   UPDATE_VENUE_FIELDS,
 } from './format.js';
 import { eventLanguagesSchema } from './languages.js';
@@ -138,7 +137,8 @@ type EventCreateCheck = z.infer<z.ZodObject<typeof eventCreateFields>> & {
 
 /**
  * Add the rules every new event is held to: its schedule for its type, its venue or link for its
- * format, and the city an online event names in place of a venue.
+ * format, and the city an online event names in place of a venue. Online hackathons belong to a
+ * market, so they do not need a city.
  */
 export const addEventCreateIssues = (
   input: EventCreateCheck,
@@ -149,7 +149,11 @@ export const addEventCreateIssues = (
     eventFormatIssues(input.format, input, CREATE_VENUE_FIELDS),
     context,
   );
-  if (!hasVenue(input.format) && input.cityCode === undefined)
+  if (
+    input.format === 'online' &&
+    input.kind !== 'hackathon' &&
+    input.cityCode === undefined
+  )
     context.addIssue({
       code: 'custom',
       message: 'An online event names its city',
@@ -225,8 +229,8 @@ export type EventUpdateInput = z.infer<typeof eventUpdateSchema>;
 
 export const publicEventDiscoverySchema = z.strictObject({
   market: z.string().trim().min(1).max(80),
-  city: z.string().trim().min(1).max(80),
-  cityName: z.string().trim().min(1).max(160),
+  city: z.string().trim().min(1).max(80).nullable(),
+  cityName: z.string().trim().min(1).max(160).nullable(),
   slug: z.string().trim().min(1).max(80),
   title: eventTitleSchema,
   description: eventDescriptionSchema,

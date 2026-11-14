@@ -141,7 +141,7 @@ export const Route = createFileRoute('/$locale/$market/e/$slug')({
       slug: loaderData.event.slug,
       locale: loaderData.locale,
     });
-    const citySlug = loaderData.event.citySlug ?? loaderData.event.cityCode;
+    const citySlug = loaderData.event.citySlug;
     const marketName = localizedName(loaderData.market, loaderData.locale);
     const head = eventPageHead({
       locale: loaderData.locale,
@@ -149,7 +149,7 @@ export const Route = createFileRoute('/$locale/$market/e/$slug')({
       eventId: loaderData.event.id,
       version: loaderData.event.version,
       title: loaderData.event.title,
-      cityName,
+      cityName: cityName ?? marketName,
       description: loaderData.event.description,
       route: {
         type: 'event',
@@ -206,15 +206,19 @@ export const Route = createFileRoute('/$locale/$market/e/$slug')({
             locale: loaderData.locale,
           }),
         },
-        {
-          name: cityName,
-          url: canonicalUrl({
-            type: 'city',
-            market: loaderData.market.slug,
-            city: citySlug,
-            locale: loaderData.locale,
-          }),
-        },
+        ...(cityName && citySlug
+          ? [
+              {
+                name: cityName,
+                url: canonicalUrl({
+                  type: 'city' as const,
+                  market: loaderData.market.slug,
+                  city: citySlug,
+                  locale: loaderData.locale,
+                }),
+              },
+            ]
+          : []),
         { name: loaderData.event.title, url: eventUrl },
       ],
     });

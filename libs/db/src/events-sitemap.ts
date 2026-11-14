@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, isNotNull } from 'drizzle-orm';
 
 import type { Db } from './db.js';
 import { upcomingScope } from './events.js';
@@ -27,15 +27,25 @@ export type PublicEventSitemapRow = Pick<
 export const listCitiesWithUpcomingEvents = async (
   db: Db,
   now: Date = new Date(),
-): Promise<{ marketCode: string; cityCode: string }[]> =>
-  db
+): Promise<{ marketCode: string; cityCode: string }[]> => {
+  const rows = await db
     .selectDistinct({
       marketCode: events.marketCode,
       cityCode: events.cityCode,
     })
     .from(events)
-    .where(and(upcomingScope(now), eq(events.status, 'published')))
+    .where(
+      and(
+        upcomingScope(now),
+        eq(events.status, 'published'),
+        isNotNull(events.cityCode),
+      ),
+    )
     .orderBy(events.marketCode, events.cityCode);
+  return rows.flatMap(({ cityCode, ...row }) =>
+    cityCode === null ? [] : [{ ...row, cityCode }],
+  );
+};
 
 export const listPublicEventSitemapRows = async (
   db: Db,

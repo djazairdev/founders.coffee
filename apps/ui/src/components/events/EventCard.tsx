@@ -138,18 +138,16 @@ export const EventCard = ({
                   .map((language) => language.toUpperCase())
                   .join('/')}
               </span>
-            ) : (
+            ) : cityName ? (
               <>
-                {event.venue === null ? (
-                  <span aria-hidden="true">·</span>
-                ) : null}
+                <span aria-hidden="true">·</span>
                 <span dir="auto" className="text-secondary">
                   {event.venue === null
                     ? cityName
                     : `${locale === 'ar' ? '،' : ','} ${cityName}`}
                 </span>
               </>
-            )}
+            ) : null}
           </p>
 
           <footer className="mt-auto flex flex-wrap items-center gap-2 pt-1.5">

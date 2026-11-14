@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { CalendarDays, MapPin, Users } from 'lucide-react';
+import { CalendarDays, Users } from 'lucide-react';
 
 import { eventLanguages, textLanguage } from '@founders-coffee/core';
 import {
@@ -33,6 +33,7 @@ import { HackathonPageDetails } from '../../features/hackathons/components/Hacka
 import { HackathonAside } from '../../features/hackathons/components/HackathonAside';
 import { localizedCity } from '../../lib/locale-routing';
 import { EventCancelledNotice } from './EventCancelledNotice';
+import { EventCityBadge } from './EventCityBadge';
 import { EventFormatBadge } from './EventFormatBadge';
 import { EventHostCard, type EventOrganisers } from './EventHostCard';
 import { EventCoHosts } from './EventCoHosts';
@@ -105,14 +106,14 @@ export const EventDetail = ({
 
   return (
     <article className="mx-auto max-w-5xl px-4 py-6 sm:py-8 md:px-8 md:py-10">
-      {event.citySlug && (
+      {event.citySlug && cityName ? (
         <Link
           {...localizedCity(locale, market.slug, event.citySlug)}
           className="mb-4 inline-flex min-h-6 items-center text-body-sm font-medium underline decoration-secondary underline-offset-[3px] hover:text-accent"
         >
           {back_to_city(cityInputs(cityName), { locale })}
         </Link>
-      )}
+      ) : null}
 
       {isCancelled && (
         <EventCancelledNotice
@@ -126,10 +127,7 @@ export const EventDetail = ({
           <EventKindBadge kind={event.kind} locale={locale} />
           <EventRunByBadge runBy={event.runBy} locale={locale} />
           <EventFormatBadge format={event.format} locale={locale} />
-          <span className="inline-flex items-center gap-1.5 text-body-sm text-neutral">
-            <MapPin className="size-4 text-secondary" aria-hidden="true" />
-            <span dir="auto">{cityName}</span>
-          </span>
+          <EventCityBadge cityName={cityName} />
         </div>
         <h1 className="mt-4 font-display text-h3 font-semibold text-balance md:text-h2">
           <bdi lang={textLanguage(event.title, languages)}>{event.title}</bdi>

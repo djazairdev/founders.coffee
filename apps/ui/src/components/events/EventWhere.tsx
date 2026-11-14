@@ -18,7 +18,7 @@ export const EventWhere = ({
 }: {
   locale: Locale;
   event: EventDetailItem;
-  place: string;
+  place: string | null;
   isCancelled: boolean;
 }) => {
   const formatName = eventFormatName(event.format, locale);
@@ -44,9 +44,11 @@ export const EventWhere = ({
           <span>{formatName}</span>
         </dd>
       ) : null}
-      <dd className="mt-0.5 ps-6 text-body-sm text-neutral">
-        <bdi>{place}</bdi>
-      </dd>
+      {place ? (
+        <dd className="mt-0.5 ps-6 text-body-sm text-neutral">
+          <bdi>{place}</bdi>
+        </dd>
+      ) : null}
       {event.meetingLink ? (
         <dd className="mt-3 flex items-start gap-2">
           <Video

@@ -1,9 +1,9 @@
 import { localizedName, type Locale } from '@founders-coffee/i18n';
 
 export type EventCityNames = {
-  readonly cityName: string;
-  readonly cityNameAr: string;
-  readonly cityNameFr: string;
+  readonly cityName: string | null;
+  readonly cityNameAr: string | null;
+  readonly cityNameFr: string | null;
 };
 
 /**
@@ -14,12 +14,17 @@ export type EventCityNames = {
  * city has no name of its own in one, so an event agrees with the city page it links back to. A
  * French event page that took `cityName` linked back to Le Caire with "Retour à Cairo".
  */
-export const eventCityName = (event: EventCityNames, locale: Locale): string =>
-  localizedName(
+export const eventCityName = (
+  event: EventCityNames,
+  locale: Locale,
+): string | null =>
+  event.cityName === null
+    ? null
+    : localizedName(
     {
       name: event.cityName,
-      nameAr: event.cityNameAr,
-      nameFr: event.cityNameFr,
+      nameAr: event.cityNameAr ?? event.cityName,
+      nameFr: event.cityNameFr ?? event.cityName,
     },
     locale,
   );

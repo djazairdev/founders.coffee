@@ -98,12 +98,13 @@ describe('creating a hackathon draft (B-HKN-06, real D1)', () => {
     );
   });
 
-  it('creates an online draft without a map provider', async () => {
+  it('creates a nationwide online draft without a map provider or city', async () => {
     const result = await createHackathonDraftResolver(db, null, {
       hostId: TEST_HOST_ID,
       organisationId: 'org_hackathon_lead',
       basics: basics({
         format: 'online',
+        cityCode: undefined,
         meetingUrl: 'https://meet.example.org/builders',
         latitude: undefined,
         longitude: undefined,
@@ -118,7 +119,8 @@ describe('creating a hackathon draft (B-HKN-06, real D1)', () => {
       .where(eq(events.id, result.data.eventId));
     expect(event).toMatchObject({
       format: 'online',
-      cityCode: '1',
+      cityCode: null,
+      stateCode: null,
       latitude: null,
       longitude: null,
       meetingUrl: 'https://meet.example.org/builders',

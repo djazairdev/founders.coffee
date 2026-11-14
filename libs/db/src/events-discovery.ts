@@ -8,7 +8,7 @@ export type PublicEventDiscoveryRow = {
   readonly marketCode: string;
   readonly marketSlug: string;
   readonly timezone: string;
-  readonly cityCode: string;
+  readonly cityCode: string | null;
   readonly slug: string;
   readonly title: string;
   readonly description: string;

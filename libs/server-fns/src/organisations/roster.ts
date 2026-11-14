@@ -53,7 +53,7 @@ export type OrganisationInvitationView = {
 export type OrganisationHackathonView = {
   readonly id: string;
   readonly title: string;
-  readonly cityCode: string;
+  readonly cityCode: string | null;
   readonly startsAt: Date;
   readonly endsAt: Date | null;
   readonly status: EventStatus;

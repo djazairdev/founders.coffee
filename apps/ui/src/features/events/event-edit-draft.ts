@@ -134,8 +134,10 @@ export const locationPatch = (
   };
 };
 
-export const editsVenue = (event: EventDetailItem): boolean =>
-  events.hasVenue(event.format);
+export const editsVenue = (
+  event: EventDetailItem,
+): event is EventDetailItem & { cityCode: string } =>
+  events.hasVenue(event.format) && event.cityCode !== null;
 
 export const editsMeetingLink = (event: EventDetailItem): boolean =>
   events.hasMeetingLink(event.format);

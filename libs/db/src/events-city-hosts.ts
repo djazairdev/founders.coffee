@@ -1,5 +1,5 @@
 import { alias } from 'drizzle-orm/sqlite-core';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, isNotNull, sql } from 'drizzle-orm';
 
 import type { Db } from './db.js';
 import { upcomingScope } from './events.js';
@@ -31,7 +31,7 @@ export const listUpcomingCityHosts = async (
   now?: Date,
 ): Promise<UpcomingCityHost[]> => {
   const host = alias(user, 'city_host');
-  return db
+  const rows = await db
     .select({
       cityCode: events.cityCode,
       hostId: events.hostId,
@@ -46,6 +46,7 @@ export const listUpcomingCityHosts = async (
         eq(events.marketCode, marketCode),
         eq(events.status, 'published'),
         upcomingScope(now ?? new Date()),
+        isNotNull(events.cityCode),
       ),
     )
     .groupBy(
@@ -55,4 +56,7 @@ export const listUpcomingCityHosts = async (
       memberProfiles.photoAssetId,
     )
     .orderBy(events.cityCode, sql`min(${events.startsAt})`, events.hostId);
+  return rows.flatMap(({ cityCode, ...row }) =>
+    cityCode === null ? [] : [{ ...row, cityCode }],
+  );
 };

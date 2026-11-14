@@ -32,7 +32,7 @@ export type HackathonReviewItem = {
   readonly title: string;
   readonly description: string;
   readonly marketCode: string;
-  readonly cityCode: string;
+  readonly cityCode: string | null;
   readonly startsAt: Date;
   readonly endsAt: Date | null;
   readonly timeZone: string;

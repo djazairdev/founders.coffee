@@ -77,5 +77,6 @@
   "0075_member_profiles_hackathon_record": "compatible",
   "0076_profile_indexable": "compatible",
   "0077_hackathon_submission_screenshots": "compatible",
-  "0078_organiser_registration": "compatible"
+  "0078_organiser_registration": "compatible",
+  "0079_thankful_rogue": "compatible"
 }

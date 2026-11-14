@@ -30,17 +30,21 @@ export const eventDetail = async (
     id: viewerId,
     isGoing: enriched?.viewerRsvp === 'going',
   });
-  const city = geo.findCity(event.marketCode, event.cityCode);
-  const state = geo.findState(event.marketCode, event.stateCode);
+  const city = event.cityCode
+    ? geo.findCity(event.marketCode, event.cityCode)
+    : null;
+  const state = event.stateCode
+    ? geo.findState(event.marketCode, event.stateCode)
+    : null;
   return {
     ...enriched,
     meetingLink,
     runBy: eventsDomain.eventRunBy(
       organisers ?? organisersById?.get(event.id) ?? [],
     ),
-    cityName: city?.name ?? event.cityCode,
-    cityNameAr: city?.nameAr ?? city?.name ?? event.cityCode,
-    cityNameFr: city?.nameFr ?? city?.name ?? event.cityCode,
+    cityName: city?.name ?? null,
+    cityNameAr: city?.nameAr ?? city?.name ?? null,
+    cityNameFr: city?.nameFr ?? city?.name ?? null,
     citySlug: city?.slug ?? null,
     stateName: state?.name ?? null,
     stateNameAr: state?.nameAr ?? state?.name ?? null,

@@ -81,7 +81,7 @@ export type HackathonDraftView = {
     readonly id: string;
     readonly title: string;
     readonly marketCode: string;
-    readonly cityCode: string;
+    readonly cityCode: string | null;
     readonly startsAt: number;
     readonly endsAt: number;
     readonly format: EventFormat;

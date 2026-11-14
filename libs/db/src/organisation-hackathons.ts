@@ -10,7 +10,7 @@ export const ORGANISATION_HACKATHON_LIMIT = 50;
 export type OrganisationHackathonRow = {
   readonly id: string;
   readonly title: string;
-  readonly cityCode: string;
+  readonly cityCode: string | null;
   readonly startsAt: Date;
   readonly endsAt: Date | null;
   readonly status: EventStatus;

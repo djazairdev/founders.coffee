@@ -26,7 +26,7 @@ export interface FeedbackView {
   readonly slug: string;
   readonly marketCode: string;
   readonly marketSlug: string;
-  readonly cityCode: string;
+  readonly cityCode: string | null;
   readonly citySlug: string | null;
   readonly status: Extract<
     FeedbackEligibilityStatus,
@@ -77,7 +77,7 @@ export const readFeedback = async (
   if (status !== 'ready' && !feedback) return err(feedbackError(status));
   const viewStatus = status === 'ready' ? 'ready' : 'window_closed';
   const next =
-    viewStatus === 'ready'
+    viewStatus === 'ready' && event.cityCode
       ? await findNextEvent(db, {
           marketCode: event.marketCode,
           cityCode: event.cityCode,
@@ -93,7 +93,9 @@ export const readFeedback = async (
     marketSlug:
       (await getMarketByCode(db, event.marketCode))?.slug ?? event.marketCode,
     cityCode: event.cityCode,
-    citySlug: geo.findCity(event.marketCode, event.cityCode)?.slug ?? null,
+    citySlug: event.cityCode
+      ? (geo.findCity(event.marketCode, event.cityCode)?.slug ?? null)
+      : null,
     status: viewStatus,
     feedback: feedback ?? null,
     nextEvent: next ? { slug: next.slug, title: next.title } : null,
