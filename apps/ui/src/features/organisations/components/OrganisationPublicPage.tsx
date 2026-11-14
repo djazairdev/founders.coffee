@@ -38,6 +38,15 @@ export const OrganisationPublicPage = ({
       >
         <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex min-w-0 flex-col items-start gap-2">
+            {organisation.logo && (
+              <img
+                src={organisation.logo}
+                alt=""
+                width={80}
+                height={80}
+                className="size-20 rounded-box object-contain"
+              />
+            )}
             <Badge variant="outline" size="sm" className="font-medium">
               {organisationKindLabel(organisation.kind, locale)}
             </Badge>

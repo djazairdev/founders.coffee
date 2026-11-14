@@ -117,3 +117,4 @@ export * from './hackathon-submission-page.js';
 export * from './notification-reminders.js';
 export * from './hackathon-review.js';
 export * from './hackathon-review-queue.js';
+export * from './organisation-logo.js';

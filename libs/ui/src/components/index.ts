@@ -18,3 +18,4 @@ export {
 } from './StatusMessage.js';
 export { TOAST_DURATION_MS, Toast } from './Toast.js';
 export * from './Turnstile.js';
+export { ImageUploadField } from './ImageUploadField.js';

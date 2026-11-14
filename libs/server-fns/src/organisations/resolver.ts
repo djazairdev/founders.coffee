@@ -1,5 +1,7 @@
+import { organisationRoleAllows } from '@founders-coffee/auth';
 import { AppError, err, ok, type Result } from '@founders-coffee/core';
 import {
+  deleteOrganisationIfUnused,
   getOrganisation,
   listOrganisationsOfUser,
   readOrganisationMembership,
@@ -11,7 +13,9 @@ import { geo, type organisations } from '@founders-coffee/domain';
 import { logger } from '@founders-coffee/observability';
 
 import { requireHackathonsEnabled } from '../hackathons/flag.js';
+import type { PhotoServices } from '../profile/photo.js';
 import { createApplication } from './application.js';
+import { cleanOrganisationLogo } from './logo.js';
 
 export type OrganisationView = {
   readonly id: string;
@@ -23,8 +27,11 @@ export type OrganisationView = {
   readonly cityCode: string | null;
   readonly description: string;
   readonly websiteUrl: string | null;
+  readonly logo: string | null;
   readonly createdAt: Date;
   readonly role: string;
+  readonly canEdit: boolean;
+  readonly canDelete: boolean;
 };
 
 /** The fields a member sees of an organisation they belong to, with their role in it. */
@@ -38,8 +45,15 @@ const viewOf = (row: Organization, role: string): OrganisationView => ({
   cityCode: row.cityCode,
   description: row.description,
   websiteUrl: row.websiteUrl,
+  logo: row.logo,
   createdAt: row.createdAt,
   role,
+  canEdit:
+    row.status === 'approved' &&
+    organisationRoleAllows(role, 'organization', 'update'),
+  canDelete:
+    row.status === 'approved' &&
+    organisationRoleAllows(role, 'organization', 'delete'),
 });
 
 /** A city code is optional, and when given has to be a city of the organisation's market. */
@@ -131,4 +145,48 @@ export const updateOrganisationResolver = async (
     fields: Object.keys(input.changes),
   });
   return ok(viewOf(updated, membership.role));
+};
+
+/** Delete an unused organisation; linked event records keep their organiser intact (B-ORG-09). */
+export const deleteOrganisationResolver = async (
+  db: Db,
+  services: PhotoServices | null,
+  organisationId: string,
+): Promise<Result<{ readonly id: string }>> => {
+  const current = await getOrganisation(db, organisationId);
+  if (!current)
+    return err(
+      new AppError('organisation_not_found', 'Organisation not found'),
+    );
+  if (current.kind === 'platform')
+    return err(
+      new AppError('forbidden', 'The platform organisation is protected'),
+    );
+  const closed = await requireHackathonsEnabled(db, current.marketCode);
+  if (closed) return err(closed);
+  const deleted = await deleteOrganisationIfUnused(db, current.id);
+  if (!deleted) {
+    const remaining = await getOrganisation(db, current.id);
+    if (!remaining)
+      return err(
+        new AppError('organisation_not_found', 'Organisation not found'),
+      );
+    logger.info('organisation.delete_refused', {
+      organisationId: current.id,
+      marketCode: current.marketCode,
+      code: 'organisation_has_events',
+    });
+    return err(
+      new AppError(
+        'organisation_has_events',
+        'Remove the organisation from its events before deleting it',
+      ),
+    );
+  }
+  await cleanOrganisationLogo(services, current.id, current.logo);
+  logger.info('organisation.deleted', {
+    organisationId: current.id,
+    marketCode: current.marketCode,
+  });
+  return ok({ id: current.id });
 };

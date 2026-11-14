@@ -135,7 +135,6 @@ vi.mock('../../features/events/hooks', () => ({
   useCreateOrganisationEvent: () => ({
     mutateAsync: hostCreateMocks.organisationMutateAsync,
   }),
-  useMyOrganisations: () => ({ data: hostCreateMocks.myOrganisations }),
   useInvalidateCreatedEvent: () => hostCreateMocks.invalidateCreatedEvent,
   useHostMapContext: () => hostCreateMocks.mapContext,
   useIsLocatingVenue: () => hostCreateMocks.isLocatingVenue,
@@ -150,6 +149,10 @@ vi.mock('../../features/events/hooks', () => ({
     isFetching: false,
     refetch: vi.fn(),
   }),
+}));
+
+vi.mock('../../features/organisations/hooks', () => ({
+  useMyOrganisations: () => ({ data: hostCreateMocks.myOrganisations }),
 }));
 
 vi.mock('../../features/geo/hooks', () => ({

@@ -108,6 +108,11 @@
       "@founders-coffee/source": "./src/start/index.ts",
       "types": "./src/start/index.ts",
       "default": "./src/start/index.ts"
+    },
+    "./organisation-logo-http": {
+      "@founders-coffee/source": "./src/organisations/logo-http.ts",
+      "types": "./src/organisations/logo-http.ts",
+      "default": "./src/organisations/logo-http.ts"
     }
   },
   "dependencies": {

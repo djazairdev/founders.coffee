@@ -6,19 +6,15 @@ import {
   optional,
   save,
   saving,
-  org_apply_description,
   org_apply_error_failed,
   org_apply_error_rate_limited,
   org_apply_kind,
   org_apply_kind_choose,
-  org_apply_name,
-  org_apply_website,
   type Locale,
 } from '@founders-coffee/i18n';
 import {
   fieldNoteId,
   FormField,
-  Input,
   ListboxSelect,
   StatusMessage,
 } from '@founders-coffee/ui';
@@ -27,14 +23,13 @@ import { HackathonsUnavailable } from '../../hackathons/components/HackathonsUna
 import {
   APPLICANT_KINDS,
   applicationFrom,
-  DESCRIPTION_LENGTH,
   emptyApplication,
-  NAME_LENGTH,
   type ApplicationField as Field,
   type ApplicationDraft,
 } from '../application';
 import { applicationFieldError, applicationRefusal } from '../errors';
 import { useApplyForOrganisation } from '../hooks';
+import { OrganisationDetailsFields } from './OrganisationDetailsFields';
 import { KIND_LABELS } from '../kind-labels';
 
 type Problem = 'unavailable' | 'rate_limited' | 'failed';
@@ -105,99 +100,41 @@ export const OrganisationApplyForm = ({
 
   return (
     <form className="space-y-5" noValidate onSubmit={submit}>
-      <FormField
-        error={errorFor('name')}
-        id="organisation-name"
-        label={org_apply_name({}, { locale })}
-        optionalLabel={optionalLabel}
+      <OrganisationDetailsFields
+        locale={locale}
+        draft={draft}
+        isBusy={isBusy}
+        errorFor={errorFor}
+        change={(field, next) => change(field, { ...draft, ...next })}
+        bind={bind}
       >
-        <Input
-          {...describe('name', 'organisation-name')}
-          autoComplete="organization"
-          disabled={isBusy}
-          id="organisation-name"
-          maxLength={NAME_LENGTH.max}
-          onChange={(event) =>
-            change('name', { ...draft, name: event.target.value })
-          }
-          ref={bind('name')}
-          value={draft.name}
-        />
-      </FormField>
-      <FormField
-        error={errorFor('kind')}
-        id="organisation-kind"
-        label={org_apply_kind({}, { locale })}
-        optionalLabel={optionalLabel}
-      >
-        <ListboxSelect
-          {...describe('kind', 'organisation-kind')}
-          dir={direction(locale)}
-          disabled={isBusy}
+        <FormField
+          error={errorFor('kind')}
           id="organisation-kind"
-          onChange={(kind) =>
-            change('kind', { ...draft, kind: kind as ApplicationDraft['kind'] })
-          }
-          options={APPLICANT_KINDS.map((kind) => ({
-            value: kind,
-            label: KIND_LABELS[kind]({}, { locale }),
-          }))}
-          placeholder={org_apply_kind_choose({}, { locale })}
-          ref={bind('kind')}
-          value={draft.kind}
-        />
-      </FormField>
-      <FormField
-        aside={
-          <span className="shrink-0 text-caption text-neutral" dir="ltr">
-            {draft.description.trim().length} / {DESCRIPTION_LENGTH.max}
-          </span>
-        }
-        error={errorFor('description')}
-        id="organisation-description"
-        label={org_apply_description({}, { locale })}
-        optionalLabel={optionalLabel}
-      >
-        <textarea
-          {...describe('description', 'organisation-description')}
-          className="textarea textarea-sm md:textarea-md w-full"
-          dir="auto"
-          disabled={isBusy}
-          id="organisation-description"
-          maxLength={DESCRIPTION_LENGTH.max}
-          onChange={(event) =>
-            change('description', {
-              ...draft,
-              description: event.target.value,
-            })
-          }
-          ref={bind('description')}
-          rows={5}
-          value={draft.description}
-        />
-      </FormField>
-      <FormField
-        error={errorFor('websiteUrl')}
-        id="organisation-website"
-        isOptional
-        label={org_apply_website({}, { locale })}
-        optionalLabel={optionalLabel}
-      >
-        <Input
-          {...describe('websiteUrl', 'organisation-website')}
-          autoComplete="url"
-          disabled={isBusy}
-          id="organisation-website"
-          inputMode="url"
-          onChange={(event) =>
-            change('websiteUrl', { ...draft, websiteUrl: event.target.value })
-          }
-          placeholder="https://"
-          ref={bind('websiteUrl')}
-          type="url"
-          value={draft.websiteUrl}
-        />
-      </FormField>
+          label={org_apply_kind({}, { locale })}
+          optionalLabel={optionalLabel}
+        >
+          <ListboxSelect
+            {...describe('kind', 'organisation-kind')}
+            dir={direction(locale)}
+            disabled={isBusy}
+            id="organisation-kind"
+            onChange={(kind) =>
+              change('kind', {
+                ...draft,
+                kind: kind as ApplicationDraft['kind'],
+              })
+            }
+            options={APPLICANT_KINDS.map((kind) => ({
+              value: kind,
+              label: KIND_LABELS[kind]({}, { locale }),
+            }))}
+            placeholder={org_apply_kind_choose({}, { locale })}
+            ref={bind('kind')}
+            value={draft.kind}
+          />
+        </FormField>
+      </OrganisationDetailsFields>
       {problem === 'unavailable' ? (
         <HackathonsUnavailable locale={locale} />
       ) : null}

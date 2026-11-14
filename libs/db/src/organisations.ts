@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, ne, sql } from 'drizzle-orm';
 
 import type { OrganisationStatus } from '@founders-coffee/core';
 
@@ -8,6 +8,8 @@ import {
   markets,
   member,
   organization,
+  eventOrganisers,
+  session,
   type NewOrganization,
   type Organization,
 } from './schema.js';
@@ -152,4 +154,32 @@ export const updateOrganisationProfile = async (
     .where(eq(organization.id, organisationId))
     .returning();
   return row ?? null;
+};
+
+/** Delete an unused organisation and clear every session that had it selected, in one batch. */
+export const deleteOrganisationIfUnused = async (
+  db: Db,
+  organisationId: string,
+): Promise<boolean> => {
+  const hasNoEvents = sql`NOT EXISTS (SELECT 1 FROM ${eventOrganisers} WHERE ${eventOrganisers.organisationId} = ${organization.id})`;
+  const mayDelete = sql`EXISTS (SELECT 1 FROM ${organization} WHERE ${organization.id} = ${organisationId} AND ${organization.kind} <> 'platform' AND ${hasNoEvents})`;
+  const [, deleted] = await batch(db, [
+    db
+      .update(session)
+      .set({ activeOrganizationId: null })
+      .where(
+        and(eq(session.activeOrganizationId, organisationId), mayDelete),
+      ),
+    db
+      .delete(organization)
+      .where(
+        and(
+          eq(organization.id, organisationId),
+          ne(organization.kind, 'platform'),
+          hasNoEvents,
+        ),
+      )
+      .returning({ id: organization.id }),
+  ]);
+  return deleted.length === 1;
 };

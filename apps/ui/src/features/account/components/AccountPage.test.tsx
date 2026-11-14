@@ -226,6 +226,7 @@ describe('the account and security screen', () => {
     }
     expect(links.map((link) => link.textContent)).toEqual([
       'Profile',
+      'Organisations',
       'My activity',
       'Notifications',
       'Account & security',
@@ -244,6 +245,7 @@ describe('the account and security screen', () => {
       'every section of a private area a reader is already reading in one language',
     ).toEqual([
       `/${locale}/profile`,
+      `/${locale}/profile/organisations`,
       `/${locale}/profile/activity`,
       `/${locale}/profile/notifications`,
       `/${locale}/profile/account`,

@@ -99,6 +99,7 @@ export const CALL_TO_ACTION_BUTTON_FILES = [
   'apps/ui/src/components/landing/MarketHero.tsx',
   'apps/ui/src/components/landing/HowItWorks.tsx',
   'apps/ui/src/features/hackathons/components/HackathonOrganisers.tsx',
+  'apps/ui/src/features/organisations/components/OrganisationProfileEmpty.tsx',
 ];
 
 /**

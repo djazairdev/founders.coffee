@@ -16,11 +16,15 @@ vi.mock('@tanstack/react-router', () => ({
   Link: ({
     children,
     className,
+    to,
+    params,
   }: {
     children: ReactNode;
     className?: string;
+    to?: string;
+    params?: Record<string, string>;
   }) => (
-    <a href="#" className={className}>
+    <a href={to?.replace('$locale', params?.locale ?? '') ?? '#'} className={className}>
       {children}
     </a>
   ),
@@ -54,6 +58,12 @@ describe('MyOrganisationPage (B-ORG-09)', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Oran Makers' }),
     ).toBeTruthy();
+    const organisationsLink = screen.getByRole('link', {
+      name: 'Your organisations',
+    });
+    expect(organisationsLink.getAttribute('href')).toBe(
+      '/en/profile/organisations',
+    );
     expect(mocks.mine).toHaveBeenCalledWith('oran-makers');
     expect(screen.getByText('Active')).toBeTruthy();
     expect(screen.getByText('Active since October 1, 2026')).toBeTruthy();
@@ -170,6 +180,11 @@ describe('MyOrganisationPage (B-ORG-09)', () => {
     renderPage('ar');
 
     expect(await screen.findByText('نشطة')).toBeTruthy();
+    expect(
+      screen
+        .getByRole('link', { name: 'المنظمات التي تنتمي إليها' })
+        .getAttribute('href'),
+    ).toBe('/ar/profile/organisations');
     expect(screen.getByText('الأعضاء')).toBeTruthy();
     expect(screen.getByText('المالك')).toBeTruthy();
     expect(screen.getByText(/^نشطة منذ 1 /)).toBeTruthy();

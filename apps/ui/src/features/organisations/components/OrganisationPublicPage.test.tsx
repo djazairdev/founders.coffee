@@ -20,6 +20,7 @@ const markets: readonly RootMarket[] = [
 
 const page: OrganisationPage = {
   organisation: {
+    logo: null,
     id: 'org_code_club',
     name: 'Code Club',
     slug: 'code-club',

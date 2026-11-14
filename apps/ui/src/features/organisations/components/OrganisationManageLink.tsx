@@ -4,7 +4,7 @@ import { org_page_manage, type Locale } from '@founders-coffee/i18n';
 
 import { useAuth } from '../../../lib/app-providers';
 import { localizedMyOrganisation } from '../../../lib/locale-routing';
-import { useMyOrganisations } from '../../events/hooks';
+import { useMyOrganisations } from '../hooks';
 
 export const OrganisationManageLink = ({
   slug,

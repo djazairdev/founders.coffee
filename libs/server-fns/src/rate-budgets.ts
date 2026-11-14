@@ -21,6 +21,11 @@ export const RATE_BUDGETS = {
       limit: 10,
       windowMs: 10 * MINUTE_MS,
     },
+    organisationDelete: {
+      action: 'delete_organisation',
+      limit: 3,
+      windowMs: 60 * MINUTE_MS,
+    },
     organisationInvite: {
       action: 'invite_organisation_member',
       limit: 10,
