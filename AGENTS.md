@@ -349,3 +349,7 @@ These are non-negotiable platform-specific rules; several correct common mistake
 - **Ambiguity about _what_ to build, _when_, or in what order** → check `docs/implementation-plan.md`. Still unclear → ask. Do not infer a requirement from history; the plan is the only live specification.
 - **Tempted to add a library/service/integration** → stop and ask (§1.8).
 - **Tempted to skip a rule "just this once"** → don't. The rules exist because the team chose them deliberately. Raise it in a ticket instead.
+
+## 19. UI verification workflow
+
+- The user prefers to perform browser and UI checks themselves. For UI work, start the dev server with `npm run ui:dev` on port 3000 and monitor its logs for errors; do not open or operate the browser unless the user explicitly asks.
