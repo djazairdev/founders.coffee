@@ -4,7 +4,6 @@ import {
   hackathon_editor_loading,
   hackathon_preview_description,
   hackathon_preview_empty,
-  hackathon_preview_live,
   hackathon_title_ph,
   type Locale,
 } from '@founders-coffee/i18n';
@@ -26,9 +25,6 @@ export const HackathonDescriptionPreview = ({
   return (
     <div className="flex h-full min-h-80 overflow-hidden bg-base-200 lg:min-h-0">
       <article className="flex min-h-0 w-full flex-1 flex-col bg-base-100 p-5 lg:p-8">
-        <p className="mb-4 w-fit rounded-full bg-secondary-tint px-3 py-1 text-caption font-medium text-accent">
-          {hackathon_preview_live({}, { locale })}
-        </p>
         <h2
           className={`font-display text-h3 font-semibold leading-snug text-base-content ${
             title.trim() ? '' : 'text-neutral'
