@@ -5,6 +5,10 @@ import {
   hackathon_details_heading,
   hackathon_details_sub,
   hackathon_manage_error,
+  hackathon_manage_activity_group,
+  hackathon_manage_outcomes_group,
+  hackathon_manage_people_group,
+  hackathon_manage_setup_group,
   hackathon_manage_loading,
   hackathon_manage_locked,
   hackathon_manage_not_found,
@@ -24,6 +28,7 @@ import { useHackathonDraft } from '../hooks';
 import { HackathonDashboard } from './HackathonDashboard';
 import { HackathonDetailsForm } from './HackathonDetailsForm';
 import { HackathonJudgingProgress } from './HackathonJudgingProgress';
+import { HackathonManageCollapse } from './HackathonManageCollapse';
 import { HackathonPrizeDelivery } from './HackathonPrizeDelivery';
 import { HackathonParticipantsList } from './HackathonParticipantsList';
 import { HackathonPrizesSection } from './HackathonPrizesSection';
@@ -132,14 +137,23 @@ export const HackathonManagePage = ({
         locale={locale}
         isJustCreated={isJustCreated}
       />
-      <HackathonDashboard
-        draft={draft}
-        locale={locale}
-        timeZone={timeZone}
-        markets={markets}
-      />
       {draft.details !== null ? (
-        <>
+        <HackathonManageCollapse
+          title={hackathon_manage_activity_group({}, { locale })}
+          isInitiallyOpen
+        >
+          <HackathonDashboard
+            draft={draft}
+            locale={locale}
+            timeZone={timeZone}
+            markets={markets}
+          />
+        </HackathonManageCollapse>
+      ) : null}
+      {draft.details !== null ? (
+        <HackathonManageCollapse
+          title={hackathon_manage_people_group({}, { locale })}
+        >
           <HackathonRoleRoster
             eventId={eventId}
             role="judge"
@@ -152,12 +166,21 @@ export const HackathonManagePage = ({
             canChange={canChangeRoles}
             locale={locale}
           />
-        </>
+          {draft.event.status === 'published' ? (
+            <>
+              <HackathonParticipantsList
+                eventId={draft.event.id}
+                locale={locale}
+              />
+              <HackathonTeamsList eventId={draft.event.id} locale={locale} />
+            </>
+          ) : null}
+        </HackathonManageCollapse>
       ) : null}
       {draft.event.status === 'published' ? (
-        <>
-          <HackathonParticipantsList eventId={draft.event.id} locale={locale} />
-          <HackathonTeamsList eventId={draft.event.id} locale={locale} />
+        <HackathonManageCollapse
+          title={hackathon_manage_outcomes_group({}, { locale })}
+        >
           <HackathonJudgingProgress eventId={draft.event.id} locale={locale} />
           <HackathonResultsPanel
             eventId={draft.event.id}
@@ -165,10 +188,13 @@ export const HackathonManagePage = ({
             timeZone={timeZone}
           />
           <HackathonPrizeDelivery eventId={draft.event.id} locale={locale} />
-        </>
+        </HackathonManageCollapse>
       ) : null}
       {draft.isEditable ? (
-        <>
+        <HackathonManageCollapse
+          title={hackathon_manage_setup_group({}, { locale })}
+          isInitiallyOpen
+        >
           <section aria-labelledby="hackathon-details-heading" className="mt-8">
             <h2 id="hackathon-details-heading" className="font-display text-h4">
               {hackathon_details_heading({}, { locale })}
@@ -196,13 +222,18 @@ export const HackathonManagePage = ({
             locale={locale}
             timeZone={timeZone}
           />
-        </>
+        </HackathonManageCollapse>
       ) : draft.review.status === 'submitted' ? (
-        <HackathonReviewSection
-          draft={draft}
-          locale={locale}
-          timeZone={timeZone}
-        />
+        <HackathonManageCollapse
+          title={hackathon_manage_setup_group({}, { locale })}
+          isInitiallyOpen
+        >
+          <HackathonReviewSection
+            draft={draft}
+            locale={locale}
+            timeZone={timeZone}
+          />
+        </HackathonManageCollapse>
       ) : (
         <StatusMessage variant="info" className="mt-6">
           {hackathon_manage_locked({}, { locale })}
