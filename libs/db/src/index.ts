@@ -46,6 +46,7 @@ export * from './organisation-invitations.js';
 export * from './organisation-roster.js';
 export * from './organisation-hackathons.js';
 export * from './hackathon-drafts.js';
+export * from './hackathon-section-drafts.js';
 export * from './organisation-page.js';
 export * from './organisation-review.js';
 export * from './waitlist-launch.js';

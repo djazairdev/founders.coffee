@@ -7,6 +7,7 @@ import {
   eventOrganisers,
   events,
   hackathons,
+  hackathonSectionDrafts,
   markets,
   organization,
   type Event,
@@ -23,6 +24,7 @@ export type HackathonDraftRows = {
   readonly event: Event;
   readonly organisation: HackathonLead;
   readonly details: Hackathon | null;
+  readonly sectionDrafts: typeof hackathonSectionDrafts.$inferSelect | null;
   readonly currency: CurrencyCode;
 };
 
@@ -63,6 +65,7 @@ export const readHackathonDraft = async (
         slug: organization.slug,
       },
       details: hackathons,
+      sectionDrafts: hackathonSectionDrafts,
       currency: markets.defaultCurrency,
     })
     .from(events)
@@ -73,6 +76,10 @@ export const readHackathonDraft = async (
       eq(organization.id, eventOrganisers.organisationId),
     )
     .leftJoin(hackathons, eq(hackathons.eventId, events.id))
+    .leftJoin(
+      hackathonSectionDrafts,
+      eq(hackathonSectionDrafts.eventId, events.id),
+    )
     .where(and(eq(events.id, eventId), eq(events.kind, 'hackathon')))
     .limit(1);
   return row ?? null;

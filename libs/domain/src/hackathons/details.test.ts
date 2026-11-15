@@ -36,10 +36,13 @@ describe("a hackathon's details, held to its saved event (B-HKN-12)", () => {
     expect(pathsOf(details())).toEqual([]);
   });
 
-  it('places registration before kickoff and submissions within the event', () => {
-    expect(pathsOf(details({ registrationClosesAt: kickoff + HOUR }))).toEqual([
-      'startsAt',
-    ]);
+  it('allows late registration until submissions and keeps submissions within the event', () => {
+    expect(pathsOf(details({ registrationClosesAt: kickoff + HOUR }))).toEqual(
+      [],
+    );
+    expect(
+      pathsOf(details({ registrationClosesAt: kickoff + 2 * DAY })),
+    ).toEqual(['registrationClosesAt']);
     expect(
       pathsOf(details({ submissionDeadlineAt: kickoff + 2 * DAY + HOUR })),
     ).toEqual(['endsAt']);

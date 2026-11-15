@@ -66,6 +66,25 @@ export const detailsInputOf = (
   licenceNote: row.licenceNote ?? undefined,
 });
 
+export const deadlinesInputOf = (row: Hackathon): hackathons.HackathonDeadlinesInput => ({
+  registrationOpensAt: row.registrationOpensAt.getTime(),
+  registrationClosesAt: row.registrationClosesAt.getTime(),
+  submissionDeadlineAt: row.submissionDeadlineAt.getTime(),
+  judgingEndsAt: row.judgingEndsAt.getTime(),
+});
+
+export const settingsInputOf = (row: Hackathon): hackathons.HackathonSettingsInput => ({
+  attendanceModes: row.attendanceModes,
+  teamMin: row.teamMin,
+  teamMax: row.teamMax,
+  capacity: row.capacity ?? undefined,
+  minimumAge: row.minimumAge ?? undefined,
+  rules: row.rules ?? undefined,
+  aiPolicy: row.aiPolicy,
+  aiPolicyNote: row.aiPolicyNote ?? undefined,
+  licenceNote: row.licenceNote ?? undefined,
+});
+
 /**
  * Whether an organiser may edit a hackathon at all (B-HKN-07): not cancelled, not with the
  * reviewers, and not over. What each stage still allows is the domain's to say.

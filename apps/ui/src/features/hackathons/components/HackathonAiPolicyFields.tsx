@@ -2,6 +2,7 @@ import { HACKATHON_AI_POLICIES } from '@founders-coffee/core';
 import {
   hackathon_details_ai,
   hackathon_details_ai_note,
+  hackathon_details_ai_note_hint,
   hackathon_details_ai_policy,
   type Locale,
 } from '@founders-coffee/i18n';
@@ -10,11 +11,11 @@ import { fieldNoteId } from '@founders-coffee/ui';
 import { AI_POLICY_LABELS } from '../detail-labels';
 import {
   detailsFieldId,
-  type useHackathonDetailsForm,
+  type DetailsFormState,
 } from '../useHackathonDetailsForm';
 import { HackathonNoteField } from './HackathonNoteField';
 
-type Form = ReturnType<typeof useHackathonDetailsForm>;
+type Form = DetailsFormState;
 
 export const HackathonAiPolicyFields = ({
   form,
@@ -76,6 +77,8 @@ export const HackathonAiPolicyFields = ({
         form={form}
         field="aiPolicyNote"
         label={hackathon_details_ai_note({}, { locale })}
+        hint={hackathon_details_ai_note_hint({}, { locale })}
+        isOptional={form.values.aiPolicy !== 'conditional'}
         locale={locale}
       />
     </fieldset>

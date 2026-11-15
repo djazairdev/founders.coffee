@@ -1,28 +1,28 @@
-import { ATTENDANCE_MODES, type AttendanceMode } from '@founders-coffee/core';
 import {
-  hackathon_details_attendance,
   hackathon_details_capacity,
   hackathon_details_capacity_hint,
+  hackathon_details_conditions_heading,
   hackathon_details_minimum_age,
-  hackathon_details_participation,
+  hackathon_details_minimum_age_hint,
   hackathon_details_rules,
-  hackathon_details_rules_ph,
+  hackathon_details_rules_heading,
+  hackathon_details_rules_hint,
   hackathon_details_team_hint,
   hackathon_details_team_max,
   hackathon_details_team_min,
+  hackathon_details_teams_heading,
   optional,
   type Locale,
 } from '@founders-coffee/i18n';
 import { fieldNoteId, FormField, Input } from '@founders-coffee/ui';
 
-import { ATTENDANCE_LABELS } from '../detail-labels';
-import { TEAM_SIZE_MAX, type DetailsField } from '../hackathon-details-form';
+import type { DetailsField } from '../hackathon-details-form';
 import {
   detailsFieldId,
-  type useHackathonDetailsForm,
+  type DetailsFormState,
 } from '../useHackathonDetailsForm';
 
-type Form = ReturnType<typeof useHackathonDetailsForm>;
+type Form = DetailsFormState;
 
 const NumberField = ({
   form,
@@ -71,119 +71,91 @@ const NumberField = ({
 export const HackathonParticipationFields = ({
   form,
   locale,
-  offeredModes,
 }: {
   form: Form;
   locale: Locale;
-  offeredModes: readonly AttendanceMode[];
 }) => {
-  const modesId = detailsFieldId('attendanceModes');
   const rulesId = detailsFieldId('rules');
-  const toggleMode = (mode: AttendanceMode, isChosen: boolean) =>
-    form.set(
-      'attendanceModes',
-      ATTENDANCE_MODES.filter((candidate) =>
-        candidate === mode
-          ? isChosen
-          : form.values.attendanceModes.includes(candidate),
-      ),
-    );
+  const rulesHint = hackathon_details_rules_hint({}, { locale });
+  const teamMax = Number(form.values.teamMax);
+  const teamHint = Number.isInteger(teamMax) && teamMax >= 1
+    ? hackathon_details_team_hint({ max: teamMax }, { locale })
+    : null;
 
   return (
-    <fieldset className="grid gap-4">
-      <legend className="mb-1 font-display text-h4">
-        {hackathon_details_participation({}, { locale })}
-      </legend>
-      <div
-        id={modesId}
-        role="group"
-        aria-labelledby={`${modesId}-label`}
-        aria-describedby={
-          form.errors.attendanceModes ? fieldNoteId(modesId) : undefined
-        }
-      >
-        <p id={`${modesId}-label`} className="text-label">
-          {hackathon_details_attendance({}, { locale })}
-        </p>
-        <div className="mt-1.5 flex flex-wrap gap-4">
-          {offeredModes.map((mode) => (
-            <label key={mode} className="flex items-center gap-2 text-body-sm">
-              <input
-                type="checkbox"
-                className="checkbox checkbox-sm checkbox-primary"
-                checked={form.values.attendanceModes.includes(mode)}
-                disabled={form.isLocked('attendanceModes')}
-                onChange={(event) => toggleMode(mode, event.target.checked)}
-              />
-              {ATTENDANCE_LABELS[mode]({}, { locale })}
-            </label>
-          ))}
+    <div className="grid gap-4">
+      <section className="grid gap-3">
+        <h3 className="font-display text-h5">
+          {hackathon_details_teams_heading({}, { locale })}
+        </h3>
+        <div className="grid grid-cols-2 gap-4">
+          <NumberField
+            form={form}
+            field="teamMin"
+            label={hackathon_details_team_min({}, { locale })}
+            locale={locale}
+          />
+          <NumberField
+            form={form}
+            field="teamMax"
+            label={hackathon_details_team_max({}, { locale })}
+            locale={locale}
+          />
         </div>
-        {form.errors.attendanceModes ? (
-          <p
-            id={fieldNoteId(modesId)}
-            className="mt-1.5 text-body-sm text-error"
-          >
-            {form.errors.attendanceModes}
-          </p>
+        {teamHint ? (
+          <p className="text-body-sm text-neutral">{teamHint}</p>
         ) : null}
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <NumberField
-          form={form}
-          field="teamMin"
-          label={hackathon_details_team_min({}, { locale })}
-          locale={locale}
-        />
-        <NumberField
-          form={form}
-          field="teamMax"
-          label={hackathon_details_team_max({}, { locale })}
-          locale={locale}
-        />
-      </div>
-      <p className="-mt-2 text-body-sm text-neutral">
-        {hackathon_details_team_hint({ max: TEAM_SIZE_MAX }, { locale })}
-      </p>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <NumberField
-          form={form}
-          field="capacity"
-          label={hackathon_details_capacity({}, { locale })}
-          hint={hackathon_details_capacity_hint({}, { locale })}
-          isOptional
-          locale={locale}
-        />
-        <NumberField
-          form={form}
-          field="minimumAge"
-          label={hackathon_details_minimum_age({}, { locale })}
-          isOptional
-          locale={locale}
-        />
-      </div>
-      <FormField
-        id={rulesId}
-        label={hackathon_details_rules({}, { locale })}
-        isOptional
-        optionalLabel={optional({}, { locale })}
-        error={form.errors.rules}
-      >
-        <textarea
+      </section>
+      <section className="grid gap-3">
+        <h3 className="font-display text-h5">
+          {hackathon_details_conditions_heading({}, { locale })}
+        </h3>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <NumberField
+            form={form}
+            field="capacity"
+            label={hackathon_details_capacity({}, { locale })}
+            hint={hackathon_details_capacity_hint({}, { locale })}
+            isOptional
+            locale={locale}
+          />
+          <NumberField
+            form={form}
+            field="minimumAge"
+            label={hackathon_details_minimum_age({}, { locale })}
+            hint={hackathon_details_minimum_age_hint({}, { locale })}
+            isOptional
+            locale={locale}
+          />
+        </div>
+      </section>
+      <section className="grid gap-3">
+        <h3 className="font-display text-h5">
+          {hackathon_details_rules_heading({}, { locale })}
+        </h3>
+        <FormField
           id={rulesId}
-          className="textarea textarea-sm md:textarea-md w-full"
-          rows={6}
-          dir="auto"
-          placeholder={hackathon_details_rules_ph({}, { locale })}
-          value={form.values.rules}
-          disabled={form.isLocked('rules')}
-          aria-invalid={form.errors.rules ? true : undefined}
-          aria-describedby={
-            form.errors.rules ? fieldNoteId(rulesId) : undefined
-          }
-          onChange={(event) => form.set('rules', event.target.value)}
-        />
-      </FormField>
-    </fieldset>
+          label={hackathon_details_rules({}, { locale })}
+          isOptional
+          optionalLabel={optional({}, { locale })}
+          hint={rulesHint}
+          error={form.errors.rules}
+        >
+          <textarea
+            id={rulesId}
+            className="textarea textarea-sm md:textarea-md w-full"
+            rows={6}
+            dir="auto"
+            value={form.values.rules}
+            disabled={form.isLocked('rules')}
+            aria-invalid={form.errors.rules ? true : undefined}
+            aria-describedby={
+              form.errors.rules || rulesHint ? fieldNoteId(rulesId) : undefined
+            }
+            onChange={(event) => form.set('rules', event.target.value)}
+          />
+        </FormField>
+      </section>
+    </div>
   );
 };

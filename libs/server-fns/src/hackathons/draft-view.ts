@@ -1,4 +1,5 @@
 import {
+  AppError,
   err,
   ok,
   type AttendanceMode,
@@ -12,6 +13,7 @@ import {
   type Money,
   type Result,
 } from '@founders-coffee/core';
+import { reportError } from '@founders-coffee/observability';
 import {
   listHackathonCriteria,
   listHackathonTracks,
@@ -24,8 +26,10 @@ import { hackathons } from '@founders-coffee/domain';
 
 import {
   detailsInputOf,
+  deadlinesInputOf,
   hackathonNotFound,
   isHackathonEditable,
+  settingsInputOf,
 } from './edit-context.js';
 import { requireHackathonsEnabled } from './flag.js';
 
@@ -60,7 +64,7 @@ export type HackathonPrizeView = {
   readonly place: number;
   readonly title: string;
   readonly description: string;
-  readonly providerName: string;
+  readonly providerName: string | null;
   readonly value: Money | null;
   readonly confirmation: {
     readonly confirmedAt: number;
@@ -98,6 +102,8 @@ export type HackathonDraftView = {
     readonly gaps: readonly hackathons.HackathonReadinessGap[];
   };
   readonly details: HackathonDetailsView | null;
+  readonly deadlines: hackathons.HackathonDeadlinesInput | null;
+  readonly settings: hackathons.HackathonSettingsInput | null;
   readonly tracks: readonly HackathonTrackView[];
   readonly prizes: readonly HackathonPrizeView[];
   readonly criteria: readonly HackathonCriterionView[];
@@ -126,6 +132,40 @@ export const hackathonDraftResolver = async (
     listHackathonCriteria(db, eventId),
   ]);
   const details = rows.details ? detailsInputOf(rows.details) : null;
+  let deadlines = rows.details ? deadlinesInputOf(rows.details) : null;
+  let settings = rows.details ? settingsInputOf(rows.details) : null;
+  if (!rows.details && rows.sectionDrafts?.deadlines !== null && rows.sectionDrafts?.deadlines !== undefined) {
+    const parsed = hackathons.hackathonDeadlinesSchema.safeParse(
+      rows.sectionDrafts.deadlines,
+    );
+    if (!parsed.success) {
+      reportError(parsed.error, {
+        operation: 'hackathon_section_draft_invalid',
+        eventId,
+        section: 'deadlines',
+      });
+      return err(
+        new AppError('hackathon_save_failed', 'A saved section could not be read'),
+      );
+    }
+    deadlines = parsed.data;
+  }
+  if (!rows.details && rows.sectionDrafts?.settings !== null && rows.sectionDrafts?.settings !== undefined) {
+    const parsed = hackathons.hackathonSettingsSchema.safeParse(
+      rows.sectionDrafts.settings,
+    );
+    if (!parsed.success) {
+      reportError(parsed.error, {
+        operation: 'hackathon_section_draft_invalid',
+        eventId,
+        section: 'settings',
+      });
+      return err(
+        new AppError('hackathon_save_failed', 'A saved section could not be read'),
+      );
+    }
+    settings = parsed.data;
+  }
   const stage = hackathons.editStageAt(
     details,
     rows.event.status === 'published',
@@ -165,6 +205,8 @@ export const hackathonDraftResolver = async (
       aiPolicyNote: details.aiPolicyNote ?? null,
       licenceNote: details.licenceNote ?? null,
     },
+    deadlines,
+    settings,
     tracks: tracks.map((track) => ({
       id: track.id,
       kind: track.kind,

@@ -6,7 +6,10 @@ import {
   hackathonParticipantsResolver,
   hackathonTeamsResolver,
 } from '../participants.js';
-import { saveHackathonDetailsResolver } from '../details.js';
+import {
+  saveHackathonDeadlinesResolver,
+  saveHackathonSettingsResolver,
+} from '../details.js';
 import { hackathonDraftResolver } from '../draft-view.js';
 import { createHackathonDraftResolver } from '../draft.js';
 import { criterion, founderTrack, prize } from '../edit.fixtures.js';
@@ -102,13 +105,38 @@ export const ORGANISER_OPERATIONS: Operations = {
     run: ({ db, world }) => hackathonTeamsResolver(db, world.eventId),
     cells: organiserOnly('ok'),
   },
-  saveHackathonDetails: {
+  saveHackathonDeadlines: {
     gate: ORGANISER,
     changesWorld: true,
     run: (call) =>
-      saveHackathonDetailsResolver(call.db, {
+      saveHackathonDeadlinesResolver(call.db, {
         ...editOf(call),
-        details: call.world.details,
+        deadlines: {
+          registrationOpensAt: call.world.details.registrationOpensAt,
+          registrationClosesAt: call.world.details.registrationClosesAt,
+          submissionDeadlineAt: call.world.details.submissionDeadlineAt,
+          judgingEndsAt: call.world.details.judgingEndsAt,
+        },
+      }),
+    cells: organiserOnly('ok', NEVER_EDITABLE),
+  },
+  saveHackathonSettings: {
+    gate: ORGANISER,
+    changesWorld: true,
+    run: (call) =>
+      saveHackathonSettingsResolver(call.db, {
+        ...editOf(call),
+        settings: {
+          attendanceModes: call.world.details.attendanceModes,
+          teamMin: call.world.details.teamMin,
+          teamMax: call.world.details.teamMax,
+          capacity: call.world.details.capacity,
+          minimumAge: call.world.details.minimumAge,
+          rules: call.world.details.rules,
+          aiPolicy: call.world.details.aiPolicy,
+          aiPolicyNote: call.world.details.aiPolicyNote,
+          licenceNote: call.world.details.licenceNote,
+        },
       }),
     cells: organiserOnly('ok', NEVER_EDITABLE),
   },

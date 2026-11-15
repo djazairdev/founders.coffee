@@ -58,7 +58,8 @@ import {
   joinHackathonInterest,
   registerForHackathon,
   removeHackathonPrize,
-  saveHackathonDetails,
+  saveHackathonDeadlines,
+  saveHackathonSettings,
   saveHackathonRubric,
   saveHackathonTracks,
   submitHackathonForReview,
@@ -84,7 +85,8 @@ import {
   type PublicHackathonRules,
   type PublicHackathonTrack,
   type RemoveHackathonPrizeRequest,
-  type SaveHackathonDetailsRequest,
+  type SaveHackathonDeadlinesRequest,
+  type SaveHackathonSettingsRequest,
   type SaveHackathonRubricRequest,
   type SaveHackathonTracksRequest,
   type SubmitHackathonForReviewRequest,
@@ -100,8 +102,10 @@ export const hackathonsApi = {
   dashboard: (eventId: string) => getHackathonDashboard({ data: { eventId } }),
   roster: (eventId: string) => getHackathonParticipants({ data: { eventId } }),
   teams: (eventId: string) => getHackathonTeams({ data: { eventId } }),
-  saveDetails: (request: SaveHackathonDetailsRequest) =>
-    saveHackathonDetails({ data: request }),
+  saveDeadlines: (request: SaveHackathonDeadlinesRequest) =>
+    saveHackathonDeadlines({ data: request }),
+  saveSettings: (request: SaveHackathonSettingsRequest) =>
+    saveHackathonSettings({ data: request }),
   saveTracks: (request: SaveHackathonTracksRequest) =>
     saveHackathonTracks({ data: request }),
   saveRubric: (request: SaveHackathonRubricRequest) =>
@@ -265,7 +269,8 @@ export type {
   PublicHackathonRules,
   PublicHackathonTrack,
   RemoveHackathonPrizeRequest,
-  SaveHackathonDetailsRequest,
+  SaveHackathonDeadlinesRequest,
+  SaveHackathonSettingsRequest,
   SaveHackathonRubricRequest,
   SaveHackathonTracksRequest,
   SubmitHackathonForReviewRequest,

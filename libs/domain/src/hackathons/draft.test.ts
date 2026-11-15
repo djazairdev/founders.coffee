@@ -82,10 +82,13 @@ describe('a hackathon draft (B-HKN-06)', () => {
     );
   });
 
-  it('places registration before kickoff and judging after demo day', () => {
-    expect(pathsOf(draft({ registrationClosesAt: kickoff + DAY }))).toContain(
-      'startsAt',
-    );
+  it('allows late registration until submissions and judging after demo day', () => {
+    expect(
+      pathsOf(draft({ registrationClosesAt: kickoff + DAY })),
+    ).not.toContain('registrationClosesAt');
+    expect(
+      pathsOf(draft({ registrationClosesAt: kickoff + 2 * DAY })),
+    ).toContain('registrationClosesAt');
     expect(
       pathsOf(draft({ registrationClosesAt: Date.now() + DAY / 2 })),
     ).toContain('registrationClosesAt');

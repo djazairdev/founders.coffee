@@ -6,9 +6,11 @@ export type { CreateHackathonDraftRequest } from './draft-rpc.js';
 export type { HackathonDraftCreated } from './draft.js';
 export {
   getHackathonDraft,
-  saveHackathonDetails,
+  saveHackathonDeadlines,
+  saveHackathonSettings,
   type HackathonDraftRequest,
-  type SaveHackathonDetailsRequest,
+  type SaveHackathonDeadlinesRequest,
+  type SaveHackathonSettingsRequest,
 } from './details-rpc.js';
 export type {
   HackathonCriterionView,

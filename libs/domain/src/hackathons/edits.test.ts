@@ -75,7 +75,7 @@ describe('lockedDetailChanges (B-HKN-07)', () => {
       teamMin: 2,
       teamMax: 5,
       minimumAge: undefined,
-      aiPolicy: 'restricted',
+      aiPolicy: 'not_allowed',
       aiPolicyNote: 'No AI.',
       licenceNote: undefined,
       attendanceModes: ['online'],

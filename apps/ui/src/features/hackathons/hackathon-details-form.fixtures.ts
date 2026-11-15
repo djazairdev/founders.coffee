@@ -33,6 +33,8 @@ export const draftView = (
     gaps: ['details', 'tracks', 'rubric'],
   },
   details: null,
+  deadlines: null,
+  settings: null,
   tracks: [],
   prizes: [],
   criteria: [],

@@ -22,22 +22,20 @@ const instant = z.number().int().positive();
 const teamSize = z.number().int().min(1).max(TEAM_SIZE_CEILING);
 const note = z.string().trim().min(1).max(HACKATHON_NOTE_MAX_LENGTH);
 
-const TIMELINE_PATHS = {
-  kickoffAt: 'startsAt',
-} as const;
-
 export type HackathonEventFrame = {
   readonly startsAt: number;
   readonly endsAt: number;
   readonly format: EventFormat;
 };
 
-const hackathonDetailsShape = z
-  .object({
+const hackathonDeadlinesShape = z.strictObject({
     registrationOpensAt: instant,
     registrationClosesAt: instant,
     submissionDeadlineAt: instant,
     judgingEndsAt: instant,
+  });
+
+const hackathonSettingsShape = z.strictObject({
     attendanceModes: z
       .array(attendanceModeSchema)
       .min(1)
@@ -60,10 +58,15 @@ const hackathonDetailsShape = z
     aiPolicy: hackathonAiPolicySchema,
     aiPolicyNote: note.optional(),
     licenceNote: note.optional(),
-  })
-  .strict();
+  });
+
+const hackathonDetailsShape = hackathonDeadlinesShape.extend(
+  hackathonSettingsShape.shape,
+);
 
 export type HackathonDetailsInput = z.infer<typeof hackathonDetailsShape>;
+export type HackathonDeadlinesInput = z.infer<typeof hackathonDeadlinesShape>;
+export type HackathonSettingsInput = z.infer<typeof hackathonSettingsShape>;
 
 /**
  * Hold a hackathon's details to the event they belong to. Kickoff is the event's start and demo
@@ -72,31 +75,38 @@ export type HackathonDetailsInput = z.infer<typeof hackathonDetailsShape>;
  * once. No value is assumed: V14 has each organiser set the AI policy, and the dates, team size and
  * attendance are theirs to choose. Rules, a minimum age, capacity and the two notes are optional.
  */
-const addDetailsIssues = (
-  details: HackathonDetailsInput,
+const addDeadlineIssues = (
+  deadlines: HackathonDeadlinesInput,
   event: HackathonEventFrame,
   context: z.RefinementCtx,
 ): void => {
   const timeline = hackathonTimelineSchema.safeParse({
-    registrationOpensAt: details.registrationOpensAt,
-    registrationClosesAt: details.registrationClosesAt,
+    registrationOpensAt: deadlines.registrationOpensAt,
+    registrationClosesAt: deadlines.registrationClosesAt,
     kickoffAt: event.startsAt,
-    submissionDeadlineAt: details.submissionDeadlineAt,
+    submissionDeadlineAt: deadlines.submissionDeadlineAt,
     endsAt: event.endsAt,
-    judgingEndsAt: details.judgingEndsAt,
+    judgingEndsAt: deadlines.judgingEndsAt,
   });
   for (const issue of timeline.error?.issues ?? []) {
     const field = String(issue.path[0]);
     context.addIssue({
       code: 'custom',
       message: issue.message,
-      path: [TIMELINE_PATHS[field as keyof typeof TIMELINE_PATHS] ?? field],
+      path: [field],
     });
   }
+};
+
+const addSettingsIssues = (
+  settings: HackathonSettingsInput,
+  event: HackathonEventFrame,
+  context: z.RefinementCtx,
+): void => {
   if (
     !teamSizeLimitsSchema.safeParse({
-      min: details.teamMin,
-      max: details.teamMax,
+      min: settings.teamMin,
+      max: settings.teamMax,
     }).success
   )
     context.addIssue({
@@ -104,14 +114,22 @@ const addDetailsIssues = (
       message: 'The largest team cannot be smaller than the smallest',
       path: ['teamMax'],
     });
-  if (new Set(details.attendanceModes).size !== details.attendanceModes.length)
+  if (
+    new Set(settings.attendanceModes).size !== settings.attendanceModes.length
+  )
     context.addIssue({
       code: 'custom',
       message: 'Each attendance mode once',
       path: ['attendanceModes'],
     });
+  if (settings.aiPolicy === 'conditional' && !settings.aiPolicyNote)
+    context.addIssue({
+      code: 'custom',
+      message: 'State the conditions for AI tool use',
+      path: ['aiPolicyNote'],
+    });
   if (
-    !details.attendanceModes.every((mode) =>
+    !settings.attendanceModes.every((mode) =>
       isAttendanceModeOffered(event.format, mode),
     )
   )
@@ -121,6 +139,28 @@ const addDetailsIssues = (
       path: ['attendanceModes'],
     });
 };
+
+const addDetailsIssues = (
+  details: HackathonDetailsInput,
+  event: HackathonEventFrame,
+  context: z.RefinementCtx,
+): void => {
+  addDeadlineIssues(details, event, context);
+  addSettingsIssues(details, event, context);
+};
+
+export const hackathonDeadlinesFor = (event: HackathonEventFrame) =>
+  hackathonDeadlinesShape.superRefine((deadlines, context) =>
+    addDeadlineIssues(deadlines, event, context),
+  );
+
+export const hackathonSettingsFor = (event: HackathonEventFrame) =>
+  hackathonSettingsShape.superRefine((settings, context) =>
+    addSettingsIssues(settings, event, context),
+  );
+
+export const hackathonDeadlinesSchema = hackathonDeadlinesShape;
+export const hackathonSettingsSchema = hackathonSettingsShape;
 
 /**
  * The details of a hackathon whose event is already saved (B-HKN-12), held to that event's

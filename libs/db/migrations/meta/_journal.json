@@ -568,6 +568,13 @@
       "when": 1794666701877,
       "tag": "0080_clean_randall_flagg",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "6",
+      "when": 1794745829481,
+      "tag": "0081_chemical_power_pack",
+      "breakpoints": true
     }
   ]
 }

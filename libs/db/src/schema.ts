@@ -586,6 +586,28 @@ export const hackathons = sqliteTable(
 export type Hackathon = typeof hackathons.$inferSelect;
 export type NewHackathon = typeof hackathons.$inferInsert;
 
+export const hackathonSectionDrafts = sqliteTable(
+  'hackathon_section_drafts',
+  {
+    eventId: text('event_id')
+      .primaryKey()
+      .references(() => events.id, { onDelete: 'cascade' }),
+    deadlines: text('deadlines', { mode: 'json' }).$type<unknown>(),
+    settings: text('settings', { mode: 'json' }).$type<unknown>(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    check(
+      'hackathon_section_drafts_content_check',
+      sql`(${table.deadlines} IS NOT NULL OR ${table.settings} IS NOT NULL) AND (${table.deadlines} IS NULL OR json_valid(${table.deadlines})) AND (${table.settings} IS NULL OR json_valid(${table.settings}))`,
+    ),
+  ],
+);
+
+export type HackathonSectionDraft = typeof hackathonSectionDrafts.$inferSelect;
+
 /**
  * What a hackathon's teams build (B-HKN-03): a founder's real problem, a partner's technology, or the
  * open-source track. A partner technology track names its partner; an open-source track lists the
