@@ -3,10 +3,17 @@ import { flushSync } from 'react-dom';
 
 import { appErrorCode } from '@founders-coffee/core';
 import { hackathons } from '@founders-coffee/domain';
-import { hackathon_prize_error_gone, type Locale } from '@founders-coffee/i18n';
+import {
+  hackathon_prize_error_gone,
+  hackathon_prize_recorded,
+  hackathon_prize_saved,
+  hackathon_prize_withdrawn,
+  type Locale,
+} from '@founders-coffee/i18n';
 
 import { seekField } from '../events/seek-field';
 import type { HackathonDraftView, HackathonPrizeView } from './api';
+import type { HackathonFeedback } from './hackathon-feedback';
 import { hackathonEditError } from './edit-errors';
 import {
   checkConfirmationNote,
@@ -14,6 +21,7 @@ import {
   emptyPrize,
   prizeDraftOf,
   prizeFieldId,
+  nextAvailablePrizePlace,
   type PrizeDraft,
   type PrizeErrors,
   type PrizeField,
@@ -30,8 +38,6 @@ export const PRIZE_ADD_ID = 'hackathon-prize-add';
 export const prizeNoteId = (prizeId: string) =>
   `hackathon-prize-${prizeId}-note`;
 
-type Notice = 'saved' | 'withdrawn' | 'recorded';
-
 const seekId = (id: string) => {
   const element = document.getElementById(id);
   if (element) seekField(element);
@@ -46,9 +52,11 @@ const seekId = (id: string) => {
 export const useHackathonPrizes = ({
   draft,
   locale,
+  onFeedback,
 }: {
   draft: HackathonDraftView;
   locale: Locale;
+  onFeedback: HackathonFeedback;
 }) => {
   const add = useAddHackathonPrize();
   const change = useChangeHackathonPrize();
@@ -56,34 +64,33 @@ export const useHackathonPrizes = ({
   const confirm = useConfirmHackathonPrize();
   const [editing, setEditing] = useState<string | null>(null);
   const [values, setValues] = useState<PrizeDraft>(emptyPrize);
+  const [isProviderRequired, setIsProviderRequired] = useState(false);
   const [errors, setErrors] = useState<PrizeErrors>({});
   const [confirming, setConfirming] = useState<string | null>(null);
   const [note, setNote] = useState('');
   const [noteError, setNoteError] = useState<string | null>(null);
-  const [failure, setFailure] = useState<string | null>(null);
-  const [notice, setNotice] = useState<Notice | null>(null);
   const isBusy =
     add.isPending || change.isPending || remove.isPending || confirm.isPending;
 
   const failed = (error: unknown) =>
-    setFailure(
+    onFeedback(
       appErrorCode(error) === 'hackathon_prize_not_found'
         ? hackathon_prize_error_gone({}, { locale })
         : hackathonEditError(error, locale),
+      'error',
     );
-
-  const begin = () => {
-    setFailure(null);
-    setNotice(null);
-  };
 
   const open = (prize: HackathonPrizeView | null) => {
     if (isBusy) return;
-    begin();
     setConfirming(null);
     flushSync(() => {
       setEditing(prize?.id ?? NEW_PRIZE_KEY);
-      setValues(prize ? prizeDraftOf(prize) : emptyPrize());
+      setValues(
+        prize
+          ? prizeDraftOf(prize)
+          : emptyPrize(nextAvailablePrizePlace(draft.prizes)),
+      );
+      setIsProviderRequired(prize !== null && prize.providerName !== null);
       setErrors({});
     });
     seekId(prizeFieldId(prize?.id ?? NEW_PRIZE_KEY, 'title'));
@@ -106,17 +113,23 @@ export const useHackathonPrizes = ({
 
   const save = () => {
     if (isBusy || editing === null) return;
-    begin();
-    const check = checkPrize(values, draft.event.currency, locale);
+    const check = checkPrize(
+      values,
+      draft.event.currency,
+      locale,
+      isProviderRequired,
+    );
     if (!check.ok) {
       flushSync(() => setErrors(check.errors));
+      const message = check.errors[check.first];
+      if (message) onFeedback(message, 'error');
       seekId(prizeFieldId(editing, check.first));
       return;
     }
     const edit = { eventId: draft.event.id, version: draft.version };
     const done = {
       onSuccess: () => {
-        setNotice('saved');
+        onFeedback(hackathon_prize_saved({}, { locale }), 'success');
         close();
       },
       onError: failed,
@@ -128,12 +141,11 @@ export const useHackathonPrizes = ({
 
   const withdraw = (prize: HackathonPrizeView) => {
     if (isBusy) return;
-    begin();
     remove.mutate(
       { eventId: draft.event.id, version: draft.version, prizeId: prize.id },
       {
         onSuccess: () => {
-          setNotice('withdrawn');
+          onFeedback(hackathon_prize_withdrawn({}, { locale }), 'success');
           seekId(PRIZE_ADD_ID);
         },
         onError: failed,
@@ -143,7 +155,6 @@ export const useHackathonPrizes = ({
 
   const openConfirm = (prize: HackathonPrizeView) => {
     if (isBusy) return;
-    begin();
     flushSync(() => {
       setEditing(null);
       setConfirming(prize.id);
@@ -161,10 +172,10 @@ export const useHackathonPrizes = ({
 
   const record = () => {
     if (isBusy || confirming === null) return;
-    begin();
     const checked = checkConfirmationNote(note, locale);
     if ('error' in checked) {
       setNoteError(checked.error);
+      onFeedback(checked.error, 'error');
       seekId(prizeNoteId(confirming));
       return;
     }
@@ -177,7 +188,7 @@ export const useHackathonPrizes = ({
       },
       {
         onSuccess: () => {
-          setNotice('recorded');
+          onFeedback(hackathon_prize_recorded({}, { locale }), 'success');
           setConfirming(null);
         },
         onError: failed,
@@ -189,17 +200,17 @@ export const useHackathonPrizes = ({
     editing,
     values,
     errors,
+    isProviderRequired,
     confirming,
     note,
     noteError,
-    failure,
-    notice,
     isBusy,
     canAdd: hackathons.isPrizeAddable(draft.stage),
     canChange: hackathons.isPrizeChangeable(draft.stage),
     canWithdraw: (prize: HackathonPrizeView) =>
       hackathons.isPrizeRemovable(draft.stage, prize.confirmation !== null),
     canConfirm: (prize: HackathonPrizeView) =>
+      prize.providerName !== null &&
       hackathons.isPrizeConfirmable(draft.stage, prize.confirmation !== null),
     open,
     close,

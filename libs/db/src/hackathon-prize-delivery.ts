@@ -1,4 +1,13 @@
-import { and, asc, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  eq,
+  inArray,
+  isNotNull,
+  isNull,
+  or,
+  sql,
+} from 'drizzle-orm';
 
 import type { HackathonPrizeDeliveryStatus } from '@founders-coffee/core';
 
@@ -11,7 +20,7 @@ import {
   hackathonTracks,
 } from './schema.js';
 
-/** A hackathon's confirmed prizes for its organisers (B-PRZ-02), each with who holds it now. */
+/** A hackathon's public prizes for its organisers (B-PRZ-02), each with who holds it now. */
 export const listPrizeDeliveries = (db: Db, eventId: string) =>
   db
     .select({
@@ -32,7 +41,10 @@ export const listPrizeDeliveries = (db: Db, eventId: string) =>
     .where(
       and(
         eq(hackathonPrizes.eventId, eventId),
-        isNotNull(hackathonPrizes.confirmedAt),
+        or(
+          isNotNull(hackathonPrizes.confirmedAt),
+          isNull(hackathonPrizes.providerName),
+        ),
       ),
     )
     .orderBy(asc(hackathonPrizes.place), asc(hackathonPrizes.id));
@@ -55,7 +67,7 @@ export const listPrizeEntries = (db: Db, eventId: string) =>
     );
 
 /**
- * Give a confirmed prize to an entry in the results, in one statement (B-PRZ-02): the entry has to be
+ * Give a public prize to an entry in the results, in one statement (B-PRZ-02): the entry has to be
  * there and not disqualified, and a prize already received keeps its holder. A new holder starts its
  * delivery again. Returns whether the prize went to the entry.
  */
@@ -98,7 +110,10 @@ export const assignPrize = async (
           and(
             eq(hackathonPrizes.id, input.prizeId),
             eq(hackathonPrizes.eventId, input.eventId),
-            isNotNull(hackathonPrizes.confirmedAt),
+            or(
+              isNotNull(hackathonPrizes.confirmedAt),
+              isNull(hackathonPrizes.providerName),
+            ),
           ),
         ),
     )

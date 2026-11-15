@@ -58,15 +58,19 @@ export const HackathonPreviewPrizes = ({
                 <p className="font-medium">
                   <bdi>{prize.title}</bdi>
                 </p>
-                <p className="whitespace-pre-line">
-                  <bdi>{prize.description}</bdi>
-                </p>
-                <p>
-                  {admin_hkn_prize_provider(
-                    { name: prize.providerName },
-                    options,
-                  )}
-                </p>
+                {prize.description.trim() !== '' ? (
+                  <p className="whitespace-pre-line">
+                    <bdi>{prize.description}</bdi>
+                  </p>
+                ) : null}
+                {prize.providerName !== null ? (
+                  <p>
+                    {admin_hkn_prize_provider(
+                      { name: prize.providerName },
+                      options,
+                    )}
+                  </p>
+                ) : null}
                 {prize.value ? (
                   <p>
                     {admin_hkn_prize_value(

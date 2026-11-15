@@ -1,4 +1,13 @@
-import { and, asc, eq, isNotNull, isNull, sql, type SQL } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  eq,
+  isNotNull,
+  isNull,
+  or,
+  sql,
+  type SQL,
+} from 'drizzle-orm';
 
 import type { Money } from '@founders-coffee/core';
 
@@ -17,13 +26,13 @@ export type HackathonPrizeFields = {
   readonly place: number;
   readonly title: string;
   readonly description: string;
-  readonly providerName: string;
+  readonly providerName: string | null;
   readonly value: Money | null;
 };
 
 export type PublicHackathonPrize = HackathonPrizeFields & {
   readonly id: string;
-  readonly confirmedAt: Date;
+  readonly confirmedAt: Date | null;
 };
 
 /**
@@ -94,7 +103,10 @@ export const publicHackathonPrizesQuery = (db: Db, eventId: string | SQL) =>
     .where(
       and(
         eq(hackathonPrizes.eventId, eventId),
-        isNotNull(hackathonPrizes.confirmedAt),
+        or(
+          isNotNull(hackathonPrizes.confirmedAt),
+          isNull(hackathonPrizes.providerName),
+        ),
       ),
     )
     .orderBy(
@@ -112,7 +124,7 @@ export const publicHackathonPrizesOf = (
   rows: Awaited<ReturnType<typeof publicHackathonPrizesQuery>>,
 ): PublicHackathonPrize[] =>
   rows.flatMap(({ valueAmountMinor, valueCurrency, confirmedAt, ...prize }) =>
-    confirmedAt
+    confirmedAt || prize.providerName === null
       ? [
           {
             ...prize,
@@ -120,14 +132,15 @@ export const publicHackathonPrizesOf = (
               valueAmountMinor !== null && valueCurrency !== null
                 ? { amount_minor: valueAmountMinor, currency: valueCurrency }
                 : null,
-            confirmedAt,
+            confirmedAt: confirmedAt ?? null,
           },
         ]
       : [],
   );
 
 /**
- * A hackathon's prizes as the public sees them (V2): confirmed prizes only, without the private
+ * A hackathon's prizes as the public sees them (V2): confirmed sponsored prizes and prizes without
+ * an external sponsor, without the private
  * confirmation note. Overall prizes come first, then each track's in the tracks' order, each by place.
  */
 export const listPublicHackathonPrizes = async (
@@ -155,7 +168,7 @@ const unconfirmedPrize = (eventId: string, prizeId: string, version: number) =>
  * the row before the change, as SQLite evaluates every assignment of an `UPDATE`.
  */
 const keepsConfirmation = (prize: HackathonPrizeFields): SQL =>
-  sql`${hackathonPrizes.title} = ${prize.title} AND ${hackathonPrizes.providerName} = ${prize.providerName} AND ${hackathonPrizes.valueAmountMinor} IS ${prize.value?.amount_minor ?? null} AND ${hackathonPrizes.valueCurrency} IS ${prize.value?.currency ?? null}`;
+  sql`${hackathonPrizes.title} = ${prize.title} AND ${hackathonPrizes.providerName} IS ${prize.providerName} AND ${hackathonPrizes.valueAmountMinor} IS ${prize.value?.amount_minor ?? null} AND ${hackathonPrizes.valueCurrency} IS ${prize.value?.currency ?? null}`;
 
 /**
  * The write that rewords a prize (B-HKN-07), only while the hackathon is at `version`. A new title,

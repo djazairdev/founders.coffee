@@ -66,7 +66,13 @@ const renderPanel = (view: PrizeDeliveryView = VIEW) => {
   mocks.data = view;
   mocks.assign = mutation();
   mocks.deliver = mutation();
-  return render(<HackathonPrizeDelivery eventId={EVENT_ID} locale="en" />);
+  return render(
+    <HackathonPrizeDelivery
+      eventId={EVENT_ID}
+      locale="en"
+      onFeedback={vi.fn()}
+    />,
+  );
 };
 
 afterEach(cleanup);
@@ -147,17 +153,32 @@ describe('HackathonPrizeDelivery (B-PRZ-02)', () => {
     renderPanel();
     cleanup();
     mocks.data = VIEW;
+    const feedback = vi.fn();
     mocks.assign = {
-      ...mutation(),
-      error: new AppError('prize_delivered', 'This prize was received'),
+      mutate: vi.fn(
+        (_request: unknown, options?: { onError?: (error: unknown) => void }) =>
+          options?.onError?.(
+            new AppError('prize_delivered', 'Already received'),
+          ),
+      ),
+      isPending: false,
     };
     mocks.deliver = mutation();
-    render(<HackathonPrizeDelivery eventId={EVENT_ID} locale="en" />);
+    render(
+      <HackathonPrizeDelivery
+        eventId={EVENT_ID}
+        locale="en"
+        onFeedback={feedback}
+      />,
+    );
 
-    expect(
-      screen.getByText(
-        'This prize was already received, so it cannot go to another team.',
-      ),
-    ).toBeTruthy();
+    fireEvent.change(screen.getByLabelText('Goes to'), {
+      target: { value: 'sub_2' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Award' }));
+    expect(feedback).toHaveBeenCalledWith(
+      'This prize was already received, so it cannot go to another team.',
+      'error',
+    );
   });
 });

@@ -10,9 +10,9 @@ import {
   hackathonWithDetails,
   ORGANISATION,
   publishHackathon,
+  saveHackathonDetailsFixture as saveHackathonDetailsResolver,
   setupHackathonDb,
 } from './edit.fixtures.js';
-import { saveHackathonDetailsResolver } from './details.js';
 import { readyHackathon } from './review.fixtures.js';
 import { submitHackathonForReviewResolver } from './review.js';
 

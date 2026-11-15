@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { appErrorCode } from '@founders-coffee/core';
 import {
   hackathon_prize_delivery_assign,
+  hackathon_prize_delivery_assigned,
   hackathon_prize_delivery_delivered,
   hackathon_prize_delivery_entry_unavailable,
   hackathon_prize_delivery_failed,
@@ -12,6 +13,7 @@ import {
   hackathon_prize_delivery_note,
   hackathon_prize_delivery_note_hint,
   hackathon_prize_delivery_save,
+  hackathon_prize_delivery_saved,
   hackathon_prize_delivery_status,
   hackathon_prize_delivery_status_pending,
   hackathon_prize_delivery_status_received,
@@ -19,14 +21,16 @@ import {
   hackathon_results_page_disqualified,
   type Locale,
 } from '@founders-coffee/i18n';
-import { Button, StatusMessage } from '@founders-coffee/ui';
+import { Button } from '@founders-coffee/ui';
 
 import type { PrizeDeliveryView } from '../api';
+import type { HackathonFeedback } from '../hackathon-feedback';
 import {
   useAssignPrize,
   usePrizeDelivery,
   useSetPrizeDelivery,
 } from '../results-hooks';
+import { HackathonSaveButton } from './HackathonSaveButton';
 
 type Status = NonNullable<PrizeDeliveryView['prizes'][number]['status']>;
 
@@ -53,11 +57,13 @@ const PrizeRow = ({
   prize,
   entries,
   locale,
+  onFeedback,
 }: {
   eventId: string;
   prize: PrizeDeliveryView['prizes'][number];
   entries: PrizeDeliveryView['entries'];
   locale: Locale;
+  onFeedback: HackathonFeedback;
 }) => {
   const options = { locale };
   const assign = useAssignPrize(eventId);
@@ -66,7 +72,6 @@ const PrizeRow = ({
   const [status, setStatus] = useState<Status>(prize.status ?? 'pending');
   const [note, setNote] = useState(prize.note ?? '');
   const isReceived = prize.status === 'received';
-  const failed = assign.error ?? deliver.error;
   return (
     <li className="rounded-box border border-base-300 p-4">
       <p className="font-medium break-words">
@@ -115,7 +120,18 @@ const PrizeRow = ({
           submissionId === prize.submissionId
         }
         onClick={() =>
-          assign.mutate({ eventId, prizeId: prize.prizeId, submissionId })
+          assign.mutate(
+            { eventId, prizeId: prize.prizeId, submissionId },
+            {
+              onSuccess: () =>
+                onFeedback(
+                  hackathon_prize_delivery_assigned({}, options),
+                  'success',
+                ),
+              onError: (error: unknown) =>
+                onFeedback(failureOf(error, locale), 'error'),
+            },
+          )
         }
       >
         {hackathon_prize_delivery_assign({}, options)}
@@ -156,26 +172,32 @@ const PrizeRow = ({
             value={note}
             onChange={(event) => setNote(event.target.value)}
           />
-          <Button
+          <HackathonSaveButton
             className="mt-2"
             isBusy={deliver.isPending}
             onClick={() =>
-              deliver.mutate({
-                eventId,
-                prizeId: prize.prizeId,
-                status,
-                note,
-              })
+              deliver.mutate(
+                {
+                  eventId,
+                  prizeId: prize.prizeId,
+                  status,
+                  note,
+                },
+                {
+                  onSuccess: () =>
+                    onFeedback(
+                      hackathon_prize_delivery_saved({}, options),
+                      'success',
+                    ),
+                  onError: (error: unknown) =>
+                    onFeedback(failureOf(error, locale), 'error'),
+                },
+              )
             }
           >
             {hackathon_prize_delivery_save({}, options)}
-          </Button>
+          </HackathonSaveButton>
         </div>
-      ) : null}
-      {failed ? (
-        <StatusMessage variant="error" className="mt-2">
-          {failureOf(failed, locale)}
-        </StatusMessage>
       ) : null}
     </li>
   );
@@ -184,9 +206,11 @@ const PrizeRow = ({
 export const HackathonPrizeDelivery = ({
   eventId,
   locale,
+  onFeedback,
 }: {
   eventId: string;
   locale: Locale;
+  onFeedback: HackathonFeedback;
 }) => {
   const { data } = usePrizeDelivery(eventId);
   if (!data?.isOpen || data.prizes.length === 0) return null;
@@ -209,6 +233,7 @@ export const HackathonPrizeDelivery = ({
             prize={prize}
             entries={data.entries}
             locale={locale}
+            onFeedback={onFeedback}
           />
         ))}
       </ul>

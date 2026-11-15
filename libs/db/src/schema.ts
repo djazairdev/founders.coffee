@@ -678,7 +678,7 @@ export const hackathonPrizes = sqliteTable(
     place: integer('place').notNull(),
     title: text('title').notNull(),
     description: text('description').notNull(),
-    providerName: text('provider_name').notNull(),
+    providerName: text('provider_name'),
     valueAmountMinor: integer('value_amount_minor'),
     valueCurrency: text('value_currency', { enum: [...CURRENCY_CODES] }),
     confirmedAt: integer('confirmed_at', { mode: 'timestamp' }),

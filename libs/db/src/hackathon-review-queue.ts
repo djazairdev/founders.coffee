@@ -26,7 +26,7 @@ export type HackathonReviewPrize = {
   readonly place: number;
   readonly title: string;
   readonly description: string;
-  readonly providerName: string;
+  readonly providerName: string | null;
   readonly value: Money | null;
   readonly isConfirmed: boolean;
 };
@@ -166,7 +166,8 @@ export const listHackathonsForReview = async (
                 currency: prize.valueCurrency,
               }
             : null,
-        isConfirmed: prize.confirmedAt !== null,
+        isConfirmed:
+          prize.confirmedAt !== null || prize.providerName === null,
       })),
       criteria: of(children.criteria, row.event.id),
     })),

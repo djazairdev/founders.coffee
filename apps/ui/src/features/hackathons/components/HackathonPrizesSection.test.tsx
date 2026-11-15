@@ -24,6 +24,7 @@ const mocks = vi.hoisted(() => ({
   remove: null as unknown as ReturnType<typeof mutation>,
   confirm: null as unknown as ReturnType<typeof mutation>,
 }));
+const feedback = vi.fn();
 
 vi.mock('../hooks', () => ({
   useAddHackathonPrize: () => mocks.add,
@@ -83,6 +84,7 @@ const renderSection = (draft: HackathonDraftView, locale: Locale = 'en') =>
       draft={draft}
       locale={locale}
       timeZone="Africa/Algiers"
+      onFeedback={feedback}
     />,
   );
 
@@ -104,6 +106,7 @@ resetMocks();
 
 afterEach(() => {
   cleanup();
+  feedback.mockClear();
   resetMocks();
 });
 
@@ -150,7 +153,7 @@ describe('HackathonPrizesSection (B-HKN-14)', () => {
       },
       expect.anything(),
     );
-    expect(screen.getByText('Prize saved.')).toBeTruthy();
+    expect(feedback).toHaveBeenCalledWith('Prize saved.', 'success');
   });
 
   it('holds back an incomplete prize and says why', () => {
@@ -180,7 +183,7 @@ describe('HackathonPrizesSection (B-HKN-14)', () => {
       { eventId: 'evt_draft', version: 1, prizeId: 'prz_mentoring' },
       expect.anything(),
     );
-    expect(screen.getByText('Prize withdrawn.')).toBeTruthy();
+    expect(feedback).toHaveBeenCalledWith('Prize withdrawn.', 'success');
   });
 
   it('records a confirmation with a note of how it was given', () => {
