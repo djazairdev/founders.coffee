@@ -5,7 +5,6 @@ import { MapPin } from 'lucide-react';
 import { type Locale } from '@founders-coffee/i18n';
 
 import { EventFormatField } from '../../../components/events/EventFormatField';
-import { HostDetailsStep } from '../../../components/host/HostDetailsStep';
 import { HostVenueLine } from '../../../components/host/HostVenueLine';
 import { HostVenueStep } from '../../../components/host/HostVenueStep';
 import type { useVenueOverlay } from '../../../components/host/useVenueOverlay';
@@ -16,6 +15,9 @@ import {
 } from '../hackathon-create-copy';
 import type { useHackathonCreateWizard } from '../useHackathonCreateWizard';
 import { HackathonScheduleStep } from './HackathonScheduleStep';
+import { HackathonClassificationFields } from './HackathonClassificationFields';
+import { HackathonTitleField } from './HackathonTitleField';
+import { HackathonDescriptionEditor } from './HackathonDescriptionEditor';
 
 type HackathonWizardStepBodyProps = {
   locale: Locale;
@@ -53,6 +55,14 @@ export const HackathonWizardStepBody = ({
 
       {wizard.step === 1 && (
         <div className="grid gap-5">
+          <HackathonTitleField
+            locale={locale}
+            title={wizard.title}
+            error={wizard.fieldErrors.title}
+            minLength={hostCreateViewCopy().constraints.titleMin}
+            maxLength={hostCreateViewCopy().constraints.titleMax}
+            onChange={wizard.setTitle}
+          />
           <EventFormatField
             locale={locale}
             value={wizard.format}
@@ -60,7 +70,17 @@ export const HackathonWizardStepBody = ({
             names={placeCopy.formatNames}
             formats={HACKATHON_CREATE_FORMATS}
             isHintVisible={false}
+            presentation="radio-list"
             onChange={wizard.setFormat}
+          />
+          <HackathonClassificationFields
+            locale={locale}
+            fields={wizard.fields}
+            typeTags={wizard.typeTags}
+            fieldsError={wizard.fieldErrors.hackathonFields}
+            typeTagsError={wizard.fieldErrors.hackathonTypeTags}
+            onFieldsChange={wizard.setFields}
+            onTypeTagsChange={wizard.setTypeTags}
           />
           <hr className="border-base-300" />
           <p className="text-body-sm text-neutral">
@@ -141,24 +161,20 @@ export const HackathonWizardStepBody = ({
           startsAt={wizard.startsAt}
           endsAt={wizard.endsAt}
           error={wizard.fieldErrors.schedule}
+          showValidation={wizard.showScheduleValidation}
           onChange={wizard.setSchedule}
           onError={wizard.setScheduleError}
         />
       )}
 
       {wizard.step === 3 && (
-        <div className="grid gap-5">
-          <HostDetailsStep
+        <div className="flex min-h-0 flex-1 flex-col">
+          <HackathonDescriptionEditor
             locale={locale}
-            title={wizard.title}
             description={wizard.description}
-            tags={wizard.tags}
-            constraints={hostCreateViewCopy().constraints}
-            errors={wizard.fieldErrors}
-            copy={hackathonDetailsCopy(locale)}
-            onTitleChange={wizard.setTitle}
-            onDescriptionChange={wizard.setDescription}
-            onTagsChange={wizard.setTags}
+            error={wizard.fieldErrors.description}
+            placeholder={hackathonDetailsCopy(locale).descriptionPlaceholder}
+            onChange={wizard.setDescription}
           />
         </div>
       )}

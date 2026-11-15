@@ -76,6 +76,8 @@ export const ORGANISER_OPERATIONS: Operations = {
           startsAt: Date.now() + 30 * 86_400_000,
           endsAt: Date.now() + 32 * 86_400_000,
           languages: ['ar', 'fr'],
+          hackathonFields: ['software_development'],
+          hackathonTypeTags: ['open_source'],
         }),
       }),
     cells: inEveryPhase(everyoneBut('forbidden', { organiser: 'ok' })),

@@ -4,7 +4,10 @@ import { DayPicker, TZDate } from 'react-day-picker';
 
 import {
   direction,
+  hackathon_date_before_min,
   hackathon_date_format,
+  hackathon_date_invalid,
+  hackathon_date_required,
   hackathon_open_calendar,
   type Locale,
 } from '@founders-coffee/i18n';
@@ -19,6 +22,7 @@ type HackathonDateFieldProps = {
   locale: Locale;
   timeZone: string;
   align: 'start' | 'end';
+  showValidation: boolean;
   onChange: (value: string) => void;
 };
 
@@ -30,14 +34,26 @@ export const HackathonDateField = ({
   locale,
   timeZone,
   align,
+  showValidation,
   onChange,
 }: HackathonDateFieldProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [hasBlurred, setHasBlurred] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const selectedDate = parseDateValue(value, timeZone);
   const minDate =
     parseDateValue(min, timeZone) ?? new TZDate(Date.now(), timeZone);
+  const hasInvalidDate = value.length > 0 && selectedDate === null;
+  const isBeforeMinimum = selectedDate !== null && value.localeCompare(min) < 0;
+  const isInvalid =
+    (hasBlurred || showValidation) &&
+    (!value || hasInvalidDate || isBeforeMinimum);
+  const validationMessage = !value
+    ? hackathon_date_required({}, { locale })
+    : hasInvalidDate
+      ? hackathon_date_invalid({}, { locale })
+      : hackathon_date_before_min({}, { locale });
 
   useEffect(() => {
     if (!isOpen) return;
@@ -64,7 +80,7 @@ export const HackathonDateField = ({
       }}
     >
       <label htmlFor={id}>{label}</label>
-      <div className="input input-sm md:input-md w-full">
+      <div className="input input-sm md:input-md validator w-full">
         <input
           id={id}
           type="text"
@@ -75,6 +91,9 @@ export const HackathonDateField = ({
           placeholder={hackathon_date_format({}, { locale })}
           dir="ltr"
           value={value}
+          onBlur={() => setHasBlurred(true)}
+          aria-describedby={`${id}-validation`}
+          aria-invalid={isInvalid}
           required
           onChange={(event) => onChange(event.target.value)}
         />
@@ -91,6 +110,9 @@ export const HackathonDateField = ({
           <CalendarDays className="size-4" aria-hidden="true" />
         </button>
       </div>
+      <p id={`${id}-validation`} className="validator-hint text-caption">
+        {validationMessage}
+      </p>
       {isOpen ? (
         <div
           id={`${id}-calendar`}

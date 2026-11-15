@@ -95,6 +95,8 @@ import {
   RSVP_STATUSES,
   USER_ROLES,
   type AttendanceMode,
+  type HackathonField,
+  type HackathonTypeTag,
   type HackathonCriterionScale,
   type Topic,
 } from '@founders-coffee/core';
@@ -433,6 +435,14 @@ export const events = sqliteTable(
       .default('meetup'),
     tags: text('tags', { mode: 'json' })
       .$type<Topic[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    hackathonFields: text('hackathon_fields', { mode: 'json' })
+      .$type<HackathonField[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    hackathonTypeTags: text('hackathon_type_tags', { mode: 'json' })
+      .$type<HackathonTypeTag[]>()
       .notNull()
       .default(sql`'[]'`),
     format: text('format', { enum: [...EVENT_FORMATS] })

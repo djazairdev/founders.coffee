@@ -9,6 +9,7 @@ import {
   hackathon_schedule_summary,
   hackathon_start_date,
   hackathon_time_format_hint,
+  hackathon_time_invalid_format,
   type Locale,
   type ZonedDateTimeError,
 } from '@founders-coffee/i18n';
@@ -29,6 +30,7 @@ type HackathonScheduleStepProps = {
   startsAt: number | null;
   endsAt: number | null;
   error?: string;
+  showValidation: boolean;
   onChange: (startsAt: number | null, endsAt: number | null) => void;
   onError: (error: ZonedDateTimeError | null) => void;
 };
@@ -42,6 +44,7 @@ export const HackathonScheduleStep = ({
   startsAt,
   endsAt,
   error,
+  showValidation,
   onChange,
   onError,
 }: HackathonScheduleStepProps) => {
@@ -57,6 +60,8 @@ export const HackathonScheduleStep = ({
   const [demoDayTime, setDemoDayTime] = useState(() =>
     endsAt ? wallTime(endsAt, timeZone) : DEFAULT_DEMO_DAY_TIME,
   );
+  const [hasBlurredKickoff, setHasBlurredKickoff] = useState(false);
+  const [hasBlurredDemoDay, setHasBlurredDemoDay] = useState(false);
   const latest = useRef({ startDate, endDate, kickoffTime, demoDayTime });
   latest.current = { startDate, endDate, kickoffTime, demoDayTime };
 
@@ -130,28 +135,43 @@ export const HackathonScheduleStep = ({
             locale={locale}
             timeZone={timeZone}
             align="start"
+            showValidation={showValidation}
             onChange={(value) => {
               setStartDate(value);
               update({ startDate: value });
             }}
           />
-          <label className="flex min-w-0 flex-col gap-1 text-body-sm text-neutral">
-            {hackathon_kickoff_time({}, { locale })}
+          <div className="flex min-w-0 flex-col gap-1 text-body-sm text-neutral">
+            <label htmlFor="hackathon-kickoff-time">
+              {hackathon_kickoff_time({}, { locale })}
+            </label>
             <Input
               id="hackathon-kickoff-time"
               type="text"
+              className="validator"
               inputMode="numeric"
               pattern="(?:[01]\d|2[0-3]):[0-5]\d"
               maxLength={5}
               dir="ltr"
               value={kickoffTime}
               required
-              aria-describedby="hackathon-time-format-hint"
+              aria-invalid={
+                (showValidation || hasBlurredKickoff) &&
+                !isValid24HourTime(kickoffTime)
+              }
+              aria-describedby="hackathon-time-format-hint hackathon-kickoff-time-validation"
+              onBlur={() => setHasBlurredKickoff(true)}
               onChange={(event) =>
                 handleTimeChange('kickoffTime', event.target.value)
               }
             />
-          </label>
+            <span
+              id="hackathon-kickoff-time-validation"
+              className="validator-hint text-caption"
+            >
+              {hackathon_time_invalid_format({}, { locale })}
+            </span>
+          </div>
         </div>
         <div className="grid gap-3">
           <HackathonDateField
@@ -162,28 +182,43 @@ export const HackathonScheduleStep = ({
             locale={locale}
             timeZone={timeZone}
             align="end"
+            showValidation={showValidation}
             onChange={(value) => {
               setEndDate(value);
               update({ endDate: value });
             }}
           />
-          <label className="flex min-w-0 flex-col gap-1 text-body-sm text-neutral">
-            {hackathon_demo_day_time({}, { locale })}
+          <div className="flex min-w-0 flex-col gap-1 text-body-sm text-neutral">
+            <label htmlFor="hackathon-demo-day-time">
+              {hackathon_demo_day_time({}, { locale })}
+            </label>
             <Input
               id="hackathon-demo-day-time"
               type="text"
+              className="validator"
               inputMode="numeric"
               pattern="(?:[01]\d|2[0-3]):[0-5]\d"
               maxLength={5}
               dir="ltr"
               value={demoDayTime}
               required
-              aria-describedby="hackathon-time-format-hint"
+              aria-invalid={
+                (showValidation || hasBlurredDemoDay) &&
+                !isValid24HourTime(demoDayTime)
+              }
+              aria-describedby="hackathon-time-format-hint hackathon-demo-day-time-validation"
+              onBlur={() => setHasBlurredDemoDay(true)}
               onChange={(event) =>
                 handleTimeChange('demoDayTime', event.target.value)
               }
             />
-          </label>
+            <span
+              id="hackathon-demo-day-time-validation"
+              className="validator-hint text-caption"
+            >
+              {hackathon_time_invalid_format({}, { locale })}
+            </span>
+          </div>
         </div>
       </div>
       <p id="hackathon-time-format-hint" className="text-body-sm text-neutral">

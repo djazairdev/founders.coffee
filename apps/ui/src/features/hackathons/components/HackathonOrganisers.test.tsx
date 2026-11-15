@@ -33,13 +33,13 @@ const renderSection = async (locale: Locale, isEnabled = true) => {
       <HackathonOrganisers locale={locale} isEnabled={isEnabled} />
     ),
   });
-  const apply = createRoute({
+  const organisations = createRoute({
     getParentRoute: () => localized,
-    path: 'o/apply',
+    path: 'profile/organisations',
     component: () => null,
   });
   const router = createRouter({
-    routeTree: root.addChildren([localized.addChildren([home, apply])]),
+    routeTree: root.addChildren([localized.addChildren([home, organisations])]),
     history: createMemoryHistory({ initialEntries: [`/${locale}/algeria`] }),
   });
   await router.load();
@@ -50,7 +50,7 @@ const renderSection = async (locale: Locale, isEnabled = true) => {
 describe.each(['ar', 'en', 'fr'] as const)(
   'organiser entry points in %s',
   (locale) => {
-    it('takes a new organiser into the existing organisation setup', async () => {
+    it('takes an organiser to their organisations page', async () => {
       const router = await renderSection(locale);
       expect(await screen.findAllByRole('link')).toHaveLength(1);
       fireEvent.click(
@@ -59,7 +59,9 @@ describe.each(['ar', 'en', 'fr'] as const)(
         }),
       );
       await waitFor(() =>
-        expect(router.state.location.pathname).toBe(`/${locale}/o/apply`),
+        expect(router.state.location.pathname).toBe(
+          `/${locale}/profile/organisations`,
+        ),
       );
     });
 

@@ -46,6 +46,8 @@ describe('registering an organiser and starting a hackathon (real D1)', () => {
         endsAt: startsAt + 86_400_000,
         languages: ['ar'],
         tags: ['engineering'],
+        hackathonFields: ['software_development'],
+        hackathonTypeTags: ['open_source'],
       }),
     });
     if (!created.ok) throw created.error;

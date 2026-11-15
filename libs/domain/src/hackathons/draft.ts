@@ -7,10 +7,8 @@ import {
   type EventFormat,
 } from '@founders-coffee/core';
 
-import {
-  addEventCreateIssues,
-  EVENT_CREATE_FIELDS,
-} from '../events/schemas.js';
+import { addEventCreateIssues } from '../events/schemas.js';
+import { HACKATHON_EVENT_FIELDS } from './basics.js';
 import { isAttendanceModeOffered } from './registration.js';
 import { TEAM_SIZE_CEILING, teamSizeLimitsSchema } from './teams.js';
 import { hackathonTimelineSchema } from './timeline.js';
@@ -136,7 +134,7 @@ export const hackathonDetailsFor = (event: HackathonEventFrame) =>
 export const hackathonDetailsSchema = hackathonDetailsShape;
 
 const hackathonDraftShape = hackathonDetailsShape
-  .extend(EVENT_CREATE_FIELDS)
+  .extend(HACKATHON_EVENT_FIELDS)
   .strict();
 
 type HackathonDraftInput = z.infer<typeof hackathonDraftShape>;

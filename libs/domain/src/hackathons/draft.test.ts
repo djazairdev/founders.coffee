@@ -16,6 +16,8 @@ const draft = (overrides: Record<string, unknown> = {}) => ({
   startsAt: kickoff,
   endsAt: kickoff + 2 * DAY,
   languages: ['ar', 'fr'],
+  hackathonFields: ['artificial_intelligence'],
+  hackathonTypeTags: ['open_topics'],
   registrationOpensAt: Date.now() + DAY,
   registrationClosesAt: kickoff - DAY,
   submissionDeadlineAt: kickoff + 2 * DAY - 3_600_000,

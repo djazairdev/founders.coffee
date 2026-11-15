@@ -5,6 +5,7 @@ import { LOCALES } from '@founders-coffee/core';
 import {
   EVENT_DESCRIPTION_MAX_LENGTH,
   EVENT_DESCRIPTION_MIN_LENGTH,
+  EVENT_DESCRIPTION_STORAGE_MAX_LENGTH,
   EVENT_TITLE_MAX_LENGTH,
   EVENT_TITLE_MIN_LENGTH,
   EVENT_VENUE_ADDRESS_MAX_LENGTH,
@@ -12,6 +13,7 @@ import {
   EVENT_VENUE_NAME_MAX_LENGTH,
   EVENT_VENUE_NAME_MIN_LENGTH,
   eventCreateSchema,
+  publicEventDiscoverySchema,
 } from './schemas.js';
 import { EVENT_DURATION_MS_MAX, EVENT_DURATION_MS_MIN } from './duration.js';
 
@@ -96,8 +98,9 @@ describe('eventCreateSchema', () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues.some((issue) => issue.path[0] === 'cityCode'))
-        .toBe(true);
+      expect(
+        result.error.issues.some((issue) => issue.path[0] === 'cityCode'),
+      ).toBe(true);
     }
   });
 
@@ -245,5 +248,37 @@ describe('eventCreateSchema', () => {
     const input: Record<string, unknown> = validInput();
     delete input.cityCode;
     expect(eventCreateSchema.safeParse(input).success).toBe(true);
+  });
+});
+
+describe('publicEventDiscoverySchema', () => {
+  it('reads descriptions up to the hackathon storage limit', () => {
+    const event = {
+      market: 'Algeria',
+      city: null,
+      cityName: null,
+      slug: 'builders-hackathon',
+      title: 'Algiers Builders Hackathon',
+      description: 'x'.repeat(EVENT_DESCRIPTION_STORAGE_MAX_LENGTH),
+      format: 'online',
+      venue: null,
+      venueAddress: null,
+      startsAt: '2026-11-16T09:00:00.000Z',
+      endsAt: '2026-11-18T18:00:00.000Z',
+      timezone: 'Africa/Algiers',
+      language: 'ar',
+      languages: ['ar'],
+      organizer: null,
+      status: 'published',
+      updatedAt: '2026-11-15T09:00:00.000Z',
+    };
+
+    expect(publicEventDiscoverySchema.safeParse(event).success).toBe(true);
+    expect(
+      publicEventDiscoverySchema.safeParse({
+        ...event,
+        description: 'x'.repeat(EVENT_DESCRIPTION_STORAGE_MAX_LENGTH + 1),
+      }).success,
+    ).toBe(false);
   });
 });

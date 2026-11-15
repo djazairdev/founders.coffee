@@ -65,6 +65,8 @@ const basics = (overrides: Record<string, unknown> = {}) => {
     endsAt: kickoff + 2 * DAY,
     languages: ['ar', 'fr'],
     tags: ['engineering'],
+    hackathonFields: ['software_development'],
+    hackathonTypeTags: ['open_source'],
     ...overrides,
   });
 };
@@ -143,6 +145,8 @@ describe('creating a hackathon draft (B-HKN-06, real D1)', () => {
       cityCode: '1',
       slug: result.data.slug,
       tags: ['engineering'],
+      hackathonFields: ['software_development'],
+      hackathonTypeTags: ['open_source'],
     });
     expect(await getHackathon(db, result.data.eventId)).toBeNull();
     expect(

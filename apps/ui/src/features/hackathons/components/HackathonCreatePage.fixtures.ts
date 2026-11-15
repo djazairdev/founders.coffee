@@ -118,6 +118,18 @@ vi.mock('./HackathonScheduleStep', () => ({
     ]),
 }));
 
+vi.mock('../useHackathonMilkdownRuntime', () => ({
+  useHackathonMilkdownRuntime: () => ({
+    status: 'ready',
+    Component: ({ value, label }: { value: string; label: string }) =>
+      createElement('textarea', {
+        'aria-label': label,
+        value,
+        readOnly: true,
+      }),
+  }),
+}));
+
 const market = {
   code: 'DZ',
   slug: 'algeria',

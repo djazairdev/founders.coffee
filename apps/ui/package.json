@@ -15,6 +15,9 @@
     "e2e": "playwright test --config=playwright.config.ts"
   },
   "dependencies": {
+    "@milkdown/crepe": "^7.23.0",
+    "@milkdown/kit": "^7.23.0",
+    "@milkdown/react": "^7.23.0",
     "@tailwindcss/vite": "^4.3.4",
     "@tanstack/react-router": "1.170.42",
     "@tanstack/react-router-ssr-query": "1.167.3",

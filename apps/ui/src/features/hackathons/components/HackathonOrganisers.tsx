@@ -15,8 +15,6 @@ import {
   type Locale,
 } from '@founders-coffee/i18n';
 
-import { localizedOrganisationApply } from '../../../lib/locale-routing';
-
 const FEATURES = [
   {
     key: 'registration',
@@ -67,7 +65,8 @@ export const HackathonOrganisers = ({
             {hackathon_organisers_intro({}, { locale })}
           </p>
           <Link
-            {...localizedOrganisationApply(locale)}
+            to="/$locale/profile/organisations"
+            params={{ locale }}
             className="btn btn-secondary btn-xs sm:btn-sm md:btn-md lg:btn-lg mt-6 w-full max-w-64 rounded-full border-0 font-semibold shadow-none"
           >
             {hackathon_organisers_apply({}, { locale })}

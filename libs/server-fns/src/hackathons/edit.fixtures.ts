@@ -57,6 +57,8 @@ export const draftHackathon = async (db: Db) => {
       startsAt: kickoff,
       endsAt: kickoff + 2 * DAY,
       languages: ['ar', 'fr'],
+      hackathonFields: ['software_development'],
+      hackathonTypeTags: ['open_source'],
     }),
   });
   if (!created.ok) throw created.error;

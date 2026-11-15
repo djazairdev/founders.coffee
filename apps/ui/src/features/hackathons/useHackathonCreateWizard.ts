@@ -2,30 +2,33 @@ import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { flushSync } from 'react-dom';
 
-import type { EventFormat, Topic } from '@founders-coffee/core';
+import type {
+  EventFormat,
+  HackathonField,
+  HackathonTypeTag,
+} from '@founders-coffee/core';
 import type { Market } from '@founders-coffee/db';
 import { events, type geo } from '@founders-coffee/domain';
 import {
   host_time_invalid,
   host_time_nonexistent,
   host_time_zone_error,
+  hackathon_desc_template,
   localizedName,
   type Locale,
   type ZonedDateTimeError,
 } from '@founders-coffee/i18n';
 
-import {
-  firstInvalidField,
-  focusInvalidField,
-  shownErrors,
-  validateDetailsStep,
-  validateVenueStep,
-  type HostCreateFieldErrors,
-} from '../events/host-create-validation';
+import { focusInvalidField } from '../events/host-create-validation';
 import { eventPlaceFields } from '../events/host-create-payload';
 import type { VenueArea, VenueSelection } from '../events/types';
 import { localizedHackathonManage } from '../../lib/locale-routing';
-import { validateHackathonSchedule } from './hackathon-schedule';
+import {
+  firstInvalidHackathonField,
+  shownHackathonErrors,
+  validateHackathonCreateStep,
+  type HackathonCreateFieldErrors,
+} from './hackathon-create-validation';
 import { useCreateHackathonDraft } from './hooks';
 import { hackathonSaveError } from './save-errors';
 
@@ -71,31 +74,57 @@ export const useHackathonCreateWizard = ({
   const [startsAt, setStartsAt] = useState<number | null>(null);
   const [endsAt, setEndsAt] = useState<number | null>(null);
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [tags, setTags] = useState<Topic[]>([]);
-  const [fieldErrors, setFieldErrors] = useState<HostCreateFieldErrors>({});
-  const clearError = (field: keyof HostCreateFieldErrors) =>
+  const [description, setDescription] = useState<string>(() =>
+    hackathon_desc_template({}, { locale }),
+  );
+  const [fields, setFields] = useState<HackathonField[]>([]);
+  const [typeTags, setTypeTags] = useState<HackathonTypeTag[]>([]);
+  const [showScheduleValidation, setShowScheduleValidation] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<HackathonCreateFieldErrors>(
+    {},
+  );
+  const clearError = (field: keyof HackathonCreateFieldErrors) =>
     setFieldErrors((current) => ({ ...current, [field]: undefined }));
 
   const validateCurrentStep = (): boolean => {
-    const check =
-      step === 1
-        ? events.hasVenue(format)
-          ? validateVenueStep(venue, venueName, locale)
-          : {}
-        : step === 2
-          ? validateHackathonSchedule(startsAt, endsAt, locale)
-          : validateDetailsStep(
-              {
-                title,
-                description,
-                languages: [locale],
-              },
-              locale,
-            );
-    flushSync(() => setFieldErrors((shown) => shownErrors(check, shown)));
-    const first = firstInvalidField(check);
-    if (first) focusInvalidField(first);
+    const check = validateHackathonCreateStep({
+      step,
+      title,
+      description,
+      fields,
+      typeTags,
+      format,
+      venue,
+      venueName,
+      startsAt,
+      endsAt,
+      locale,
+    });
+    flushSync(() => {
+      setFieldErrors((shown) => shownHackathonErrors(check, shown));
+      if (step === 2) setShowScheduleValidation(true);
+    });
+    const first = firstInvalidHackathonField(check);
+    if (first === 'schedule' && step === 2) {
+      const invalidScheduleField = document.querySelector<HTMLElement>(
+        '#hackathon-start-date[aria-invalid="true"], #hackathon-end-date[aria-invalid="true"], #hackathon-kickoff-time[aria-invalid="true"], #hackathon-demo-day-time[aria-invalid="true"]',
+      );
+      (
+        invalidScheduleField ?? document.getElementById('hackathon-start-date')
+      )?.focus();
+    } else if (first === 'description' && step === 3) {
+      document.getElementById('hackathon-description')?.focus();
+    } else if (first === 'hackathonFields' || first === 'hackathonTypeTags') {
+      document
+        .getElementById(
+          first === 'hackathonFields'
+            ? 'hackathon-fields'
+            : 'hackathon-type-tags',
+        )
+        ?.focus();
+    } else if (first) {
+      focusInvalidField(first);
+    }
     return first === null;
   };
 
@@ -118,7 +147,9 @@ export const useHackathonCreateWizard = ({
           title,
           description,
           languages: [locale],
-          tags: [...tags],
+          tags: [],
+          hackathonFields: [...fields],
+          hackathonTypeTags: [...typeTags],
           startsAt,
           endsAt,
           ...place,
@@ -155,7 +186,9 @@ export const useHackathonCreateWizard = ({
     endsAt,
     title,
     description,
-    tags,
+    fields,
+    typeTags,
+    showScheduleValidation,
     fieldErrors,
     venueArea,
     isVenueFormat: events.hasVenue(format),
@@ -166,6 +199,7 @@ export const useHackathonCreateWizard = ({
     prev: () => {
       save.reset();
       setFieldErrors({});
+      setShowScheduleValidation(false);
       setStep(Math.max(1, step - 1));
     },
     setFormat: (value: EventFormat) => {
@@ -211,6 +245,13 @@ export const useHackathonCreateWizard = ({
       setDescription(value);
       clearError('description');
     },
-    setTags,
+    setFields: (next: HackathonField[]) => {
+      setFields(next);
+      if (next.length > 0) clearError('hackathonFields');
+    },
+    setTypeTags: (next: HackathonTypeTag[]) => {
+      setTypeTags(next);
+      if (next.length > 0) clearError('hackathonTypeTags');
+    },
   };
 };

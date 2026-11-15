@@ -15,12 +15,25 @@ const next = () =>
 const nextArabic = () =>
   fireEvent.click(screen.getByRole('button', { name: 'التالي' }));
 
-const fillDetails = () => {
+const fillTitle = () => {
   fireEvent.change(screen.getByLabelText('Hackathon title'), {
     target: { value: 'Algiers Builders Weekend' },
   });
+};
+
+const selectRequiredClassifications = () => {
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Artificial intelligence' }),
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Open topic' }));
+};
+
+const fillDescription = () => {
   fireEvent.change(screen.getByLabelText('Hackathon description'), {
-    target: { value: 'Two days of building with founders across Algiers.' },
+    target: {
+      value:
+        '# Algiers Builders Weekend\n\nTwo days of **building** with founders across Algiers.',
+    },
   });
 };
 
@@ -37,7 +50,8 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
     expect(
       screen
         .getAllByRole('radio')
-        .map((radio) => (radio as HTMLInputElement).value),
+        .map((radio) => (radio as HTMLInputElement).value)
+        .filter((value) => value === 'online' || value === 'in_person'),
     ).toEqual(['online', 'in_person']);
     expect(
       screen.queryByRole('radio', { name: 'In person and remote' }),
@@ -45,6 +59,20 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
     expect(mocks.mapContext).toHaveBeenLastCalledWith(false);
     expect(screen.queryByLabelText('Remote join link')).toBeNull();
     expect(screen.queryByLabelText('City')).toBeNull();
+    const titleInput = screen.getByLabelText('Hackathon title');
+    expect(titleInput.getAttribute('placeholder')).toBeNull();
+    const remoteOption = screen.getByRole('radio', { name: 'Remote' });
+    expect(
+      titleInput.compareDocumentPosition(remoteOption) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Artificial intelligence' }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Web development' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Beginner friendly' }));
+    fireEvent.click(screen.getByRole('button', { name: 'No code' }));
+    fillTitle();
     next();
     expect(
       screen.getByRole('heading', {
@@ -59,7 +87,16 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
     expect(
       screen.queryByText(/^The languages spoken at the hackathon/),
     ).toBeNull();
-    fillDetails();
+    expect(
+      screen.queryByRole('button', { name: 'Artificial intelligence' }),
+    ).toBeNull();
+    expect(screen.queryByText('Add the final details.')).toBeNull();
+    expect(screen.queryByText(/of 2000 characters/)).toBeNull();
+    fillDescription();
+    expect(
+      (screen.getByLabelText('Hackathon description') as HTMLTextAreaElement)
+        .value,
+    ).toContain('**building**');
     fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
 
     expect(mocks.mutate).toHaveBeenCalledTimes(1);
@@ -69,14 +106,44 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
       hackathon: {
         marketCode: 'DZ',
         title: 'Algiers Builders Weekend',
-        description: 'Two days of building with founders across Algiers.',
+        description:
+          '# Algiers Builders Weekend\n\nTwo days of **building** with founders across Algiers.',
         languages: ['en'],
         tags: [],
+        hackathonFields: ['artificial_intelligence', 'web_development'],
+        hackathonTypeTags: ['beginner_friendly', 'no_code'],
         startsAt: KICKOFF,
         endsAt: DEMO_DAY,
         format: 'online',
       },
     });
+  });
+
+  it('accepts a 20,000-character description and rejects longer text', () => {
+    renderHackathonWizard();
+    selectRequiredClassifications();
+    fillTitle();
+    next();
+    fireEvent.click(screen.getByRole('button', { name: 'Set schedule' }));
+    next();
+    fireEvent.change(screen.getByLabelText('Hackathon description'), {
+      target: { value: 'x'.repeat(20_001) },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
+
+    expect(mocks.mutate).not.toHaveBeenCalled();
+    expect(
+      screen.getByText(
+        'The description must be between 10 and 20000 characters.',
+      ),
+    ).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText('Hackathon description'), {
+      target: { value: 'x'.repeat(20_000) },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
+
+    expect(mocks.mutate).toHaveBeenCalledTimes(1);
   });
 
   it('opens the saved draft’s second step', async () => {
@@ -88,13 +155,15 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
 
     fireEvent.click(screen.getByRole('radio', { name: 'In person' }));
     expect(mocks.mapContext).toHaveBeenLastCalledWith(true);
+    selectRequiredClassifications();
+    fillTitle();
     fireEvent.click(
       await screen.findByRole('button', { name: 'Choose venue' }),
     );
     next();
     fireEvent.click(screen.getByRole('button', { name: 'Set schedule' }));
     next();
-    fillDetails();
+    fillDescription();
     fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
 
     const [request] = mocks.mutate.mock.calls[0] ?? [];
@@ -121,6 +190,8 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
       screen.getByRole('heading', { name: 'How will the hackathon be held?' }),
     ).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Choose venue' }));
+    fillTitle();
+    selectRequiredClassifications();
     next();
     next();
     expect(
@@ -133,6 +204,9 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
     expect(
       screen.queryByText(/^The languages spoken at the hackathon/),
     ).toBeNull();
+    fireEvent.change(screen.getByLabelText('Hackathon description'), {
+      target: { value: '' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
     expect(mocks.mutate).not.toHaveBeenCalled();
   });
@@ -192,6 +266,11 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
     ).toBeTruthy();
     expect(screen.queryByLabelText('رابط الانضمام عن بُعد')).toBeNull();
     expect(screen.queryByLabelText('المدينة')).toBeNull();
+    fireEvent.change(screen.getByLabelText('عنوان الهاكاثون'), {
+      target: { value: 'هاكاثون الجزائر' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'الذكاء الاصطناعي' }));
+    fireEvent.click(screen.getByRole('button', { name: 'مفتوح المواضيع' }));
     nextArabic();
     fireEvent.click(screen.getByRole('button', { name: 'Set schedule' }));
     nextArabic();
@@ -199,7 +278,12 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
 
     resetHackathonWizard();
     renderHackathonWizard('ar');
+    fireEvent.change(screen.getByLabelText('عنوان الهاكاثون'), {
+      target: { value: 'هاكاثون الجزائر' },
+    });
     fireEvent.click(screen.getByRole('radio', { name: 'حضوري' }));
+    fireEvent.click(screen.getByRole('button', { name: 'الذكاء الاصطناعي' }));
+    fireEvent.click(screen.getByRole('button', { name: 'مفتوح المواضيع' }));
     expect(mocks.mapContext).toHaveBeenLastCalledWith(true);
     expect(
       screen.getByRole('heading', { name: 'مكان إقامة الهاكاثون' }),

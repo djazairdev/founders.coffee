@@ -22,8 +22,6 @@ import {
   hackathon_step_schedule_short,
   hackathon_step_schedule_sub,
   hackathon_title_label,
-  hackathon_title_ph,
-  host_step3_sub,
   host_venue_empty,
   type Locale,
 } from '@founders-coffee/i18n';
@@ -40,17 +38,12 @@ export const hackathonStepCopy = (locale: Locale) => ({
     hackathon_step_schedule({}, { locale }),
     hackathon_step_details({}, { locale }),
   ],
-  descriptions: [
-    null,
-    hackathon_step_schedule_sub({}, { locale }),
-    host_step3_sub({}, { locale }),
-  ],
+  descriptions: [null, hackathon_step_schedule_sub({}, { locale }), null],
 });
 
 /** The labels and examples the details step shows for a hackathon instead of a meetup's. */
 export const hackathonDetailsCopy = (locale: Locale) => ({
   titleLabel: hackathon_title_label({}, { locale }),
-  titlePlaceholder: hackathon_title_ph({}, { locale }),
   descriptionLabel: hackathon_desc_label({}, { locale }),
   descriptionPlaceholder: hackathon_desc_ph({}, { locale }),
 });

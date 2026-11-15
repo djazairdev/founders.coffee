@@ -16,6 +16,7 @@ const renderStep = (
       timeZone={ALGIERS}
       startsAt={null}
       endsAt={null}
+      showValidation={false}
       onChange={onChange}
       onError={onError}
       {...props}
@@ -93,6 +94,50 @@ describe('HackathonScheduleStep', () => {
 
     expect(onChange).toHaveBeenLastCalledWith(null, null);
     expect(onError).toHaveBeenLastCalledWith('invalid_wall_time');
+  });
+
+  it('shows required date validation after the organiser tries to continue', () => {
+    renderStep({ showValidation: true });
+
+    expect(
+      screen.getByLabelText('Start date').getAttribute('aria-invalid'),
+    ).toBe('true');
+    expect(screen.getByLabelText('End date').getAttribute('aria-invalid')).toBe(
+      'true',
+    );
+    expect(screen.getAllByText('Choose a date to continue.')).toHaveLength(2);
+  });
+
+  it('shows date-format feedback for a value that is not a calendar date', () => {
+    renderStep({ showValidation: true });
+
+    fireEvent.change(screen.getByLabelText('Start date'), {
+      target: { value: '2026-02-31' },
+    });
+
+    expect(
+      screen.getByLabelText('Start date').getAttribute('aria-invalid'),
+    ).toBe('true');
+    expect(
+      screen.getByText('Enter a valid date in YYYY-MM-DD format.'),
+    ).toBeTruthy();
+  });
+
+  it('shows invalid time feedback when the value is outside the 24-hour format', () => {
+    renderStep({ showValidation: true });
+
+    fireEvent.change(screen.getByLabelText('Start time'), {
+      target: { value: '25:00' },
+    });
+
+    expect(
+      screen.getByLabelText('Start time').getAttribute('aria-invalid'),
+    ).toBe('true');
+    expect(
+      screen.getByText('Enter a valid 24-hour time, such as 09:00.', {
+        selector: '#hackathon-kickoff-time-validation',
+      }),
+    ).toBeTruthy();
   });
 
   it('shows the message it is given', () => {

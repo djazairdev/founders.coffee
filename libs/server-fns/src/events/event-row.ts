@@ -175,7 +175,12 @@ export const prepareEventRow = async (
     input.languages,
     market.defaultLocale,
   );
-  const located = await eventLocation(mapProvider, input, language, request.kind);
+  const located = await eventLocation(
+    mapProvider,
+    input,
+    language,
+    request.kind,
+  );
   if (!located.ok) return located;
 
   return ok({
@@ -196,6 +201,8 @@ export const prepareEventRow = async (
     languages: input.languages,
     kind: request.kind,
     tags: input.tags,
+    hackathonFields: input.hackathonFields ?? [],
+    hackathonTypeTags: input.hackathonTypeTags ?? [],
     format: input.format,
     meetingUrl: input.meetingUrl ?? null,
     status: request.status,

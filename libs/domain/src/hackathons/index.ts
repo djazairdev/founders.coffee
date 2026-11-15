@@ -117,7 +117,13 @@ export {
   type HackathonDraft,
   type HackathonEventFrame,
 } from './draft.js';
-export { hackathonBasicsSchema, type HackathonBasics } from './basics.js';
+export {
+  HACKATHON_DESCRIPTION_MAX_LENGTH,
+  HACKATHON_EVENT_FIELDS,
+  hackathonBasicsSchema,
+  hackathonDescriptionSchema,
+  type HackathonBasics,
+} from './basics.js';
 export {
   HACKATHON_TRACK_LIMIT,
   HACKATHON_TRACK_SOURCE_LIMIT,

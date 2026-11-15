@@ -39,6 +39,7 @@ import {
   HACKATHON_WIZARD_STEPS,
   useHackathonCreateWizard,
 } from '../useHackathonCreateWizard';
+import { HackathonDescriptionPreview } from './HackathonDescriptionPreview';
 import { HackathonWizardStepBody } from './HackathonWizardStepBody';
 
 type HackathonCreatePageProps = {
@@ -113,13 +114,16 @@ export const HackathonCreatePage = ({
     wizard.venue ??
     mapContext.data?.center ?? { latitude: 0, longitude: 0 };
   const isMapStep = wizard.step === 1 && wizard.isVenueFormat;
+  const isPreviewStep = wizard.step === 3;
 
   return (
     <div
       className={`grid min-h-dvh grid-cols-1 lg:h-[calc(100vh-4rem)] lg:min-h-0 lg:grid-cols-[26rem_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)_auto] xl:grid-cols-[30rem_minmax(0,1fr)] ${
         isMapStep
           ? 'grid-rows-[auto_auto_minmax(16rem,1fr)_auto]'
-          : 'grid-rows-[auto_1fr_auto]'
+          : isPreviewStep
+            ? 'grid-rows-[auto_1fr_auto_auto]'
+            : 'grid-rows-[auto_1fr_auto]'
       }`}
     >
       <HostWizardHeader
@@ -179,10 +183,18 @@ export const HackathonCreatePage = ({
 
       <div
         className={`min-h-0 lg:col-start-2 lg:row-span-3 lg:row-start-1 ${
-          isMapStep ? '' : 'hidden lg:block'
+          isMapStep || isPreviewStep || !wizard.isVenueFormat
+            ? ''
+            : 'hidden lg:block'
         }`}
       >
-        {!wizard.isVenueFormat ? (
+        {isPreviewStep ? (
+          <HackathonDescriptionPreview
+            locale={locale}
+            title={wizard.title}
+            description={wizard.description}
+          />
+        ) : !wizard.isVenueFormat ? (
           <HostOnlinePanel
             locale={locale}
             text={hackathon_online_panel({}, { locale })}

@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { hackathonBasicsSchema } from './basics.js';
+import {
+  HACKATHON_DESCRIPTION_MAX_LENGTH,
+  hackathonBasicsSchema,
+} from './basics.js';
 
 const DAY = 86_400_000;
 const kickoff = Date.now() + 30 * DAY;
@@ -17,6 +20,8 @@ const basics = (overrides: Record<string, unknown> = {}) => ({
   startsAt: kickoff,
   endsAt: kickoff + 2 * DAY,
   languages: ['ar', 'fr'],
+  hackathonFields: ['artificial_intelligence'],
+  hackathonTypeTags: ['open_topics'],
   ...overrides,
 });
 
@@ -31,6 +36,66 @@ describe("a hackathon's basics (B-HKN-11)", () => {
 
     expect(parsed.format).toBe('in_person');
     expect(parsed.tags).toEqual([]);
+  });
+
+  it('accepts descriptions up to 20,000 characters', () => {
+    expect(
+      pathsOf(
+        basics({
+          description: 'x'.repeat(HACKATHON_DESCRIPTION_MAX_LENGTH),
+        }),
+      ),
+    ).toEqual([]);
+    expect(
+      pathsOf(
+        basics({
+          description: 'x'.repeat(HACKATHON_DESCRIPTION_MAX_LENGTH + 1),
+        }),
+      ),
+    ).toContain('description');
+  });
+
+  it('accepts up to five distinct areas and the available hackathon tags', () => {
+    expect(
+      pathsOf(
+        basics({
+          hackathonFields: [
+            'artificial_intelligence',
+            'software_development',
+            'cybersecurity',
+            'web_development',
+            'mobile_apps',
+          ],
+          hackathonTypeTags: ['open_topics', 'beginner_friendly'],
+        }),
+      ),
+    ).toEqual([]);
+    expect(
+      pathsOf(
+        basics({
+          hackathonFields: [
+            'artificial_intelligence',
+            'software_development',
+            'cybersecurity',
+            'web_development',
+            'mobile_apps',
+            'robotics',
+          ],
+        }),
+      ),
+    ).toContain('hackathonFields');
+    expect(
+      pathsOf(basics({ hackathonTypeTags: ['beginner_friendly', 'invalid'] })),
+    ).toContain('hackathonTypeTags.1');
+  });
+
+  it('requires at least one area and one hackathon tag', () => {
+    expect(pathsOf(basics({ hackathonFields: [] }))).toContain(
+      'hackathonFields',
+    );
+    expect(pathsOf(basics({ hackathonTypeTags: [] }))).toContain(
+      'hackathonTypeTags',
+    );
   });
 
   it('runs from kickoff to demo day for up to fourteen days, and no longer', () => {
