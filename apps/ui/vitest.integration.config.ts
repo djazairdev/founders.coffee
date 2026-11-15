@@ -5,7 +5,7 @@ import viteReact from '@vitejs/plugin-react';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import { defineConfig } from 'vitest/config';
 
-import { mapboxCspWorker } from './vite-mapbox-worker';
+import { mapboxCspWorker } from './vite-mapbox-worker.ts';
 
 export default defineConfig(async () => {
   const migrations = await readD1Migrations(

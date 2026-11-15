@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitest/config';
 
-import { mapboxCspWorker } from './vite-mapbox-worker';
+import { mapboxCspWorker } from './vite-mapbox-worker.ts';
 
 export default defineConfig({
   cacheDir: './node_modules/.vite-vitest',
