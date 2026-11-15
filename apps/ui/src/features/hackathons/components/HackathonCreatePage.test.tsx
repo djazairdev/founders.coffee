@@ -177,7 +177,6 @@ describe('the hackathon wizard, step 1 (B-HKN-11)', () => {
     expect(mocks.navigate).toHaveBeenCalledWith({
       to: '/$locale/hackathon/$eventId/manage',
       params: { locale: 'en', eventId: 'evt_saved' },
-      search: { created: true },
     });
   });
 

@@ -162,7 +162,10 @@ export const HackathonReviewSummary = ({
   timeZone: string;
 }) => {
   const options = { locale };
-  const confirmed = draft.prizes.filter((prize) => prize.confirmation).length;
+  const sponsored = draft.prizes.filter(
+    (prize) => prize.providerName !== null,
+  );
+  const confirmed = sponsored.filter((prize) => prize.confirmation).length;
   return (
     <section
       aria-labelledby={HEADING_ID}
@@ -185,15 +188,17 @@ export const HackathonReviewSummary = ({
         {draft.prizes.length > 0 ? (
           <>
             <Titles titles={draft.prizes.map((prize) => prize.title)} />
-            <p className="text-caption text-neutral">
-              {hackathon_review_prizes_confirmed(
-                {
-                  confirmed: formatNumber(confirmed, locale),
-                  count: formatNumber(draft.prizes.length, locale),
-                },
-                options,
-              )}
-            </p>
+            {sponsored.length > 0 ? (
+              <p className="text-caption text-neutral">
+                {hackathon_review_prizes_confirmed(
+                  {
+                    confirmed: formatNumber(confirmed, locale),
+                    count: formatNumber(sponsored.length, locale),
+                  },
+                  options,
+                )}
+              </p>
+            ) : null}
           </>
         ) : (
           <p className="text-body-sm text-neutral">

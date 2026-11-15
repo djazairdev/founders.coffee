@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 
 import {
@@ -9,12 +8,12 @@ import {
   org_manage_title,
   org_roster_error_failed,
   org_roster_error_rate_limited,
-  profile_organisations_title,
   retry,
   type Locale,
 } from '@founders-coffee/i18n';
 import { Button, LoadingStatus, StatusMessage } from '@founders-coffee/ui';
 
+import { OrganisationBreadcrumbs } from '../../../components/OrganisationBreadcrumbs';
 import type { RootMarket } from '../../markets/api';
 import { isOrganisationNotFound, rosterRefusal } from '../errors';
 import {
@@ -113,24 +112,10 @@ export const MyOrganisationPage = ({
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:py-12">
-      <nav
-        className="breadcrumbs mb-3 text-body-sm"
-        aria-label={profile_organisations_title({}, { locale })}
-      >
-        <ul>
-          <li>
-            <Link
-              to="/$locale/profile/organisations"
-              params={{ locale }}
-            >
-              {profile_organisations_title({}, { locale })}
-            </Link>
-          </li>
-          <li aria-current="page">
-            <bdi>{roster?.name ?? org_manage_title({}, { locale })}</bdi>
-          </li>
-        </ul>
-      </nav>
+      <OrganisationBreadcrumbs
+        locale={locale}
+        organisationName={roster?.name ?? org_manage_title({}, { locale })}
+      />
       <h1 className="font-display text-h3">
         {roster ? <bdi>{roster.name}</bdi> : org_manage_title({}, { locale })}
       </h1>

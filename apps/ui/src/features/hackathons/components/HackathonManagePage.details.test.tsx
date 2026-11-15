@@ -11,40 +11,62 @@ import {
 
 const mocks = getManagePageMocks();
 
+const clickManageSection = (index: number) => {
+  const summary = document.querySelectorAll('summary').item(index);
+  if (summary) fireEvent.click(summary);
+};
+
+const saveButton = (index = 0) => {
+  const button = screen.getAllByRole('button', { name: 'Save' }).at(index);
+  if (!button) throw new Error('The section save button is missing');
+  return button;
+};
+
 afterEach(resetManagePage);
 
 describe('HackathonManagePage: the details form (B-HKN-12)', () => {
-  it('saves the second step from a complete form', () => {
+  it('saves deadlines and settings as separate requests', () => {
     mocks.draft.data = draftView();
-    renderPage('en', true);
+    renderPage();
 
-    expect(
-      screen.getByText('Draft saved. Now set the rules and who can take part.'),
-    ).toBeTruthy();
+    expect(screen.queryByText(/^Draft\./u)).toBeNull();
     expect(screen.getByText(/Kickoff is March 12, 2099/)).toBeTruthy();
     fill('Registration opens', '2099-02-01T09:00');
     fill('Registration closes', '2099-03-10T22:00');
     fill('Submissions close', '2099-03-14T13:00');
     fill('Judging ends', '2099-03-21T18:00');
-    fill('Largest team', '5');
-    fill(/^Places/, '120');
-    fireEvent.click(screen.getByRole('radio', { name: /AI-native/ }));
-    fill(/^Licence and ownership/, 'Teams keep what they build.');
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
-    expect(mocks.save.mutate).toHaveBeenCalledWith({
+    expect(mocks.saveDeadlines.mutate).toHaveBeenCalledWith({
       eventId: 'evt_draft',
       version: 1,
-      details: {
+      deadlines: {
         registrationOpensAt: Date.UTC(2099, 1, 1, 8, 0),
         registrationClosesAt: Date.UTC(2099, 2, 10, 21, 0),
         submissionDeadlineAt: Date.UTC(2099, 2, 14, 12, 0),
         judgingEndsAt: Date.UTC(2099, 2, 21, 17, 0),
+      },
+    });
+    clickManageSection(1);
+    fill('Largest team', '5');
+    fill(/^Places/, '120');
+    fireEvent.click(
+      screen.getByRole('radio', { name: /Allowed with conditions/ }),
+    );
+    fill('Conditions for using AI tools', 'Name tools used at submission.');
+    fill(/^Licence and ownership/, 'Teams keep what they build.');
+    fireEvent.click(saveButton(1));
+
+    expect(mocks.saveSettings.mutate).toHaveBeenCalledWith({
+      eventId: 'evt_draft',
+      version: 1,
+      settings: {
         attendanceModes: ['online'],
         teamMin: 1,
         teamMax: 5,
         capacity: 120,
-        aiPolicy: 'ai_native',
+        aiPolicy: 'conditional',
+        aiPolicyNote: 'Name tools used at submission.',
         licenceNote: 'Teams keep what they build.',
       },
     });
@@ -54,11 +76,15 @@ describe('HackathonManagePage: the details form (B-HKN-12)', () => {
     mocks.draft.data = draftView();
     renderPage();
 
+    fill('Registration opens', '');
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
-    expect(mocks.save.mutate).not.toHaveBeenCalled();
+    expect(mocks.saveDeadlines.mutate).not.toHaveBeenCalled();
     expect(document.activeElement?.id).toBe('hackathon-registrationOpensAt');
     expect(screen.getByText('Choose when registration opens.')).toBeTruthy();
+    clickManageSection(1);
+    fireEvent.click(saveButton(1));
+    expect(mocks.saveSettings.mutate).not.toHaveBeenCalled();
     expect(screen.getByText('Choose an AI policy.')).toBeTruthy();
   });
 
@@ -78,16 +104,18 @@ describe('HackathonManagePage: the details form (B-HKN-12)', () => {
         },
         { status },
       );
-      renderPage('en', true);
+      renderPage();
 
       expect(screen.queryByText(/^Draft saved\./u)).toBeNull();
     },
   );
 
-  it('opens on the saved details, and says when they were saved or refused', () => {
+  it('opens on saved details without persistent save feedback', () => {
     mocks.draft.data = draftView({ details: savedDetails });
-    mocks.save.isSuccess = true;
+    mocks.saveDeadlines.isSuccess = true;
+    mocks.saveSettings.isSuccess = true;
     renderPage();
+    clickManageSection(1);
 
     expect(
       (screen.getByLabelText('Largest team') as HTMLInputElement).value,
@@ -99,18 +127,18 @@ describe('HackathonManagePage: the details form (B-HKN-12)', () => {
         }) as HTMLInputElement
       ).checked,
     ).toBe(true);
-    expect(screen.getByText('Details saved.')).toBeTruthy();
+    expect(screen.queryByText('Details saved.')).toBeNull();
     cleanup();
 
-    mocks.save.isSuccess = false;
-    mocks.save.isError = true;
-    mocks.save.error = { code: 'rate_limited' };
+    mocks.saveSettings.isSuccess = false;
+    mocks.saveSettings.isError = true;
+    mocks.saveSettings.error = { code: 'rate_limited' };
     renderPage();
     expect(
-      screen.getByText(
+      screen.queryByText(
         'You have saved several changes recently. Wait a few minutes, then try again.',
       ),
-    ).toBeTruthy();
+    ).toBeNull();
   });
 
   it('locks what registrants signed up under once registration is open', () => {
@@ -120,6 +148,7 @@ describe('HackathonManagePage: the details form (B-HKN-12)', () => {
     );
     vi.setSystemTime(Date.UTC(2099, 1, 10));
     renderPage();
+    clickManageSection(1);
     vi.useRealTimers();
 
     expect(
@@ -138,21 +167,23 @@ describe('HackathonManagePage: the details form (B-HKN-12)', () => {
         .disabled,
     ).toBe(true);
     expect(
-      (screen.getByRole('radio', { name: /AI-native/ }) as HTMLInputElement)
+      (
+        screen.getByRole('radio', { name: /Allowed with conditions/ }) as HTMLInputElement
+      )
         .disabled,
     ).toBe(true);
 
     fill(/^Places/, '200');
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-    expect(mocks.save.mutate).toHaveBeenCalledWith(
+    fireEvent.click(saveButton(1));
+    expect(mocks.saveSettings.mutate).toHaveBeenCalledWith(
       expect.objectContaining({ version: 4 }),
     );
   });
 
   it('asks for a reload when the hackathon changed since the page opened', () => {
     mocks.draft.data = draftView({ details: savedDetails });
-    mocks.save.isError = true;
-    mocks.save.error = { code: 'hackathon_conflict' };
+    mocks.saveSettings.isError = true;
+    mocks.saveSettings.error = { code: 'hackathon_conflict' };
     renderPage();
 
     expect(
@@ -165,6 +196,7 @@ describe('HackathonManagePage: the details form (B-HKN-12)', () => {
   it('offers both ways to take part only for a hybrid hackathon', () => {
     mocks.draft.data = draftView({}, { format: 'hybrid' });
     renderPage();
+    clickManageSection(1);
 
     expect(screen.getByRole('checkbox', { name: 'In person' })).toBeTruthy();
     expect(screen.getByRole('checkbox', { name: 'Online' })).toBeTruthy();

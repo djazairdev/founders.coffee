@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { z } from 'zod';
 
 import { hackathon_manage_title } from '@founders-coffee/i18n';
 
@@ -11,14 +10,8 @@ import { privatePageHead } from '../lib/seo-private';
 const HackathonManageRoute = () => {
   const { locale, markets } = Route.useRouteContext();
   const { eventId } = Route.useParams();
-  const { created } = Route.useSearch();
   return (
-    <HackathonManagePage
-      eventId={eventId}
-      locale={locale}
-      markets={markets}
-      isJustCreated={created === true}
-    />
+    <HackathonManagePage eventId={eventId} locale={locale} markets={markets} />
   );
 };
 
@@ -26,9 +19,6 @@ export const Route = createFileRoute('/$locale/hackathon/$eventId/manage')({
   beforeLoad: async ({ location, context }) => {
     await requireSession(context.locale, location.href);
   },
-  validateSearch: z.object({
-    created: z.boolean().optional().catch(undefined),
-  }),
   headers: () => ({
     'Cache-Control': 'private, no-store',
     'X-Robots-Tag': NO_INDEX_VALUE,

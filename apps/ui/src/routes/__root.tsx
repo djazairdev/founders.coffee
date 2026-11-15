@@ -94,7 +94,11 @@ const useServiceWorker = () => {
 };
 
 const RootDocument = ({ children }: { children: React.ReactNode }) => {
-  const { locale, dir, markets, activeMarket } = Route.useRouteContext();
+  const routeContext = Route.useRouteContext();
+  const locale = routeContext?.locale ?? 'ar';
+  const dir = routeContext?.dir ?? direction(locale);
+  const markets = routeContext?.markets ?? [];
+  const activeMarket = routeContext?.activeMarket;
   const isNavbarHiddenOnMobile = useMatches({ select: hasOwnMobileHeader });
   const cityCode = useMatches({ select: cityCodeInView });
   const isOnFocusedTask = useMatches({ select: isFocusedTask });
@@ -146,7 +150,11 @@ export const Route = createRootRoute({
       readonly market?: string;
     };
     const { locale, dir } = detectActiveLocale(routeParams.locale);
-    const markets = (await visibleMarkets()).map(toRootMarket);
+    const marketRows = await visibleMarkets().catch((error: unknown) => {
+      reportError(error, { source: 'visible_markets' }, logger);
+      return [];
+    });
+    const markets = marketRows.map(toRootMarket);
     const activeMarket =
       markets.find(
         (market: RootMarket) => market.slug === routeParams.market,

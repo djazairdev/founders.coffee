@@ -34,7 +34,15 @@ const mocks = vi.hoisted(() => ({
     isError: false,
     error: null as unknown,
   },
-  save: {
+  saveDeadlines: {
+    mutate: vi.fn(),
+    reset: vi.fn(),
+    isPending: false,
+    isSuccess: false,
+    isError: false,
+    error: null as unknown,
+  },
+  saveSettings: {
     mutate: vi.fn(),
     reset: vi.fn(),
     isPending: false,
@@ -87,7 +95,8 @@ vi.mock('../hooks', () => ({
   useHackathonDashboard: () => mocks.dashboard,
   useHackathonParticipants: () => ({ data: undefined, isError: false }),
   useHackathonTeams: () => ({ data: undefined, isError: false }),
-  useSaveHackathonDetails: () => mocks.save,
+  useSaveHackathonDeadlines: () => mocks.saveDeadlines,
+  useSaveHackathonSettings: () => mocks.saveSettings,
   useSaveHackathonTracks: () => mocks.saveTracks,
   useSaveHackathonRubric: () => mocks.saveTracks,
   useSubmitHackathonForReview: () => mocks.submit,
@@ -108,16 +117,12 @@ const markets = [
   },
 ] as never;
 
-export const renderManagePage = (
-  locale: Locale = 'en',
-  isJustCreated = false,
-) =>
+export const renderManagePage = (locale: Locale = 'en') =>
   render(
     createElement(HackathonManagePage, {
       eventId: 'evt_draft',
       locale,
       markets,
-      isJustCreated,
     }),
   );
 
@@ -128,10 +133,11 @@ export const resetManagePage = () => {
   cleanup();
   vi.clearAllMocks();
   Object.assign(mocks.draft, { data: undefined, isError: false, error: null });
-  Object.assign(mocks.save, {
-    isPending: false,
-    isSuccess: false,
-    isError: false,
-    error: null,
-  });
+  for (const save of [mocks.saveDeadlines, mocks.saveSettings])
+    Object.assign(save, {
+      isPending: false,
+      isSuccess: false,
+      isError: false,
+      error: null,
+    });
 };

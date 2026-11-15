@@ -157,10 +157,7 @@ export const useHackathonCreateWizard = ({
       },
       {
         onSuccess: (created) =>
-          void navigate({
-            ...localizedHackathonManage(locale, created.eventId),
-            search: { created: true },
-          }),
+          void navigate(localizedHackathonManage(locale, created.eventId)),
       },
     );
   };

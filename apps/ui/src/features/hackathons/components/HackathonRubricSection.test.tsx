@@ -50,7 +50,14 @@ const saved: HackathonDraftView['criteria'] = [
 const renderSection = (
   draft: HackathonDraftView = draftView({ details: savedDetails }),
   locale: Locale = 'en',
-) => render(<HackathonRubricSection draft={draft} locale={locale} />);
+) =>
+  render(
+    <HackathonRubricSection
+      draft={draft}
+      locale={locale}
+      onFeedback={vi.fn()}
+    />,
+  );
 
 const fillCriterion = (index: number, name: string, weight: string) => {
   fireEvent.change(screen.getAllByLabelText('Name')[index] as HTMLElement, {

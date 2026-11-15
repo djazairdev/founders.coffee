@@ -47,7 +47,14 @@ const saved: HackathonDraftView['tracks'] = [
 const renderSection = (
   draft: HackathonDraftView = draftView({ details: savedDetails }),
   locale: Locale = 'en',
-) => render(<HackathonTracksSection draft={draft} locale={locale} />);
+) =>
+  render(
+    <HackathonTracksSection
+      draft={draft}
+      locale={locale}
+      onFeedback={vi.fn()}
+    />,
+  );
 
 const titles = () =>
   screen

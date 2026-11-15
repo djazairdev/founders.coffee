@@ -2,13 +2,14 @@ import { useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 
 import {
+  hackathon_tracks_saved,
   hackathon_tracks_error_none,
-  hackathon_tracks_locked_hint,
   type Locale,
 } from '@founders-coffee/i18n';
 
 import { seekField } from '../events/seek-field';
 import type { HackathonDraftView } from './api';
+import type { HackathonFeedback } from './hackathon-feedback';
 import { hackathonEditError } from './edit-errors';
 import {
   checkTracks,
@@ -63,9 +64,11 @@ const moved = <T>(items: readonly T[], from: number, step: number): T[] => {
 export const useHackathonTracksForm = ({
   draft,
   locale,
+  onFeedback,
 }: {
   draft: HackathonDraftView;
   locale: Locale;
+  onFeedback: HackathonFeedback;
 }) => {
   const save = useSaveHackathonTracks();
   const counter = useRef(0);
@@ -184,22 +187,40 @@ export const useHackathonTracksForm = ({
   const submit = () => {
     if (save.isPending) return;
     if (tracks.length === 0) {
-      setListError(hackathon_tracks_error_none({}, { locale }));
+      const message = hackathon_tracks_error_none({}, { locale });
+      setListError(message);
+      onFeedback(message, 'error');
       seekId(TRACKS_ADD_ID);
       return;
     }
     const check = checkTracks(tracks, locale);
     if (!check.ok) {
       flushSync(() => setErrors(check.errors));
+      const trackErrors = check.first
+        ? check.errors[check.first.key]
+        : undefined;
+      const message = trackErrors
+        ? (Object.values(trackErrors.fields)[0] ??
+          Object.values(trackErrors.sources)[0])
+        : undefined;
+      if (message) onFeedback(message, 'error');
       if (check.first) seekId(check.first.target);
       return;
     }
     setErrors({});
-    save.mutate({
-      eventId: draft.event.id,
-      version: draft.version,
-      tracks: check.tracks,
-    });
+    save.mutate(
+      {
+        eventId: draft.event.id,
+        version: draft.version,
+        tracks: check.tracks,
+      },
+      {
+        onSuccess: () =>
+          onFeedback(hackathon_tracks_saved({}, { locale }), 'success'),
+        onError: (error) =>
+          onFeedback(hackathonEditError(error, locale), 'error'),
+      },
+    );
   };
 
   return {
@@ -218,13 +239,5 @@ export const useHackathonTracksForm = ({
     canAdd: tracks.length < TRACK_LIMIT,
     submit,
     isSaving: save.isPending,
-    isSaved: save.isSuccess,
-    saveError: save.isError
-      ? hackathonEditError(
-          save.error,
-          locale,
-          hackathon_tracks_locked_hint({}, { locale }),
-        )
-      : null,
   };
 };

@@ -17,25 +17,15 @@ const review = (
 });
 
 const renderBanner = (draft: HackathonDraftView, locale: Locale = 'en') =>
-  render(
-    <HackathonReviewBanner
-      draft={draft}
-      locale={locale}
-      isJustCreated={false}
-    />,
-  );
+  render(<HackathonReviewBanner draft={draft} locale={locale} />);
 
 afterEach(cleanup);
 
 describe('HackathonReviewBanner (B-HKN-16)', () => {
-  it('says a draft is private until it is sent for review', () => {
+  it('does not show a banner for an editable draft', () => {
     renderBanner(draftView());
 
-    expect(
-      screen.getByText(
-        'Draft. Only your organisation can see it. When it is complete, send it for review below.',
-      ),
-    ).toBeTruthy();
+    expect(document.body.textContent).toBe('');
   });
 
   it('says a hackathon with the reviewers is waiting for their decision', () => {
@@ -92,7 +82,7 @@ describe('HackathonReviewBanner (B-HKN-16)', () => {
 
   it('reads in Arabic and French', () => {
     renderBanner(draftView(), 'ar');
-    expect(screen.getByText(/^مسودة\./u)).toBeTruthy();
+    expect(document.body.textContent).toBe('');
     cleanup();
 
     renderBanner(
