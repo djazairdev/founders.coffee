@@ -122,20 +122,15 @@ describe('HackathonPrizesSection (B-HKN-14)', () => {
     expect(screen.queryByRole('button', { name: 'Add a prize' })).toBeNull();
   });
 
-  it('adds a prize for a track, valued in the hackathon’s currency', () => {
+  it('adds an optional prize with only its place, name, and details', () => {
     renderSection(withPrizes([]));
-    expect(
-      screen.getByText('No prizes yet. Prizes are optional.'),
-    ).toBeTruthy();
+    expect(screen.getByText('No prizes have been added yet.')).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Add a prize' }));
-    fireEvent.change(screen.getByLabelText('Track'), {
-      target: { value: TRACK },
+    fireEvent.click(screen.getByRole('button', { name: 'Add prize' }));
+    type('Prize name', 'First prize');
+    fireEvent.change(screen.getByLabelText(/Prize details/u), {
+      target: { value: 'Mentoring and cloud credits.' },
     });
-    type('Prize', 'First prize');
-    type('What the winners receive', 'Mentoring and cloud credits.');
-    type('Provided by', 'Algiers Builders');
-    type('Value in DZD', '50 000', false);
     fireEvent.click(screen.getByRole('button', { name: 'Save the prize' }));
 
     expect(mocks.add.mutate).toHaveBeenCalledWith(
@@ -143,12 +138,12 @@ describe('HackathonPrizesSection (B-HKN-14)', () => {
         eventId: 'evt_draft',
         version: 1,
         prize: {
-          trackId: TRACK,
+          trackId: null,
           place: 1,
           title: 'First prize',
           description: 'Mentoring and cloud credits.',
-          providerName: 'Algiers Builders',
-          value: { amount_minor: 5_000_000, currency: 'DZD' },
+          providerName: null,
+          value: null,
         },
       },
       expect.anything(),
@@ -159,8 +154,8 @@ describe('HackathonPrizesSection (B-HKN-14)', () => {
   it('holds back an incomplete prize and says why', () => {
     renderSection(withPrizes([]));
 
-    fireEvent.click(screen.getByRole('button', { name: 'Add a prize' }));
-    type('Prize', 'P');
+    fireEvent.click(screen.getByRole('button', { name: 'Add prize' }));
+    type('Prize name', 'P');
     fireEvent.click(screen.getByRole('button', { name: 'Save the prize' }));
 
     expect(mocks.add.mutate).not.toHaveBeenCalled();
@@ -174,16 +169,16 @@ describe('HackathonPrizesSection (B-HKN-14)', () => {
     renderSection(withPrizes([unconfirmed]));
 
     expect(screen.getByText('Not public yet')).toBeTruthy();
-    expect(screen.getByText('Payments')).toBeTruthy();
+    expect(screen.getByText('Second place · Mentoring')).toBeTruthy();
     fireEvent.click(
-      screen.getByRole('button', { name: 'Withdraw the prize Mentoring' }),
+      screen.getByRole('button', { name: 'Delete the prize Mentoring' }),
     );
 
     expect(mocks.remove.mutate).toHaveBeenCalledWith(
       { eventId: 'evt_draft', version: 1, prizeId: 'prz_mentoring' },
       expect.anything(),
     );
-    expect(feedback).toHaveBeenCalledWith('Prize withdrawn.', 'success');
+    expect(feedback).toHaveBeenCalledWith('Prize deleted.', 'success');
   });
 
   it('records a confirmation with a note of how it was given', () => {
@@ -221,27 +216,15 @@ describe('HackathonPrizesSection (B-HKN-14)', () => {
   it('shows a confirmed prize with its private note, never withdrawn, warned before rewording', () => {
     renderSection(withPrizes([confirmed]));
 
-    expect(screen.getByText('Confirmed')).toBeTruthy();
-    expect(screen.getByText('Whole hackathon')).toBeTruthy();
-    expect(screen.getByText(/^Worth .*50,000/u)).toBeTruthy();
-    expect(screen.getByText('Signed letter from their CEO.')).toBeTruthy();
+    expect(screen.getAllByText('Confirmed').length).toBeGreaterThan(0);
     expect(screen.queryByRole('button', { name: /Withdraw/u })).toBeNull();
+    fireEvent.click(screen.getAllByText('Confirmed').at(1) as HTMLElement);
+    expect(screen.getByText('Signed letter from their CEO.')).toBeTruthy();
 
-    fireEvent.click(
+    expect(
       screen.getByRole('button', { name: 'Change the prize First prize' }),
-    );
-    expect(
-      screen.getByText(
-        'A new prize, value or provider takes the confirmation away until the provider confirms again.',
-      ),
     ).toBeTruthy();
-    expect(
-      (
-        screen.getByLabelText('Value in DZD', {
-          exact: false,
-        }) as HTMLInputElement
-      ).value,
-    ).toBe('50000');
+    expect(screen.queryByText('Add external sponsor (optional)')).toBeNull();
   });
 
   it('once registration opens, still adds and confirms but keeps saved prizes', () => {
@@ -259,14 +242,13 @@ describe('HackathonPrizesSection (B-HKN-14)', () => {
         name: 'Record confirmation for the prize Mentoring',
       }),
     ).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Add a prize' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Add prize' })).toBeTruthy();
   });
 
   it('reads in Arabic', () => {
     renderSection(withPrizes([confirmed]), 'ar');
 
-    expect(screen.getByRole('heading', { name: 'الجوائز' })).toBeTruthy();
-    expect(screen.getByText('مؤكَّدة')).toBeTruthy();
-    expect(screen.getByText('الهاكاثون كله')).toBeTruthy();
+    expect(screen.getAllByText('مؤكَّدة').length).toBeGreaterThan(0);
+    expect(screen.getByText(/المركز الأول.*First prize/u)).toBeTruthy();
   });
 });

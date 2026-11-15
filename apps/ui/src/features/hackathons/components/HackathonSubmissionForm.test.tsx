@@ -167,9 +167,7 @@ describe('HackathonSubmissionForm (B-SUB-06)', () => {
       screen.getByText('Add the link to the code repository.'),
     ).toBeTruthy();
     expect(
-      screen.getByText(
-        'This hackathon does not allow AI tools.',
-      ),
+      screen.getByText('This hackathon does not allow AI tools.'),
     ).toBeTruthy();
     expect(
       screen.getByText('Write an AI statement of 20 to 1000 characters.'),

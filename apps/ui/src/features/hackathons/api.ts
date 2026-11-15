@@ -62,7 +62,6 @@ import {
   saveHackathonSettings,
   saveHackathonRubric,
   saveHackathonTracks,
-  submitHackathonForReview,
   withdrawFromHackathon,
   type AddHackathonPrizeRequest,
   type CertificatePage,
@@ -89,7 +88,6 @@ import {
   type SaveHackathonSettingsRequest,
   type SaveHackathonRubricRequest,
   type SaveHackathonTracksRequest,
-  type SubmitHackathonForReviewRequest,
 } from '@founders-coffee/server-fns';
 import type { SubmissionDraftFields } from './submission-draft-fields';
 
@@ -110,8 +108,6 @@ export const hackathonsApi = {
     saveHackathonTracks({ data: request }),
   saveRubric: (request: SaveHackathonRubricRequest) =>
     saveHackathonRubric({ data: request }),
-  submitForReview: (request: SubmitHackathonForReviewRequest) =>
-    submitHackathonForReview({ data: request }),
   addPrize: (request: AddHackathonPrizeRequest) =>
     addHackathonPrize({ data: request }),
   changePrize: (request: ChangeHackathonPrizeRequest) =>
@@ -273,7 +269,6 @@ export type {
   SaveHackathonSettingsRequest,
   SaveHackathonRubricRequest,
   SaveHackathonTracksRequest,
-  SubmitHackathonForReviewRequest,
 };
 export type * from './view-types';
 

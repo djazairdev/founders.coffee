@@ -18,10 +18,7 @@ import {
   type DetailsFormErrors,
   type DetailsFormValues,
 } from './hackathon-details-form';
-import {
-  useSaveHackathonDeadlines,
-  useSaveHackathonSettings,
-} from './hooks';
+import { useSaveHackathonDeadlines, useSaveHackathonSettings } from './hooks';
 
 export const detailsFieldId = (field: DetailsField) => `hackathon-${field}`;
 
@@ -99,7 +96,6 @@ export const useHackathonDeadlinesForm = ({
       flushSync(() => setErrors(checked.errors));
       const first = firstError(DEADLINE_FIELD_ORDER, checked.errors);
       if (first) {
-        onFeedback(checked.errors[first] ?? '', 'error');
         seekDetailsField(first);
       }
       return;
@@ -147,7 +143,6 @@ export const useHackathonSettingsForm = ({
       flushSync(() => setErrors(checked.errors));
       const first = firstError(SETTINGS_FIELD_ORDER, checked.errors);
       if (first) {
-        onFeedback(checked.errors[first] ?? '', 'error');
         seekDetailsField(first);
       }
       return;

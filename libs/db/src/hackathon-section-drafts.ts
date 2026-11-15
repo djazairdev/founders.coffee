@@ -22,10 +22,7 @@ export const hackathonSectionDraftWrite = (
         input.section === 'deadlines' ? value : null,
         'deadlines',
       ),
-      settings: bound(
-        input.section === 'settings' ? value : null,
-        'settings',
-      ),
+      settings: bound(input.section === 'settings' ? value : null, 'settings'),
       updatedAt: sql`unixepoch()`.as('updated_at'),
     })
     .from(events)

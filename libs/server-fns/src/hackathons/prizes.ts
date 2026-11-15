@@ -26,7 +26,9 @@ type EditInput = {
 };
 
 type Saved = Result<{ readonly eventId: string; readonly version: number }>;
-type SavedPrize = Awaited<ReturnType<typeof listOrganiserHackathonPrizes>>[number];
+type SavedPrize = Awaited<
+  ReturnType<typeof listOrganiserHackathonPrizes>
+>[number];
 
 const prizeNotFound = () =>
   err(new AppError('hackathon_prize_not_found', 'No such prize'));
@@ -100,7 +102,9 @@ const loadPrizeFor = async (
   input: EditInput & { readonly prizeId: string },
   now: number,
   isAllowed: PrizeRule,
-): Promise<Result<{ readonly target: HackathonEditTarget; readonly prize: SavedPrize }>> => {
+): Promise<
+  Result<{ readonly target: HackathonEditTarget; readonly prize: SavedPrize }>
+> => {
   const loaded = await loadPrizeEdit(db, input, now);
   if (!loaded.ok) return loaded;
   const prizes = await listOrganiserHackathonPrizes(db, input.eventId);

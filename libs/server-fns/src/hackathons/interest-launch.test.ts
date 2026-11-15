@@ -16,10 +16,15 @@ import { submittedHackathon } from './review.fixtures.js';
 const OPERATOR = 'usr_interest_operator';
 let db: Db;
 
-const decide = (eventId: string, decision: 'approve' | 'reject') =>
+const decide = (
+  eventId: string,
+  version: number,
+  decision: 'approve' | 'reject',
+) =>
   decideHackathonReviewResolver(db, createHackathonDecisionNotice(null), null, {
     decision: hackathons.hackathonReviewDecisionSchema.parse({
       eventId,
+      version,
       decision,
       ...(decision === 'reject' ? { note: 'Name the judges.' } : {}),
     }),
@@ -56,8 +61,8 @@ describe('the interest list’s round, opened on approval (B-ANN-05, real D1)', 
     const first = await submittedHackathon(db);
     const second = await submittedHackathon(db);
 
-    await decide(first.eventId, 'approve');
-    await decide(second.eventId, 'approve');
+    await decide(first.eventId, first.version, 'approve');
+    await decide(second.eventId, second.version, 'approve');
 
     expect(await roundsOf(first.eventId)).toEqual([
       { marketCode: 'DZ', status: 'pending' },
@@ -68,7 +73,7 @@ describe('the interest list’s round, opened on approval (B-ANN-05, real D1)', 
   it('owes nothing for a hackathon sent back to its organisers', async () => {
     const rejected = await submittedHackathon(db);
 
-    await decide(rejected.eventId, 'reject');
+    await decide(rejected.eventId, rejected.version, 'reject');
 
     expect(await roundsOf(rejected.eventId)).toEqual([]);
   });

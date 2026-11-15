@@ -24,7 +24,10 @@ vi.mock('@tanstack/react-router', () => ({
     to?: string;
     params?: Record<string, string>;
   }) => (
-    <a href={to?.replace('$locale', params?.locale ?? '') ?? '#'} className={className}>
+    <a
+      href={to?.replace('$locale', params?.locale ?? '') ?? '#'}
+      className={className}
+    >
       {children}
     </a>
   ),

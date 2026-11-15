@@ -46,10 +46,11 @@ export const HackathonReviewPage = ({
   const items = queue.data?.items ?? [];
 
   const onDecide =
-    (eventId: string) => (decision: HackathonDecision, note: string) => {
+    (eventId: string, version: number) =>
+    (decision: HackathonDecision, note: string) => {
       setNotice(null);
       decide.mutate(
-        { eventId, decision, note },
+        { eventId, version, decision, note },
         {
           onSuccess: () => setNotice('decided'),
           onError: (error) =>
@@ -99,7 +100,7 @@ export const HackathonReviewPage = ({
             item={item}
             key={item.eventId}
             locale={locale}
-            onDecide={onDecide(item.eventId)}
+            onDecide={onDecide(item.eventId, item.version)}
           />
         ))}
       </ReviewQueue>

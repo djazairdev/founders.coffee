@@ -69,11 +69,7 @@ export const OrganisationDeleteDialog = ({
         </div>
       ) : null}
       <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-        <Button
-          variant="ghost"
-          disabled={deletion.isPending}
-          onClick={onClose}
-        >
+        <Button variant="ghost" disabled={deletion.isPending} onClick={onClose}>
           {cancel({}, options)}
         </Button>
         <Button

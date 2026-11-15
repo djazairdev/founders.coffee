@@ -190,6 +190,7 @@ export const RESULTS_OPERATIONS: Operations = {
       decideHackathonReviewResolver(db, () => Promise.resolve(), null, {
         decision: hackathons.hackathonReviewDecisionSchema.parse({
           eventId: world.eventId,
+          version: world.version,
           decision: 'approve',
         }),
         actorUserId: userId,

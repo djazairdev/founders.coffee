@@ -29,36 +29,31 @@ export type HackathonEventFrame = {
 };
 
 const hackathonDeadlinesShape = z.strictObject({
-    registrationOpensAt: instant,
-    registrationClosesAt: instant,
-    submissionDeadlineAt: instant,
-    judgingEndsAt: instant,
-  });
+  registrationOpensAt: instant,
+  registrationClosesAt: instant,
+  submissionDeadlineAt: instant,
+  judgingEndsAt: instant,
+});
 
 const hackathonSettingsShape = z.strictObject({
-    attendanceModes: z
-      .array(attendanceModeSchema)
-      .min(1)
-      .max(ATTENDANCE_MODES.length),
-    teamMin: teamSize,
-    teamMax: teamSize,
-    capacity: z
-      .number()
-      .int()
-      .positive()
-      .max(HACKATHON_CAPACITY_MAX)
-      .optional(),
-    minimumAge: z
-      .number()
-      .int()
-      .positive()
-      .max(HACKATHON_MINIMUM_AGE_MAX)
-      .optional(),
-    rules: z.string().trim().min(1).max(HACKATHON_RULES_MAX_LENGTH).optional(),
-    aiPolicy: hackathonAiPolicySchema,
-    aiPolicyNote: note.optional(),
-    licenceNote: note.optional(),
-  });
+  attendanceModes: z
+    .array(attendanceModeSchema)
+    .min(1)
+    .max(ATTENDANCE_MODES.length),
+  teamMin: teamSize,
+  teamMax: teamSize,
+  capacity: z.number().int().positive().max(HACKATHON_CAPACITY_MAX).optional(),
+  minimumAge: z
+    .number()
+    .int()
+    .positive()
+    .max(HACKATHON_MINIMUM_AGE_MAX)
+    .optional(),
+  rules: z.string().trim().min(1).max(HACKATHON_RULES_MAX_LENGTH).optional(),
+  aiPolicy: hackathonAiPolicySchema,
+  aiPolicyNote: note.optional(),
+  licenceNote: note.optional(),
+});
 
 const hackathonDetailsShape = hackathonDeadlinesShape.extend(
   hackathonSettingsShape.shape,

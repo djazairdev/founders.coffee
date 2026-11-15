@@ -123,7 +123,9 @@ export const HackathonManagePage = ({
       <h1 className="mt-2 flex flex-wrap items-center gap-2 font-display text-h3">
         <bdi className="min-w-0 break-words">{draft.event.title}</bdi>
         <span className="badge badge-ghost">
-          {draft.event.status === 'draft' && draft.review.status === 'submitted'
+          {draft.event.status === 'draft' &&
+          (draft.review.status === 'submitted' ||
+            (draft.review.status === 'draft' && draft.details !== null))
             ? org_hackathon_status_in_review({}, { locale })
             : hackathonStatusLabel(draft.event.status, locale)}
         </span>

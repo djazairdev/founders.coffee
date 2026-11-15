@@ -53,9 +53,7 @@ const decodeCursor = (value: string): PublicEventCursor | null => {
 const discoveryItem = (
   row: Awaited<ReturnType<typeof listPublicEventDiscoveryRows>>[number],
 ): PublicEventDiscovery | null => {
-  const city = row.cityCode
-    ? geo.findCity(row.marketCode, row.cityCode)
-    : null;
+  const city = row.cityCode ? geo.findCity(row.marketCode, row.cityCode) : null;
   if (row.cityCode && !city) return null;
   const organizerName = profile.safeProfileDisplayName(
     row.organizerName,

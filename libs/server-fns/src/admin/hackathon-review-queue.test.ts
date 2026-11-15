@@ -16,9 +16,9 @@ describe('the hackathon review queue (B-HKN-08, B-HKN-09, real D1)', () => {
     db = await setupHackathonDb();
   });
 
-  it('queues a hackathon sent for review with what the reviewer needs', async () => {
+  it('queues saved drafts and legacy submissions with what the reviewer needs', async () => {
     const { eventId } = await submittedHackathon(db);
-    const { eventId: notSent } = await readyHackathon(db);
+    const { eventId: draftId } = await readyHackathon(db);
     await db.insert(hackathonPrizes).values({
       id: 'prz_review_first',
       eventId,
@@ -33,9 +33,12 @@ describe('the hackathon review queue (B-HKN-08, B-HKN-09, real D1)', () => {
 
     const queue = await listHackathonReviewQueueResolver(db, 0);
     if (!queue.ok) throw queue.error;
+    const reviewed = queue.data.items.find((item) => item.eventId === eventId);
 
-    expect(queue.data.items.map((item) => item.eventId)).toEqual([eventId]);
-    expect(queue.data.items[0]).toMatchObject({
+    expect(queue.data.items.map((item) => item.eventId).sort()).toEqual(
+      [eventId, draftId].sort(),
+    );
+    expect(reviewed).toMatchObject({
       title: 'Algiers Builders Hackathon',
       organisation: { name: 'Algiers Builders', slug: 'algiers-builders' },
       timeZone: 'Africa/Algiers',
@@ -69,12 +72,12 @@ describe('the hackathon review queue (B-HKN-08, B-HKN-09, real D1)', () => {
       ],
     });
     expect(
-      queue.data.items[0]?.criteria.map(({ name, weight }) => [name, weight]),
+      reviewed?.criteria.map(({ name, weight }) => [name, weight]),
     ).toEqual([
       ['Impact', 40],
       ['Craft', 30],
       ['Demo', 30],
     ]);
-    expect(notSent).not.toBe(eventId);
+    expect(draftId).not.toBe(eventId);
   });
 });

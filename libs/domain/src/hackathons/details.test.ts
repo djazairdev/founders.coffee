@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { hackathonDetailsFor, hackathonDetailsSchema } from './draft.js';
+import {
+  hackathonDeadlinesFor,
+  hackathonDetailsFor,
+  hackathonDetailsSchema,
+  hackathonSettingsFor,
+} from './draft.js';
 
 const DAY = 86_400_000;
 const HOUR = 3_600_000;
@@ -74,5 +79,47 @@ describe("a hackathon's details, held to its saved event (B-HKN-12)", () => {
       hackathonDetailsSchema.safeParse(details({ title: 'A hackathon' }))
         .success,
     ).toBe(false);
+  });
+
+  it('validates deadline and participation settings against the saved event', () => {
+    const validDetails = details();
+    const deadlines = {
+      registrationOpensAt: validDetails.registrationOpensAt,
+      registrationClosesAt: validDetails.registrationClosesAt,
+      submissionDeadlineAt: validDetails.submissionDeadlineAt,
+      judgingEndsAt: validDetails.judgingEndsAt,
+    };
+    const settings = {
+      attendanceModes: validDetails.attendanceModes,
+      teamMin: validDetails.teamMin,
+      teamMax: validDetails.teamMax,
+      aiPolicy: validDetails.aiPolicy,
+    };
+
+    expect(hackathonDeadlinesFor(event).safeParse(deadlines).success).toBe(
+      true,
+    );
+    expect(
+      hackathonDeadlinesFor(event).safeParse({
+        ...deadlines,
+        registrationClosesAt: validDetails.registrationOpensAt,
+      }).success,
+    ).toBe(false);
+    expect(hackathonSettingsFor(event).safeParse(settings).success).toBe(true);
+    expect(
+      hackathonSettingsFor(event)
+        .safeParse({
+          ...settings,
+          aiPolicy: 'conditional',
+        })
+        .error?.issues.map((issue) => issue.path.join('.')),
+    ).toContain('aiPolicyNote');
+    expect(
+      hackathonSettingsFor(event).safeParse({
+        ...settings,
+        aiPolicy: 'conditional',
+        aiPolicyNote: 'Use AI tools only for research.',
+      }).success,
+    ).toBe(true);
   });
 });

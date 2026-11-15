@@ -25,11 +25,8 @@ import {
   updateOrganisationResolver,
 } from './resolver.js';
 
-const {
-  organisationApply,
-  organisationDelete,
-  organisationUpdate,
-} = RATE_BUDGETS.edit;
+const { organisationApply, organisationDelete, organisationUpdate } =
+  RATE_BUDGETS.edit;
 
 const updateOrganisationSchema = z.strictObject({
   organisationId: organisationIdSchema,

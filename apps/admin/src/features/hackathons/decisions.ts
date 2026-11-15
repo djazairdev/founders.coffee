@@ -18,11 +18,13 @@ export const REVIEW_NOTE_MAX_LENGTH =
  */
 export const decisionRequest = (
   eventId: string,
+  version: number,
   decision: HackathonDecision,
   note: string,
 ): hackathons.HackathonReviewDecisionInput | null => {
   const parsed = hackathons.hackathonReviewDecisionSchema.safeParse({
     eventId,
+    version,
     decision,
     note,
   });

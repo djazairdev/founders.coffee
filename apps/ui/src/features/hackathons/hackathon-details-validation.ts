@@ -104,7 +104,10 @@ export type DetailsCheck =
   | { readonly ok: false; readonly errors: DetailsFormErrors };
 
 export type DeadlinesCheck =
-  | { readonly ok: true; readonly deadlines: hackathons.HackathonDeadlinesInput }
+  | {
+      readonly ok: true;
+      readonly deadlines: hackathons.HackathonDeadlinesInput;
+    }
   | { readonly ok: false; readonly errors: DetailsFormErrors };
 
 export type SettingsCheck =

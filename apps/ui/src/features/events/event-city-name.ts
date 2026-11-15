@@ -21,10 +21,10 @@ export const eventCityName = (
   event.cityName === null
     ? null
     : localizedName(
-    {
-      name: event.cityName,
-      nameAr: event.cityNameAr ?? event.cityName,
-      nameFr: event.cityNameFr ?? event.cityName,
-    },
-    locale,
-  );
+        {
+          name: event.cityName,
+          nameAr: event.cityNameAr ?? event.cityName,
+          nameFr: event.cityNameFr ?? event.cityName,
+        },
+        locale,
+      );

@@ -28,14 +28,16 @@ const mocks = vi.hoisted(() => ({
     error: null,
     data: undefined,
   },
-  submit: {
-    mutate: vi.fn(),
-    isPending: false,
-    isError: false,
-    error: null as unknown,
-  },
   saveDeadlines: {
-    mutate: vi.fn(),
+    mutate: vi.fn(
+      (
+        _request: unknown,
+        _options?: {
+          onSuccess?: () => void;
+          onError?: (error: unknown) => void;
+        },
+      ) => undefined,
+    ),
     reset: vi.fn(),
     isPending: false,
     isSuccess: false,
@@ -43,7 +45,15 @@ const mocks = vi.hoisted(() => ({
     error: null as unknown,
   },
   saveSettings: {
-    mutate: vi.fn(),
+    mutate: vi.fn(
+      (
+        _request: unknown,
+        _options?: {
+          onSuccess?: () => void;
+          onError?: (error: unknown) => void;
+        },
+      ) => undefined,
+    ),
     reset: vi.fn(),
     isPending: false,
     isSuccess: false,
@@ -99,7 +109,6 @@ vi.mock('../hooks', () => ({
   useSaveHackathonSettings: () => mocks.saveSettings,
   useSaveHackathonTracks: () => mocks.saveTracks,
   useSaveHackathonRubric: () => mocks.saveTracks,
-  useSubmitHackathonForReview: () => mocks.submit,
   useAddHackathonPrize: () => mocks.saveTracks,
   useChangeHackathonPrize: () => mocks.saveTracks,
   useRemoveHackathonPrize: () => mocks.saveTracks,

@@ -1,5 +1,6 @@
 import {
   hackathon_banner_approved,
+  hackathon_review_auto,
   hackathon_review_note,
   hackathon_review_rejected,
   hackathon_review_submitted,
@@ -25,6 +26,12 @@ export const HackathonReviewBanner = ({
       </StatusMessage>
     );
   if (draft.event.status !== 'draft') return null;
+  if (review.status === 'draft' && draft.details !== null)
+    return (
+      <StatusMessage variant="info" className="mt-6">
+        {hackathon_review_auto({}, options)}
+      </StatusMessage>
+    );
   if (review.status === 'submitted')
     return (
       <StatusMessage variant="info" className="mt-6">

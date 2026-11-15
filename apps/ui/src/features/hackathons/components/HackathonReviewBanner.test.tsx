@@ -12,7 +12,6 @@ const review = (
 ): HackathonDraftView['review'] => ({
   status: 'draft',
   note: null,
-  gaps: [],
   ...changes,
 });
 
@@ -46,7 +45,7 @@ describe('HackathonReviewBanner (B-HKN-16)', () => {
 
     expect(
       screen.getByText(
-        'The reviewers sent it back. Change it as their note says, then send it again.',
+        'The review team returned this hackathon with a note. Update it accordingly and it will automatically return to the review queue.',
       ),
     ).toBeTruthy();
     expect(screen.getByText('Their note')).toBeTruthy();

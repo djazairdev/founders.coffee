@@ -249,8 +249,8 @@ The hackathon itself: its details, timeline, tracks, prizes and rubric, the orga
 | <a id="b-hkn-04"></a>B-HKN-04   | #215  | Prizes, public only once confirmed                                                                    | S    | #214                         | First hackathon |
 | <a id="b-hkn-05"></a>B-HKN-05 ★ | #216  | Judging criteria                                                                                      | S    | #212                         | First hackathon |
 | <a id="b-hkn-06"></a>B-HKN-06   | #217  | Create a hackathon draft as an active organiser                                                       | M    | #213, #212, #180, #173, #204 | First hackathon |
-| <a id="b-hkn-07"></a>B-HKN-07   | #218  | Edit a hackathon, with fields locked once it moves on                                                 | M    | #217, #214, #215, #216       | First hackathon |
-| <a id="b-hkn-08"></a>B-HKN-08   | #219  | Submit for review; an admin approves or rejects                                                       | M    | #218, #175                   | First hackathon |
+| <a id="b-hkn-07"></a>B-HKN-07   | #218  | Edit a hackathon, with fields locked once published                                                   | M    | #217, #214, #215, #216       | First hackathon |
+| <a id="b-hkn-08"></a>B-HKN-08   | #219  | Admin reviews saved drafts and publishes or rejects them                                              | M    | #218, #175                   | First hackathon |
 | <a id="b-hkn-09"></a>B-HKN-09   | #220  | Admin: hackathon review queue                                                                         | M    | #219, #184                   | First hackathon |
 | <a id="b-hkn-10"></a>B-HKN-10 ★ | #221  | Record a prize confirmation                                                                           | S    | #218                         | First hackathon |
 | <a id="b-hkn-11"></a>B-HKN-11   | #222  | Organiser flow, step 1: the basics                                                                    | M    | #217, #200                   | First hackathon |
@@ -258,7 +258,7 @@ The hackathon itself: its details, timeline, tracks, prizes and rubric, the orga
 | <a id="b-hkn-13"></a>B-HKN-13   | #224  | Organiser flow, step 3: tracks                                                                        | S    | #222, #214                   | First hackathon |
 | <a id="b-hkn-14"></a>B-HKN-14   | #225  | Organiser flow, step 4: prizes                                                                        | S    | #222, #221                   | First hackathon |
 | <a id="b-hkn-15"></a>B-HKN-15 ★ | #226  | Organiser flow, step 5: the judging rubric                                                            | S    | #222, #216                   | First hackathon |
-| <a id="b-hkn-16"></a>B-HKN-16   | #227  | Organiser flow, step 6: review and submit                                                             | S    | #223, #224, #225, #226, #219 | First hackathon |
+| <a id="b-hkn-16"></a>B-HKN-16   | #227  | Organiser flow: saved drafts enter admin review automatically                                         | S    | #223, #224, #225, #226, #219 | First hackathon |
 | <a id="b-hkn-17"></a>B-HKN-17 ★ | #228  | Hackathon page: schedule and current phase                                                            | S    | #213, #219                   | First hackathon |
 | <a id="b-hkn-18"></a>B-HKN-18 ★ | #229  | Hackathon page: tracks and confirmed prizes                                                           | S    | #228, #215                   | First hackathon |
 | <a id="b-hkn-19"></a>B-HKN-19   | #235  | Hackathon page: rules, eligibility, AI policy and judges                                              | S    | #228, #234                   | First hackathon |
@@ -414,13 +414,13 @@ One set of words in Arabic, French and English.
 
 Seed data, end-to-end tests, an accessibility check, and turning it on.
 
-| Ticket                          | Issue | What                                                                  | Size | Depends on                   | Milestone       |
-| ------------------------------- | ----- | --------------------------------------------------------------------- | ---- | ---------------------------- | --------------- |
-| <a id="b-lch-01"></a>B-LCH-01 ★ | #285  | Dev seed: an organisation and a hackathon in every phase              | S    | #217, #185                   | First hackathon |
-| <a id="b-lch-02"></a>B-LCH-02   | #286  | Playwright: an organiser creates a hackathon and an admin approves it | M    | #227, #220                   | First hackathon |
-| <a id="b-lch-03"></a>B-LCH-03   | #287  | Playwright: register, form a team, submit                             | M    | #245, #254, #261             | First hackathon |
-| <a id="b-lch-04"></a>B-LCH-04   | #288  | Playwright: judge and publish results                                 | M    | #269, #272                   | First hackathon |
-| <a id="b-lch-05"></a>B-LCH-05 ★ | #289  | Accessibility check of the hackathon pages in Arabic                  | S    | #272, #254                   | First hackathon |
-| <a id="b-lch-06"></a>B-LCH-06 ⚙ | #290  | Turn on hackathons in Algeria                                         | S    | #286, #287, #288, #281, #283 | First hackathon |
+| Ticket                          | Issue | What                                                               | Size | Depends on                   | Milestone       |
+| ------------------------------- | ----- | ------------------------------------------------------------------ | ---- | ---------------------------- | --------------- |
+| <a id="b-lch-01"></a>B-LCH-01 ★ | #285  | Dev seed: an organisation and a hackathon in every phase           | S    | #217, #185                   | First hackathon |
+| <a id="b-lch-02"></a>B-LCH-02   | #286  | Playwright: an organiser creates a draft and an admin publishes it | M    | #227, #220                   | First hackathon |
+| <a id="b-lch-03"></a>B-LCH-03   | #287  | Playwright: register, form a team, submit                          | M    | #245, #254, #261             | First hackathon |
+| <a id="b-lch-04"></a>B-LCH-04   | #288  | Playwright: judge and publish results                              | M    | #269, #272                   | First hackathon |
+| <a id="b-lch-05"></a>B-LCH-05 ★ | #289  | Accessibility check of the hackathon pages in Arabic               | S    | #272, #254                   | First hackathon |
+| <a id="b-lch-06"></a>B-LCH-06 ⚙ | #290  | Turn on hackathons in Algeria                                      | S    | #286, #287, #288, #281, #283 | First hackathon |
 
 ★ good first issue · ⚙ done by a maintainer

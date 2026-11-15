@@ -184,7 +184,7 @@ const completeDraft = async (
   ).toBeVisible({ timeout: 30_000 });
 };
 
-test.describe('an organiser creates a hackathon and an admin approves it (B-LCH-02)', () => {
+test.describe('an organiser creates a draft and an admin publishes it (B-LCH-02)', () => {
   let restoreFlag: () => void = () => undefined;
   let restoreOperator: () => void = () => undefined;
   let operatorEmail = '';
@@ -212,7 +212,7 @@ test.describe('an organiser creates a hackathon and an admin approves it (B-LCH-
     restoreFlag();
   });
 
-  test('from the wizard to review to published', async ({
+  test('from the wizard through automatic admin review to published', async ({
     page,
     browser,
     baseURL,
@@ -235,18 +235,9 @@ test.describe('an organiser creates a hackathon and an admin approves it (B-LCH-
     expect(savedHackathon(id)?.status).toBe('draft');
 
     await completeDraft(page, locale, id);
-
-    const send = page.getByRole('button', {
-      name: t(locale, 'hackathon_review_submit'),
-    });
-    await expect(send).toBeEnabled({ timeout: 30_000 });
-    await send.click();
-    await expect(
-      page.getByText(t(locale, 'hackathon_review_submitted')),
-    ).toBeVisible({ timeout: 30_000 });
     expect(savedHackathon(id)).toMatchObject({
       status: 'draft',
-      review_status: 'submitted',
+      review_status: 'draft',
     });
 
     const adminContext = await browser.newContext({ baseURL: ADMIN_URL });

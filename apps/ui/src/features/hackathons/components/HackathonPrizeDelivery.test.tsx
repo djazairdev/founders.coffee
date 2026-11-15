@@ -106,11 +106,14 @@ describe('HackathonPrizeDelivery (B-PRZ-02)', () => {
     fireEvent.change(holder, { target: { value: 'sub_2' } });
     fireEvent.click(screen.getByRole('button', { name: 'Award' }));
 
-    expect((mocks.assign as Change).mutate).toHaveBeenCalledWith({
-      eventId: EVENT_ID,
-      prizeId: 'prz_1',
-      submissionId: 'sub_2',
-    });
+    expect((mocks.assign as Change).mutate).toHaveBeenCalledWith(
+      {
+        eventId: EVENT_ID,
+        prizeId: 'prz_1',
+        submissionId: 'sub_2',
+      },
+      expect.anything(),
+    );
   });
 
   it('records the delivery and the private note', () => {
@@ -124,12 +127,15 @@ describe('HackathonPrizeDelivery (B-PRZ-02)', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
-    expect((mocks.deliver as Change).mutate).toHaveBeenCalledWith({
-      eventId: EVENT_ID,
-      prizeId: 'prz_1',
-      status: 'received',
-      note: 'Signed for.',
-    });
+    expect((mocks.deliver as Change).mutate).toHaveBeenCalledWith(
+      {
+        eventId: EVENT_ID,
+        prizeId: 'prz_1',
+        status: 'received',
+        note: 'Signed for.',
+      },
+      expect.anything(),
+    );
   });
 
   it('locks the holder once the prize is received, and offers no delivery before it has one', () => {

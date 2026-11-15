@@ -29,6 +29,7 @@ import type { HackathonDecisionNotice } from './hackathon-decision-email.js';
 
 export type HackathonReviewItem = {
   readonly eventId: string;
+  readonly version: number;
   readonly title: string;
   readonly description: string;
   readonly marketCode: string;
@@ -37,7 +38,7 @@ export type HackathonReviewItem = {
   readonly endsAt: Date | null;
   readonly timeZone: string;
   readonly organisation: { readonly name: string; readonly slug: string };
-  readonly submittedAt: Date;
+  readonly updatedAt: Date;
   readonly registrationOpensAt: Date;
   readonly registrationClosesAt: Date;
   readonly submissionDeadlineAt: Date;
@@ -90,6 +91,7 @@ export type HackathonDecided = {
 
 const itemOf = (row: HackathonForReview): HackathonReviewItem => ({
   eventId: row.event.id,
+  version: row.event.version,
   title: row.event.title,
   description: row.event.description,
   marketCode: row.event.marketCode,
@@ -98,7 +100,7 @@ const itemOf = (row: HackathonForReview): HackathonReviewItem => ({
   endsAt: row.event.endsAt,
   timeZone: row.timeZone,
   organisation: row.organisation,
-  submittedAt: row.details.updatedAt,
+  updatedAt: row.event.updatedAt,
   registrationOpensAt: row.details.registrationOpensAt,
   registrationClosesAt: row.details.registrationClosesAt,
   submissionDeadlineAt: row.details.submissionDeadlineAt,
@@ -133,7 +135,7 @@ const itemOf = (row: HackathonForReview): HackathonReviewItem => ({
   })),
 });
 
-/** One page of the hackathons waiting for review, for the operator's queue (B-HKN-08). */
+/** One page of saved hackathon drafts, for the operator's queue (B-HKN-08). */
 export const listHackathonReviewQueueResolver = async (
   db: Db,
   page: number,
@@ -143,14 +145,14 @@ export const listHackathonReviewQueueResolver = async (
 };
 
 /**
- * Approve or reject a hackathon its organisers sent for review (B-HKN-08).
+ * Approve or reject a saved hackathon draft (B-HKN-08).
  *
  * The rule decides from the review status read now; the write moves it only from that status while
  * the event is still an unpublished draft, with the audit entry in the same batch, so two operators
  * deciding at once cannot both win (`invalid_hackathon_transition`). Approving publishes the event
- * and counts it; rejecting leaves it a draft with the note, for the organisers to change and send
- * again. Either way the organisers are emailed, best effort, once the decision is written, and an
- * approval schedules their reminders (B-HKN-21) and owes the market's interest list its
+ * and counts it; rejecting leaves it a draft with the note, for the organisers to change before it
+ * returns to the queue automatically. Either way the organisers are emailed, best effort, once the
+ * decision is written, and an approval schedules their reminders (B-HKN-21) and owes the market's interest list its
  * registration notice (B-ANN-05).
  */
 export const decideHackathonReviewResolver = async (
@@ -174,6 +176,7 @@ export const decideHackathonReviewResolver = async (
   const note = input.decision.note ?? null;
   const isDecided = await decideHackathonReview(db, {
     eventId,
+    version: input.decision.version,
     from: rule.data.from,
     to: rule.data.to,
     note,

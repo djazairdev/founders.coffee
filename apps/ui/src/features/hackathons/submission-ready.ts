@@ -19,10 +19,7 @@ import {
 } from '@founders-coffee/i18n';
 
 import type { SubmissionDraftFields } from './api';
-import {
-  SUBMISSION_FIELD_IDS,
-  type SubmissionField,
-} from './submission-form';
+import { SUBMISSION_FIELD_IDS, type SubmissionField } from './submission-form';
 
 export type SubmitField =
   | 'trackId'

@@ -30,11 +30,13 @@ const STYLES: Record<HackathonDecision, string> = {
 export const HackathonDecisionForm = ({
   locale,
   eventId,
+  version,
   isDeciding,
   onDecide,
 }: {
   locale: Locale;
   eventId: string;
+  version: number;
   isDeciding: boolean;
   onDecide: (decision: HackathonDecision, note: string) => void;
 }) => {
@@ -44,7 +46,7 @@ export const HackathonDecisionForm = ({
   const [isNoteMissing, setIsNoteMissing] = useState(false);
 
   const choose = (decision: HackathonDecision) => {
-    if (!decisionRequest(eventId, decision, note)) {
+    if (!decisionRequest(eventId, version, decision, note)) {
       setIsNoteMissing(true);
       field.current?.focus();
       return;
@@ -69,7 +71,7 @@ export const HackathonDecisionForm = ({
           setNote(event.target.value);
           if (
             isNoteMissing &&
-            decisionRequest(eventId, 'reject', event.target.value)
+            decisionRequest(eventId, version, 'reject', event.target.value)
           )
             setIsNoteMissing(false);
         }}

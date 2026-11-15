@@ -83,6 +83,21 @@ describe('eventCreateSchema', () => {
     ).toEqual(['ar', 'ber', 'fr']);
   });
 
+  it('keeps hackathon classification off community events', () => {
+    const result = eventCreateSchema.safeParse(
+      validInput({ hackathonFields: ['artificial_intelligence'] }),
+    );
+
+    expect(result.success).toBe(false);
+    if (!result.success)
+      expect(
+        result.error.issues.some(
+          (issue) =>
+            issue.message === 'Hackathon classification belongs to hackathons',
+        ),
+      ).toBe(true);
+  });
+
   it('still requires a city for an online meetup', () => {
     const result = eventCreateSchema.safeParse(
       validInput({

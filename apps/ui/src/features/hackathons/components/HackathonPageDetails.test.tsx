@@ -124,11 +124,15 @@ describe('HackathonPageDetails (B-HKN-19, B-HKN-26)', () => {
     );
     expect(valueOf(rules, 'How people take part')).toBe('In person · Online');
     expect(valueOf(rules, 'Minimum age')).toBe('18');
-    expect(valueOf(rules, 'AI policy')).toContain('Allowed with conditions');
-    expect(valueOf(rules, 'AI policy')).toContain(
+    expect(valueOf(rules, 'May participants use AI tools?')).toContain(
+      'Allowed with conditions',
+    );
+    expect(valueOf(rules, 'May participants use AI tools?')).toContain(
       'No generated code in the core logic.',
     );
-    expect(valueOf(rules, 'Rules')).toContain('Ship something that runs.');
+    expect(valueOf(rules, 'Participation rules')).toContain(
+      'Ship something that runs.',
+    );
     expect(valueOf(rules, 'Licence and ownership')).toBe(
       'Teams keep what they build.',
     );

@@ -27,8 +27,7 @@ import {
 type Section = 'deadlines' | 'settings';
 type Saved = { readonly eventId: string; readonly version: number };
 type SectionValue =
-  | hackathons.HackathonDeadlinesInput
-  | hackathons.HackathonSettingsInput;
+  hackathons.HackathonDeadlinesInput | hackathons.HackathonSettingsInput;
 
 const validationError = (error: z.ZodError, section: Section) => {
   const flat = z.flattenError(error);
@@ -108,24 +107,40 @@ const saveSection = async (
   let deadlines: hackathons.HackathonDeadlinesInput | null = null;
   let settings: hackathons.HackathonSettingsInput | null = null;
   if (input.section === 'deadlines') {
-    const checked = hackathons.hackathonDeadlinesFor(frame).safeParse(input.value);
-    if (!checked.success) return err(validationError(checked.error, 'deadlines'));
+    const checked = hackathons
+      .hackathonDeadlinesFor(frame)
+      .safeParse(input.value);
+    if (!checked.success)
+      return err(validationError(checked.error, 'deadlines'));
     deadlines = checked.data;
     if (loaded.data.rows.details) {
       settings = settingsInputOf(loaded.data.rows.details);
-    } else if (loaded.data.rows.sectionDrafts?.settings !== null && loaded.data.rows.sectionDrafts?.settings !== undefined) {
-      const parsed = hackathons.hackathonSettingsSchema.safeParse(loaded.data.rows.sectionDrafts.settings);
+    } else if (
+      loaded.data.rows.sectionDrafts?.settings !== null &&
+      loaded.data.rows.sectionDrafts?.settings !== undefined
+    ) {
+      const parsed = hackathons.hackathonSettingsSchema.safeParse(
+        loaded.data.rows.sectionDrafts.settings,
+      );
       if (!parsed.success) return err(invalidStoredSection(parsed.error));
       settings = parsed.data;
     }
   } else {
-    const checked = hackathons.hackathonSettingsFor(frame).safeParse(input.value);
-    if (!checked.success) return err(validationError(checked.error, 'settings'));
+    const checked = hackathons
+      .hackathonSettingsFor(frame)
+      .safeParse(input.value);
+    if (!checked.success)
+      return err(validationError(checked.error, 'settings'));
     settings = checked.data;
     if (loaded.data.rows.details) {
       deadlines = deadlinesInputOf(loaded.data.rows.details);
-    } else if (loaded.data.rows.sectionDrafts?.deadlines !== null && loaded.data.rows.sectionDrafts?.deadlines !== undefined) {
-      const parsed = hackathons.hackathonDeadlinesSchema.safeParse(loaded.data.rows.sectionDrafts.deadlines);
+    } else if (
+      loaded.data.rows.sectionDrafts?.deadlines !== null &&
+      loaded.data.rows.sectionDrafts?.deadlines !== undefined
+    ) {
+      const parsed = hackathons.hackathonDeadlinesSchema.safeParse(
+        loaded.data.rows.sectionDrafts.deadlines,
+      );
       if (!parsed.success) return err(invalidStoredSection(parsed.error));
       deadlines = parsed.data;
     }
@@ -138,7 +153,8 @@ const saveSection = async (
       ...deadlines,
       ...settings,
     });
-    if (!parsed.success) return err(validationError(parsed.error, input.section));
+    if (!parsed.success)
+      return err(validationError(parsed.error, input.section));
     nextDetails = parsed.data;
   }
   if (currentDetails && nextDetails) {

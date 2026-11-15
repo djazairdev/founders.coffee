@@ -19,7 +19,6 @@ import {
   confirmHackathonPrizeResolver,
   removeHackathonPrizeResolver,
 } from '../prizes.js';
-import { submitHackathonForReviewResolver } from '../review.js';
 import { saveHackathonRubricResolver } from '../rubric.js';
 import { saveHackathonTracksResolver } from '../tracks.js';
 import {
@@ -209,16 +208,5 @@ export const ORGANISER_OPERATIONS: Operations = {
         note: 'Confirmed by email with the sponsor.',
       }),
     cells: organiserOnly('ok', NEVER_EDITABLE),
-  },
-  submitHackathonForReview: {
-    gate: ORGANISER,
-    changesWorld: true,
-    run: (call) => submitHackathonForReviewResolver(call.db, editOf(call)),
-    cells: organiserOnly('ok', {
-      ...NEVER_EDITABLE,
-      open: 'hackathon_not_submittable',
-      building: 'hackathon_not_submittable',
-      judging: 'hackathon_not_submittable',
-    }),
   },
 };

@@ -26,7 +26,6 @@ import {
   readyHackathon,
   submittedHackathon,
 } from '../hackathons/review.fixtures.js';
-import { submitHackathonForReviewResolver } from '../hackathons/review.js';
 import { createHackathonDecisionNotice } from './hackathon-decision-email.js';
 import { decideHackathonReviewResolver } from './hackathon-review.js';
 
@@ -116,9 +115,9 @@ describe('reviewing hackathons (B-HKN-08, real D1)', () => {
 
   it('approves: publishes the event, audits, counts it and emails the organisers', async () => {
     const trackEvent = vi.fn();
-    const { eventId, version } = await submittedHackathon(db);
+    const { eventId, version } = await readyHackathon(db);
 
-    const result = await decide({ eventId, decision: 'approve' }, {
+    const result = await decide({ eventId, version, decision: 'approve' }, {
       trackEvent,
     } as unknown as Metrics);
 
@@ -158,9 +157,9 @@ describe('reviewing hackathons (B-HKN-08, real D1)', () => {
   });
 
   it('schedules the organisers’ reminders on approval, each in their language', async () => {
-    const { eventId } = await submittedHackathon(db);
+    const { eventId, version } = await submittedHackathon(db);
 
-    await decide({ eventId, decision: 'approve' });
+    await decide({ eventId, version, decision: 'approve' });
 
     const reminders = await db
       .select({
@@ -191,11 +190,12 @@ describe('reviewing hackathons (B-HKN-08, real D1)', () => {
     });
   });
 
-  it('rejects with a note: keeps it a draft the organisers can change and send again', async () => {
+  it('rejects with a note and keeps the draft editable', async () => {
     const { eventId, version } = await submittedHackathon(db);
 
     const result = await decide({
       eventId,
+      version,
       decision: 'reject',
       note: 'Name who judges, and how teams are formed.',
     });
@@ -215,32 +215,29 @@ describe('reviewing hackathons (B-HKN-08, real D1)', () => {
     );
     const draft = await hackathonDraftResolver(db, eventId);
     expect(draft.ok && draft.data.isEditable).toBe(true);
-    const again = await submitHackathonForReviewResolver(db, {
-      eventId,
-      version: version + 1,
-      organisationId: ORGANISATION,
-    });
-    expect(again.ok).toBe(true);
   });
 
-  it('refuses a hackathon not sent for review, and leaves no trail', async () => {
-    const { eventId } = await readyHackathon(db);
+  it('refuses a second decision on a published hackathon', async () => {
+    const { eventId, version } = await submittedHackathon(db);
+    await decide({ eventId, version, decision: 'approve' });
 
-    expect(codeOf(await decide({ eventId, decision: 'approve' }))).toBe(
-      'invalid_hackathon_transition',
-    );
-    expect((await stateOf(eventId))?.eventStatus).toBe('draft');
-    expect(await trail(eventId)).toEqual([]);
-    expect(sent).toEqual([]);
+    expect(
+      codeOf(
+        await decide({ eventId, version, decision: 'reject', note: 'No.' }),
+      ),
+    ).toBe('invalid_hackathon_transition');
+    expect((await stateOf(eventId))?.eventStatus).toBe('published');
+    expect(await trail(eventId)).toHaveLength(1);
   });
 
   it('lets one of two operators deciding at once win', async () => {
-    const { eventId } = await submittedHackathon(db);
+    const { eventId, version } = await submittedHackathon(db);
 
     const results = await Promise.all([
-      decide({ eventId, decision: 'approve' }),
+      decide({ eventId, version, decision: 'approve' }),
       decide({
         eventId,
+        version,
         decision: 'reject',
         note: 'Add a code of conduct contact.',
       }),
@@ -254,9 +251,13 @@ describe('reviewing hackathons (B-HKN-08, real D1)', () => {
   });
 
   it('keeps the decision when no email can be sent', async () => {
-    const { eventId } = await submittedHackathon(db);
+    const { eventId, version } = await submittedHackathon(db);
 
-    const result = await decide({ eventId, decision: 'approve' }, null, null);
+    const result = await decide(
+      { eventId, version, decision: 'approve' },
+      null,
+      null,
+    );
 
     expect(result.ok).toBe(true);
     expect((await stateOf(eventId))?.eventStatus).toBe('published');

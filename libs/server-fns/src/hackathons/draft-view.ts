@@ -99,7 +99,6 @@ export type HackathonDraftView = {
   readonly review: {
     readonly status: HackathonReviewStatus;
     readonly note: string | null;
-    readonly gaps: readonly hackathons.HackathonReadinessGap[];
   };
   readonly details: HackathonDetailsView | null;
   readonly deadlines: hackathons.HackathonDeadlinesInput | null;
@@ -134,7 +133,11 @@ export const hackathonDraftResolver = async (
   const details = rows.details ? detailsInputOf(rows.details) : null;
   let deadlines = rows.details ? deadlinesInputOf(rows.details) : null;
   let settings = rows.details ? settingsInputOf(rows.details) : null;
-  if (!rows.details && rows.sectionDrafts?.deadlines !== null && rows.sectionDrafts?.deadlines !== undefined) {
+  if (
+    !rows.details &&
+    rows.sectionDrafts?.deadlines !== null &&
+    rows.sectionDrafts?.deadlines !== undefined
+  ) {
     const parsed = hackathons.hackathonDeadlinesSchema.safeParse(
       rows.sectionDrafts.deadlines,
     );
@@ -145,12 +148,19 @@ export const hackathonDraftResolver = async (
         section: 'deadlines',
       });
       return err(
-        new AppError('hackathon_save_failed', 'A saved section could not be read'),
+        new AppError(
+          'hackathon_save_failed',
+          'A saved section could not be read',
+        ),
       );
     }
     deadlines = parsed.data;
   }
-  if (!rows.details && rows.sectionDrafts?.settings !== null && rows.sectionDrafts?.settings !== undefined) {
+  if (
+    !rows.details &&
+    rows.sectionDrafts?.settings !== null &&
+    rows.sectionDrafts?.settings !== undefined
+  ) {
     const parsed = hackathons.hackathonSettingsSchema.safeParse(
       rows.sectionDrafts.settings,
     );
@@ -161,7 +171,10 @@ export const hackathonDraftResolver = async (
         section: 'settings',
       });
       return err(
-        new AppError('hackathon_save_failed', 'A saved section could not be read'),
+        new AppError(
+          'hackathon_save_failed',
+          'A saved section could not be read',
+        ),
       );
     }
     settings = parsed.data;
@@ -191,11 +204,6 @@ export const hackathonDraftResolver = async (
     review: {
       status: rows.details?.reviewStatus ?? 'draft',
       note: rows.details?.reviewNote ?? null,
-      gaps: hackathons.hackathonReadinessGaps({
-        hasDetails: rows.details !== null,
-        trackCount: tracks.length,
-        criterionWeights: criteria.map((criterion) => criterion.weight),
-      }),
     },
     details: details && {
       ...details,

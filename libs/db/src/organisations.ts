@@ -167,9 +167,7 @@ export const deleteOrganisationIfUnused = async (
     db
       .update(session)
       .set({ activeOrganizationId: null })
-      .where(
-        and(eq(session.activeOrganizationId, organisationId), mayDelete),
-      ),
+      .where(and(eq(session.activeOrganizationId, organisationId), mayDelete)),
     db
       .delete(organization)
       .where(

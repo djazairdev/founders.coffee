@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, sql, type SQL } from 'drizzle-orm';
+import { and, asc, eq, sql } from 'drizzle-orm';
 
 import type {
   AuditAction,
@@ -8,67 +8,8 @@ import type {
 
 import { batch } from './atomic.js';
 import type { Db } from './db.js';
-import { hackathonAtVersion } from './hackathon-edits.js';
 import { auditStatement } from './operations-audit.js';
-import {
-  eventOrganisers,
-  events,
-  hackathonCriteria,
-  hackathons,
-  hackathonTracks,
-  member,
-  user,
-} from './schema.js';
-
-/**
- * Whether a hackathon has what review needs (B-HKN-08), in SQL: at least one track, and three or
- * four criteria whose weights add up to 100. The details row is the statement's own.
- */
-const isReady = (eventId: string): SQL =>
-  sql`EXISTS (SELECT 1 FROM ${hackathonTracks} WHERE ${hackathonTracks.eventId} = ${eventId}) AND (SELECT count(*) FROM ${hackathonCriteria} WHERE ${hackathonCriteria.eventId} = ${eventId}) BETWEEN 3 AND 4 AND (SELECT sum(${hackathonCriteria.weight}) FROM ${hackathonCriteria} WHERE ${hackathonCriteria.eventId} = ${eventId}) = 100`;
-
-/**
- * Send a hackathon for review (B-HKN-08) in one batch: a draft, or one sent back, of an unpublished
- * event, complete, at the version the organisers saw, which then moves on. Any note from an earlier
- * review goes, since the reviewers will write a new one.
- *
- * This cannot be an edit of {@link applyHackathonEdit}, whose version bump re-checks that the
- * hackathon is not with the reviewers and would refuse the very write before it. The status write
- * carries {@link hackathonAtVersion} itself, and the bump follows only when it changed the row.
- * Returns the new version, or `null` when nothing landed.
- */
-export const submitHackathonForReview = async (
-  db: Db,
-  input: { readonly eventId: string; readonly version: number },
-): Promise<number | null> => {
-  const next = input.version + 1;
-  const results = await batch(db, [
-    db
-      .update(hackathons)
-      .set({
-        reviewStatus: 'submitted',
-        reviewNote: null,
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(hackathons.eventId, input.eventId),
-          inArray(hackathons.reviewStatus, ['draft', 'rejected']),
-          sql`EXISTS (SELECT 1 FROM ${events} WHERE ${events.id} = ${input.eventId} AND ${events.status} = 'draft')`,
-          hackathonAtVersion(input.eventId, input.version),
-          isReady(input.eventId),
-        ),
-      ),
-    db
-      .update(events)
-      .set({ version: next, updatedAt: new Date() })
-      .where(and(eq(events.id, input.eventId), sql`changes() = 1`))
-      .returning({ version: events.version }),
-  ]);
-  return (results[1] as readonly { version: number }[]).length === 1
-    ? next
-    : null;
-};
+import { eventOrganisers, events, hackathons, member, user } from './schema.js';
 
 /** A hackathon's review status, or `null` when there is no such hackathon. */
 export const readHackathonReviewStatus = async (
@@ -85,9 +26,8 @@ export const readHackathonReviewStatus = async (
 /**
  * Record an operator's decision on a hackathon, with its audit entry, in one batch (B-HKN-08).
  *
- * The review status moves only from the one the operator saw, and only while the event is still an
- * unpublished draft. Approving then publishes the event; either decision moves its version on, so
- * an organiser's page built before it saves nothing. Each statement after the first runs only when
+ * The review status and version move only from what the operator saw, and only while the event is
+ * still an unpublished draft. Approving then publishes the event. Each statement after the first runs only when
  * the one before it changed a row (`changes()`), so a decision that did not happen leaves no trail
  * and one that did always has one. Returns whether the decision landed.
  */
@@ -95,6 +35,7 @@ export const decideHackathonReview = async (
   db: Db,
   input: {
     readonly eventId: string;
+    readonly version: number;
     readonly from: HackathonReviewStatus;
     readonly to: HackathonReviewStatus;
     readonly note: string | null;
@@ -116,7 +57,7 @@ export const decideHackathonReview = async (
         and(
           eq(hackathons.eventId, input.eventId),
           eq(hackathons.reviewStatus, input.from),
-          sql`EXISTS (SELECT 1 FROM ${events} WHERE ${events.id} = ${input.eventId} AND ${events.status} = 'draft')`,
+          sql`EXISTS (SELECT 1 FROM ${events} WHERE ${events.id} = ${input.eventId} AND ${events.status} = 'draft' AND ${events.version} = ${input.version})`,
         ),
       ),
     db

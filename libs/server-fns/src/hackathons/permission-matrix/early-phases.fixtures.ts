@@ -1,5 +1,7 @@
 import { id, type Result } from '@founders-coffee/core';
 import {
+  eq,
+  hackathons,
   listOrganiserHackathonPrizes,
   readHackathonDraft,
   type Db,
@@ -23,7 +25,6 @@ import { addHackathonPrizeResolver } from '../prizes.js';
 import { registerForHackathonResolver } from '../registration.js';
 import { reportHackathonTargetResolver } from '../reports.js';
 import { readyHackathon } from '../review.fixtures.js';
-import { submitHackathonForReviewResolver } from '../review.js';
 import { createHackathonTeamResolver } from '../team-creation.js';
 import {
   createTeamInviteResolver,
@@ -129,13 +130,10 @@ export const inReview = async (
   extra?: Extra,
 ): Promise<Ids> => {
   const seed = await drafted(db, cast, extra);
-  unwrap(
-    await submitHackathonForReviewResolver(db, {
-      eventId: seed.eventId,
-      organisationId: ORGANISATION,
-      version: await versionOf(db, seed.eventId),
-    }),
-  );
+  await db
+    .update(hackathons)
+    .set({ reviewStatus: 'submitted' })
+    .where(eq(hackathons.eventId, seed.eventId));
   return seed;
 };
 
@@ -151,6 +149,7 @@ export const opened = async (
     await decideHackathonReviewResolver(db, () => Promise.resolve(), null, {
       decision: hackathons.hackathonReviewDecisionSchema.parse({
         eventId,
+        version: await versionOf(db, eventId),
         decision: 'approve',
       }),
       actorUserId: TEST_HOST_ID,

@@ -107,12 +107,8 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -297,12 +293,8 @@
           "name": "account_preferences_user_id_user_id_fk",
           "tableFrom": "account_preferences",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -377,16 +369,12 @@
       "indexes": {
         "chat_channels_event_id_unique": {
           "name": "chat_channels_event_id_unique",
-          "columns": [
-            "event_id"
-          ],
+          "columns": ["event_id"],
           "isUnique": true
         },
         "chat_channels_expires_at_index": {
           "name": "chat_channels_expires_at_index",
-          "columns": [
-            "expires_at"
-          ],
+          "columns": ["expires_at"],
           "isUnique": false
         }
       },
@@ -395,12 +383,8 @@
           "name": "chat_channels_event_id_events_id_fk",
           "tableFrom": "chat_channels",
           "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -408,12 +392,8 @@
           "name": "chat_channels_market_code_markets_code_fk",
           "tableFrom": "chat_channels",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -466,9 +446,7 @@
       "indexes": {
         "chat_members_user_id_index": {
           "name": "chat_members_user_id_index",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -477,12 +455,8 @@
           "name": "chat_members_channel_id_chat_channels_id_fk",
           "tableFrom": "chat_members",
           "tableTo": "chat_channels",
-          "columnsFrom": [
-            "channel_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["channel_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -490,22 +464,15 @@
           "name": "chat_members_user_id_user_id_fk",
           "tableFrom": "chat_members",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "chat_members_channel_id_user_id_pk": {
-          "columns": [
-            "channel_id",
-            "user_id"
-          ],
+          "columns": ["channel_id", "user_id"],
           "name": "chat_members_channel_id_user_id_pk"
         }
       },
@@ -605,20 +572,12 @@
       "indexes": {
         "chat_messages_channel_created_index": {
           "name": "chat_messages_channel_created_index",
-          "columns": [
-            "channel_id",
-            "created_at",
-            "id"
-          ],
+          "columns": ["channel_id", "created_at", "id"],
           "isUnique": false
         },
         "chat_messages_channel_author_client_unique": {
           "name": "chat_messages_channel_author_client_unique",
-          "columns": [
-            "channel_id",
-            "author_id",
-            "client_id"
-          ],
+          "columns": ["channel_id", "author_id", "client_id"],
           "isUnique": true
         }
       },
@@ -627,12 +586,8 @@
           "name": "chat_messages_channel_id_chat_channels_id_fk",
           "tableFrom": "chat_messages",
           "tableTo": "chat_channels",
-          "columnsFrom": [
-            "channel_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["channel_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -640,12 +595,8 @@
           "name": "chat_messages_author_id_user_id_fk",
           "tableFrom": "chat_messages",
           "tableTo": "user",
-          "columnsFrom": [
-            "author_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["author_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -653,12 +604,8 @@
           "name": "chat_messages_removed_by_user_id_fk",
           "tableFrom": "chat_messages",
           "tableTo": "user",
-          "columnsFrom": [
-            "removed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["removed_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -746,40 +693,27 @@
       "indexes": {
         "chat_reports_message_reporter_unique": {
           "name": "chat_reports_message_reporter_unique",
-          "columns": [
-            "message_id",
-            "reporter_id"
-          ],
+          "columns": ["message_id", "reporter_id"],
           "isUnique": true
         },
         "chat_reports_market_status_index": {
           "name": "chat_reports_market_status_index",
-          "columns": [
-            "market_code",
-            "status",
-            "created_at"
-          ],
+          "columns": ["market_code", "status", "created_at"],
           "isUnique": false
         },
         "chat_reports_created_at_index": {
           "name": "chat_reports_created_at_index",
-          "columns": [
-            "created_at"
-          ],
+          "columns": ["created_at"],
           "isUnique": false
         },
         "chat_reports_reporter_id_index": {
           "name": "chat_reports_reporter_id_index",
-          "columns": [
-            "reporter_id"
-          ],
+          "columns": ["reporter_id"],
           "isUnique": false
         },
         "chat_reports_reviewed_at_index": {
           "name": "chat_reports_reviewed_at_index",
-          "columns": [
-            "reviewed_at"
-          ],
+          "columns": ["reviewed_at"],
           "isUnique": false,
           "where": "reviewed_at IS NOT NULL"
         }
@@ -789,12 +723,8 @@
           "name": "chat_reports_reporter_id_user_id_fk",
           "tableFrom": "chat_reports",
           "tableTo": "user",
-          "columnsFrom": [
-            "reporter_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reporter_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -802,12 +732,8 @@
           "name": "chat_reports_reported_user_id_user_id_fk",
           "tableFrom": "chat_reports",
           "tableTo": "user",
-          "columnsFrom": [
-            "reported_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reported_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -815,12 +741,8 @@
           "name": "chat_reports_market_code_markets_code_fk",
           "tableFrom": "chat_reports",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -828,12 +750,8 @@
           "name": "chat_reports_reviewed_by_user_id_fk",
           "tableFrom": "chat_reports",
           "tableTo": "user",
-          "columnsFrom": [
-            "reviewed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reviewed_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -899,26 +817,17 @@
       "indexes": {
         "city_waitlist_email_city_unique": {
           "name": "city_waitlist_email_city_unique",
-          "columns": [
-            "email",
-            "market_code",
-            "city_code"
-          ],
+          "columns": ["email", "market_code", "city_code"],
           "isUnique": true
         },
         "city_waitlist_city_code_index": {
           "name": "city_waitlist_city_code_index",
-          "columns": [
-            "market_code",
-            "city_code"
-          ],
+          "columns": ["market_code", "city_code"],
           "isUnique": false
         },
         "city_waitlist_notified_index": {
           "name": "city_waitlist_notified_index",
-          "columns": [
-            "notified_at"
-          ],
+          "columns": ["notified_at"],
           "isUnique": false,
           "where": "notified_at IS NOT NULL"
         }
@@ -928,12 +837,8 @@
           "name": "city_waitlist_market_code_markets_code_fk",
           "tableFrom": "city_waitlist",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1007,16 +912,12 @@
       "indexes": {
         "city_waitlist_launch_event_unique": {
           "name": "city_waitlist_launch_event_unique",
-          "columns": [
-            "event_id"
-          ],
+          "columns": ["event_id"],
           "isUnique": true
         },
         "city_waitlist_launch_pending_index": {
           "name": "city_waitlist_launch_pending_index",
-          "columns": [
-            "created_at"
-          ],
+          "columns": ["created_at"],
           "isUnique": false,
           "where": "status = 'pending'"
         }
@@ -1026,12 +927,8 @@
           "name": "city_waitlist_launches_event_id_events_id_fk",
           "tableFrom": "city_waitlist_launches",
           "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1039,12 +936,8 @@
           "name": "city_waitlist_launches_market_code_markets_code_fk",
           "tableFrom": "city_waitlist_launches",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1149,35 +1042,23 @@
       "indexes": {
         "city_waitlist_notification_live_unique": {
           "name": "city_waitlist_notification_live_unique",
-          "columns": [
-            "waitlist_id"
-          ],
+          "columns": ["waitlist_id"],
           "isUnique": true,
           "where": "status IN ('pending', 'processing', 'sent')"
         },
         "city_waitlist_notification_round_unique": {
           "name": "city_waitlist_notification_round_unique",
-          "columns": [
-            "launch_id",
-            "waitlist_id"
-          ],
+          "columns": ["launch_id", "waitlist_id"],
           "isUnique": true
         },
         "city_waitlist_notification_due_index": {
           "name": "city_waitlist_notification_due_index",
-          "columns": [
-            "launch_id",
-            "status",
-            "next_attempt_at"
-          ],
+          "columns": ["launch_id", "status", "next_attempt_at"],
           "isUnique": false
         },
         "city_waitlist_notification_claimed_index": {
           "name": "city_waitlist_notification_claimed_index",
-          "columns": [
-            "launch_id",
-            "claimed_at"
-          ],
+          "columns": ["launch_id", "claimed_at"],
           "isUnique": false,
           "where": "status = 'processing'"
         }
@@ -1187,12 +1068,8 @@
           "name": "city_waitlist_notifications_launch_id_city_waitlist_launches_id_fk",
           "tableFrom": "city_waitlist_notifications",
           "tableTo": "city_waitlist_launches",
-          "columnsFrom": [
-            "launch_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["launch_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1200,12 +1077,8 @@
           "name": "city_waitlist_notifications_waitlist_id_city_waitlist_id_fk",
           "tableFrom": "city_waitlist_notifications",
           "tableTo": "city_waitlist",
-          "columnsFrom": [
-            "waitlist_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["waitlist_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1300,12 +1173,8 @@
           "name": "community_metric_snapshots_market_code_markets_code_fk",
           "tableFrom": "community_metric_snapshots",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1393,18 +1262,12 @@
       "indexes": {
         "event_attendance_event_user_unique": {
           "name": "event_attendance_event_user_unique",
-          "columns": [
-            "event_id",
-            "user_id"
-          ],
+          "columns": ["event_id", "user_id"],
           "isUnique": true
         },
         "event_attendance_user_index": {
           "name": "event_attendance_user_index",
-          "columns": [
-            "user_id",
-            "recorded_at"
-          ],
+          "columns": ["user_id", "recorded_at"],
           "isUnique": false
         }
       },
@@ -1413,12 +1276,8 @@
           "name": "event_attendance_event_id_events_id_fk",
           "tableFrom": "event_attendance",
           "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1426,12 +1285,8 @@
           "name": "event_attendance_user_id_user_id_fk",
           "tableFrom": "event_attendance",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1439,12 +1294,8 @@
           "name": "event_attendance_market_code_markets_code_fk",
           "tableFrom": "event_attendance",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1452,12 +1303,8 @@
           "name": "event_attendance_recorded_by_user_id_user_id_fk",
           "tableFrom": "event_attendance",
           "tableTo": "user",
-          "columnsFrom": [
-            "recorded_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["recorded_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1576,11 +1423,7 @@
       "indexes": {
         "event_closeouts_market_outcome_index": {
           "name": "event_closeouts_market_outcome_index",
-          "columns": [
-            "market_code",
-            "outcome",
-            "submitted_at"
-          ],
+          "columns": ["market_code", "outcome", "submitted_at"],
           "isUnique": false
         }
       },
@@ -1589,12 +1432,8 @@
           "name": "event_closeouts_event_id_events_id_fk",
           "tableFrom": "event_closeouts",
           "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1602,12 +1441,8 @@
           "name": "event_closeouts_market_code_markets_code_fk",
           "tableFrom": "event_closeouts",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1615,12 +1450,8 @@
           "name": "event_closeouts_submitted_by_user_id_user_id_fk",
           "tableFrom": "event_closeouts",
           "tableTo": "user",
-          "columnsFrom": [
-            "submitted_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submitted_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1628,12 +1459,8 @@
           "name": "event_closeouts_updated_by_user_id_user_id_fk",
           "tableFrom": "event_closeouts",
           "tableTo": "user",
-          "columnsFrom": [
-            "updated_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1735,18 +1562,12 @@
       "indexes": {
         "event_feedback_event_user_unique": {
           "name": "event_feedback_event_user_unique",
-          "columns": [
-            "event_id",
-            "user_id"
-          ],
+          "columns": ["event_id", "user_id"],
           "isUnique": true
         },
         "event_feedback_event_index": {
           "name": "event_feedback_event_index",
-          "columns": [
-            "event_id",
-            "created_at"
-          ],
+          "columns": ["event_id", "created_at"],
           "isUnique": false
         }
       },
@@ -1755,12 +1576,8 @@
           "name": "event_feedback_event_id_events_id_fk",
           "tableFrom": "event_feedback",
           "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1768,12 +1585,8 @@
           "name": "event_feedback_user_id_user_id_fk",
           "tableFrom": "event_feedback",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1781,12 +1594,8 @@
           "name": "event_feedback_market_code_markets_code_fk",
           "tableFrom": "event_feedback",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1831,17 +1640,13 @@
       "indexes": {
         "event_organisers_one_lead_unique": {
           "name": "event_organisers_one_lead_unique",
-          "columns": [
-            "event_id"
-          ],
+          "columns": ["event_id"],
           "isUnique": true,
           "where": "role = 'lead'"
         },
         "event_organisers_organisation_index": {
           "name": "event_organisers_organisation_index",
-          "columns": [
-            "organisation_id"
-          ],
+          "columns": ["organisation_id"],
           "isUnique": false
         }
       },
@@ -1850,12 +1655,8 @@
           "name": "event_organisers_event_id_events_id_fk",
           "tableFrom": "event_organisers",
           "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1863,22 +1664,15 @@
           "name": "event_organisers_organisation_id_organization_id_fk",
           "tableFrom": "event_organisers",
           "tableTo": "organization",
-          "columnsFrom": [
-            "organisation_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organisation_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "event_organisers_event_id_organisation_id_pk": {
-          "columns": [
-            "event_id",
-            "organisation_id"
-          ],
+          "columns": ["event_id", "organisation_id"],
           "name": "event_organisers_event_id_organisation_id_pk"
         }
       },
@@ -1937,17 +1731,12 @@
       "indexes": {
         "event_rsvps_event_id_user_id_unique": {
           "name": "event_rsvps_event_id_user_id_unique",
-          "columns": [
-            "event_id",
-            "user_id"
-          ],
+          "columns": ["event_id", "user_id"],
           "isUnique": true
         },
         "event_rsvps_user_id_index": {
           "name": "event_rsvps_user_id_index",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -1956,12 +1745,8 @@
           "name": "event_rsvps_event_id_events_id_fk",
           "tableFrom": "event_rsvps",
           "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1969,12 +1754,8 @@
           "name": "event_rsvps_user_id_user_id_fk",
           "tableFrom": "event_rsvps",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2204,24 +1985,17 @@
       "indexes": {
         "events_market_code_slug_unique": {
           "name": "events_market_code_slug_unique",
-          "columns": [
-            "market_code",
-            "slug"
-          ],
+          "columns": ["market_code", "slug"],
           "isUnique": true
         },
         "events_host_id_index": {
           "name": "events_host_id_index",
-          "columns": [
-            "host_id"
-          ],
+          "columns": ["host_id"],
           "isUnique": false
         },
         "events_hackathon_ends_index": {
           "name": "events_hackathon_ends_index",
-          "columns": [
-            "ends_at"
-          ],
+          "columns": ["ends_at"],
           "isUnique": false,
           "where": "kind = 'hackathon'"
         }
@@ -2231,12 +2005,8 @@
           "name": "events_host_id_user_id_fk",
           "tableFrom": "events",
           "tableTo": "user",
-          "columnsFrom": [
-            "host_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["host_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2244,12 +2014,8 @@
           "name": "events_market_code_markets_code_fk",
           "tableFrom": "events",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2321,24 +2087,17 @@
       "indexes": {
         "hackathon_certificates_verification_code_unique": {
           "name": "hackathon_certificates_verification_code_unique",
-          "columns": [
-            "verification_code"
-          ],
+          "columns": ["verification_code"],
           "isUnique": true
         },
         "hackathon_certificates_user_index": {
           "name": "hackathon_certificates_user_index",
-          "columns": [
-            "user_id",
-            "event_id"
-          ],
+          "columns": ["user_id", "event_id"],
           "isUnique": false
         },
         "hackathon_certificates_event_index": {
           "name": "hackathon_certificates_event_index",
-          "columns": [
-            "event_id"
-          ],
+          "columns": ["event_id"],
           "isUnique": false
         }
       },
@@ -2347,12 +2106,8 @@
           "name": "hackathon_certificates_event_id_hackathons_event_id_fk",
           "tableFrom": "hackathon_certificates",
           "tableTo": "hackathons",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "event_id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2360,12 +2115,8 @@
           "name": "hackathon_certificates_user_id_user_id_fk",
           "tableFrom": "hackathon_certificates",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2446,18 +2197,12 @@
       "indexes": {
         "hackathon_criteria_position_unique": {
           "name": "hackathon_criteria_position_unique",
-          "columns": [
-            "event_id",
-            "position"
-          ],
+          "columns": ["event_id", "position"],
           "isUnique": true
         },
         "hackathon_criteria_event_unique": {
           "name": "hackathon_criteria_event_unique",
-          "columns": [
-            "id",
-            "event_id"
-          ],
+          "columns": ["id", "event_id"],
           "isUnique": true
         }
       },
@@ -2466,12 +2211,8 @@
           "name": "hackathon_criteria_event_id_hackathons_event_id_fk",
           "tableFrom": "hackathon_criteria",
           "tableTo": "hackathons",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "event_id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2558,26 +2299,18 @@
       "indexes": {
         "hackathon_interest_email_market_unique": {
           "name": "hackathon_interest_email_market_unique",
-          "columns": [
-            "email",
-            "market_code"
-          ],
+          "columns": ["email", "market_code"],
           "isUnique": true
         },
         "hackathon_interest_notified_index": {
           "name": "hackathon_interest_notified_index",
-          "columns": [
-            "notified_at"
-          ],
+          "columns": ["notified_at"],
           "isUnique": false,
           "where": "notified_at IS NOT NULL"
         },
         "hackathon_interest_waiting_index": {
           "name": "hackathon_interest_waiting_index",
-          "columns": [
-            "market_code",
-            "created_at"
-          ],
+          "columns": ["market_code", "created_at"],
           "isUnique": false,
           "where": "notified_at IS NULL"
         }
@@ -2587,12 +2320,8 @@
           "name": "hackathon_interest_market_code_markets_code_fk",
           "tableFrom": "hackathon_interest",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2659,24 +2388,18 @@
       "indexes": {
         "hackathon_interest_launch_event_unique": {
           "name": "hackathon_interest_launch_event_unique",
-          "columns": [
-            "event_id"
-          ],
+          "columns": ["event_id"],
           "isUnique": true
         },
         "hackathon_interest_launch_market_unique": {
           "name": "hackathon_interest_launch_market_unique",
-          "columns": [
-            "market_code"
-          ],
+          "columns": ["market_code"],
           "isUnique": true,
           "where": "status != 'cancelled'"
         },
         "hackathon_interest_launch_pending_index": {
           "name": "hackathon_interest_launch_pending_index",
-          "columns": [
-            "created_at"
-          ],
+          "columns": ["created_at"],
           "isUnique": false,
           "where": "status = 'pending'"
         }
@@ -2686,12 +2409,8 @@
           "name": "hackathon_interest_launches_event_id_hackathons_event_id_fk",
           "tableFrom": "hackathon_interest_launches",
           "tableTo": "hackathons",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "event_id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2699,12 +2418,8 @@
           "name": "hackathon_interest_launches_market_code_markets_code_fk",
           "tableFrom": "hackathon_interest_launches",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2786,32 +2501,22 @@
       "indexes": {
         "hackathon_judges_token_hash_unique": {
           "name": "hackathon_judges_token_hash_unique",
-          "columns": [
-            "token_hash"
-          ],
+          "columns": ["token_hash"],
           "isUnique": true
         },
         "hackathon_judges_event_unique": {
           "name": "hackathon_judges_event_unique",
-          "columns": [
-            "id",
-            "event_id"
-          ],
+          "columns": ["id", "event_id"],
           "isUnique": true
         },
         "hackathon_judges_user_unique": {
           "name": "hackathon_judges_user_unique",
-          "columns": [
-            "event_id",
-            "user_id"
-          ],
+          "columns": ["event_id", "user_id"],
           "isUnique": true
         },
         "hackathon_judges_user_index": {
           "name": "hackathon_judges_user_index",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -2820,12 +2525,8 @@
           "name": "hackathon_judges_event_id_hackathons_event_id_fk",
           "tableFrom": "hackathon_judges",
           "tableTo": "hackathons",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "event_id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2833,12 +2534,8 @@
           "name": "hackathon_judges_user_id_user_id_fk",
           "tableFrom": "hackathon_judges",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2846,12 +2543,8 @@
           "name": "hackathon_judges_invited_by_user_id_fk",
           "tableFrom": "hackathon_judges",
           "tableTo": "user",
-          "columnsFrom": [
-            "invited_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invited_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2952,24 +2645,17 @@
       "indexes": {
         "hackathon_mentors_token_hash_unique": {
           "name": "hackathon_mentors_token_hash_unique",
-          "columns": [
-            "token_hash"
-          ],
+          "columns": ["token_hash"],
           "isUnique": true
         },
         "hackathon_mentors_user_unique": {
           "name": "hackathon_mentors_user_unique",
-          "columns": [
-            "event_id",
-            "user_id"
-          ],
+          "columns": ["event_id", "user_id"],
           "isUnique": true
         },
         "hackathon_mentors_user_index": {
           "name": "hackathon_mentors_user_index",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -2978,12 +2664,8 @@
           "name": "hackathon_mentors_event_id_hackathons_event_id_fk",
           "tableFrom": "hackathon_mentors",
           "tableTo": "hackathons",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "event_id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2991,12 +2673,8 @@
           "name": "hackathon_mentors_user_id_user_id_fk",
           "tableFrom": "hackathon_mentors",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3004,12 +2682,8 @@
           "name": "hackathon_mentors_invited_by_user_id_fk",
           "tableFrom": "hackathon_mentors",
           "tableTo": "user",
-          "columnsFrom": [
-            "invited_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invited_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3081,9 +2755,7 @@
       "indexes": {
         "hackathon_prize_awards_submission_index": {
           "name": "hackathon_prize_awards_submission_index",
-          "columns": [
-            "submission_id"
-          ],
+          "columns": ["submission_id"],
           "isUnique": false
         }
       },
@@ -3092,12 +2764,8 @@
           "name": "hackathon_prize_awards_prize_id_hackathon_prizes_id_fk",
           "tableFrom": "hackathon_prize_awards",
           "tableTo": "hackathon_prizes",
-          "columnsFrom": [
-            "prize_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["prize_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3105,12 +2773,8 @@
           "name": "hackathon_prize_awards_submission_id_hackathon_results_submission_id_fk",
           "tableFrom": "hackathon_prize_awards",
           "tableTo": "hackathon_results",
-          "columnsFrom": [
-            "submission_id"
-          ],
-          "columnsTo": [
-            "submission_id"
-          ],
+          "columnsFrom": ["submission_id"],
+          "columnsTo": ["submission_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3228,18 +2892,12 @@
       "indexes": {
         "hackathon_prizes_event_idx": {
           "name": "hackathon_prizes_event_idx",
-          "columns": [
-            "event_id",
-            "place"
-          ],
+          "columns": ["event_id", "place"],
           "isUnique": false
         },
         "hackathon_prizes_track_idx": {
           "name": "hackathon_prizes_track_idx",
-          "columns": [
-            "track_id",
-            "event_id"
-          ],
+          "columns": ["track_id", "event_id"],
           "isUnique": false
         }
       },
@@ -3248,12 +2906,8 @@
           "name": "hackathon_prizes_event_id_hackathons_event_id_fk",
           "tableFrom": "hackathon_prizes",
           "tableTo": "hackathons",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "event_id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3261,14 +2915,8 @@
           "name": "hackathon_prizes_track_id_event_id_hackathon_tracks_id_event_id_fk",
           "tableFrom": "hackathon_prizes",
           "tableTo": "hackathon_tracks",
-          "columnsFrom": [
-            "track_id",
-            "event_id"
-          ],
-          "columnsTo": [
-            "id",
-            "event_id"
-          ],
+          "columnsFrom": ["track_id", "event_id"],
+          "columnsTo": ["id", "event_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3329,22 +2977,15 @@
           "name": "hackathon_pull_requests_submission_id_hackathon_submissions_id_fk",
           "tableFrom": "hackathon_pull_requests",
           "tableTo": "hackathon_submissions",
-          "columnsFrom": [
-            "submission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submission_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "hackathon_pull_requests_submission_id_url_pk": {
-          "columns": [
-            "submission_id",
-            "url"
-          ],
+          "columns": ["submission_id", "url"],
           "name": "hackathon_pull_requests_submission_id_url_pk"
         }
       },
@@ -3399,9 +3040,7 @@
       "indexes": {
         "hackathon_recusals_submission_index": {
           "name": "hackathon_recusals_submission_index",
-          "columns": [
-            "submission_id"
-          ],
+          "columns": ["submission_id"],
           "isUnique": false
         }
       },
@@ -3410,14 +3049,8 @@
           "name": "hackathon_recusals_judge_id_event_id_hackathon_judges_id_event_id_fk",
           "tableFrom": "hackathon_recusals",
           "tableTo": "hackathon_judges",
-          "columnsFrom": [
-            "judge_id",
-            "event_id"
-          ],
-          "columnsTo": [
-            "id",
-            "event_id"
-          ],
+          "columnsFrom": ["judge_id", "event_id"],
+          "columnsTo": ["id", "event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3425,24 +3058,15 @@
           "name": "hackathon_recusals_submission_id_event_id_hackathon_submissions_id_event_id_fk",
           "tableFrom": "hackathon_recusals",
           "tableTo": "hackathon_submissions",
-          "columnsFrom": [
-            "submission_id",
-            "event_id"
-          ],
-          "columnsTo": [
-            "id",
-            "event_id"
-          ],
+          "columnsFrom": ["submission_id", "event_id"],
+          "columnsTo": ["id", "event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "hackathon_recusals_judge_id_submission_id_pk": {
-          "columns": [
-            "judge_id",
-            "submission_id"
-          ],
+          "columns": ["judge_id", "submission_id"],
           "name": "hackathon_recusals_judge_id_submission_id_pk"
         }
       },
@@ -3542,33 +3166,22 @@
       "indexes": {
         "hackathon_registrations_event_user_unique": {
           "name": "hackathon_registrations_event_user_unique",
-          "columns": [
-            "event_id",
-            "user_id"
-          ],
+          "columns": ["event_id", "user_id"],
           "isUnique": true
         },
         "hackathon_registrations_event_status_index": {
           "name": "hackathon_registrations_event_status_index",
-          "columns": [
-            "event_id",
-            "status",
-            "created_at"
-          ],
+          "columns": ["event_id", "status", "created_at"],
           "isUnique": false
         },
         "hackathon_registrations_user_index": {
           "name": "hackathon_registrations_user_index",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         },
         "hackathon_registrations_skills_index": {
           "name": "hackathon_registrations_skills_index",
-          "columns": [
-            "event_id"
-          ],
+          "columns": ["event_id"],
           "isUnique": false,
           "where": "skills IS NOT NULL"
         }
@@ -3578,12 +3191,8 @@
           "name": "hackathon_registrations_event_id_hackathons_event_id_fk",
           "tableFrom": "hackathon_registrations",
           "tableTo": "hackathons",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "event_id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3591,12 +3200,8 @@
           "name": "hackathon_registrations_user_id_user_id_fk",
           "tableFrom": "hackathon_registrations",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3710,34 +3315,22 @@
       "indexes": {
         "hackathon_reports_target_reporter_unique": {
           "name": "hackathon_reports_target_reporter_unique",
-          "columns": [
-            "target_type",
-            "target_id",
-            "reporter_id"
-          ],
+          "columns": ["target_type", "target_id", "reporter_id"],
           "isUnique": true
         },
         "hackathon_reports_market_status_index": {
           "name": "hackathon_reports_market_status_index",
-          "columns": [
-            "market_code",
-            "status",
-            "created_at"
-          ],
+          "columns": ["market_code", "status", "created_at"],
           "isUnique": false
         },
         "hackathon_reports_reporter_index": {
           "name": "hackathon_reports_reporter_index",
-          "columns": [
-            "reporter_id"
-          ],
+          "columns": ["reporter_id"],
           "isUnique": false
         },
         "hackathon_reports_reviewed_at_index": {
           "name": "hackathon_reports_reviewed_at_index",
-          "columns": [
-            "reviewed_at"
-          ],
+          "columns": ["reviewed_at"],
           "isUnique": false,
           "where": "reviewed_at IS NOT NULL"
         }
@@ -3747,12 +3340,8 @@
           "name": "hackathon_reports_event_id_hackathons_event_id_fk",
           "tableFrom": "hackathon_reports",
           "tableTo": "hackathons",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "event_id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3760,12 +3349,8 @@
           "name": "hackathon_reports_market_code_markets_code_fk",
           "tableFrom": "hackathon_reports",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3773,12 +3358,8 @@
           "name": "hackathon_reports_reporter_id_user_id_fk",
           "tableFrom": "hackathon_reports",
           "tableTo": "user",
-          "columnsFrom": [
-            "reporter_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reporter_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3786,12 +3367,8 @@
           "name": "hackathon_reports_reviewed_by_user_id_fk",
           "tableFrom": "hackathon_reports",
           "tableTo": "user",
-          "columnsFrom": [
-            "reviewed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reviewed_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3918,10 +3495,7 @@
       "indexes": {
         "hackathon_results_event_rank_index": {
           "name": "hackathon_results_event_rank_index",
-          "columns": [
-            "event_id",
-            "rank"
-          ],
+          "columns": ["event_id", "rank"],
           "isUnique": false
         }
       },
@@ -3930,12 +3504,8 @@
           "name": "hackathon_results_event_id_hackathons_event_id_fk",
           "tableFrom": "hackathon_results",
           "tableTo": "hackathons",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "event_id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4009,16 +3579,12 @@
       "indexes": {
         "hackathon_scores_judge_index": {
           "name": "hackathon_scores_judge_index",
-          "columns": [
-            "judge_id"
-          ],
+          "columns": ["judge_id"],
           "isUnique": false
         },
         "hackathon_scores_criterion_index": {
           "name": "hackathon_scores_criterion_index",
-          "columns": [
-            "criterion_id"
-          ],
+          "columns": ["criterion_id"],
           "isUnique": false
         }
       },
@@ -4027,14 +3593,8 @@
           "name": "hackathon_scores_judge_id_event_id_hackathon_judges_id_event_id_fk",
           "tableFrom": "hackathon_scores",
           "tableTo": "hackathon_judges",
-          "columnsFrom": [
-            "judge_id",
-            "event_id"
-          ],
-          "columnsTo": [
-            "id",
-            "event_id"
-          ],
+          "columnsFrom": ["judge_id", "event_id"],
+          "columnsTo": ["id", "event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4042,14 +3602,8 @@
           "name": "hackathon_scores_submission_id_event_id_hackathon_submissions_id_event_id_fk",
           "tableFrom": "hackathon_scores",
           "tableTo": "hackathon_submissions",
-          "columnsFrom": [
-            "submission_id",
-            "event_id"
-          ],
-          "columnsTo": [
-            "id",
-            "event_id"
-          ],
+          "columnsFrom": ["submission_id", "event_id"],
+          "columnsTo": ["id", "event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4057,25 +3611,15 @@
           "name": "hackathon_scores_criterion_id_event_id_hackathon_criteria_id_event_id_fk",
           "tableFrom": "hackathon_scores",
           "tableTo": "hackathon_criteria",
-          "columnsFrom": [
-            "criterion_id",
-            "event_id"
-          ],
-          "columnsTo": [
-            "id",
-            "event_id"
-          ],
+          "columnsFrom": ["criterion_id", "event_id"],
+          "columnsTo": ["id", "event_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "hackathon_scores_submission_id_judge_id_criterion_id_pk": {
-          "columns": [
-            "submission_id",
-            "judge_id",
-            "criterion_id"
-          ],
+          "columns": ["submission_id", "judge_id", "criterion_id"],
           "name": "hackathon_scores_submission_id_judge_id_criterion_id_pk"
         }
       },
@@ -4130,12 +3674,8 @@
           "name": "hackathon_section_drafts_event_id_events_id_fk",
           "tableFrom": "hackathon_section_drafts",
           "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4228,25 +3768,17 @@
       "indexes": {
         "hackathon_submission_screenshots_object_key_unique": {
           "name": "hackathon_submission_screenshots_object_key_unique",
-          "columns": [
-            "object_key"
-          ],
+          "columns": ["object_key"],
           "isUnique": true
         },
         "hackathon_submission_screenshots_entry_index": {
           "name": "hackathon_submission_screenshots_entry_index",
-          "columns": [
-            "submission_id",
-            "status"
-          ],
+          "columns": ["submission_id", "status"],
           "isUnique": false
         },
         "hackathon_submission_screenshots_expiry_index": {
           "name": "hackathon_submission_screenshots_expiry_index",
-          "columns": [
-            "status",
-            "expires_at"
-          ],
+          "columns": ["status", "expires_at"],
           "isUnique": false
         }
       },
@@ -4356,12 +3888,8 @@
           "name": "hackathon_submission_versions_submission_id_hackathon_submissions_id_fk",
           "tableFrom": "hackathon_submission_versions",
           "tableTo": "hackathon_submissions",
-          "columnsFrom": [
-            "submission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submission_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4369,22 +3897,15 @@
           "name": "hackathon_submission_versions_submitted_by_user_id_fk",
           "tableFrom": "hackathon_submission_versions",
           "tableTo": "user",
-          "columnsFrom": [
-            "submitted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submitted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "hackathon_submission_versions_submission_id_version_pk": {
-          "columns": [
-            "submission_id",
-            "version"
-          ],
+          "columns": ["submission_id", "version"],
           "name": "hackathon_submission_versions_submission_id_version_pk"
         }
       },
@@ -4524,33 +4045,22 @@
       "indexes": {
         "hackathon_submissions_team_unique": {
           "name": "hackathon_submissions_team_unique",
-          "columns": [
-            "team_id"
-          ],
+          "columns": ["team_id"],
           "isUnique": true
         },
         "hackathon_submissions_event_unique": {
           "name": "hackathon_submissions_event_unique",
-          "columns": [
-            "id",
-            "event_id"
-          ],
+          "columns": ["id", "event_id"],
           "isUnique": true
         },
         "hackathon_submissions_event_status_index": {
           "name": "hackathon_submissions_event_status_index",
-          "columns": [
-            "event_id",
-            "status"
-          ],
+          "columns": ["event_id", "status"],
           "isUnique": false
         },
         "hackathon_submissions_track_index": {
           "name": "hackathon_submissions_track_index",
-          "columns": [
-            "track_id",
-            "event_id"
-          ],
+          "columns": ["track_id", "event_id"],
           "isUnique": false
         }
       },
@@ -4559,12 +4069,8 @@
           "name": "hackathon_submissions_event_id_hackathons_event_id_fk",
           "tableFrom": "hackathon_submissions",
           "tableTo": "hackathons",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "event_id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4572,14 +4078,8 @@
           "name": "hackathon_submissions_team_id_event_id_hackathon_teams_id_event_id_fk",
           "tableFrom": "hackathon_submissions",
           "tableTo": "hackathon_teams",
-          "columnsFrom": [
-            "team_id",
-            "event_id"
-          ],
-          "columnsTo": [
-            "id",
-            "event_id"
-          ],
+          "columnsFrom": ["team_id", "event_id"],
+          "columnsTo": ["id", "event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4587,14 +4087,8 @@
           "name": "hackathon_submissions_track_id_event_id_hackathon_tracks_id_event_id_fk",
           "tableFrom": "hackathon_submissions",
           "tableTo": "hackathon_tracks",
-          "columnsFrom": [
-            "track_id",
-            "event_id"
-          ],
-          "columnsTo": [
-            "id",
-            "event_id"
-          ],
+          "columnsFrom": ["track_id", "event_id"],
+          "columnsTo": ["id", "event_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4693,16 +4187,12 @@
       "indexes": {
         "hackathon_team_invites_token_hash_unique": {
           "name": "hackathon_team_invites_token_hash_unique",
-          "columns": [
-            "token_hash"
-          ],
+          "columns": ["token_hash"],
           "isUnique": true
         },
         "hackathon_team_invites_team_index": {
           "name": "hackathon_team_invites_team_index",
-          "columns": [
-            "team_id"
-          ],
+          "columns": ["team_id"],
           "isUnique": false
         }
       },
@@ -4711,12 +4201,8 @@
           "name": "hackathon_team_invites_team_id_hackathon_teams_id_fk",
           "tableFrom": "hackathon_team_invites",
           "tableTo": "hackathon_teams",
-          "columnsFrom": [
-            "team_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["team_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4724,12 +4210,8 @@
           "name": "hackathon_team_invites_created_by_user_id_fk",
           "tableFrom": "hackathon_team_invites",
           "tableTo": "user",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4782,17 +4264,12 @@
       "indexes": {
         "hackathon_team_members_event_user_unique": {
           "name": "hackathon_team_members_event_user_unique",
-          "columns": [
-            "event_id",
-            "user_id"
-          ],
+          "columns": ["event_id", "user_id"],
           "isUnique": true
         },
         "hackathon_team_members_captain_unique": {
           "name": "hackathon_team_members_captain_unique",
-          "columns": [
-            "team_id"
-          ],
+          "columns": ["team_id"],
           "isUnique": true,
           "where": "is_captain = 1"
         }
@@ -4802,14 +4279,8 @@
           "name": "hackathon_team_members_team_id_event_id_hackathon_teams_id_event_id_fk",
           "tableFrom": "hackathon_team_members",
           "tableTo": "hackathon_teams",
-          "columnsFrom": [
-            "team_id",
-            "event_id"
-          ],
-          "columnsTo": [
-            "id",
-            "event_id"
-          ],
+          "columnsFrom": ["team_id", "event_id"],
+          "columnsTo": ["id", "event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4817,24 +4288,15 @@
           "name": "hackathon_team_members_event_id_user_id_hackathon_registrations_event_id_user_id_fk",
           "tableFrom": "hackathon_team_members",
           "tableTo": "hackathon_registrations",
-          "columnsFrom": [
-            "event_id",
-            "user_id"
-          ],
-          "columnsTo": [
-            "event_id",
-            "user_id"
-          ],
+          "columnsFrom": ["event_id", "user_id"],
+          "columnsTo": ["event_id", "user_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "hackathon_team_members_team_id_user_id_pk": {
-          "columns": [
-            "team_id",
-            "user_id"
-          ],
+          "columns": ["team_id", "user_id"],
           "name": "hackathon_team_members_team_id_user_id_pk"
         }
       },
@@ -4899,19 +4361,13 @@
       "indexes": {
         "hackathon_team_requests_pending_unique": {
           "name": "hackathon_team_requests_pending_unique",
-          "columns": [
-            "team_id",
-            "user_id"
-          ],
+          "columns": ["team_id", "user_id"],
           "isUnique": true,
           "where": "status = 'pending'"
         },
         "hackathon_team_requests_user_index": {
           "name": "hackathon_team_requests_user_index",
-          "columns": [
-            "event_id",
-            "user_id"
-          ],
+          "columns": ["event_id", "user_id"],
           "isUnique": false
         }
       },
@@ -4920,14 +4376,8 @@
           "name": "hackathon_team_requests_team_id_event_id_hackathon_teams_id_event_id_fk",
           "tableFrom": "hackathon_team_requests",
           "tableTo": "hackathon_teams",
-          "columnsFrom": [
-            "team_id",
-            "event_id"
-          ],
-          "columnsTo": [
-            "id",
-            "event_id"
-          ],
+          "columnsFrom": ["team_id", "event_id"],
+          "columnsTo": ["id", "event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4935,14 +4385,8 @@
           "name": "hackathon_team_requests_event_id_user_id_hackathon_registrations_event_id_user_id_fk",
           "tableFrom": "hackathon_team_requests",
           "tableTo": "hackathon_registrations",
-          "columnsFrom": [
-            "event_id",
-            "user_id"
-          ],
-          "columnsTo": [
-            "event_id",
-            "user_id"
-          ],
+          "columnsFrom": ["event_id", "user_id"],
+          "columnsTo": ["event_id", "user_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -5015,26 +4459,17 @@
       "indexes": {
         "hackathon_teams_event_unique": {
           "name": "hackathon_teams_event_unique",
-          "columns": [
-            "id",
-            "event_id"
-          ],
+          "columns": ["id", "event_id"],
           "isUnique": true
         },
         "hackathon_teams_name_unique": {
           "name": "hackathon_teams_name_unique",
-          "columns": [
-            "event_id",
-            "lower(\"name\")"
-          ],
+          "columns": ["event_id", "lower(\"name\")"],
           "isUnique": true
         },
         "hackathon_teams_looking_index": {
           "name": "hackathon_teams_looking_index",
-          "columns": [
-            "event_id",
-            "looking_for_members"
-          ],
+          "columns": ["event_id", "looking_for_members"],
           "isUnique": false
         }
       },
@@ -5043,12 +4478,8 @@
           "name": "hackathon_teams_event_id_hackathons_event_id_fk",
           "tableFrom": "hackathon_teams",
           "tableTo": "hackathons",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "event_id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -5146,18 +4577,12 @@
       "indexes": {
         "hackathon_tracks_position_unique": {
           "name": "hackathon_tracks_position_unique",
-          "columns": [
-            "event_id",
-            "position"
-          ],
+          "columns": ["event_id", "position"],
           "isUnique": true
         },
         "hackathon_tracks_event_unique": {
           "name": "hackathon_tracks_event_unique",
-          "columns": [
-            "id",
-            "event_id"
-          ],
+          "columns": ["id", "event_id"],
           "isUnique": true
         }
       },
@@ -5166,12 +4591,8 @@
           "name": "hackathon_tracks_event_id_hackathons_event_id_fk",
           "tableFrom": "hackathon_tracks",
           "tableTo": "hackathons",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "event_id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["event_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -5344,9 +4765,7 @@
       "indexes": {
         "hackathons_review_status_index": {
           "name": "hackathons_review_status_index",
-          "columns": [
-            "review_status"
-          ],
+          "columns": ["review_status"],
           "isUnique": false
         }
       },
@@ -5355,12 +4774,8 @@
           "name": "hackathons_event_id_events_id_fk",
           "tableFrom": "hackathons",
           "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -5455,18 +4870,12 @@
       "indexes": {
         "host_trust_market_user_unique": {
           "name": "host_trust_market_user_unique",
-          "columns": [
-            "market_code",
-            "user_id"
-          ],
+          "columns": ["market_code", "user_id"],
           "isUnique": true
         },
         "host_trust_status_index": {
           "name": "host_trust_status_index",
-          "columns": [
-            "market_code",
-            "status"
-          ],
+          "columns": ["market_code", "status"],
           "isUnique": false
         }
       },
@@ -5475,12 +4884,8 @@
           "name": "host_trust_market_code_markets_code_fk",
           "tableFrom": "host_trust",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5488,12 +4893,8 @@
           "name": "host_trust_user_id_user_id_fk",
           "tableFrom": "host_trust",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5501,12 +4902,8 @@
           "name": "host_trust_reviewed_by_user_id_user_id_fk",
           "tableFrom": "host_trust",
           "tableTo": "user",
-          "columnsFrom": [
-            "reviewed_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reviewed_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5580,16 +4977,12 @@
       "indexes": {
         "invitation_organization_index": {
           "name": "invitation_organization_index",
-          "columns": [
-            "organization_id"
-          ],
+          "columns": ["organization_id"],
           "isUnique": false
         },
         "invitation_email_index": {
           "name": "invitation_email_index",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": false
         }
       },
@@ -5598,12 +4991,8 @@
           "name": "invitation_organization_id_organization_id_fk",
           "tableFrom": "invitation",
           "tableTo": "organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -5611,12 +5000,8 @@
           "name": "invitation_inviter_id_user_id_fk",
           "tableFrom": "invitation",
           "tableTo": "user",
-          "columnsFrom": [
-            "inviter_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["inviter_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5704,9 +5089,7 @@
       "indexes": {
         "invoices_number_unique": {
           "name": "invoices_number_unique",
-          "columns": [
-            "number"
-          ],
+          "columns": ["number"],
           "isUnique": true
         }
       },
@@ -5715,12 +5098,8 @@
           "name": "invoices_order_id_orders_id_fk",
           "tableFrom": "invoices",
           "tableTo": "orders",
-          "columnsFrom": [
-            "order_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["order_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -5828,9 +5207,7 @@
       "indexes": {
         "markets_slug_unique": {
           "name": "markets_slug_unique",
-          "columns": [
-            "slug"
-          ],
+          "columns": ["slug"],
           "isUnique": true
         }
       },
@@ -5883,17 +5260,12 @@
       "indexes": {
         "member_organization_user_unique": {
           "name": "member_organization_user_unique",
-          "columns": [
-            "organization_id",
-            "user_id"
-          ],
+          "columns": ["organization_id", "user_id"],
           "isUnique": true
         },
         "member_user_index": {
           "name": "member_user_index",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -5902,12 +5274,8 @@
           "name": "member_organization_id_organization_id_fk",
           "tableFrom": "member",
           "tableTo": "organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -5915,12 +5283,8 @@
           "name": "member_user_id_user_id_fk",
           "tableFrom": "member",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -6133,12 +5497,8 @@
           "name": "member_profiles_user_id_user_id_fk",
           "tableFrom": "member_profiles",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -6146,14 +5506,8 @@
           "name": "member_profiles_photo_asset_id_user_id_profile_assets_id_user_id_fk",
           "tableFrom": "member_profiles",
           "tableTo": "profile_assets",
-          "columnsFrom": [
-            "photo_asset_id",
-            "user_id"
-          ],
-          "columnsTo": [
-            "id",
-            "user_id"
-          ],
+          "columnsFrom": ["photo_asset_id", "user_id"],
+          "columnsTo": ["id", "user_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6241,18 +5595,12 @@
       "indexes": {
         "operations_audit_market_time_index": {
           "name": "operations_audit_market_time_index",
-          "columns": [
-            "market_code",
-            "created_at"
-          ],
+          "columns": ["market_code", "created_at"],
           "isUnique": false
         },
         "operations_audit_target_index": {
           "name": "operations_audit_target_index",
-          "columns": [
-            "target_type",
-            "target_id"
-          ],
+          "columns": ["target_type", "target_id"],
           "isUnique": false
         }
       },
@@ -6261,12 +5609,8 @@
           "name": "operations_audit_market_code_markets_code_fk",
           "tableFrom": "operations_audit",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6274,12 +5618,8 @@
           "name": "operations_audit_actor_user_id_user_id_fk",
           "tableFrom": "operations_audit",
           "tableTo": "user",
-          "columnsFrom": [
-            "actor_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["actor_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6395,10 +5735,7 @@
       "indexes": {
         "operations_reviews_market_window_index": {
           "name": "operations_reviews_market_window_index",
-          "columns": [
-            "market_code",
-            "evidence_window_start"
-          ],
+          "columns": ["market_code", "evidence_window_start"],
           "isUnique": false
         }
       },
@@ -6407,12 +5744,8 @@
           "name": "operations_reviews_market_code_markets_code_fk",
           "tableFrom": "operations_reviews",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6420,12 +5753,8 @@
           "name": "operations_reviews_owner_user_id_user_id_fk",
           "tableFrom": "operations_reviews",
           "tableTo": "user",
-          "columnsFrom": [
-            "owner_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6433,12 +5762,8 @@
           "name": "operations_reviews_created_by_user_id_user_id_fk",
           "tableFrom": "operations_reviews",
           "tableTo": "user",
-          "columnsFrom": [
-            "created_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6580,12 +5905,8 @@
           "name": "orders_market_code_markets_code_fk",
           "tableFrom": "orders",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6593,12 +5914,8 @@
           "name": "orders_payer_user_id_user_id_fk",
           "tableFrom": "orders",
           "tableTo": "user",
-          "columnsFrom": [
-            "payer_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["payer_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6721,24 +6038,17 @@
       "indexes": {
         "organization_slug_unique": {
           "name": "organization_slug_unique",
-          "columns": [
-            "slug"
-          ],
+          "columns": ["slug"],
           "isUnique": true
         },
         "organization_market_status_index": {
           "name": "organization_market_status_index",
-          "columns": [
-            "market_code",
-            "status"
-          ],
+          "columns": ["market_code", "status"],
           "isUnique": false
         },
         "organization_owner_left_index": {
           "name": "organization_owner_left_index",
-          "columns": [
-            "owner_left_at"
-          ],
+          "columns": ["owner_left_at"],
           "isUnique": false,
           "where": "owner_left_at IS NOT NULL"
         }
@@ -6748,12 +6058,8 @@
           "name": "organization_market_code_markets_code_fk",
           "tableFrom": "organization",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6857,25 +6163,17 @@
       "indexes": {
         "profile_assets_object_key_unique": {
           "name": "profile_assets_object_key_unique",
-          "columns": [
-            "object_key"
-          ],
+          "columns": ["object_key"],
           "isUnique": true
         },
         "profile_asset_id_user_unique": {
           "name": "profile_asset_id_user_unique",
-          "columns": [
-            "id",
-            "user_id"
-          ],
+          "columns": ["id", "user_id"],
           "isUnique": true
         },
         "profile_assets_expiry_index": {
           "name": "profile_assets_expiry_index",
-          "columns": [
-            "status",
-            "expires_at"
-          ],
+          "columns": ["status", "expires_at"],
           "isUnique": false
         }
       },
@@ -6884,12 +6182,8 @@
           "name": "profile_assets_user_id_user_id_fk",
           "tableFrom": "profile_assets",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -6943,9 +6237,7 @@
       "indexes": {
         "project_members_user_index": {
           "name": "project_members_user_index",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -6954,12 +6246,8 @@
           "name": "project_members_project_id_projects_id_fk",
           "tableFrom": "project_members",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -6967,22 +6255,15 @@
           "name": "project_members_user_id_user_id_fk",
           "tableFrom": "project_members",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "project_members_project_id_user_id_pk": {
-          "columns": [
-            "project_id",
-            "user_id"
-          ],
+          "columns": ["project_id", "user_id"],
           "name": "project_members_project_id_user_id_pk"
         }
       },
@@ -7119,25 +6400,17 @@
       "indexes": {
         "projects_slug_unique": {
           "name": "projects_slug_unique",
-          "columns": [
-            "slug"
-          ],
+          "columns": ["slug"],
           "isUnique": true
         },
         "projects_source_submission_unique": {
           "name": "projects_source_submission_unique",
-          "columns": [
-            "source_submission_id"
-          ],
+          "columns": ["source_submission_id"],
           "isUnique": true
         },
         "projects_market_status_index": {
           "name": "projects_market_status_index",
-          "columns": [
-            "market_code",
-            "status",
-            "updated_at"
-          ],
+          "columns": ["market_code", "status", "updated_at"],
           "isUnique": false
         }
       },
@@ -7146,12 +6419,8 @@
           "name": "projects_market_code_markets_code_fk",
           "tableFrom": "projects",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -7159,12 +6428,8 @@
           "name": "projects_source_submission_id_hackathon_submissions_id_fk",
           "tableFrom": "projects",
           "tableTo": "hackathon_submissions",
-          "columnsFrom": [
-            "source_submission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["source_submission_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -7230,9 +6495,7 @@
       "indexes": {
         "push_session_links_session_index": {
           "name": "push_session_links_session_index",
-          "columns": [
-            "session_id"
-          ],
+          "columns": ["session_id"],
           "isUnique": false
         }
       },
@@ -7241,12 +6504,8 @@
           "name": "push_session_links_user_id_user_id_fk",
           "tableFrom": "push_session_links",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -7254,14 +6513,8 @@
           "name": "push_session_links_subscription_id_user_id_push_subscriptions_id_user_id_fk",
           "tableFrom": "push_session_links",
           "tableTo": "push_subscriptions",
-          "columnsFrom": [
-            "subscription_id",
-            "user_id"
-          ],
-          "columnsTo": [
-            "id",
-            "user_id"
-          ],
+          "columnsFrom": ["subscription_id", "user_id"],
+          "columnsTo": ["id", "user_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -7269,14 +6522,8 @@
           "name": "push_session_links_session_id_user_id_session_id_user_id_fk",
           "tableFrom": "push_session_links",
           "tableTo": "session",
-          "columnsFrom": [
-            "session_id",
-            "user_id"
-          ],
-          "columnsTo": [
-            "id",
-            "user_id"
-          ],
+          "columnsFrom": ["session_id", "user_id"],
+          "columnsTo": ["id", "user_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -7350,17 +6597,12 @@
       "indexes": {
         "push_subscriptions_token_unique": {
           "name": "push_subscriptions_token_unique",
-          "columns": [
-            "token"
-          ],
+          "columns": ["token"],
           "isUnique": true
         },
         "push_subscription_id_user_unique": {
           "name": "push_subscription_id_user_unique",
-          "columns": [
-            "id",
-            "user_id"
-          ],
+          "columns": ["id", "user_id"],
           "isUnique": true
         }
       },
@@ -7369,12 +6611,8 @@
           "name": "push_subscriptions_user_id_user_id_fk",
           "tableFrom": "push_subscriptions",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -7382,12 +6620,8 @@
           "name": "push_subscriptions_market_code_markets_code_fk",
           "tableFrom": "push_subscriptions",
           "tableTo": "markets",
-          "columnsFrom": [
-            "market_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["market_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -7520,38 +6754,28 @@
       "indexes": {
         "idx_scheduled_notifications_pending": {
           "name": "idx_scheduled_notifications_pending",
-          "columns": [
-            "send_at"
-          ],
+          "columns": ["send_at"],
           "isUnique": false,
           "where": "status = 'pending'"
         },
         "scheduled_notifications_event_id_index": {
           "name": "scheduled_notifications_event_id_index",
-          "columns": [
-            "event_id"
-          ],
+          "columns": ["event_id"],
           "isUnique": false
         },
         "scheduled_notifications_user_id_index": {
           "name": "scheduled_notifications_user_id_index",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         },
         "scheduled_notifications_fallback_of_unique": {
           "name": "scheduled_notifications_fallback_of_unique",
-          "columns": [
-            "fallback_of"
-          ],
+          "columns": ["fallback_of"],
           "isUnique": true
         },
         "idx_scheduled_notifications_processing": {
           "name": "idx_scheduled_notifications_processing",
-          "columns": [
-            "claimed_at"
-          ],
+          "columns": ["claimed_at"],
           "isUnique": false,
           "where": "status = 'processing'"
         }
@@ -7561,12 +6785,8 @@
           "name": "scheduled_notifications_event_id_events_id_fk",
           "tableFrom": "scheduled_notifications",
           "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -7574,12 +6794,8 @@
           "name": "scheduled_notifications_user_id_user_id_fk",
           "tableFrom": "scheduled_notifications",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -7667,17 +6883,12 @@
       "indexes": {
         "session_token_unique": {
           "name": "session_token_unique",
-          "columns": [
-            "token"
-          ],
+          "columns": ["token"],
           "isUnique": true
         },
         "session_id_user_unique": {
           "name": "session_id_user_unique",
-          "columns": [
-            "id",
-            "user_id"
-          ],
+          "columns": ["id", "user_id"],
           "isUnique": true
         }
       },
@@ -7686,12 +6897,8 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -7826,23 +7033,17 @@
       "indexes": {
         "user_email_unique": {
           "name": "user_email_unique",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": true
         },
         "user_phone_number_unique": {
           "name": "user_phone_number_unique",
-          "columns": [
-            "phone_number"
-          ],
+          "columns": ["phone_number"],
           "isUnique": true
         },
         "user_closing_index": {
           "name": "user_closing_index",
-          "columns": [
-            "closed_at"
-          ],
+          "columns": ["closed_at"],
           "isUnique": false,
           "where": "account_state = 'closing'"
         }

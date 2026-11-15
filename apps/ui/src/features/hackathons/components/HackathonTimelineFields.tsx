@@ -101,6 +101,7 @@ export const HackathonTimelineFields = ({
                 locale={locale}
                 timeZone={timeZone}
                 align="start"
+                isDisabled={form.isLocked(field)}
                 isInvalid={Boolean(error)}
                 describedBy={error ? errorId : undefined}
                 hideValidation
@@ -122,6 +123,7 @@ export const HackathonTimelineFields = ({
                   dir="ltr"
                   value={currentTime}
                   required
+                  disabled={form.isLocked(field)}
                   aria-invalid={Boolean(error)}
                   aria-describedby={error ? errorId : undefined}
                   onChange={(event) =>

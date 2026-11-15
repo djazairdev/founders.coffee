@@ -6,10 +6,7 @@ import {
   hackathon_prize_description_ph,
   hackathon_prize_place,
   hackathon_prize_place_ph,
-  hackathon_prize_provider,
   hackathon_prize_save,
-  hackathon_prize_sponsor_heading,
-  hackathon_prize_sponsor_hint,
   hackathon_prize_title,
   hackathon_prize_title_ph,
   optional,
@@ -45,8 +42,6 @@ export const HackathonPrizeForm = ({
   locale: Locale;
 }) => {
   const options = { locale };
-  const isSponsorDetailsVisible =
-    form.isProviderRequired || form.values.providerName !== '';
   const idOf = (field: PrizeField) => prizeFieldId(formKey, field);
   const described = (field: PrizeField, hint = false) => ({
     'aria-invalid': form.errors[field] ? true : undefined,
@@ -83,13 +78,14 @@ export const HackathonPrizeForm = ({
             onChange={(event) => form.set('place')(event.target.value)}
           >
             <option value="">{hackathon_prize_place_ph({}, options)}</option>
-            {Array.from({ length: PRIZE_PLACE_MAX }, (_, index) => index + 1).map(
-              (place) => (
-                <option key={place} value={place}>
-                  {prizePlaceLabel(place, locale)}
-                </option>
-              ),
-            )}
+            {Array.from(
+              { length: PRIZE_PLACE_MAX },
+              (_, index) => index + 1,
+            ).map((place) => (
+              <option key={place} value={place}>
+                {prizePlaceLabel(place, locale)}
+              </option>
+            ))}
           </Select>
         </FormField>
         <FormField
@@ -128,32 +124,6 @@ export const HackathonPrizeForm = ({
           onChange={(event) => form.set('description')(event.target.value)}
         />
       </FormField>
-      {isSponsorDetailsVisible ? (
-        <div className="grid gap-3 rounded-box bg-base-200 p-3">
-          <p className="text-label">
-            {hackathon_prize_sponsor_heading({}, options)}
-          </p>
-          <FormField
-            id={idOf('providerName')}
-            label={hackathon_prize_provider({}, options)}
-            isOptional={!form.isProviderRequired}
-            optionalLabel={optional({}, options)}
-            hint={hackathon_prize_sponsor_hint({}, options)}
-            error={form.errors.providerName}
-          >
-            <Input
-              id={idOf('providerName')}
-              dir="auto"
-              maxLength={100}
-              value={form.values.providerName}
-              {...described('providerName', true)}
-              onChange={(event) =>
-                form.set('providerName')(event.target.value)
-              }
-            />
-          </FormField>
-        </div>
-      ) : null}
       <div className="flex flex-wrap gap-2">
         <HackathonSaveButton type="submit" isBusy={form.isBusy}>
           {form.isBusy

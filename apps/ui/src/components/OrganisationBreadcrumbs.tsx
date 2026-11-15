@@ -1,6 +1,9 @@
 import { Link } from '@tanstack/react-router';
 
-import { profile_organisations_title, type Locale } from '@founders-coffee/i18n';
+import {
+  profile_organisations_title,
+  type Locale,
+} from '@founders-coffee/i18n';
 
 import { localizedMyOrganisation } from '../lib/locale-routing';
 

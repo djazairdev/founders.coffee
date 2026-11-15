@@ -85,7 +85,10 @@ export const localInput = (epochMs: number, timeZone: string): string => {
 const LOCAL_INPUT = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/;
 
 /** A `datetime-local` value read on the market's wall clock, or `undefined` when it names no instant. */
-export const instantOf = (value: string, timeZone: string): number | undefined => {
+export const instantOf = (
+  value: string,
+  timeZone: string,
+): number | undefined => {
   const match = LOCAL_INPUT.exec(value);
   if (!match) return undefined;
   const [year, month, day, hour, minute] = match.slice(1).map(Number);
@@ -197,12 +200,7 @@ export const deadlinesInput = (
 ) => {
   const saved = draft.deadlines ?? draft.details;
   return {
-    registrationOpensAt: dateOf(
-      'registrationOpensAt',
-      values,
-      saved,
-      timeZone,
-    ),
+    registrationOpensAt: dateOf('registrationOpensAt', values, saved, timeZone),
     registrationClosesAt: dateOf(
       'registrationClosesAt',
       values,

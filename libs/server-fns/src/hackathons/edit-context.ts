@@ -66,14 +66,18 @@ export const detailsInputOf = (
   licenceNote: row.licenceNote ?? undefined,
 });
 
-export const deadlinesInputOf = (row: Hackathon): hackathons.HackathonDeadlinesInput => ({
+export const deadlinesInputOf = (
+  row: Hackathon,
+): hackathons.HackathonDeadlinesInput => ({
   registrationOpensAt: row.registrationOpensAt.getTime(),
   registrationClosesAt: row.registrationClosesAt.getTime(),
   submissionDeadlineAt: row.submissionDeadlineAt.getTime(),
   judgingEndsAt: row.judgingEndsAt.getTime(),
 });
 
-export const settingsInputOf = (row: Hackathon): hackathons.HackathonSettingsInput => ({
+export const settingsInputOf = (
+  row: Hackathon,
+): hackathons.HackathonSettingsInput => ({
   attendanceModes: row.attendanceModes,
   teamMin: row.teamMin,
   teamMax: row.teamMax,
@@ -86,8 +90,8 @@ export const settingsInputOf = (row: Hackathon): hackathons.HackathonSettingsInp
 });
 
 /**
- * Whether an organiser may edit a hackathon at all (B-HKN-07): not cancelled, not with the
- * reviewers, and not over. What each stage still allows is the domain's to say.
+ * Whether an organiser may edit a hackathon at all (B-HKN-07): not cancelled, not in the legacy
+ * locked review state, and not over. What each stage still allows is the domain's to say.
  */
 export const isHackathonEditable = (
   rows: HackathonDraftRows,

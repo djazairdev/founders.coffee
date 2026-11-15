@@ -22,6 +22,7 @@ type HackathonDateFieldProps = {
   locale: Locale;
   timeZone: string;
   align: 'start' | 'end';
+  isDisabled?: boolean;
   showValidation?: boolean;
   isInvalid?: boolean;
   describedBy?: string;
@@ -37,6 +38,7 @@ export const HackathonDateField = ({
   locale,
   timeZone,
   align,
+  isDisabled = false,
   showValidation = false,
   isInvalid: externallyInvalid,
   describedBy,
@@ -104,20 +106,26 @@ export const HackathonDateField = ({
         closeCalendar();
       }}
     >
-      <label htmlFor={id}>{label}</label>
+      <label id={`${id}-label`} htmlFor={id}>
+        {label}
+      </label>
       <button
         ref={triggerRef}
         id={id}
         type="button"
         className={`input input-sm md:input-md w-full justify-between text-start ${isInvalid ? 'input-error' : ''}`}
+        disabled={isDisabled}
         aria-invalid={isInvalid}
         aria-describedby={dateDescriptionId}
+        aria-labelledby={`${id}-label ${id}-value`}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
         aria-controls={isOpen ? `${id}-calendar` : undefined}
-        onClick={() => setIsOpen((open) => !open)}
+        onClick={() => {
+          if (!isDisabled) setIsOpen((open) => !open);
+        }}
       >
-        <bdi dir="auto" className="min-w-0 grow truncate">
+        <bdi id={`${id}-value`} dir="auto" className="min-w-0 grow truncate">
           {calendarButtonText}
         </bdi>
         <CalendarDays className="size-4 shrink-0" aria-hidden="true" />

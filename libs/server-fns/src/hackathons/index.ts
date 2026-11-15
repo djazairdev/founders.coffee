@@ -128,10 +128,6 @@ export {
   requestToJoinHackathonTeam,
 } from './team-requests-rpc.js';
 export {
-  submitHackathonForReview,
-  type SubmitHackathonForReviewRequest,
-} from './review-rpc.js';
-export {
   assignHackathonPrize,
   getHackathonPrizeDelivery,
   setHackathonPrizeDelivery,

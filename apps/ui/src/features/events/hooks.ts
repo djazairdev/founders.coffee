@@ -171,7 +171,6 @@ export const useCreateOrganisationEvent = () =>
     mutationFn: (input) => eventsApi.createOrganisationEvent(input),
   });
 
-
 /** Refresh every cached view that now has to show the newly created event (EC-08). */
 export const useInvalidateCreatedEvent = () => {
   const queryClient = useQueryClient();

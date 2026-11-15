@@ -171,8 +171,6 @@ export const HACKATHON_ERROR_CODES = [
   'hackathon_track_has_prizes',
   'hackathon_prize_not_found',
   'withdrawal_closed',
-  'hackathon_not_submittable',
-  'hackathon_incomplete',
   'invalid_hackathon_transition',
   'invalid_project_transition',
   'project_not_available',

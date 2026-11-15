@@ -22,14 +22,14 @@ it('reads the review decision when the organiser returns to the tab', async () =
     draftView({
       details: savedDetails,
       isEditable: false,
-      review: { status: 'submitted', note: null, gaps: [] },
+      review: { status: 'submitted', note: null },
     }),
   );
   draft.mockResolvedValueOnce(
     draftView(
       {
         details: savedDetails,
-        review: { status: 'approved', note: null, gaps: [] },
+        review: { status: 'approved', note: null },
       },
       { status: 'published' },
     ),

@@ -75,10 +75,7 @@ export const HackathonDetailsForm = ({
             utcOffset={utcOffset}
           />
           <div>
-            <HackathonSaveButton
-              type="submit"
-              isBusy={deadlinesForm.isSaving}
-            >
+            <HackathonSaveButton type="submit" isBusy={deadlinesForm.isSaving}>
               {deadlinesForm.isSaving
                 ? hackathon_details_saving({}, { locale })
                 : hackathon_details_save({}, { locale })}
@@ -102,10 +99,7 @@ export const HackathonDetailsForm = ({
               {hackathon_details_locked_notice({}, { locale })}
             </StatusMessage>
           ) : null}
-          <HackathonParticipationFields
-            form={settingsForm}
-            locale={locale}
-          />
+          <HackathonParticipationFields form={settingsForm} locale={locale} />
           <HackathonAiPolicyFields form={settingsForm} locale={locale} />
           <HackathonNoteField
             form={settingsForm}
@@ -115,10 +109,7 @@ export const HackathonDetailsForm = ({
             locale={locale}
           />
           <div>
-            <HackathonSaveButton
-              type="submit"
-              isBusy={settingsForm.isSaving}
-            >
+            <HackathonSaveButton type="submit" isBusy={settingsForm.isSaving}>
               {settingsForm.isSaving
                 ? hackathon_details_saving({}, { locale })
                 : hackathon_details_save({}, { locale })}

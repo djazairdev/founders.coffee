@@ -78,9 +78,10 @@ export const HackathonParticipationFields = ({
   const rulesId = detailsFieldId('rules');
   const rulesHint = hackathon_details_rules_hint({}, { locale });
   const teamMax = Number(form.values.teamMax);
-  const teamHint = Number.isInteger(teamMax) && teamMax >= 1
-    ? hackathon_details_team_hint({ max: teamMax }, { locale })
-    : null;
+  const teamHint =
+    Number.isInteger(teamMax) && teamMax >= 1
+      ? hackathon_details_team_hint({ max: teamMax }, { locale })
+      : null;
 
   return (
     <div className="grid gap-4">
