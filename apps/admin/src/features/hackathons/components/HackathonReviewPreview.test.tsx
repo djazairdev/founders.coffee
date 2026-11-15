@@ -33,7 +33,7 @@ const item: HackathonReviewItem = {
   meetingUrl: 'https://meet.example.com/builders',
   languages: ['ar', 'fr'],
   attendanceModes: ['in_person', 'online'],
-  aiPolicy: 'ai_native',
+  aiPolicy: 'conditional',
   aiPolicyNote: 'Any assistant, named in the submission.',
   licenceNote: null,
   tracks: [

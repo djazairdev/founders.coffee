@@ -575,6 +575,13 @@
       "when": 1794745829481,
       "tag": "0081_chemical_power_pack",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "6",
+      "when": 1794749719442,
+      "tag": "0082_ai_policy_semantics",
+      "breakpoints": true
     }
   ]
 }

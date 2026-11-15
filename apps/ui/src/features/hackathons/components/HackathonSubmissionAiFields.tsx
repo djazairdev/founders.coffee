@@ -1,9 +1,10 @@
 import type { HackathonAiPolicy } from '@founders-coffee/core';
 import {
   hackathon_submission_ai_heading,
-  hackathon_submission_ai_hint_ai_native,
+  hackathon_submission_ai_conditions,
+  hackathon_submission_ai_hint_conditional,
   hackathon_submission_ai_hint_disclosed,
-  hackathon_submission_ai_hint_restricted,
+  hackathon_submission_ai_hint_not_allowed,
   hackathon_submission_ai_statement,
   hackathon_submission_ai_statement_hint,
   hackathon_submission_ai_tools,
@@ -26,13 +27,14 @@ const HEADING_ID = 'hackathon-submission-ai-heading';
 
 const POLICY_HINTS = {
   disclosed: hackathon_submission_ai_hint_disclosed,
-  ai_native: hackathon_submission_ai_hint_ai_native,
-  restricted: hackathon_submission_ai_hint_restricted,
+  conditional: hackathon_submission_ai_hint_conditional,
+  not_allowed: hackathon_submission_ai_hint_not_allowed,
 } as const satisfies Record<HackathonAiPolicy, unknown>;
 
 export const HackathonSubmissionAiFields = ({
   form,
   aiPolicy,
+  aiPolicyNote,
   errors,
   isReadOnly,
   locale,
@@ -40,6 +42,7 @@ export const HackathonSubmissionAiFields = ({
 }: {
   form: SubmissionFormDraft;
   aiPolicy: HackathonAiPolicy;
+  aiPolicyNote: string | null;
   errors: SubmissionFormErrors;
   isReadOnly: boolean;
   locale: Locale;
@@ -60,12 +63,20 @@ export const HackathonSubmissionAiFields = ({
         <p className="text-body-sm text-neutral">
           {POLICY_HINTS[aiPolicy]({}, options)}
         </p>
+        {aiPolicy === 'conditional' && aiPolicyNote ? (
+          <div className="mt-2 rounded-box bg-base-200 p-3 text-body-sm">
+            <h3 className="font-semibold">
+              {hackathon_submission_ai_conditions({}, options)}
+            </h3>
+            <p className="mt-1 whitespace-pre-wrap">{aiPolicyNote}</p>
+          </div>
+        ) : null}
       </div>
       <FormField
         id={ids.aiTools}
         label={hackathon_submission_ai_tools({}, options)}
         optionalLabel={optionalLabel}
-        isOptional={aiPolicy !== 'ai_native'}
+        isOptional
         hint={hackathon_submission_ai_tools_hint(
           { max: SUBMISSION_AI_TOOL_MAX },
           options,

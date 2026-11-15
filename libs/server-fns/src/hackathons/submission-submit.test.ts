@@ -190,13 +190,13 @@ describe('submitting an entry (B-SUB-04, real D1)', () => {
     );
   });
 
-  it('refuses an AI-native hackathon’s entry that names no AI tools', async () => {
-    const { eventId } = await saved();
+  it('refuses AI tools when the hackathon does not allow them', async () => {
+    const { eventId } = await saved({ aiTools: ['Copilot'] });
     await db
       .update(hackathonRows)
-      .set({ aiPolicy: 'ai_native' })
+      .set({ aiPolicy: 'not_allowed' })
       .where(eq(hackathonRows.eventId, eventId));
 
-    expect(codeOf(await submit(eventId, 1))).toBe('ai_tools_required');
+    expect(codeOf(await submit(eventId, 1))).toBe('ai_tools_not_allowed');
   });
 });

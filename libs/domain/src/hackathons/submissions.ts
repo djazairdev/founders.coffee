@@ -57,14 +57,27 @@ export const submissionSchema = z.strictObject({
 
 export type Submission = z.infer<typeof submissionSchema>;
 
+export const checkAiToolsPolicy = (
+  aiTools: readonly string[],
+  aiPolicy: HackathonAiPolicy,
+): Result<readonly string[]> =>
+  aiPolicy === 'not_allowed' && aiTools.length > 0
+    ? err(
+        new AppError(
+          'ai_tools_not_allowed',
+          'This hackathon does not allow AI tools',
+        ),
+      )
+    : ok(aiTools);
+
 /**
  * Check a submission against its hackathon, once the schema has accepted its shape.
  *
  * The schema already holds what every hackathon asks: HTTPS links without credentials, the
  * original-work statement, and an AI statement saying what the team built itself, which the
  * product asks of every submission whatever the policy (V14). Two rules need the hackathon: the
- * track has to be one of its own, and an AI-native hackathon, built around AI tools, needs the tools
- * named. Under the other policies a team that used none says so in its statement.
+ * track has to be one of its own, and a hackathon that prohibits AI tools rejects submissions
+ * naming any. Every team still describes its use of AI, including when none was used.
  */
 export const checkSubmission = (
   submission: Submission,
@@ -80,12 +93,10 @@ export const checkSubmission = (
         'The track is not one of this hackathon',
       ),
     );
-  if (hackathon.aiPolicy === 'ai_native' && submission.aiTools.length === 0)
-    return err(
-      new AppError(
-        'ai_tools_required',
-        'An AI-native hackathon asks which AI tools were used',
-      ),
-    );
+  const toolsAllowed = checkAiToolsPolicy(
+    submission.aiTools,
+    hackathon.aiPolicy,
+  );
+  if (!toolsAllowed.ok) return toolsAllowed;
   return ok(submission);
 };

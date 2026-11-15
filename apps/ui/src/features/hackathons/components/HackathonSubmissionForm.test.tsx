@@ -40,21 +40,24 @@ type Entry = Partial<NonNullable<SubmissionPageView['entry']>> | null;
 const renderForm = ({
   entry = {},
   aiPolicy = 'disclosed',
+  aiPolicyNote = null,
   isOpen = true,
   locale = 'en',
 }: {
   entry?: Entry;
   aiPolicy?: HackathonAiPolicy;
+  aiPolicyNote?: string | null;
   isOpen?: boolean;
   locale?: Locale;
 } = {}) => {
-  const view = submissionView({ aiPolicy }, entry);
+  const view = submissionView({ aiPolicy, aiPolicyNote }, entry);
   return render(
     <HackathonSubmissionForm
       eventId={EVENT_ID}
       tracks={view.tracks}
       entry={view.entry}
       aiPolicy={aiPolicy}
+      aiPolicyNote={view.aiPolicyNote}
       isReadOnly={!isOpen}
       isOpen={isOpen}
       locale={locale}
@@ -75,7 +78,7 @@ const submitButton = () =>
   screen.getByRole('button', { name: 'Submit the project' });
 
 describe('HackathonSubmissionForm (B-SUB-06)', () => {
-  it('words the AI section by the hackathon’s policy, asking for the tools only when built around AI', () => {
+  it('words the AI section by the hackathon’s policy', () => {
     renderForm();
     expect(screen.getByRole('heading', { name: 'AI use' })).toBeTruthy();
     expect(screen.getByText(/^Name any AI tools you used/u)).toBeTruthy();
@@ -83,17 +86,25 @@ describe('HackathonSubmissionForm (B-SUB-06)', () => {
     expect(screen.getByText('AI tools').textContent).toContain('(optional)');
     cleanup();
 
-    renderForm({ aiPolicy: 'ai_native' });
+    renderForm({
+      aiPolicy: 'conditional',
+      aiPolicyNote: 'Name tools used when submitting your project.',
+    });
     expect(
-      screen.getByText(/^This hackathon is built around AI/u),
+      screen.getByText(
+        /^AI tools may be used under the organiser’s stated conditions/u,
+      ),
     ).toBeTruthy();
-    expect(screen.getByText('AI tools').textContent).not.toContain(
-      '(optional)',
-    );
+    expect(
+      screen.getByText('Name tools used when submitting your project.'),
+    ).toBeTruthy();
+    expect(screen.getByText('AI tools').textContent).toContain('(optional)');
     cleanup();
 
-    renderForm({ aiPolicy: 'restricted' });
-    expect(screen.getByText(/^This hackathon limits AI use/u)).toBeTruthy();
+    renderForm({ aiPolicy: 'not_allowed' });
+    expect(
+      screen.getByText(/^AI tools may not be used to develop projects/u),
+    ).toBeTruthy();
   });
 
   it('submits a saved project that has not changed at the version the captain saw', () => {
@@ -142,8 +153,12 @@ describe('HackathonSubmissionForm (B-SUB-06)', () => {
 
   it('names what a submission still needs, the first field taking the focus', () => {
     renderForm({
-      entry: { repositoryUrl: null, aiTools: [], aiStatement: null },
-      aiPolicy: 'ai_native',
+      entry: {
+        repositoryUrl: null,
+        aiTools: ['Copilot'],
+        aiStatement: null,
+      },
+      aiPolicy: 'not_allowed',
     });
     attest();
     fireEvent.click(submitButton());
@@ -153,7 +168,7 @@ describe('HackathonSubmissionForm (B-SUB-06)', () => {
     ).toBeTruthy();
     expect(
       screen.getByText(
-        'Name at least one AI tool: this hackathon is built around AI.',
+        'This hackathon does not allow AI tools.',
       ),
     ).toBeTruthy();
     expect(
@@ -230,14 +245,12 @@ describe('HackathonSubmissionForm (B-SUB-06)', () => {
     mocks.send = {
       ...mutation(),
       isError: true,
-      error: new AppError('ai_tools_required', 'Tools'),
+      error: new AppError('ai_tools_not_allowed', 'Tools'),
     };
-    renderForm({ aiPolicy: 'ai_native' });
+    renderForm({ aiPolicy: 'not_allowed' });
 
     expect(
-      screen.getByText(
-        'Name at least one AI tool: this hackathon is built around AI.',
-      ),
+      screen.getByText('This hackathon does not allow AI tools.'),
     ).toBeTruthy();
   });
 

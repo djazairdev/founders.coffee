@@ -164,8 +164,8 @@ export type HackathonResultTieNote =
 
 export const HACKATHON_AI_POLICIES = [
   'disclosed',
-  'ai_native',
-  'restricted',
+  'conditional',
+  'not_allowed',
 ] as const;
 export type HackathonAiPolicy = (typeof HACKATHON_AI_POLICIES)[number];
 export const hackathonAiPolicySchema = z.enum(HACKATHON_AI_POLICIES);

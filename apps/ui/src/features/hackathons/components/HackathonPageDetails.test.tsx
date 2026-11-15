@@ -42,7 +42,7 @@ const details = (changes: Partial<Details> = {}): Details => ({
     attendanceModes: ['in_person', 'online'],
     teamMin: 2,
     teamMax: 5,
-    aiPolicy: 'restricted',
+    aiPolicy: 'conditional',
     aiPolicyNote: 'No generated code in the core logic.',
     licenceNote: 'Teams keep what they build.',
   },
@@ -124,7 +124,7 @@ describe('HackathonPageDetails (B-HKN-19, B-HKN-26)', () => {
     );
     expect(valueOf(rules, 'How people take part')).toBe('In person · Online');
     expect(valueOf(rules, 'Minimum age')).toBe('18');
-    expect(valueOf(rules, 'AI policy')).toContain('Restricted');
+    expect(valueOf(rules, 'AI policy')).toContain('Allowed with conditions');
     expect(valueOf(rules, 'AI policy')).toContain(
       'No generated code in the core logic.',
     );

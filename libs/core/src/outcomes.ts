@@ -162,7 +162,7 @@ export const HACKATHON_ERROR_CODES = [
   'entry_not_saved',
   'captain_must_transfer',
   'track_not_in_hackathon',
-  'ai_tools_required',
+  'ai_tools_not_allowed',
   'hackathon_not_editable',
   'hackathon_save_failed',
   'hackathon_conflict',

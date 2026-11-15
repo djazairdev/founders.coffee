@@ -99,6 +99,7 @@ export {
   type SubmissionSubmitInput,
 } from './submission-submit.js';
 export {
+  checkAiToolsPolicy,
   checkSubmission,
   SUBMISSION_AI_TOOL_LIMIT,
   SUBMISSION_PULL_REQUEST_LIMIT,

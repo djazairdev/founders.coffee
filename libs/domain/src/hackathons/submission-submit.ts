@@ -46,8 +46,8 @@ type SubmitEntry = {
  * captain, only while the team is building, and before the submission deadline by the server's
  * clock (`deadline_passed`). The entry has to be saved, at the version the captain saw
  * (`submission_conflict`), not disqualified (`submission_locked`), and complete by the submission's
- * own rules (`submission_incomplete`), with a track of this hackathon and, for an AI-native one,
- * the AI tools named.
+ * own rules (`submission_incomplete`), with a track of this hackathon and no AI tools when its
+ * policy prohibits them.
  */
 export const decideSubmit = (input: {
   readonly timeline: HackathonTimeline;

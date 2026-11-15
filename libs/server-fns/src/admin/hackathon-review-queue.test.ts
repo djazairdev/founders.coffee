@@ -46,7 +46,7 @@ describe('the hackathon review queue (B-HKN-08, B-HKN-09, real D1)', () => {
       meetingUrl: 'https://meet.example.com/builders',
       languages: ['ar', 'fr'],
       attendanceModes: ['online'],
-      aiPolicy: 'ai_native',
+      aiPolicy: 'conditional',
       aiPolicyNote: 'Any assistant, named in the submission.',
       licenceNote: 'Teams keep what they build.',
       tracks: [

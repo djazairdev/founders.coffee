@@ -1,5 +1,6 @@
 import {
   HACKATHON_SUBMISSION_AI_STATEMENT_MAX,
+  HACKATHON_SUBMISSION_AI_TOOL_MAX,
   HACKATHON_SUBMISSION_DESCRIPTION_MAX,
   HACKATHON_SUBMISSION_TITLE_MAX,
   type HackathonAiPolicy,
@@ -7,8 +8,9 @@ import {
 import { hackathons } from '@founders-coffee/domain';
 import {
   hackathon_submission_error_track,
+  hackathon_submission_error_ai_tools,
+  hackathon_submission_ai_tools_not_allowed,
   hackathon_submission_need_ai_statement,
-  hackathon_submission_need_ai_tools,
   hackathon_submission_need_description,
   hackathon_submission_need_original,
   hackathon_submission_need_repository,
@@ -17,7 +19,10 @@ import {
 } from '@founders-coffee/i18n';
 
 import type { SubmissionDraftFields } from './api';
-import { SUBMISSION_FIELD_IDS, type SubmissionField } from './submission-form';
+import {
+  SUBMISSION_FIELD_IDS,
+  type SubmissionField,
+} from './submission-form';
 
 export type SubmitField =
   | 'trackId'
@@ -71,7 +76,11 @@ export const firstErrorField = (
   return field ? document.getElementById(FIELD_IDS[field]) : null;
 };
 
-const messageFor = (field: SubmitField, locale: Locale): string => {
+const messageFor = (
+  field: SubmitField,
+  locale: Locale,
+  aiPolicy: HackathonAiPolicy,
+): string => {
   const options = { locale };
   switch (field) {
     case 'trackId':
@@ -89,7 +98,12 @@ const messageFor = (field: SubmitField, locale: Locale): string => {
     case 'repositoryUrl':
       return hackathon_submission_need_repository({}, options);
     case 'aiTools':
-      return hackathon_submission_need_ai_tools({}, options);
+      if (aiPolicy === 'not_allowed')
+        return hackathon_submission_ai_tools_not_allowed({}, options);
+      return hackathon_submission_error_ai_tools(
+        { max: HACKATHON_SUBMISSION_AI_TOOL_MAX },
+        options,
+      );
     case 'aiStatement':
       return hackathon_submission_need_ai_statement(
         { max: HACKATHON_SUBMISSION_AI_STATEMENT_MAX },
@@ -102,8 +116,8 @@ const messageFor = (field: SubmitField, locale: Locale): string => {
 
 /**
  * What still keeps the project from being submitted (B-SUB-06), by the rules the server applies on
- * submit: the submission schema, with the original-work statement, and, for an AI-native
- * hackathon, at least one AI tool named. A field whose draft check already failed keeps that
+ * submit: the submission schema, with the original-work statement, and no named AI tools when
+ * the hackathon prohibits them. A field whose draft check already failed keeps that
  * message where it says more, a link that is not HTTPS or a tool name too long, and otherwise takes
  * the submission's own range. Empty when it can go.
  */
@@ -126,12 +140,12 @@ export const missingForSubmit = (
       : parsed.error.issues.map((issue) => String(issue.path[0])),
   );
   if (failed.has('isOriginalWorkAttested')) failed.add('original');
-  if (input.aiPolicy === 'ai_native' && fields.aiTools.length === 0)
+  if (input.aiPolicy === 'not_allowed' && fields.aiTools.length > 0)
     failed.add('aiTools');
   const missing: SubmissionFormErrors = Object.fromEntries(
     SUBMIT_FIELDS.filter((field) => failed.has(field)).map((field) => [
       field,
-      messageFor(field, input.locale),
+      messageFor(field, input.locale, input.aiPolicy),
     ]),
   );
   const kept = FORMAT_FIRST.filter((field) => input.draftErrors[field]);

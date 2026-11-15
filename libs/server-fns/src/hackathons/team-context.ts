@@ -15,6 +15,7 @@ export type TeamHackathon = {
   readonly teamMin: number;
   readonly teamMax: number;
   readonly aiPolicy: HackathonAiPolicy;
+  readonly aiPolicyNote: string | null;
   readonly resultsPublishedAt: Date | null;
   readonly timeline: hackathons.HackathonTimeline;
 };
@@ -37,6 +38,7 @@ export const loadTeamHackathon = async (
     teamMin: hackathon.teamMin,
     teamMax: hackathon.teamMax,
     aiPolicy: hackathon.aiPolicy,
+    aiPolicyNote: hackathon.aiPolicyNote,
     resultsPublishedAt: hackathon.resultsPublishedAt,
     timeline: {
       registrationOpensAt: hackathon.registrationOpensAt.getTime(),
