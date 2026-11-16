@@ -20,7 +20,6 @@ const PRIVATE_PATHS = [
   '/en/o/apply',
   '/en/o/code-club/manage',
   '/en/o/invitations/inv_1',
-  '/en/hackathon/evt_1/judge_/sub_1',
 ];
 const MAX_DYNAMIC_ROUTES = 25;
 const MAX_UNLISTED_PROFILES = 5;

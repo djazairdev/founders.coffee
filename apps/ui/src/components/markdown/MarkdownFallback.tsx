@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { MarkdownInline } from './MarkdownInline';
+import { markdownSubdocumentSource } from './markdown-subdocument-source';
 
 const HEADING = /^ {0,3}(#{1,6})[ \t]+(.+?)[ \t]*#*[ \t]*$/u;
 const LIST_ITEM = /^ {0,3}(?:([-*+])|(\d+)[.)])[ \t]+(.*)$/u;
@@ -230,6 +231,6 @@ const renderBlocks = (value: string): ReactNode[] => {
 
 export const MarkdownFallback = ({ value }: { value: string }) => (
   <div className="markdown-fallback text-body-md text-base-content">
-    {renderBlocks(value)}
+    {renderBlocks(markdownSubdocumentSource(value))}
   </div>
 );
