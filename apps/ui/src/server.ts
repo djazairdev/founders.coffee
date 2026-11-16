@@ -28,6 +28,7 @@ export { RateLimiterDO } from '@founders-coffee/server-fns/rate-limiter-do';
 import { createOtpEmailProvider } from './lib/auth-email.js';
 import {
   PRIVATE_DOCUMENT_CACHE_CONTROL,
+  isIndexableEnvironment,
   robotsBody,
   siteOriginFromEnv,
   withPrivateRouteHeaders,
@@ -219,6 +220,7 @@ export default {
     return runWithContext(
       {
         cspNonce: nonce,
+        isSearchIndexable: isIndexableEnvironment(env),
         requestPath: url.pathname,
         siteOrigin: siteOriginFromEnv(env, url.origin),
       },

@@ -127,7 +127,7 @@ export const eventPageHead = ({
 }: EventHeadInput) => {
   const hostWords = description ? markdownPlainText(description) : '';
   const structuredDescription = description
-    ? markdownPlainText(description, false)
+    ? markdownPlainText(description)
     : '';
   const city = cityInputs(cityName);
   const fallbackDescription =
