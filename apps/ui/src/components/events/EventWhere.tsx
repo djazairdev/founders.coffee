@@ -15,17 +15,19 @@ export const EventWhere = ({
   event,
   place,
   isCancelled,
+  showLocation = true,
 }: {
   locale: Locale;
   event: EventDetailItem;
   place: string | null;
   isCancelled: boolean;
+  showLocation?: boolean;
 }) => {
   const formatName = eventFormatName(event.format, locale);
   return (
     <div className="rounded-box border border-base-300 bg-base-100 p-4">
       <dt className="eyebrow">{event_where({}, { locale })}</dt>
-      {event.venue !== null ? (
+      {showLocation && event.venue !== null ? (
         <dd className="mt-1.5 flex items-start gap-2 font-medium">
           <MapPin
             className="mt-0.5 size-4 shrink-0 text-secondary"
@@ -35,7 +37,7 @@ export const EventWhere = ({
             <bdi>{event.venue}</bdi>
           </span>
         </dd>
-      ) : formatName ? (
+      ) : showLocation && formatName ? (
         <dd className="mt-1.5 flex items-start gap-2 font-medium">
           <Video
             className="mt-0.5 size-4 shrink-0 text-secondary"
@@ -44,7 +46,7 @@ export const EventWhere = ({
           <span>{formatName}</span>
         </dd>
       ) : null}
-      {place ? (
+      {showLocation && place ? (
         <dd className="mt-0.5 ps-6 text-body-sm text-neutral">
           <bdi>{place}</bdi>
         </dd>
@@ -70,7 +72,7 @@ export const EventWhere = ({
             </span>
           </span>
         </dd>
-      ) : event.format !== 'in_person' && !isCancelled ? (
+      ) : showLocation && event.format !== 'in_person' && !isCancelled ? (
         <dd className="mt-3 flex items-start gap-2 text-body-sm text-neutral">
           <Video
             className="mt-0.5 size-4 shrink-0 text-secondary"

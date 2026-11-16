@@ -40,7 +40,10 @@ vi.mock('../../features/chat/components/EventChat', () => ({
 
 vi.mock(
   '../../features/hackathons/components/HackathonRegistrationCard',
-  () => ({ HackathonRegistrationCard: () => null }),
+  () => ({
+    HackathonRegistrationCard: () =>
+      createElement('section', { 'aria-label': 'Registration card' }),
+  }),
 );
 
 export const market = {

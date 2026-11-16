@@ -39,28 +39,27 @@ describe('what the details of an event are called (#477)', () => {
     ).toBeTruthy();
   });
 
-  it.each(['workshop', 'hackathon'] as const)(
-    'does not call a %s a meetup',
-    (kind) => {
-      show(kind);
+  it('does not call a workshop a meetup', () => {
+    show('workshop');
 
-      expect(screen.getByRole('heading', { name: 'Details' })).toBeTruthy();
-      expect(
-        screen.queryByRole('heading', { name: 'Meetup details' }),
-      ).toBeNull();
-    },
-  );
+    expect(screen.getByRole('heading', { name: 'Details' })).toBeTruthy();
+    expect(
+      screen.queryByRole('heading', { name: 'Meetup details' }),
+    ).toBeNull();
+  });
 
-  it('keeps the sections of a hackathon out of its details, after them', () => {
+  it('renders a hackathon description separately from its rules', () => {
     show('hackathon', {} as HackathonPageDetails);
 
-    const details = screen.getByRole('region', { name: 'Details' });
+    const description = screen.getByRole('region', {
+      name: 'Hackathon description',
+    });
     const rules = screen.getByRole('region', { name: 'Rules' });
 
-    expect(details.contains(rules)).toBe(false);
-    expect(details.parentElement?.contains(rules)).toBe(false);
+    expect(description.contains(rules)).toBe(false);
     expect(
-      details.compareDocumentPosition(rules) & Node.DOCUMENT_POSITION_FOLLOWING,
+      description.compareDocumentPosition(rules) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
   });
 });

@@ -6,8 +6,7 @@ import type { EventDetailItem } from '@founders-coffee/server-fns';
 
 import type { EventPhase } from '../../features/events/live-window';
 import { event, market } from './EventDetail.fixtures';
-
-const { EventDetail } = await import('./EventDetail');
+import { EventDetail } from './EventDetail';
 
 afterEach(() => cleanup());
 

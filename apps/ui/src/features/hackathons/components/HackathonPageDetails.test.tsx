@@ -138,6 +138,48 @@ describe('HackathonPageDetails (B-HKN-19, B-HKN-26)', () => {
     );
   });
 
+  it('orders tracks, rules, prizes, and judges by participant priority', () => {
+    renderDetails(
+      details({
+        tracks: [
+          {
+            id: 'trk_build',
+            kind: 'founder_problem',
+            title: 'Build for local teams',
+            brief: 'Make a tool for the community.',
+            partnerName: null,
+            sourceUrls: [],
+          },
+        ],
+        prizes: [
+          {
+            id: 'prz_first',
+            trackId: null,
+            place: 1,
+            title: 'First place',
+            description: 'A laptop',
+            providerName: null,
+            value: null,
+          },
+        ],
+      }),
+    );
+    const tracks = screen.getByRole('region', { name: 'Tracks' });
+    const rules = screen.getByRole('region', { name: 'Rules and eligibility' });
+    const prizes = screen.getByRole('region', { name: 'Prizes' });
+    const judges = screen.getByRole('region', { name: 'Judges' });
+
+    expect(
+      tracks.compareDocumentPosition(rules) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      rules.compareDocumentPosition(prizes) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      prizes.compareDocumentPosition(judges) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it('says there is no minimum age, and leaves out rules and licence never written', () => {
     renderDetails(
       details({
