@@ -589,6 +589,13 @@
       "when": 1794752170269,
       "tag": "0083_large_ego",
       "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "6",
+      "when": 1794811445219,
+      "tag": "0084_optional_event_location",
+      "breakpoints": true
     }
   ]
 }

@@ -35,6 +35,8 @@ export const EVENT_COLUMNS = [
   'description',
   'endsAt',
   'format',
+  'hackathonFields',
+  'hackathonTypeTags',
   'hostId',
   'id',
   'kind',

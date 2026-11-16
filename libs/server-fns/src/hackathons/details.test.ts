@@ -82,7 +82,7 @@ describe("a hackathon's details (B-HKN-12, B-HKN-07, real D1)", () => {
         teamMax: 5,
         capacity: 80,
         minimumAge: 18,
-        aiPolicyNote: undefined,
+        aiPolicyNote: 'Name tools used at submission.',
       }),
     });
     expect(second.ok && second.data.version).toBe(5);

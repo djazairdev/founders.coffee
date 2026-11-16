@@ -1,12 +1,12 @@
 import { id, type Result } from '@founders-coffee/core';
 import {
   eq,
-  hackathons,
+  hackathons as hackathonTable,
   listOrganiserHackathonPrizes,
   readHackathonDraft,
   type Db,
 } from '@founders-coffee/db';
-import { hackathons } from '@founders-coffee/domain';
+import { hackathons as hackathonSchemas } from '@founders-coffee/domain';
 
 import { decideHackathonReviewResolver } from '../../admin/hackathon-review.js';
 import { TEST_HOST_ID } from '../../events/resolver.fixtures.js';
@@ -131,9 +131,9 @@ export const inReview = async (
 ): Promise<Ids> => {
   const seed = await drafted(db, cast, extra);
   await db
-    .update(hackathons)
+    .update(hackathonTable)
     .set({ reviewStatus: 'submitted' })
-    .where(eq(hackathons.eventId, seed.eventId));
+    .where(eq(hackathonTable.eventId, seed.eventId));
   return seed;
 };
 
@@ -147,7 +147,7 @@ export const opened = async (
   const { eventId } = seed;
   unwrap(
     await decideHackathonReviewResolver(db, () => Promise.resolve(), null, {
-      decision: hackathons.hackathonReviewDecisionSchema.parse({
+      decision: hackathonSchemas.hackathonReviewDecisionSchema.parse({
         eventId,
         version: await versionOf(db, eventId),
         decision: 'approve',

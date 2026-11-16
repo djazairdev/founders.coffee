@@ -223,7 +223,12 @@ describe('reviewing hackathons (B-HKN-08, real D1)', () => {
 
     expect(
       codeOf(
-        await decide({ eventId, version, decision: 'reject', note: 'No.' }),
+        await decide({
+          eventId,
+          version,
+          decision: 'reject',
+          note: 'Please make revisions.',
+        }),
       ),
     ).toBe('invalid_hackathon_transition');
     expect((await stateOf(eventId))?.eventStatus).toBe('published');
