@@ -13,6 +13,7 @@ const LOCALES = ['ar', 'fr', 'en'];
 const PRIVATE_PATHS = [
   '/account',
   '/profile',
+  ...LOCALES.map((locale) => `/${locale}/profile/organisations`),
   '/preferences',
   '/activity',
   '/algeria/host/create',
@@ -259,7 +260,14 @@ const run = async () => {
   await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
   await writeFile(sitemapPath, sitemap, 'utf8');
   process.stdout.write(
-    `${JSON.stringify({ origin, routes: routes.length, failures: failures.length, reportPath, sitemapPath })}\n`,
+    `${JSON.stringify({
+      origin,
+      routes: routes.length,
+      failures: failures.length,
+      ...(failures.length > 0 ? { failureDetails: failures } : {}),
+      reportPath,
+      sitemapPath,
+    })}\n`,
   );
   if (failures.length > 0) process.exitCode = 1;
 };
