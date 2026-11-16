@@ -10,25 +10,25 @@ import {
 } from '@milkdown/react';
 import { useEffect, useRef } from 'react';
 
-import type { Locale } from '@founders-coffee/i18n';
-
 import '@milkdown/crepe/theme/common/prosemirror.css';
 import '@milkdown/crepe/theme/common/reset.css';
 import '@milkdown/crepe/theme/common/list-item.css';
 import '@milkdown/crepe/theme/classic.css';
-import './HackathonMilkdownRuntime.css';
+import './MarkdownRuntime.css';
 
-export type HackathonMilkdownRuntimeProps = {
-  locale: Locale;
+export type MarkdownRuntimeProps = {
+  direction: 'ltr' | 'rtl';
+  language: string | null;
   value: string;
   label: string;
 };
 
-const HackathonMilkdownSurface = ({
-  locale,
+const MarkdownSurface = ({
+  direction,
+  language,
   value,
   label,
-}: HackathonMilkdownRuntimeProps) => {
+}: MarkdownRuntimeProps) => {
   const appliedValue = useRef(value);
 
   useEditor((root) => {
@@ -59,19 +59,17 @@ const HackathonMilkdownSurface = ({
 
   return (
     <div
-      className="hackathon-milkdown-surface hackathon-milkdown-preview"
-      dir={locale === 'ar' ? 'rtl' : 'ltr'}
-      lang={locale}
+      className="markdown-surface markdown-preview"
+      dir={direction}
+      lang={language ?? undefined}
     >
       <Milkdown />
     </div>
   );
 };
 
-export const HackathonMilkdownRuntime = (
-  props: HackathonMilkdownRuntimeProps,
-) => (
+export const MarkdownRuntime = (props: MarkdownRuntimeProps) => (
   <MilkdownProvider>
-    <HackathonMilkdownSurface {...props} />
+    <MarkdownSurface {...props} />
   </MilkdownProvider>
 );

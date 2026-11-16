@@ -1,15 +1,11 @@
 import {
   hackathon_desc_ph,
-  hackathon_editor_error,
-  hackathon_editor_loading,
   hackathon_preview_description,
   hackathon_preview_empty,
   hackathon_title_ph,
   type Locale,
 } from '@founders-coffee/i18n';
-import { LoadingStatus, StatusMessage } from '@founders-coffee/ui';
-
-import { useHackathonMilkdownRuntime } from '../useHackathonMilkdownRuntime';
+import { MarkdownDescription } from '../../../components/markdown/MarkdownDescription';
 
 export const HackathonDescriptionPreview = ({
   locale,
@@ -20,8 +16,6 @@ export const HackathonDescriptionPreview = ({
   title: string;
   description: string;
 }) => {
-  const runtime = useHackathonMilkdownRuntime();
-
   return (
     <div className="flex h-full min-h-80 overflow-hidden bg-base-200 lg:min-h-0">
       <article className="flex min-h-0 w-full flex-1 flex-col bg-base-100 p-5 lg:p-8">
@@ -35,19 +29,11 @@ export const HackathonDescriptionPreview = ({
         </h2>
         <div className="mt-5 min-h-0 flex-1 overflow-y-auto border-t border-base-300 pt-4">
           {description.trim() ? (
-            runtime.status === 'ready' ? (
-              <runtime.Component
-                locale={locale}
-                value={description}
-                label={hackathon_preview_description({}, { locale })}
-              />
-            ) : runtime.status === 'loading' ? (
-              <LoadingStatus label={hackathon_editor_loading({}, { locale })} />
-            ) : (
-              <StatusMessage variant="error">
-                {hackathon_editor_error({}, { locale })}
-              </StatusMessage>
-            )
+            <MarkdownDescription
+              locale={locale}
+              value={description}
+              label={hackathon_preview_description({}, { locale })}
+            />
           ) : (
             <div>
               <p className="text-body text-neutral">

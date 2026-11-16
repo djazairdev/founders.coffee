@@ -37,7 +37,10 @@ describe('the language of what a host wrote (#476)', () => {
       screen.getByRole('heading', { level: 1 }).querySelector('bdi')?.lang,
     ).toBe('fr');
     expect(
-      screen.getByText('Un café entre fondateurs.').closest('p')?.lang,
+      screen
+        .getByText('Un café entre fondateurs.')
+        .closest('[role="region"]')
+        ?.getAttribute('lang'),
     ).toBe('fr');
   });
 
@@ -52,8 +55,11 @@ describe('the language of what a host wrote (#476)', () => {
     expect(
       screen.getByRole('heading', { level: 1 }).querySelector('bdi')?.lang,
     ).toBe('');
-    expect(screen.getByText('Coffee with founders.').closest('p')?.lang).toBe(
-      '',
-    );
+    expect(
+      screen
+        .getByText('Coffee with founders.')
+        .closest('[role="region"]')
+        ?.getAttribute('lang'),
+    ).toBeNull();
   });
 });

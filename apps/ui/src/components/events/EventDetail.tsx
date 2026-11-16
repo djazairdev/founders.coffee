@@ -13,7 +13,6 @@ import {
   share_event_action,
   type Locale,
 } from '@founders-coffee/i18n';
-import { IsolatedLines } from '@founders-coffee/ui';
 import type { Market } from '@founders-coffee/db';
 import type {
   EventDetailItem,
@@ -47,6 +46,7 @@ import { EventLocationMap } from './EventLocationMap';
 import { EventRsvpBox } from './EventRsvpBox';
 import { EventTimeRange } from './EventTimeRange';
 import { ShareEventButton } from './ShareEventButton';
+import { EventDescription } from './EventDescription';
 
 type EventDetailProps = {
   locale: Locale;
@@ -139,12 +139,12 @@ export const EventDetail = ({
           className="mt-3"
         />
         {event.description ? (
-          <p
-            lang={textLanguage(event.description, languages)}
-            className="mt-4 max-w-3xl whitespace-pre-line text-body-lg leading-relaxed text-neutral"
-          >
-            <IsolatedLines text={event.description} />
-          </p>
+          <EventDescription
+            locale={locale}
+            kind={event.kind}
+            value={event.description}
+            languages={languages}
+          />
         ) : null}
         <EventTopics locale={locale} tags={event.tags} className="mt-4" />
         <div className="mt-6 flex flex-wrap gap-2.5">
