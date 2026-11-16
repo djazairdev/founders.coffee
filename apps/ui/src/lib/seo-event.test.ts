@@ -180,7 +180,7 @@ describe('event page metadata', () => {
   });
 
   it("describes the meetup in its structured data in the host's words", () => {
-    const description = 'Un café entre fondateurs.';
+    const description = 'Un café </script><b>entre fondateurs</b>.';
 
     expect(structuredEvent(searchHead({ description }))).toMatchObject({
       '@type': 'Event',
