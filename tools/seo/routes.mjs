@@ -37,6 +37,8 @@ export const classifyPath = (path) => {
     return segments.length === 3 ? 'organisation' : null;
   }
   if (segments[1] === 'p') return segments.length === 3 ? 'project' : null;
+  if (segments[1] === 'profile' && segments[2] === 'organisations')
+    return 'utility';
   if (segments[1] === 'host' && segments[2] === 'create') return 'utility';
   if (segments.length === 2) return 'market';
   if (segments[2] === 'e' && segments.length === 4) return 'event';
