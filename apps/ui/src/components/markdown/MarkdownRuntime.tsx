@@ -10,6 +10,8 @@ import {
 } from '@milkdown/react';
 import { useEffect, useRef } from 'react';
 
+import { markdownSubdocumentSource } from './markdown-subdocument-source';
+
 import '@milkdown/crepe/theme/common/prosemirror.css';
 import '@milkdown/crepe/theme/common/reset.css';
 import '@milkdown/crepe/theme/common/list-item.css';
@@ -32,7 +34,10 @@ const MarkdownSurface = ({
   const appliedValue = useRef(value);
 
   useEditor((root) => {
-    const editor = new CrepeBuilder({ root, defaultValue: value });
+    const editor = new CrepeBuilder({
+      root,
+      defaultValue: markdownSubdocumentSource(value),
+    });
     editor.addFeature(listItem);
     editor.setReadonly(true);
     return editor;
@@ -44,7 +49,7 @@ const MarkdownSurface = ({
     if (isLoading || appliedValue.current === value) return;
     const editor = getInstance();
     if (!editor) return;
-    editor.action(replaceAll(value));
+    editor.action(replaceAll(markdownSubdocumentSource(value)));
     appliedValue.current = value;
   }, [getInstance, isLoading, value]);
 

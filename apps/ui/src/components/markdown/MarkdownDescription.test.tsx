@@ -24,7 +24,7 @@ describe('MarkdownDescription', () => {
       screen.getByRole('region', { name: 'Hackathon description' }),
     ).toBeTruthy();
     expect(
-      screen.getByRole('heading', { name: 'Challenge', level: 1 }),
+      screen.getByRole('heading', { name: 'Challenge', level: 2 }),
     ).toBeTruthy();
     expect(screen.getByRole('list').tagName).toBe('UL');
     expect(screen.getByText('Challenge')).toBeTruthy();
