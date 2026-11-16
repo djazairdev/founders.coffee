@@ -103,7 +103,9 @@ const defaultRobotsDirective = (): string => {
   const { isSearchIndexable } = getRequestContext();
   if (isSearchIndexable !== undefined)
     return isSearchIndexable ? 'index,follow' : NO_INDEX_VALUE;
-  return getSiteOrigin() === PRODUCTION_ORIGIN ? 'index,follow' : NO_INDEX_VALUE;
+  return getSiteOrigin() === PRODUCTION_ORIGIN
+    ? 'index,follow'
+    : NO_INDEX_VALUE;
 };
 
 export const getRequestPath = (): string => {
