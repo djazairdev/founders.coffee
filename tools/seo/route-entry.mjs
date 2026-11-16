@@ -13,6 +13,76 @@ const readAttribute = (tag, name) => {
   return match?.[1] ?? null;
 };
 
+const markdownMarkers = /(?:^|\n)\s*(?:#{1,6}\s|[-*+]\s)|\*\*|__|~~|`/u;
+
+const eventSchemaFailures = (path, body) => {
+  const failures = [];
+  const scripts = [
+    ...body.matchAll(
+      /<script\b(?=[^>]*\btype=["']application\/ld\+json["'])[^>]*>([\s\S]*?)<\/script>/giu,
+    ),
+  ];
+  const schemas = [];
+  for (const script of scripts) {
+    try {
+      const schema = JSON.parse(script[1]);
+      if (schema && typeof schema === 'object' && schema['@type'] === 'Event')
+        schemas.push(schema);
+    } catch {
+      failures.push('contains invalid JSON-LD');
+    }
+  }
+  if (schemas.length !== 1)
+    failures.push(`expected one Event JSON-LD object, got ${schemas.length}`);
+  for (const schema of schemas) {
+    for (const field of [
+      'name',
+      'startDate',
+      'url',
+      'location',
+      'description',
+    ]) {
+      if (!schema[field]) failures.push(`Event JSON-LD is missing ${field}`);
+    }
+    if (
+      typeof schema.description === 'string' &&
+      markdownMarkers.test(schema.description)
+    )
+      failures.push('Event JSON-LD description contains raw Markdown');
+  }
+
+  const descriptionTag = body.match(
+    /<meta\b(?=[^>]*\bname=["']description["'])[^>]*>/iu,
+  )?.[0];
+  const description = descriptionTag
+    ? readAttribute(descriptionTag, 'content')
+    : null;
+  if (!description) failures.push('is missing a meta description');
+  else if (markdownMarkers.test(description))
+    failures.push('meta description contains raw Markdown');
+
+  const kind = body.match(/\bdata-event-kind=["']([^"']+)["']/iu)?.[1];
+  if (kind === 'hackathon') {
+    const hasLocalizedHackathonTerm = [description, schemas[0]?.description]
+      .filter((value) => typeof value === 'string')
+      .some((value) => /hackathon|هاكاثون/iu.test(value));
+    if (!hasLocalizedHackathonTerm)
+      failures.push(
+        'hackathon metadata does not identify the event as a hackathon',
+      );
+  }
+  if (kind === 'workshop') {
+    const hasLocalizedWorkshopTerm = [description, schemas[0]?.description]
+      .filter((value) => typeof value === 'string')
+      .some((value) => /workshop|atelier|ورشة/iu.test(value));
+    if (!hasLocalizedWorkshopTerm)
+      failures.push(
+        'workshop metadata does not identify the event as a workshop',
+      );
+  }
+  return failures;
+};
+
 /**
  * Check one public document against the indexable contract, pushing what it breaks onto `failures`,
  * and return its line in the report.
@@ -70,6 +140,9 @@ export const routeEntry = (
     canonical,
   }))
     failures.push(`${path}: GEO ${failure}`);
+  if (type === 'event')
+    for (const failure of eventSchemaFailures(path, body))
+      failures.push(`${path}: EVENT ${failure}`);
   failures.push(...documentHeaderFailures({ path, response, canonicalOrigin }));
   return {
     path,

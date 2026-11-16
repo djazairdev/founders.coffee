@@ -1,7 +1,5 @@
 import { type Locale } from '@founders-coffee/i18n';
-import { IsolatedLines } from '@founders-coffee/ui';
-
-import { markdownPlainText } from './markdown-plain-text';
+import { MarkdownFallback } from './MarkdownFallback';
 import { useMarkdownRuntime } from './useMarkdownRuntime';
 
 type MarkdownDescriptionProps = {
@@ -43,9 +41,7 @@ export const MarkdownDescription = ({
           label={label}
         />
       ) : (
-        <p className="whitespace-pre-line leading-relaxed text-neutral">
-          <IsolatedLines text={markdownPlainText(value)} />
-        </p>
+        <MarkdownFallback value={value} />
       )}
     </div>
   );
