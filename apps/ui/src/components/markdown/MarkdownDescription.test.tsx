@@ -2,7 +2,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { MarkdownDescription } from './MarkdownDescription';
-import { markdownPlainText } from './markdown-plain-text';
+import { markdownPlainText } from '../../lib/markdown-plain-text';
 
 vi.mock('./useMarkdownRuntime', () => ({
   useMarkdownRuntime: () => ({ status: 'loading' }),
@@ -23,9 +23,13 @@ describe('MarkdownDescription', () => {
     expect(
       screen.getByRole('region', { name: 'Hackathon description' }),
     ).toBeTruthy();
+    expect(
+      screen.getByRole('heading', { name: 'Challenge', level: 1 }),
+    ).toBeTruthy();
+    expect(screen.getByRole('list').tagName).toBe('UL');
     expect(screen.getByText('Challenge')).toBeTruthy();
     expect(screen.getByText('Build a tool')).toBeTruthy();
-    expect(screen.getByText('Share a demo')).toBeTruthy();
+    expect(screen.getByText('demo').tagName).toBe('CODE');
     expect(document.body.textContent).not.toMatch(/(^|\s)#{1,6}\s|\*\*|`/u);
   });
 

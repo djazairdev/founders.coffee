@@ -809,9 +809,49 @@
       }
     }
   ],
+  "event_meta_hackathon_description": [
+    {
+      "declarations": [
+        "input title",
+        "input city",
+        "input cityArticle",
+        "input cityAfterArticle"
+      ],
+      "selectors": ["cityArticle"],
+      "match": {
+        "cityArticle=le": "{title} · Hackathon au {cityAfterArticle}.",
+        "cityArticle=les": "{title} · Hackathon aux {cityAfterArticle}.",
+        "cityArticle=*": "{title} · Hackathon à {city}."
+      }
+    }
+  ],
+  "event_meta_workshop_description": [
+    {
+      "declarations": [
+        "input title",
+        "input city",
+        "input cityArticle",
+        "input cityAfterArticle"
+      ],
+      "selectors": ["cityArticle"],
+      "match": {
+        "cityArticle=le": "{title} · Atelier au {cityAfterArticle}.",
+        "cityArticle=les": "{title} · Atelier aux {cityAfterArticle}.",
+        "cityArticle=*": "{title} · Atelier à {city}."
+      }
+    }
+  ],
   "event_meta_summary": "Le {day} à {time} · {venue}, {city}. Rencontre Founders Coffee gratuite.",
+  "event_meta_hackathon_summary": "Le {day} à {time} · {venue}, {city}. Détails et inscriptions au hackathon.",
+  "event_meta_workshop_summary": "Le {day} à {time} · {venue}, {city}. Détails et inscriptions à l’atelier.",
+  "event_meta_cancelled_hackathon_summary": "Annulé. Le hackathon était prévu le {day} à {time} · {venue}, {city}.",
+  "event_meta_cancelled_workshop_summary": "Annulé. L’atelier était prévu le {day} à {time} · {venue}, {city}.",
   "event_meta_cancelled_summary": "Annulée. Elle était prévue le {day} à {time} · {venue}, {city}.",
   "event_meta_city_summary": "Le {day} à {time} · {city}. Rencontre Founders Coffee gratuite.",
+  "event_meta_hackathon_city_summary": "Le {day} à {time} · {city}. Détails et inscriptions au hackathon.",
+  "event_meta_workshop_city_summary": "Le {day} à {time} · {city}. Détails et inscriptions à l’atelier.",
+  "event_meta_cancelled_hackathon_city_summary": "Annulé. Le hackathon était prévu le {day} à {time} · {city}.",
+  "event_meta_cancelled_workshop_city_summary": "Annulé. L’atelier était prévu le {day} à {time} · {city}.",
   "event_meta_cancelled_city_summary": "Annulée. Elle était prévue le {day} à {time} · {city}.",
   "host_you_are_hosting": "Vous organisez",
   "host_event_ended": "Cette rencontre est terminée.",

@@ -149,6 +149,7 @@ export const Route = createFileRoute('/$locale/$market/e/$slug')({
       eventId: loaderData.event.id,
       version: loaderData.event.version,
       title: loaderData.event.title,
+      kind: loaderData.event.kind,
       cityName: cityName ?? marketName,
       description: loaderData.event.description,
       route: {

@@ -61,7 +61,7 @@ const PRIVATE_SCREEN =
 const LEGACY_PRIVATE_ADDRESS = /^\/(?:account|activity|preferences)(?:\/|$)/iu;
 const HOST_WIZARD = /^\/(?:[^/]+\/){1,2}host\/create(?:\/|$)/iu;
 const HACKATHON_SCREEN =
-  /^\/(?:[^/]+\/)?hackathon\/[^/]+\/(?:manage|team|looking|submit|judge)(?:\/|$)/iu;
+  /^\/(?:[^/]+\/)?hackathon\/[^/]+\/(?:manage|team|looking|submit|judge|judge_)(?:\/|$)/iu;
 const HACKATHON_INVITATION = /^\/(?:[^/]+\/)?hackathon\/invitation(?:\/|$)/iu;
 const PROJECT_SCREEN = /^\/(?:[^/]+\/)?p\/[^/]+\/[^/]/iu;
 const ORGANISATION_SCREEN =
@@ -114,7 +114,7 @@ export const routedPath = (pathname: string): string =>
  * So the name counts first or second, never deeper: `/en/algeria/e/feedback` is a meetup whose slug
  * happens to name a screen, and it has to stay public. The legacy addresses only ever existed bare,
  * and the host wizard sits under a market. A hackathon's own screens — `manage`, `team`, `looking`,
- * `submit` and `judge` — sit under `hackathon/{eventId}`, while its public page is the event's. An
+ * `submit`, `judge` and `judge_` — sit under `hackathon/{eventId}`, while its public page is the event's. An
  * organisation's public page is `o/{slug}` and nothing deeper, so `o/apply`, `o/invitations/…` and
  * every address beneath a slug, such as `o/{slug}/manage`, are private: the domain reserves those
  * names as slugs. A project's public page is `p/{slug}`, and everything beneath it, such as

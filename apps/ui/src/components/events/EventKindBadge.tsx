@@ -13,7 +13,12 @@ export const EventKindBadge = ({
   kind: EventKind;
   locale: Locale;
 }) => (
-  <Badge variant="outline" size="sm" className="font-medium">
+  <Badge
+    variant="outline"
+    size="sm"
+    className="font-medium"
+    data-event-kind={kind}
+  >
     {eventKindName(kind, locale)}
   </Badge>
 );
