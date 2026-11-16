@@ -126,6 +126,9 @@ export const eventPageHead = ({
   breadcrumbs,
 }: EventHeadInput) => {
   const hostWords = description ? markdownPlainText(description) : '';
+  const structuredDescription = description
+    ? markdownPlainText(description, false)
+    : '';
   const fallbackDescription =
     kind === 'hackathon'
       ? event_meta_hackathon_description({ title, city: cityName }, { locale })
@@ -157,7 +160,7 @@ export const eventPageHead = ({
     ...structuredEvent,
     image: structuredEvent.image ?? eventCardUrl(locale, eventId, version),
     description: clipAtWord(
-      hostWords || fallbackDescription,
+      structuredDescription || fallbackDescription,
       MAX_DESCRIPTION_LENGTH,
     ),
   });

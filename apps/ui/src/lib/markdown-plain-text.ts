@@ -1,5 +1,5 @@
-export const markdownPlainText = (value: string) =>
-  value
+export const markdownPlainText = (value: string, stripHtml = true) => {
+  const markdownText = value
     .replace(/^[ \t]*```[^\n]*$/gmu, '')
     .replace(/^[ \t]{0,3}#{1,6}[ \t]+/gmu, '')
     .replace(/^[ \t]{0,3}(?:[-*+]|\d+[.)])[ \t]+/gmu, '')
@@ -7,7 +7,9 @@ export const markdownPlainText = (value: string) =>
     .replace(/^[ \t]{0,3}[-*_]{3,}[ \t]*$/gmu, '')
     .replace(/!\[([^\]]*)\]\([^)]+\)/gu, '$1')
     .replace(/\[([^\]]+)\]\([^)]+\)/gu, '$1')
-    .replace(/<[^>]*>/gu, '')
     .replace(/(\*\*|__|~~)(.*?)\1/gu, '$2')
     .replace(/(`|\*|_)(.*?)\1/gu, '$2')
     .trim();
+
+  return stripHtml ? markdownText.replace(/<[^>]*>/gu, '') : markdownText;
+};
