@@ -196,6 +196,9 @@ export const RESULTS_OPERATIONS: Operations = {
         actorUserId: userId,
         accessSubject: null,
       }),
-    cells: adminOnly('invalid_hackathon_transition', { review: 'ok' }),
+    cells: adminOnly('invalid_hackathon_transition', {
+      draft: 'ok',
+      review: 'ok',
+    }),
   },
 };
