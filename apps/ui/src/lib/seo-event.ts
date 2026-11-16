@@ -129,15 +129,13 @@ export const eventPageHead = ({
   const structuredDescription = description
     ? markdownPlainText(description, false)
     : '';
+  const city = cityInputs(cityName);
   const fallbackDescription =
     kind === 'hackathon'
-      ? event_meta_hackathon_description({ title, city: cityName }, { locale })
+      ? event_meta_hackathon_description({ title, ...city }, { locale })
       : kind === 'workshop'
-        ? event_meta_workshop_description({ title, city: cityName }, { locale })
-        : event_meta_description(
-            { title, ...cityInputs(cityName) },
-            { locale },
-          );
+        ? event_meta_workshop_description({ title, ...city }, { locale })
+        : event_meta_description({ title, ...city }, { locale });
   const metadata = buildTitledPageMetadata({
     locale,
     documentTitle: buildLeadingTitle([title, cityName]),

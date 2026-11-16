@@ -809,8 +809,38 @@
       }
     }
   ],
-  "event_meta_hackathon_description": "{title} · Hackathon à {city}.",
-  "event_meta_workshop_description": "{title} · Atelier à {city}.",
+  "event_meta_hackathon_description": [
+    {
+      "declarations": [
+        "input title",
+        "input city",
+        "input cityArticle",
+        "input cityAfterArticle"
+      ],
+      "selectors": ["cityArticle"],
+      "match": {
+        "cityArticle=le": "{title} · Hackathon au {cityAfterArticle}.",
+        "cityArticle=les": "{title} · Hackathon aux {cityAfterArticle}.",
+        "cityArticle=*": "{title} · Hackathon à {city}."
+      }
+    }
+  ],
+  "event_meta_workshop_description": [
+    {
+      "declarations": [
+        "input title",
+        "input city",
+        "input cityArticle",
+        "input cityAfterArticle"
+      ],
+      "selectors": ["cityArticle"],
+      "match": {
+        "cityArticle=le": "{title} · Atelier au {cityAfterArticle}.",
+        "cityArticle=les": "{title} · Atelier aux {cityAfterArticle}.",
+        "cityArticle=*": "{title} · Atelier à {city}."
+      }
+    }
+  ],
   "event_meta_summary": "Le {day} à {time} · {venue}, {city}. Rencontre Founders Coffee gratuite.",
   "event_meta_hackathon_summary": "Le {day} à {time} · {venue}, {city}. Détails et inscriptions au hackathon.",
   "event_meta_workshop_summary": "Le {day} à {time} · {venue}, {city}. Détails et inscriptions à l’atelier.",
