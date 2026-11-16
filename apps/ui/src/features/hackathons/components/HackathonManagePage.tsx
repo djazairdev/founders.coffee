@@ -11,6 +11,7 @@ import {
   org_hackathon_dates,
   org_hackathon_status_in_review,
   retry,
+  share_event_action,
   type Locale,
 } from '@founders-coffee/i18n';
 import {
@@ -21,6 +22,7 @@ import {
 } from '@founders-coffee/ui';
 
 import { OrganisationBreadcrumbs } from '../../../components/OrganisationBreadcrumbs';
+import { ShareEventButton } from '../../../components/events/ShareEventButton';
 import type { RootMarket } from '../../markets/api';
 import { hackathonStatusLabel } from '../../organisations/hackathon-labels';
 import { isHackathonMissing, isHackathonsDisabled } from '../errors';
@@ -136,6 +138,16 @@ export const HackathonManagePage = ({
           { locale },
         )}
       </p>
+      {draft.event.status === 'published' ? (
+        <div className="mt-4 flex">
+          <ShareEventButton
+            locale={locale}
+            eventId={draft.event.id}
+            title={draft.event.title}
+            label={share_event_action({}, { locale })}
+          />
+        </div>
+      ) : null}
       <HackathonReviewBanner draft={draft} locale={locale} />
       <HackathonDashboard draft={draft} locale={locale} />
       {draft.event.status === 'published' ? (

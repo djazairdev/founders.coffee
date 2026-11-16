@@ -52,7 +52,7 @@ export const useHackathonDraft = (eventId: string) =>
     queryKey: [...DRAFT, eventId],
     queryFn: () => hackathonsApi.draft(eventId),
     refetchOnWindowFocus: (query) =>
-      query.state.data?.review.status === 'submitted' ? 'always' : false,
+      query.state.data?.event.status === 'draft' ? 'always' : false,
   });
 
 /** Who registered for a hackathon, for its organisers (B-REG-08). */
