@@ -118,8 +118,8 @@ vi.mock('./HackathonScheduleStep', () => ({
     ]),
 }));
 
-vi.mock('../useHackathonMilkdownRuntime', () => ({
-  useHackathonMilkdownRuntime: () => ({
+vi.mock('../../../components/markdown/useMarkdownRuntime', () => ({
+  useMarkdownRuntime: () => ({
     status: 'ready',
     Component: ({ value, label }: { value: string; label: string }) =>
       createElement('textarea', {

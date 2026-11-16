@@ -3,10 +3,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { HackathonDescriptionPreview } from './HackathonDescriptionPreview';
 
-vi.mock('../useHackathonMilkdownRuntime', () => ({
-  useHackathonMilkdownRuntime: () => ({
+vi.mock('../../../components/markdown/useMarkdownRuntime', () => ({
+  useMarkdownRuntime: () => ({
     status: 'ready',
-    Component: () => null,
+    Component: ({ value }: { value: string }) => <div>{value}</div>,
   }),
 }));
 
