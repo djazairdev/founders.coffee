@@ -91,6 +91,21 @@ describe('event page metadata', () => {
     });
   });
 
+  it('keeps non-production event HTML explicitly noindex', () => {
+    const head = runWithContext(
+      {
+        siteOrigin: 'https://staging.founders.coffee',
+        isSearchIndexable: false,
+      },
+      () => eventPageHead(SEARCH_EVENT),
+    );
+
+    expect(head.meta).toContainEqual({
+      name: 'robots',
+      content: 'noindex, nofollow',
+    });
+  });
+
   it('says when and where before anything the host wrote', () => {
     const head = searchHead();
 
@@ -165,7 +180,7 @@ describe('event page metadata', () => {
   });
 
   it("describes the meetup in its structured data in the host's words", () => {
-    const description = 'Un café entre fondateurs.';
+    const description = 'Un café </script><b>entre fondateurs</b>.';
 
     expect(structuredEvent(searchHead({ description }))).toMatchObject({
       '@type': 'Event',

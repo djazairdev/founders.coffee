@@ -1019,6 +1019,7 @@
   "host_online_panel": "An online meetup has no venue. Members going see its link on the meetup page.",
   "event_format_online": "Online",
   "event_format_hybrid": "Online and in person",
+  "event_format_in_person": "In person",
   "event_meeting_join": "Join the meeting",
   "event_meeting_link_members": "Members going see the meeting link here.",
   "ntf_where_venue": "at {venue}",

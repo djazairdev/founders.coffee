@@ -28,8 +28,7 @@ import type {
   HackathonPageDetails as Details,
   HackathonSchedule as Schedule,
 } from '../../features/hackathons/api';
-import { HackathonPageDetails } from '../../features/hackathons/components/HackathonPageDetails';
-import { HackathonAside } from '../../features/hackathons/components/HackathonAside';
+import { HackathonEventDetail } from '../../features/hackathons/components/HackathonEventDetail';
 import { localizedCity } from '../../lib/locale-routing';
 import { EventCancelledNotice } from './EventCancelledNotice';
 import { EventCityBadge } from './EventCityBadge';
@@ -102,7 +101,20 @@ export const EventDetail = ({
   const hasRsvpBox =
     event.kind !== 'hackathon' &&
     (isCancelled ? (isHost ? isChatAvailable : isGoing) : true);
-  const hasAside = hasRsvpBox || hackathon !== null;
+  if (event.kind === 'hackathon')
+    return (
+      <HackathonEventDetail
+        locale={locale}
+        market={market}
+        event={event}
+        host={host}
+        isHost={isHost}
+        mapboxToken={mapboxToken}
+        schedule={hackathon}
+        details={details ?? null}
+        canReport={canReport}
+      />
+    );
 
   return (
     <article className="mx-auto max-w-5xl px-4 py-6 sm:py-8 md:px-8 md:py-10">
@@ -196,7 +208,7 @@ export const EventDetail = ({
       </h2>
 
       <div
-        className={`mt-4 grid gap-8 ${hasAside ? 'lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.75fr)]' : ''} ${details ? 'lg:grid-rows-[auto_1fr]' : ''}`}
+        className={`mt-4 grid gap-8 ${hasRsvpBox ? 'lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.75fr)]' : ''}`}
       >
         <div className="flex flex-col">
           <section
@@ -256,25 +268,6 @@ export const EventDetail = ({
             isWindowOpen={isWindowOpen}
             phase={phase}
             isChatAvailable={isChatAvailable}
-          />
-        ) : null}
-        {hackathon ? (
-          <HackathonAside
-            eventId={event.id}
-            format={event.format}
-            schedule={hackathon}
-            details={details}
-            isCancelled={isCancelled}
-            timeZone={market.timezone}
-            locale={locale}
-          />
-        ) : null}
-        {details ? (
-          <HackathonPageDetails
-            details={details}
-            market={market}
-            reportEventId={canReport ? event.id : null}
-            locale={locale}
           />
         ) : null}
       </div>

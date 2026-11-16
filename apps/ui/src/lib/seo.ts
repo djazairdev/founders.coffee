@@ -8,7 +8,7 @@ import {
 } from '@founders-coffee/i18n';
 import { getRequestContext } from '@founders-coffee/observability/context';
 
-import { PRODUCTION_ORIGIN } from './indexation';
+import { NO_INDEX_VALUE, PRODUCTION_ORIGIN } from './indexation';
 import { openGraphLocale, xDefaultLocale } from './seo-alternates';
 import {
   breadcrumbJsonLd,
@@ -99,6 +99,15 @@ export const getSiteOrigin = (): string => {
   return SITE_ORIGIN;
 };
 
+const defaultRobotsDirective = (): string => {
+  const { isSearchIndexable } = getRequestContext();
+  if (isSearchIndexable !== undefined)
+    return isSearchIndexable ? 'index,follow' : NO_INDEX_VALUE;
+  return getSiteOrigin() === PRODUCTION_ORIGIN
+    ? 'index,follow'
+    : NO_INDEX_VALUE;
+};
+
 export const getRequestPath = (): string => {
   const requestPath = getRequestContext().requestPath;
   if (requestPath) return requestPath;
@@ -166,7 +175,7 @@ export const buildTitledPageMetadata = ({
   socialTitle,
   description,
   route,
-  robots = 'index,follow',
+  robots = defaultRobotsDirective(),
   alternateLocales = LOCALES,
   alternates = localeAlternates(route, alternateLocales),
   marketCode,

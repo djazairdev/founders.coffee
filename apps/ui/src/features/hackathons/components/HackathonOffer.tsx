@@ -128,7 +128,29 @@ const Prize = ({
   );
 };
 
-export const HackathonOffer = ({
+export const HackathonTracks = ({
+  tracks,
+  locale,
+}: {
+  tracks: readonly PublicHackathonTrack[];
+  locale: Locale;
+}) => {
+  const options = { locale };
+  return tracks.length > 0 ? (
+    <section aria-labelledby={TRACKS_ID} className="mt-8">
+      <h2 id={TRACKS_ID} className="font-display text-h4 font-semibold">
+        {hackathon_tracks_heading({}, options)}
+      </h2>
+      <ul className="mt-4 grid gap-3">
+        {tracks.map((track) => (
+          <Track key={track.id} track={track} locale={locale} />
+        ))}
+      </ul>
+    </section>
+  ) : null;
+};
+
+export const HackathonPrizes = ({
   offer,
   locale,
 }: {
@@ -138,37 +160,34 @@ export const HackathonOffer = ({
   const options = { locale };
   const titleOf = (trackId: string | null) =>
     offer.tracks.find((track) => track.id === trackId)?.title ?? null;
-  return (
-    <>
-      {offer.tracks.length > 0 ? (
-        <section aria-labelledby={TRACKS_ID} className="mt-8">
-          <h2 id={TRACKS_ID} className="font-display text-h4 font-semibold">
-            {hackathon_tracks_heading({}, options)}
-          </h2>
-          <ul className="mt-4 grid gap-3">
-            {offer.tracks.map((track) => (
-              <Track key={track.id} track={track} locale={locale} />
-            ))}
-          </ul>
-        </section>
-      ) : null}
-      {offer.prizes.length > 0 ? (
-        <section aria-labelledby={PRIZES_ID} className="mt-8">
-          <h2 id={PRIZES_ID} className="font-display text-h4 font-semibold">
-            {hackathon_prizes_heading({}, options)}
-          </h2>
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-            {offer.prizes.map((prize) => (
-              <Prize
-                key={prize.id}
-                prize={prize}
-                trackTitle={titleOf(prize.trackId)}
-                locale={locale}
-              />
-            ))}
-          </ul>
-        </section>
-      ) : null}
-    </>
-  );
+  return offer.prizes.length > 0 ? (
+    <section aria-labelledby={PRIZES_ID} className="mt-8">
+      <h2 id={PRIZES_ID} className="font-display text-h4 font-semibold">
+        {hackathon_prizes_heading({}, options)}
+      </h2>
+      <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+        {offer.prizes.map((prize) => (
+          <Prize
+            key={prize.id}
+            prize={prize}
+            trackTitle={titleOf(prize.trackId)}
+            locale={locale}
+          />
+        ))}
+      </ul>
+    </section>
+  ) : null;
 };
+
+export const HackathonOffer = ({
+  offer,
+  locale,
+}: {
+  offer: Offer;
+  locale: Locale;
+}) => (
+  <>
+    <HackathonTracks tracks={offer.tracks} locale={locale} />
+    <HackathonPrizes offer={offer} locale={locale} />
+  </>
+);

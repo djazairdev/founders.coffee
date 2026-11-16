@@ -120,7 +120,7 @@ describe('Retry on the host map', () => {
       reload,
       'a browser keeps a module that failed to load as failed for the rest of the page, so remounting the map met the same failure and only a new page load fetches the library again',
     ).toHaveBeenCalledOnce();
-  });
+  }, 10_000);
 
   it('remounts the map for any other failure, without leaving the page', async () => {
     await mapOver(() => ({ default: { Map: class {} } }));

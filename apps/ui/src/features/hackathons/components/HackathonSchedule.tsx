@@ -16,13 +16,15 @@ export const HackathonSchedule = ({
   locale,
   timeZone,
   isCancelled,
+  hasResults,
 }: {
   schedule: Schedule;
   locale: Locale;
   timeZone: string;
   isCancelled: boolean;
+  hasResults: boolean;
 }) => {
-  const steps = scheduleSteps(schedule, locale, timeZone);
+  const steps = scheduleSteps(schedule, locale, timeZone, hasResults);
   const current = isCancelled
     ? -1
     : steps.findIndex((step) => step.phase === schedule.phase);

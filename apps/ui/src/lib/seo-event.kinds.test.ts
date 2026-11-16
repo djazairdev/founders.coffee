@@ -76,6 +76,34 @@ describe('event-kind metadata', () => {
     expect(schemaDescription).not.toMatch(/(^|\n)\s*#|\*\*|`/u);
   });
 
+  it('keeps code samples and tables out of hackathon metadata', () => {
+    const head = eventHead({
+      kind: 'hackathon',
+      description: [
+        '# Challenge',
+        '',
+        '```ts',
+        'throw new Error("source must not be metadata");',
+        '```',
+        '',
+        'Track | Focus',
+        '--- | ---',
+        'Open source | Local tools',
+        '',
+        'Build a helpful tool for local teams before the final showcase.',
+      ].join('\n'),
+    });
+    const metaDescription = description(head);
+    const schemaDescription = eventSchema(head).description as string;
+
+    expect(metaDescription).not.toContain('throw new Error');
+    expect(metaDescription).not.toContain('Track | Focus');
+    expect(metaDescription).not.toContain('source must not be metadata');
+    expect(schemaDescription).toContain('Build a helpful tool');
+    expect(schemaDescription).not.toContain('throw new Error');
+    expect(schemaDescription).not.toContain('Track | Focus');
+  });
+
   it('describes workshops separately from meetups', () => {
     expect(description(eventHead({ kind: 'workshop' }))).toContain('atelier');
   });

@@ -22,6 +22,7 @@ const renderSchedule = (
   changes: Partial<Schedule> = {},
   locale: Locale = 'en',
   isCancelled = false,
+  hasResults = false,
 ) =>
   render(
     <HackathonSchedule
@@ -29,6 +30,7 @@ const renderSchedule = (
       locale={locale}
       timeZone="Africa/Algiers"
       isCancelled={isCancelled}
+      hasResults={hasResults}
     />,
   );
 
@@ -48,7 +50,15 @@ describe('HackathonSchedule (B-HKN-17)', () => {
     ).toBeTruthy();
     expect(screen.getByText('Demo day ends Fri, Jan 16, 18:00')).toBeTruthy();
     expect(screen.getByText('Judging ends Tue, Jan 20, 18:00')).toBeTruthy();
+    expect(screen.getAllByRole('listitem')).toHaveLength(4);
+    expect(screen.queryByText('Results')).toBeNull();
+  });
+
+  it('shows a results step only after results are published', () => {
+    renderSchedule({ phase: 'results' }, 'en', false, true);
+
     expect(screen.getAllByRole('listitem')).toHaveLength(5);
+    expect(screen.getByText('Results')).toBeTruthy();
   });
 
   it('marks the current phase and says what comes next', () => {

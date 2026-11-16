@@ -25,7 +25,7 @@ export const HackathonAside = ({
   timeZone: string;
   locale: Locale;
 }) => (
-  <div className="flex flex-col gap-4 self-start lg:col-start-2 lg:row-span-2 lg:row-start-1">
+  <div className="flex flex-col gap-4 self-start">
     {details?.registration && !isCancelled ? (
       <HackathonRegistrationCard
         eventId={eventId}
@@ -42,6 +42,7 @@ export const HackathonAside = ({
       locale={locale}
       timeZone={timeZone}
       isCancelled={isCancelled}
+      hasResults={Boolean(details?.results)}
     />
   </div>
 );

@@ -74,12 +74,13 @@ export const scheduleSteps = (
   schedule: HackathonSchedule,
   locale: Locale,
   timeZone: string,
+  hasResults: boolean,
 ): readonly ScheduleStep[] => {
   const options = { locale };
   const at = (moment: number) => ({
     date: scheduleMoment(moment, locale, timeZone),
   });
-  return [
+  const steps: ScheduleStep[] = [
     {
       phase: 'registration_open',
       title: hackathon_schedule_registration({}, options),
@@ -108,12 +109,17 @@ export const scheduleSteps = (
         hackathon_schedule_judging_ends(at(schedule.judgingEndsAt), options),
       ],
     },
-    {
-      phase: 'results',
-      title: hackathon_schedule_results({}, options),
-      lines: [],
-    },
   ];
+  return hasResults
+    ? [
+        ...steps,
+        {
+          phase: 'results',
+          title: hackathon_schedule_results({}, options),
+          lines: [],
+        },
+      ]
+    : steps;
 };
 
 /** One sentence on where the hackathon is now, with the next date that matters. */

@@ -127,7 +127,9 @@ export const eventPageHead = ({
 }: EventHeadInput) => {
   const hostWords = description ? markdownPlainText(description) : '';
   const structuredDescription = description
-    ? markdownPlainText(description, false)
+    ? kind === 'hackathon'
+      ? markdownPlainText(description)
+      : description.trim()
     : '';
   const city = cityInputs(cityName);
   const fallbackDescription =

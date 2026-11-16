@@ -4,7 +4,7 @@ import type { Locale } from '@founders-coffee/i18n';
 import type { HackathonPageDetails as Details } from '../api';
 import { HackathonJudges } from './HackathonJudges';
 import { HackathonMentors } from './HackathonMentors';
-import { HackathonOffer } from './HackathonOffer';
+import { HackathonPrizes, HackathonTracks } from './HackathonOffer';
 import { HackathonResults } from './HackathonResults';
 import { HackathonRules } from './HackathonRules';
 import { HackathonWorkshops } from './HackathonWorkshops';
@@ -21,15 +21,9 @@ export const HackathonPageDetails = ({
   locale: Locale;
 }) => (
   <div className="*:first:mt-0 lg:col-start-1">
-    {details.results ? (
-      <HackathonResults
-        results={details.results}
-        reportEventId={reportEventId}
-        locale={locale}
-      />
-    ) : null}
+    <HackathonTracks tracks={details.tracks} locale={locale} />
     <HackathonRules rules={details.rules} locale={locale} />
-    <HackathonOffer offer={details} locale={locale} />
+    <HackathonPrizes offer={details} locale={locale} />
     {details.judges.length > 0 ? (
       <HackathonJudges judges={details.judges} locale={locale} />
     ) : null}
@@ -40,6 +34,13 @@ export const HackathonPageDetails = ({
       <HackathonWorkshops
         workshops={details.workshops}
         market={market}
+        locale={locale}
+      />
+    ) : null}
+    {details.results ? (
+      <HackathonResults
+        results={details.results}
+        reportEventId={reportEventId}
         locale={locale}
       />
     ) : null}

@@ -1086,6 +1086,7 @@
   "host_online_panel": "ليس للقاء عبر الإنترنت مكان. يرى الأعضاء المسجّلون رابطه في صفحة اللقاء.",
   "event_format_online": "عبر الإنترنت",
   "event_format_hybrid": "عبر الإنترنت وحضوريًا",
+  "event_format_in_person": "حضوريًا",
   "event_meeting_join": "انضم إلى الاجتماع",
   "event_meeting_link_members": "يرى الأعضاء المسجَّلون رابط الاجتماع هنا.",
   "ntf_where_venue": "في {venue}",

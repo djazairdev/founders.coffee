@@ -56,4 +56,24 @@ describe('markdownPlainText', () => {
       ),
     ).toBe('Goals\n\nChallenges\n\nFirst\nSecond\n\nRegister');
   });
+
+  it('excludes code blocks, tables, raw URLs, and HTML from plain-text metadata', () => {
+    expect(
+      markdownPlainText(
+        [
+          'A hackathon for local builders.',
+          '',
+          '```ts',
+          'const secret = "not metadata";',
+          '```',
+          '',
+          'Track | Focus',
+          '--- | ---',
+          'Open source | Local tools',
+          '',
+          'Read [the rules](https://example.com/rules) <https://example.com> <em>before joining</em>.',
+        ].join('\n'),
+      ),
+    ).toBe('A hackathon for local builders.\n\nRead the rules before joining.');
+  });
 });
