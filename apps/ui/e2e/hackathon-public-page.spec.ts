@@ -19,6 +19,9 @@ test('makes the registration action and full description easy to find', async ({
   await expect(hero.getByRole('heading', { level: 1 })).toHaveCount(1);
   await expect(hero).toContainText('حضوريًا');
   await expect(hero).toContainText('هاكاثون تجريبي');
+  await expect(
+    hero.getByRole('link', { name: 'Code Club Alger' }),
+  ).toHaveAttribute('href', '/ar/o/dev-code-club');
   await expect(registration).toBeVisible();
   await expect(description).toBeVisible();
   await expect(registration.locator('a')).toHaveAttribute('href', /redirect=/);

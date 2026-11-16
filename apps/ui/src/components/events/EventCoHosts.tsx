@@ -12,14 +12,16 @@ export const EventCoHosts = ({
   locale,
   isLinked = false,
   className = '',
+  organisations,
 }: {
   runBy: EventRunBy;
   locale: Locale;
   isLinked?: boolean;
   className?: string;
+  organisations?: readonly { readonly name: string; readonly slug: string }[];
 }) => {
-  const organisations = coHosts(runBy);
-  if (organisations.length === 0) return null;
+  const hosts = organisations ?? coHosts(runBy);
+  if (hosts.length === 0) return null;
   const separator = locale === 'ar' ? '، ' : ', ';
 
   return (
@@ -34,7 +36,7 @@ export const EventCoHosts = ({
         <span className="sr-only">
           {event_run_by_organisations({}, { locale })}{' '}
         </span>
-        {organisations.map((organisation, index) => (
+        {hosts.map((organisation, index) => (
           <Fragment key={organisation.slug}>
             {index > 0 ? separator : null}
             {isLinked ? (
