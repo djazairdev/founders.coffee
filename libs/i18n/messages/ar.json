@@ -1391,7 +1391,7 @@
   "hackathon_tracks_error_has_prizes": "إحدى الجوائز مرتبطة بمسار حذفته. عدّل تلك الجائزة أو احذفها أولًا.",
   "hackathon_prizes_heading": "الجوائز",
   "hackathon_prizes_hint": "أضف جوائز الفائزين، إن وُجدت. يمكنك تعديلها لاحقًا.",
-  "hackathon_prizes_needs_details": "احفظ أولًا القواعد ومن يمكنه المشاركة، ثم أضف الجوائز.",
+  "hackathon_prizes_needs_details": "حدّد حجم الفرق وشروط المشاركة أولًا، ثم أضف الجوائز.",
   "hackathon_prizes_locked_hint": "التسجيل مفتوح: يمكنك إضافة جوائز وتسجيل التأكيدات، لكن الجوائز المحفوظة تبقى كما هي.",
   "hackathon_prizes_empty": "لم تُضف أي جوائز بعد.",
   "hackathon_prize_add": "إضافة الجائزة",
