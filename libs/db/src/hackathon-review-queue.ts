@@ -26,7 +26,7 @@ export type HackathonReviewPrize = {
   readonly place: number;
   readonly title: string;
   readonly description: string;
-  readonly providerName: string;
+  readonly providerName: string | null;
   readonly value: Money | null;
   readonly isConfirmed: boolean;
 };
@@ -35,6 +35,8 @@ export type HackathonForReview = {
   readonly event: Pick<
     Event,
     | 'id'
+    | 'version'
+    | 'updatedAt'
     | 'title'
     | 'description'
     | 'marketCode'
@@ -91,7 +93,7 @@ const readChildren = async (db: Db, eventIds: readonly string[]) => {
 };
 
 /**
- * One page of the hackathons waiting for review (B-HKN-08), the one sent longest ago first, each
+ * One page of saved hackathon drafts (B-HKN-08), the oldest edit first, each
  * with its lead organisation, its market's time zone, and everything participants will see of it:
  * its format and place, its tracks, its prizes and its rubric (B-HKN-09). Reads one row past the
  * page to say whether another follows.
@@ -104,6 +106,8 @@ export const listHackathonsForReview = async (
     .select({
       event: {
         id: events.id,
+        version: events.version,
+        updatedAt: events.updatedAt,
         title: events.title,
         description: events.description,
         marketCode: events.marketCode,
@@ -134,8 +138,13 @@ export const listHackathonsForReview = async (
       eq(organization.id, eventOrganisers.organisationId),
     )
     .innerJoin(markets, eq(markets.code, events.marketCode))
-    .where(eq(hackathons.reviewStatus, 'submitted'))
-    .orderBy(asc(hackathons.updatedAt), asc(hackathons.eventId))
+    .where(
+      and(
+        inArray(hackathons.reviewStatus, ['draft', 'submitted']),
+        eq(events.status, 'draft'),
+      ),
+    )
+    .orderBy(asc(events.updatedAt), asc(hackathons.eventId))
     .limit(HACKATHON_REVIEW_PAGE + 1)
     .offset(page * HACKATHON_REVIEW_PAGE);
   const shown = rows.slice(0, HACKATHON_REVIEW_PAGE);
@@ -166,7 +175,7 @@ export const listHackathonsForReview = async (
                 currency: prize.valueCurrency,
               }
             : null,
-        isConfirmed: prize.confirmedAt !== null,
+        isConfirmed: prize.confirmedAt !== null || prize.providerName === null,
       })),
       criteria: of(children.criteria, row.event.id),
     })),

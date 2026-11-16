@@ -190,11 +190,15 @@ export const RESULTS_OPERATIONS: Operations = {
       decideHackathonReviewResolver(db, () => Promise.resolve(), null, {
         decision: hackathons.hackathonReviewDecisionSchema.parse({
           eventId: world.eventId,
+          version: world.version,
           decision: 'approve',
         }),
         actorUserId: userId,
         accessSubject: null,
       }),
-    cells: adminOnly('invalid_hackathon_transition', { review: 'ok' }),
+    cells: adminOnly('invalid_hackathon_transition', {
+      draft: 'ok',
+      review: 'ok',
+    }),
   },
 };

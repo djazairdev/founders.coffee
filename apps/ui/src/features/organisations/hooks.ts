@@ -1,11 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { useHydrationSafeSession } from '../../lib/hydration-safe-session';
+
 import {
   organisationsApi,
   type ApplyForOrganisationRequest,
   type CancelInvitationRequest,
   type InviteMemberRequest,
   type RemoveMemberRequest,
+  type UpdateOrganisationRequest,
 } from './api';
 
 const MINE = ['organisations', 'mine'] as const;
@@ -82,5 +85,57 @@ export const useAnswerInvitation = () => {
         cache.invalidateQueries({ queryKey: INVITATION }),
         cache.invalidateQueries({ queryKey: MINE }),
       ]),
+  });
+};
+
+/** Personal-area organisation data stays scoped to the signed-in identity. */
+export const useMyOrganisations = (isSignedIn: boolean) => {
+  const auth = useHydrationSafeSession();
+  const userId = auth.data?.user.id;
+  return useQuery({
+    queryKey: [...MINE, 'list', userId],
+    queryFn: organisationsApi.list,
+    enabled: isSignedIn && !!userId,
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+  });
+};
+
+/** Delete an unused organisation and refresh the member's organisation list. */
+export const useDeleteOrganisation = () => {
+  const cache = useQueryClient();
+  return useMutation({
+    mutationFn: (organisationId: string) =>
+      organisationsApi.delete(organisationId),
+    onSuccess: () => cache.invalidateQueries({ queryKey: MINE }),
+  });
+};
+
+/** Save public organisation fields and refresh every organisation view. */
+export const useUpdateOrganisation = () => {
+  const cache = useQueryClient();
+  return useMutation({
+    mutationFn: (request: UpdateOrganisationRequest) =>
+      organisationsApi.update(request),
+    onSuccess: () => cache.invalidateQueries({ queryKey: ['organisations'] }),
+  });
+};
+
+/** Upload or remove a logo, then reread it from the organisation record. */
+export const useOrganisationLogo = () => {
+  const cache = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      organisationId,
+      file,
+    }: {
+      organisationId: string;
+      file: Blob | null;
+    }) =>
+      file
+        ? organisationsApi.uploadLogo({ organisationId, file })
+        : organisationsApi.removeLogo(organisationId),
+    onSuccess: () => cache.invalidateQueries({ queryKey: ['organisations'] }),
   });
 };

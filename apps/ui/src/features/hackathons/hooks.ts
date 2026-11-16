@@ -19,10 +19,10 @@ import {
   type HackathonDraftView,
   type JoinHackathonInterestArgs,
   type RemoveHackathonPrizeRequest,
-  type SaveHackathonDetailsRequest,
+  type SaveHackathonDeadlinesRequest,
+  type SaveHackathonSettingsRequest,
   type SaveHackathonRubricRequest,
   type SaveHackathonTracksRequest,
-  type SubmitHackathonForReviewRequest,
 } from './api';
 
 const DRAFT = ['hackathons', 'draft'] as const;
@@ -71,15 +71,11 @@ export const useHackathonTeams = (eventId: string) =>
     refetchOnWindowFocus: 'always',
   });
 
-/**
- * A hackathon at a glance for its organisers (B-OPS-01), once it has its details. It sits under the
- * hackathon's own key, so every edit that reads the hackathon again reads it again too.
- */
-export const useHackathonDashboard = (eventId: string, isEnabled: boolean) =>
+/** A hackathon's counts for its organisers (B-OPS-01), under the hackathon's own key. */
+export const useHackathonDashboard = (eventId: string) =>
   useQuery<HackathonDashboard>({
     queryKey: [...DRAFT, eventId, 'dashboard'],
     queryFn: () => hackathonsApi.dashboard(eventId),
-    enabled: isEnabled,
     refetchOnWindowFocus: 'always',
   });
 
@@ -94,11 +90,20 @@ const afterEdit = (cache: QueryClient, saved: HackathonEditSaved) => {
   return cache.invalidateQueries({ queryKey: [...DRAFT, saved.eventId] });
 };
 
-/** Save a hackathon's rules and who can take part; the hackathon is read again after. */
-export const useSaveHackathonDetails = () => {
+/** Save a hackathon's dates; the hackathon is read again after. */
+export const useSaveHackathonDeadlines = () => {
   const cache = useQueryClient();
-  return useMutation<HackathonEditSaved, Error, SaveHackathonDetailsRequest>({
-    mutationFn: (request) => hackathonsApi.saveDetails(request),
+  return useMutation<HackathonEditSaved, Error, SaveHackathonDeadlinesRequest>({
+    mutationFn: (request) => hackathonsApi.saveDeadlines(request),
+    onSuccess: (saved) => afterEdit(cache, saved),
+  });
+};
+
+/** Save a hackathon's rules and participation settings; the hackathon is read again after. */
+export const useSaveHackathonSettings = () => {
+  const cache = useQueryClient();
+  return useMutation<HackathonEditSaved, Error, SaveHackathonSettingsRequest>({
+    mutationFn: (request) => hackathonsApi.saveSettings(request),
     onSuccess: (saved) => afterEdit(cache, saved),
   });
 };
@@ -108,19 +113,6 @@ export const useSaveHackathonTracks = () => {
   const cache = useQueryClient();
   return useMutation<HackathonEditSaved, Error, SaveHackathonTracksRequest>({
     mutationFn: (request) => hackathonsApi.saveTracks(request),
-    onSuccess: (saved) => afterEdit(cache, saved),
-  });
-};
-
-/** Send a hackathon for review; the hackathon is read again after, now with the reviewers. */
-export const useSubmitHackathonForReview = () => {
-  const cache = useQueryClient();
-  return useMutation<
-    HackathonEditSaved,
-    Error,
-    SubmitHackathonForReviewRequest
-  >({
-    mutationFn: (request) => hackathonsApi.submitForReview(request),
     onSuccess: (saved) => afterEdit(cache, saved),
   });
 };

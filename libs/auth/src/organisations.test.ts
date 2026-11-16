@@ -82,7 +82,7 @@ describe('the organisation plugin (B-ORG-01, real D1)', () => {
     ).toEqual([{ id: PLATFORM_ORGANISATION.id }]);
   });
 
-  it('creates an organisation through auth.api as pending, with our fields and its creator as owner', async () => {
+  it('creates an organisation through auth.api as active, with our fields and its creator as owner', async () => {
     const { auth, browserCookie } = await signIn('org-owner@test.coffee');
 
     const created = await auth.api.createOrganization({
@@ -99,7 +99,7 @@ describe('the organisation plugin (B-ORG-01, real D1)', () => {
       name: 'Code Club Alger',
       slug: 'code-club-alger',
       kind: 'club',
-      status: 'pending',
+      status: 'approved',
       marketCode: 'DZ',
       cityCode: null,
       websiteUrl: null,

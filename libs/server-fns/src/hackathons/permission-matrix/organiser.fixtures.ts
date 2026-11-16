@@ -6,7 +6,10 @@ import {
   hackathonParticipantsResolver,
   hackathonTeamsResolver,
 } from '../participants.js';
-import { saveHackathonDetailsResolver } from '../details.js';
+import {
+  saveHackathonDeadlinesResolver,
+  saveHackathonSettingsResolver,
+} from '../details.js';
 import { hackathonDraftResolver } from '../draft-view.js';
 import { createHackathonDraftResolver } from '../draft.js';
 import { criterion, founderTrack, prize } from '../edit.fixtures.js';
@@ -16,7 +19,6 @@ import {
   confirmHackathonPrizeResolver,
   removeHackathonPrizeResolver,
 } from '../prizes.js';
-import { submitHackathonForReviewResolver } from '../review.js';
 import { saveHackathonRubricResolver } from '../rubric.js';
 import { saveHackathonTracksResolver } from '../tracks.js';
 import {
@@ -76,6 +78,8 @@ export const ORGANISER_OPERATIONS: Operations = {
           startsAt: Date.now() + 30 * 86_400_000,
           endsAt: Date.now() + 32 * 86_400_000,
           languages: ['ar', 'fr'],
+          hackathonFields: ['software_development'],
+          hackathonTypeTags: ['open_source'],
         }),
       }),
     cells: inEveryPhase(everyoneBut('forbidden', { organiser: 'ok' })),
@@ -100,13 +104,38 @@ export const ORGANISER_OPERATIONS: Operations = {
     run: ({ db, world }) => hackathonTeamsResolver(db, world.eventId),
     cells: organiserOnly('ok'),
   },
-  saveHackathonDetails: {
+  saveHackathonDeadlines: {
     gate: ORGANISER,
     changesWorld: true,
     run: (call) =>
-      saveHackathonDetailsResolver(call.db, {
+      saveHackathonDeadlinesResolver(call.db, {
         ...editOf(call),
-        details: call.world.details,
+        deadlines: {
+          registrationOpensAt: call.world.details.registrationOpensAt,
+          registrationClosesAt: call.world.details.registrationClosesAt,
+          submissionDeadlineAt: call.world.details.submissionDeadlineAt,
+          judgingEndsAt: call.world.details.judgingEndsAt,
+        },
+      }),
+    cells: organiserOnly('ok', NEVER_EDITABLE),
+  },
+  saveHackathonSettings: {
+    gate: ORGANISER,
+    changesWorld: true,
+    run: (call) =>
+      saveHackathonSettingsResolver(call.db, {
+        ...editOf(call),
+        settings: {
+          attendanceModes: call.world.details.attendanceModes,
+          teamMin: call.world.details.teamMin,
+          teamMax: call.world.details.teamMax,
+          capacity: call.world.details.capacity,
+          minimumAge: call.world.details.minimumAge,
+          rules: call.world.details.rules,
+          aiPolicy: call.world.details.aiPolicy,
+          aiPolicyNote: call.world.details.aiPolicyNote,
+          licenceNote: call.world.details.licenceNote,
+        },
       }),
     cells: organiserOnly('ok', NEVER_EDITABLE),
   },
@@ -179,16 +208,5 @@ export const ORGANISER_OPERATIONS: Operations = {
         note: 'Confirmed by email with the sponsor.',
       }),
     cells: organiserOnly('ok', NEVER_EDITABLE),
-  },
-  submitHackathonForReview: {
-    gate: ORGANISER,
-    changesWorld: true,
-    run: (call) => submitHackathonForReviewResolver(call.db, editOf(call)),
-    cells: organiserOnly('ok', {
-      ...NEVER_EDITABLE,
-      open: 'hackathon_not_submittable',
-      building: 'hackathon_not_submittable',
-      judging: 'hackathon_not_submittable',
-    }),
   },
 };

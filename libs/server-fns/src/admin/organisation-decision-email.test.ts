@@ -27,12 +27,12 @@ describe('the organisation decision email (B-ORG-06)', () => {
   it('carries the operator’s note only when there is one', async () => {
     const withNote = await renderOrganisationDecisionEmail('fr', {
       organisation: 'Oran Makers',
-      decision: 'reject',
+      decision: 'suspend',
       note: 'Ajoutez un lien vers vos événements passés.',
     });
     const withoutNote = await renderOrganisationDecisionEmail('fr', {
       organisation: 'Oran Makers',
-      decision: 'approve',
+      decision: 'reinstate',
       note: null,
     });
 
@@ -45,7 +45,7 @@ describe('the organisation decision email (B-ORG-06)', () => {
   it('escapes a note written as markup', async () => {
     const email = await renderOrganisationDecisionEmail('en', {
       organisation: 'Oran Makers',
-      decision: 'reject',
+      decision: 'suspend',
       note: '<script>alert(1)</script> please add details',
     });
 

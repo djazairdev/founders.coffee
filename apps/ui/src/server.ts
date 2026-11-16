@@ -17,6 +17,7 @@ import {
   CSP_REPORT_PATH,
   handleCspReportRequest,
 } from '@founders-coffee/server-fns/csp-report-http';
+import { handleOrganisationLogoRequest } from '@founders-coffee/server-fns/organisation-logo-http';
 import { handleProfilePhotoRequest } from '@founders-coffee/server-fns/profile-photo-http';
 import { handleSubmissionScreenshotRequest } from '@founders-coffee/server-fns/submission-screenshot-http';
 import { allowSignInCode } from '@founders-coffee/server-fns/sign-in-code-limit';
@@ -205,6 +206,8 @@ export default {
     const clientLogs = handleClientLogsRequest(request, url);
     if (clientLogs) return secure(await clientLogs);
 
+    const logo = handleOrganisationLogoRequest(request, url);
+    if (logo) return logo;
     const photo = handleProfilePhotoRequest(request, url);
     if (photo) return secure(await photo);
 

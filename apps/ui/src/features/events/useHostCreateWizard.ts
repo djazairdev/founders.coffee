@@ -27,7 +27,7 @@ import {
   type HostCreateFieldErrors,
 } from './host-create-validation';
 import type { RepeatEventTemplate } from './api';
-import { useMyOrganisations } from './hooks';
+import { useMyOrganisations } from '../organisations/hooks';
 import {
   chosenHostOrganisation,
   hostableOrganisations,

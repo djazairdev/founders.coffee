@@ -50,7 +50,14 @@ const saved: HackathonDraftView['criteria'] = [
 const renderSection = (
   draft: HackathonDraftView = draftView({ details: savedDetails }),
   locale: Locale = 'en',
-) => render(<HackathonRubricSection draft={draft} locale={locale} />);
+) =>
+  render(
+    <HackathonRubricSection
+      draft={draft}
+      locale={locale}
+      onFeedback={vi.fn()}
+    />,
+  );
 
 const fillCriterion = (index: number, name: string, weight: string) => {
   fireEvent.change(screen.getAllByLabelText('Name')[index] as HTMLElement, {
@@ -102,36 +109,42 @@ describe('HackathonRubricSection (B-HKN-15)', () => {
     fireEvent.click(screen.getByRole('radio', { name: 'From 1 to 5' }));
     fireEvent.click(screen.getByRole('button', { name: 'Save the rubric' }));
 
-    expect(mocks.save.mutate).toHaveBeenCalledWith({
-      eventId: 'evt_draft',
-      version: 1,
-      criteria: [
-        {
-          id: null,
-          criterion: expect.objectContaining({
-            name: 'Impact',
-            weight: 40,
-            scale: 5,
-          }),
-        },
-        {
-          id: null,
-          criterion: expect.objectContaining({
-            name: 'Craft',
-            weight: 30,
-            scale: 5,
-          }),
-        },
-        {
-          id: null,
-          criterion: expect.objectContaining({
-            name: 'Demo',
-            weight: 30,
-            scale: 5,
-          }),
-        },
-      ],
-    });
+    expect(mocks.save.mutate).toHaveBeenCalledWith(
+      {
+        eventId: 'evt_draft',
+        version: 1,
+        criteria: [
+          {
+            id: null,
+            criterion: {
+              name: 'Impact',
+              description: 'How well the project does on Impact.',
+              weight: 40,
+              scale: 5,
+            },
+          },
+          {
+            id: null,
+            criterion: {
+              name: 'Craft',
+              description: 'How well the project does on Craft.',
+              weight: 30,
+              scale: 5,
+            },
+          },
+          {
+            id: null,
+            criterion: {
+              name: 'Demo',
+              description: 'How well the project does on Demo.',
+              weight: 30,
+              scale: 5,
+            },
+          },
+        ],
+      },
+      expect.anything(),
+    );
   });
 
   it('adds a fourth criterion, then no more, and removes down to three', () => {
@@ -178,15 +191,15 @@ describe('HackathonRubricSection (B-HKN-15)', () => {
     ).toBeNull();
   });
 
-  it('explains a refusal, and reads in Arabic', () => {
-    mocks.save.isError = true;
-    mocks.save.error = { code: 'hackathon_field_locked' };
-    renderSection(draftView({ details: savedDetails, criteria: saved }), 'ar');
+  it('shows the locked rubric in Arabic after registration opens', () => {
+    renderSection(
+      draftView({ details: savedDetails, criteria: saved, stage: 'locked' }),
+      'ar',
+    );
 
     expect(
       screen.getByRole('heading', { name: 'معايير التقييم' }),
     ).toBeTruthy();
-    expect(screen.getByRole('status').textContent).toBe('المجموع: 100 من 100');
     expect(
       screen.getByText('التسجيل مفتوح، لذا تبقى معايير التقييم كما هي.'),
     ).toBeTruthy();

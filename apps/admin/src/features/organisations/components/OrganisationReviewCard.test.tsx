@@ -39,7 +39,7 @@ describe('an organisation in the review queue (B-ORG-06)', () => {
     renderCard();
 
     expect(screen.getByRole('heading', { name: 'Oran Makers' })).toBeTruthy();
-    expect(screen.getByText('Club')).toBeTruthy();
+    expect(screen.getByText('Student or university club')).toBeTruthy();
     expect(
       screen.getByText('Builders meeting every month in Oran.'),
     ).toBeTruthy();
@@ -50,7 +50,7 @@ describe('an organisation in the review queue (B-ORG-06)', () => {
   it('dates the application in its market’s time zone', () => {
     renderCard();
 
-    expect(screen.getByText(/Applied on Oct 21, 2026/)).toBeTruthy();
+    expect(screen.getByText(/Registered on Oct 21, 2026/)).toBeTruthy();
   });
 
   it('opens the website away from the admin app, without a referrer', () => {

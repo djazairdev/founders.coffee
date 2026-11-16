@@ -18,6 +18,7 @@ export const submissionView = (
   submissionDeadlineAt: Date.parse('2099-03-14T11:00:00Z'),
   stage: 'building',
   aiPolicy: 'disclosed',
+  aiPolicyNote: null,
   registration: 'registered',
   team: { id: 'tea_byte', name: 'Byte Club', isCaptain: true },
   tracks: [

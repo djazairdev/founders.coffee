@@ -8,7 +8,10 @@ import {
   testMapProvider,
   TEST_HOST_ID,
 } from '../events/resolver.fixtures.js';
-import { saveHackathonDetailsResolver } from './details.js';
+import {
+  saveHackathonDeadlinesResolver,
+  saveHackathonSettingsResolver,
+} from './details.js';
 import { hackathonDraftResolver } from './draft-view.js';
 import { createHackathonDraftResolver } from './draft.js';
 
@@ -57,6 +60,8 @@ export const draftHackathon = async (db: Db) => {
       startsAt: kickoff,
       endsAt: kickoff + 2 * DAY,
       languages: ['ar', 'fr'],
+      hackathonFields: ['software_development'],
+      hackathonTypeTags: ['open_source'],
     }),
   });
   if (!created.ok) throw created.error;
@@ -76,11 +81,57 @@ export const detailsFor = (
     attendanceModes: ['online'],
     teamMin: 2,
     teamMax: 4,
-    aiPolicy: 'ai_native',
+    aiPolicy: 'conditional',
     aiPolicyNote: 'Any assistant, named in the submission.',
     licenceNote: 'Teams keep what they build.',
     ...overrides,
   });
+
+export const saveHackathonDetailsFixture = async (
+  db: Db,
+  input: {
+    readonly eventId: string;
+    readonly version: number;
+    readonly organisationId: string;
+    readonly details: hackathons.HackathonDetailsInput;
+  },
+  now?: number,
+) => {
+  const { details, ...edit } = input;
+  const deadlines = await saveHackathonDeadlinesResolver(
+    db,
+    {
+      ...edit,
+      deadlines: {
+        registrationOpensAt: details.registrationOpensAt,
+        registrationClosesAt: details.registrationClosesAt,
+        submissionDeadlineAt: details.submissionDeadlineAt,
+        judgingEndsAt: details.judgingEndsAt,
+      },
+    },
+    now,
+  );
+  if (!deadlines.ok) return deadlines;
+  return saveHackathonSettingsResolver(
+    db,
+    {
+      ...edit,
+      version: deadlines.data.version,
+      settings: {
+        attendanceModes: details.attendanceModes,
+        teamMin: details.teamMin,
+        teamMax: details.teamMax,
+        capacity: details.capacity,
+        minimumAge: details.minimumAge,
+        rules: details.rules,
+        aiPolicy: details.aiPolicy,
+        aiPolicyNote: details.aiPolicyNote,
+        licenceNote: details.licenceNote,
+      },
+    },
+    now,
+  );
+};
 
 /** Publish a hackathon's event, as review will once it approves it, without moving its version. */
 export const publishHackathon = (db: Db, eventId: string) =>
@@ -93,7 +144,7 @@ export const hackathonWithDetails = async (
   isPublished = false,
 ) => {
   const { eventId, kickoff } = await draftHackathon(db);
-  const saved = await saveHackathonDetailsResolver(db, {
+  const saved = await saveHackathonDetailsFixture(db, {
     eventId,
     version: 1,
     organisationId: ORGANISATION,

@@ -65,6 +65,8 @@ const basics = (overrides: Record<string, unknown> = {}) => {
     endsAt: kickoff + 2 * DAY,
     languages: ['ar', 'fr'],
     tags: ['engineering'],
+    hackathonFields: ['software_development'],
+    hackathonTypeTags: ['open_source'],
     ...overrides,
   });
 };
@@ -98,12 +100,13 @@ describe('creating a hackathon draft (B-HKN-06, real D1)', () => {
     );
   });
 
-  it('creates an online draft without a map provider', async () => {
+  it('creates a nationwide online draft without a map provider or city', async () => {
     const result = await createHackathonDraftResolver(db, null, {
       hostId: TEST_HOST_ID,
       organisationId: 'org_hackathon_lead',
       basics: basics({
         format: 'online',
+        cityCode: undefined,
         meetingUrl: 'https://meet.example.org/builders',
         latitude: undefined,
         longitude: undefined,
@@ -118,7 +121,8 @@ describe('creating a hackathon draft (B-HKN-06, real D1)', () => {
       .where(eq(events.id, result.data.eventId));
     expect(event).toMatchObject({
       format: 'online',
-      cityCode: '1',
+      cityCode: null,
+      stateCode: null,
       latitude: null,
       longitude: null,
       meetingUrl: 'https://meet.example.org/builders',
@@ -141,6 +145,8 @@ describe('creating a hackathon draft (B-HKN-06, real D1)', () => {
       cityCode: '1',
       slug: result.data.slug,
       tags: ['engineering'],
+      hackathonFields: ['software_development'],
+      hackathonTypeTags: ['open_source'],
     });
     expect(await getHackathon(db, result.data.eventId)).toBeNull();
     expect(

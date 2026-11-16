@@ -6,10 +6,10 @@ import type {
 import {
   hackathon_details_ai_disclosed,
   hackathon_details_ai_disclosed_hint,
-  hackathon_details_ai_native,
-  hackathon_details_ai_native_hint,
-  hackathon_details_ai_restricted,
-  hackathon_details_ai_restricted_hint,
+  hackathon_details_ai_conditional,
+  hackathon_details_ai_conditional_hint,
+  hackathon_details_ai_not_allowed,
+  hackathon_details_ai_not_allowed_hint,
   hackathon_track_kind_founder_problem,
   hackathon_track_kind_open_source,
   hackathon_track_kind_partner_technology,
@@ -22,13 +22,13 @@ export const AI_POLICY_LABELS = {
     name: hackathon_details_ai_disclosed,
     hint: hackathon_details_ai_disclosed_hint,
   },
-  ai_native: {
-    name: hackathon_details_ai_native,
-    hint: hackathon_details_ai_native_hint,
+  conditional: {
+    name: hackathon_details_ai_conditional,
+    hint: hackathon_details_ai_conditional_hint,
   },
-  restricted: {
-    name: hackathon_details_ai_restricted,
-    hint: hackathon_details_ai_restricted_hint,
+  not_allowed: {
+    name: hackathon_details_ai_not_allowed,
+    hint: hackathon_details_ai_not_allowed_hint,
   },
 } as const satisfies Record<HackathonAiPolicy, unknown>;
 

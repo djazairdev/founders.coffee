@@ -2,7 +2,7 @@ import {
   admin_cohost_role_co_host,
   admin_cohost_role_lead,
   admin_org_status_approved,
-  admin_org_status_pending,
+  org_status_pending,
   admin_org_status_rejected,
   admin_org_status_suspended,
   type Locale,
@@ -18,7 +18,7 @@ const ROLES: Record<EventOrganiserRole, typeof admin_cohost_role_lead> = {
 };
 
 const STATUSES: Record<OrganisationStatus, typeof admin_org_status_approved> = {
-  pending: admin_org_status_pending,
+  pending: org_status_pending,
   approved: admin_org_status_approved,
   rejected: admin_org_status_rejected,
   suspended: admin_org_status_suspended,

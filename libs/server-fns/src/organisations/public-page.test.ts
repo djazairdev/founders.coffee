@@ -93,6 +93,7 @@ describe("an organisation's public page (B-ORG-11, real D1)", () => {
       slug: 'code-club',
       kind: 'club',
       description: 'Weekly coding evenings for students in Algiers.',
+      logo: null,
       websiteUrl: null,
       marketCode: 'DZ',
       cityCode: null,

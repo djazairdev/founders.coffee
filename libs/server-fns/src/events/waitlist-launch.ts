@@ -20,6 +20,7 @@ const openRound = async (
   event: Event,
   launchId: string,
 ): Promise<boolean> => {
+  if (!event.cityCode) return false;
   try {
     const { written } = await openCityWaitlistLaunch(db, {
       id: launchId,
@@ -57,7 +58,7 @@ export const scheduleCityWaitlistLaunch = async (
   db: Db,
   event: Event,
 ): Promise<void> => {
-  if (!hasVenue(event)) return;
+  if (!hasVenue(event) || !event.cityCode) return;
   const launchId = id('wll');
   if (!(await openRound(db, event, launchId))) return;
 

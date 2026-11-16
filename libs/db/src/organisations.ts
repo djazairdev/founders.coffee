@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, ne, sql } from 'drizzle-orm';
 
 import type { OrganisationStatus } from '@founders-coffee/core';
 
@@ -8,6 +8,8 @@ import {
   markets,
   member,
   organization,
+  eventOrganisers,
+  session,
   type NewOrganization,
   type Organization,
 } from './schema.js';
@@ -36,7 +38,7 @@ export const readOrganisationMembership = async (
 };
 
 /**
- * File an application: the organisation as `pending`, with the applicant as its owner, in one batch.
+ * File an application: an immediately active organisation, with the applicant as its owner, in one batch.
  *
  * The owner row is selected from the organisation's own row, so a slug that was already taken
  * writes neither and the caller gets `undefined`; there is never an organisation without its owner.
@@ -52,7 +54,7 @@ export const createOrganisationApplication = async (
   const [created] = await batch(db, [
     db
       .insert(organization)
-      .values({ ...input.organisation, status: 'pending' })
+      .values({ ...input.organisation, status: 'approved' })
       .onConflictDoNothing({ target: organization.slug })
       .returning(),
     db.insert(member).select(
@@ -152,4 +154,30 @@ export const updateOrganisationProfile = async (
     .where(eq(organization.id, organisationId))
     .returning();
   return row ?? null;
+};
+
+/** Delete an unused organisation and clear every session that had it selected, in one batch. */
+export const deleteOrganisationIfUnused = async (
+  db: Db,
+  organisationId: string,
+): Promise<boolean> => {
+  const hasNoEvents = sql`NOT EXISTS (SELECT 1 FROM ${eventOrganisers} WHERE ${eventOrganisers.organisationId} = ${organization.id})`;
+  const mayDelete = sql`EXISTS (SELECT 1 FROM ${organization} WHERE ${organization.id} = ${organisationId} AND ${organization.kind} <> 'platform' AND ${hasNoEvents})`;
+  const [, deleted] = await batch(db, [
+    db
+      .update(session)
+      .set({ activeOrganizationId: null })
+      .where(and(eq(session.activeOrganizationId, organisationId), mayDelete)),
+    db
+      .delete(organization)
+      .where(
+        and(
+          eq(organization.id, organisationId),
+          ne(organization.kind, 'platform'),
+          hasNoEvents,
+        ),
+      )
+      .returning({ id: organization.id }),
+  ]);
+  return deleted.length === 1;
 };

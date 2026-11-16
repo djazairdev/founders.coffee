@@ -53,16 +53,16 @@ const decodeCursor = (value: string): PublicEventCursor | null => {
 const discoveryItem = (
   row: Awaited<ReturnType<typeof listPublicEventDiscoveryRows>>[number],
 ): PublicEventDiscovery | null => {
-  const city = geo.findCity(row.marketCode, row.cityCode);
-  if (!city) return null;
+  const city = row.cityCode ? geo.findCity(row.marketCode, row.cityCode) : null;
+  if (row.cityCode && !city) return null;
   const organizerName = profile.safeProfileDisplayName(
     row.organizerName,
     row.organizerEmail,
   );
   const result = eventDomain.publicEventDiscoverySchema.safeParse({
     market: row.marketSlug,
-    city: city.slug,
-    cityName: city.name,
+    city: city?.slug ?? null,
+    cityName: city?.name ?? null,
     slug: row.slug,
     title: row.title,
     description: row.description,

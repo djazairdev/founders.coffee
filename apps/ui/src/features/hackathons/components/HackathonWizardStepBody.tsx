@@ -1,18 +1,23 @@
 import type { Market } from '@founders-coffee/db';
 import type { geo } from '@founders-coffee/domain';
-import { hackathon_online_city_hint, type Locale } from '@founders-coffee/i18n';
+import { MapPin } from 'lucide-react';
+
+import { type Locale } from '@founders-coffee/i18n';
 
 import { EventFormatField } from '../../../components/events/EventFormatField';
-import { HostDetailsStep } from '../../../components/host/HostDetailsStep';
-import { HostMeetingLinkField } from '../../../components/host/HostMeetingLinkField';
-import { HostOnlineCityField } from '../../../components/host/HostOnlineCityField';
 import { HostVenueLine } from '../../../components/host/HostVenueLine';
 import { HostVenueStep } from '../../../components/host/HostVenueStep';
 import type { useVenueOverlay } from '../../../components/host/useVenueOverlay';
 import { hostCreateViewCopy } from '../../events/host-create-copy';
-import { hackathonDetailsCopy } from '../hackathon-create-copy';
+import {
+  hackathonDetailsCopy,
+  hackathonPlaceCopy,
+} from '../hackathon-create-copy';
 import type { useHackathonCreateWizard } from '../useHackathonCreateWizard';
 import { HackathonScheduleStep } from './HackathonScheduleStep';
+import { HackathonClassificationFields } from './HackathonClassificationFields';
+import { HackathonTitleField } from './HackathonTitleField';
+import { HackathonDescriptionEditor } from './HackathonDescriptionEditor';
 
 type HackathonWizardStepBodyProps = {
   locale: Locale;
@@ -25,6 +30,8 @@ type HackathonWizardStepBodyProps = {
   onCitySelect: (city: geo.GeoCity) => void;
 };
 
+const HACKATHON_CREATE_FORMATS = ['online', 'in_person'] as const;
+
 export const HackathonWizardStepBody = ({
   locale,
   market,
@@ -34,102 +41,143 @@ export const HackathonWizardStepBody = ({
   listCenter,
   isMapReady,
   onCitySelect,
-}: HackathonWizardStepBodyProps) => (
-  <>
-    {wizard.step > 1 && wizard.isVenueFormat && wizard.venue && (
-      <HostVenueLine
-        locale={locale}
-        venue={wizard.venue}
-        venueName={wizard.venueName}
-      />
-    )}
-
-    {wizard.step === 1 && (
-      <div className="grid gap-5">
-        <EventFormatField
+}: HackathonWizardStepBodyProps) => {
+  const placeCopy = hackathonPlaceCopy(locale);
+  return (
+    <>
+      {wizard.step > 1 && wizard.isVenueFormat && wizard.venue && (
+        <HostVenueLine
           locale={locale}
-          value={wizard.format}
-          onChange={wizard.setFormat}
+          venue={wizard.venue}
+          venueName={wizard.venueName}
         />
-        {wizard.isLinkFormat && (
-          <HostMeetingLinkField
-            locale={locale}
-            value={wizard.meetingUrl}
-            error={wizard.fieldErrors.meetingUrl}
-            onChange={wizard.setMeetingUrl}
-          />
-        )}
-        {wizard.isVenueFormat ? (
-          <HostVenueStep
-            locale={locale}
-            area={wizard.venueArea}
-            cityCode={city?.code}
-            center={listCenter}
-            marketCode={market.code}
-            searchValue={wizard.searchValue}
-            venue={wizard.venue}
-            venueName={wizard.venueName}
-            nameError={wizard.fieldErrors.venueName}
-            venueError={
-              wizard.fieldErrors.venue
-                ? {
-                    message: wizard.fieldErrors.venue,
-                    onDismiss: wizard.clearVenueError,
-                  }
-                : undefined
-            }
-            overlay={{
-              ...venueOverlay.panel,
-              onPick: () => {
-                venueOverlay.showMap();
-                wizard.setSearchValue('');
-              },
-            }}
-            isDisabled={!isMapReady}
-            onSearchChange={wizard.setSearchValue}
-            onVenueNameChange={wizard.setVenueName}
-            onVenueSelect={wizard.selectVenue}
-            onCitySelect={onCitySelect}
-          />
-        ) : (
-          <HostOnlineCityField
-            locale={locale}
-            marketCode={market.code}
-            city={city}
-            hint={hackathon_online_city_hint({}, { locale })}
-            onCitySelect={onCitySelect}
-          />
-        )}
-      </div>
-    )}
+      )}
 
-    {wizard.step === 2 && (
-      <HackathonScheduleStep
-        locale={locale}
-        timeZone={market.timezone}
-        startsAt={wizard.startsAt}
-        endsAt={wizard.endsAt}
-        error={wizard.fieldErrors.schedule}
-        onChange={wizard.setSchedule}
-        onError={wizard.setScheduleError}
-      />
-    )}
+      {wizard.step === 1 && (
+        <div className="grid gap-5">
+          <HackathonTitleField
+            locale={locale}
+            title={wizard.title}
+            error={wizard.fieldErrors.title}
+            minLength={hostCreateViewCopy().constraints.titleMin}
+            maxLength={hostCreateViewCopy().constraints.titleMax}
+            onChange={wizard.setTitle}
+          />
+          <EventFormatField
+            locale={locale}
+            value={wizard.format}
+            label={placeCopy.formatLabel}
+            names={placeCopy.formatNames}
+            formats={HACKATHON_CREATE_FORMATS}
+            isHintVisible={false}
+            presentation="radio-list"
+            onChange={wizard.setFormat}
+          />
+          <HackathonClassificationFields
+            locale={locale}
+            fields={wizard.fields}
+            typeTags={wizard.typeTags}
+            fieldsError={wizard.fieldErrors.hackathonFields}
+            typeTagsError={wizard.fieldErrors.hackathonTypeTags}
+            onFieldsChange={wizard.setFields}
+            onTypeTagsChange={wizard.setTypeTags}
+          />
+          <hr className="border-base-300" />
+          <p className="text-body-sm text-neutral">
+            {placeCopy.descriptions[wizard.format]}
+          </p>
+          {wizard.isVenueFormat ? (
+            <section
+              aria-labelledby="hackathon-venue-heading"
+              className="grid gap-3 border-t border-base-300 pt-4"
+            >
+              <h3
+                className="font-display text-h5 font-semibold text-base-content"
+                id="hackathon-venue-heading"
+              >
+                {wizard.isLinkFormat
+                  ? placeCopy.hybridLocationTitle
+                  : placeCopy.venueTitle}
+              </h3>
+              {wizard.isLinkFormat ? (
+                <p className="inline-flex items-center gap-2 text-body-sm text-neutral">
+                  <MapPin
+                    aria-hidden="true"
+                    className="size-4 shrink-0 text-secondary"
+                  />
+                  {placeCopy.hybridLocationHint}
+                </p>
+              ) : (
+                <p className="inline-flex items-center gap-2 text-body-sm text-neutral">
+                  <MapPin
+                    aria-hidden="true"
+                    className="size-4 shrink-0 text-secondary"
+                  />
+                  {placeCopy.mapHint}
+                </p>
+              )}
+              <HostVenueStep
+                locale={locale}
+                area={wizard.venueArea}
+                cityCode={city?.code}
+                center={listCenter}
+                marketCode={market.code}
+                searchValue={wizard.searchValue}
+                venue={wizard.venue}
+                venueName={wizard.venueName}
+                venueNamePlaceholder={placeCopy.venueNamePlaceholder}
+                nameError={wizard.fieldErrors.venueName}
+                venueError={
+                  wizard.fieldErrors.venue
+                    ? {
+                        message: wizard.fieldErrors.venue,
+                        onDismiss: wizard.clearVenueError,
+                      }
+                    : undefined
+                }
+                overlay={{
+                  ...venueOverlay.panel,
+                  onPick: () => {
+                    venueOverlay.showMap();
+                    wizard.setSearchValue('');
+                  },
+                }}
+                isDisabled={!isMapReady}
+                isEmptyHintVisible={false}
+                onSearchChange={wizard.setSearchValue}
+                onVenueNameChange={wizard.setVenueName}
+                onVenueSelect={wizard.selectVenue}
+                onCitySelect={onCitySelect}
+              />
+            </section>
+          ) : null}
+        </div>
+      )}
 
-    {wizard.step === 3 && (
-      <HostDetailsStep
-        locale={locale}
-        title={wizard.title}
-        description={wizard.description}
-        languages={wizard.languages}
-        tags={wizard.tags}
-        constraints={hostCreateViewCopy().constraints}
-        errors={wizard.fieldErrors}
-        copy={hackathonDetailsCopy(locale)}
-        onTitleChange={wizard.setTitle}
-        onDescriptionChange={wizard.setDescription}
-        onLanguagesChange={wizard.setLanguages}
-        onTagsChange={wizard.setTags}
-      />
-    )}
-  </>
-);
+      {wizard.step === 2 && (
+        <HackathonScheduleStep
+          locale={locale}
+          timeZone={market.timezone}
+          startsAt={wizard.startsAt}
+          endsAt={wizard.endsAt}
+          error={wizard.fieldErrors.schedule}
+          showValidation={wizard.showScheduleValidation}
+          onChange={wizard.setSchedule}
+          onError={wizard.setScheduleError}
+        />
+      )}
+
+      {wizard.step === 3 && (
+        <div className="flex min-h-0 flex-1 flex-col">
+          <HackathonDescriptionEditor
+            locale={locale}
+            description={wizard.description}
+            error={wizard.fieldErrors.description}
+            placeholder={hackathonDetailsCopy(locale).descriptionPlaceholder}
+            onChange={wizard.setDescription}
+          />
+        </div>
+      )}
+    </>
+  );
+};

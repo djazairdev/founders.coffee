@@ -233,7 +233,10 @@ export const RsvpSection = ({
         />
       ) : null}
 
-      {isAuthenticated && !isCancelled && phase === 'ended' ? (
+      {isAuthenticated &&
+      !isCancelled &&
+      phase === 'ended' &&
+      event.cityCode ? (
         <OrganiserRepeatLink
           eventId={event.id}
           cityCode={event.cityCode}

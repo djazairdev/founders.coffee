@@ -187,7 +187,7 @@ without rendering or requiring a browser challenge.
 - **Presentational + thin.** Components receive props, call hooks (`hooks.ts`) for data, and dispatch via hooks. They **never** import server functions, DB, Drizzle, or domain internals.
 - **Organized by domain** in `features/<domain>/components/`. Cross-domain shared UI lives in `libs/ui`.
 - **Styling:** Tailwind v4 + DaisyUI. Use design tokens / DaisyUI components; avoid arbitrary inline values where a token exists. RTL-aware (use logical properties — `ps-`/`pe-`/`ms-`/`me-`, not `pl-`/`pr-`).
-- **Control sizes:** every DaisyUI button takes the responsive size up to `md`, `btn-xs sm:btn-sm md:btn-md`. Only the market landing's calls to action, the hero's search button and How it works' pair, go on to `lg:btn-lg`; their files are listed in `CALL_TO_ACTION_BUTTON_FILES` (`tools/eslint/file-globs.mjs`), and no button takes `xl:btn-xl`. Every field (`input`, `select`, `textarea`, `otp`) is small below `md` and medium from it (`input-sm md:input-md`). Nothing else sets their height, fixed width or font size, or a button's padding; `w-full` and `flex-1` may still fill a layout. `local/daisyui-control-size` enforces it.
+- **Control sizes:** every DaisyUI button takes the responsive size up to `md`, `btn-xs sm:btn-sm md:btn-md`. Only the market landing's calls to action, the hero's search button, How it works' pair and the hackathon organiser button, go on to `lg:btn-lg`; their files are listed in `CALL_TO_ACTION_BUTTON_FILES` (`tools/eslint/file-globs.mjs`), and no button takes `xl:btn-xl`. Every field (`input`, `select`, `textarea`, `otp`) is small below `md` and medium from it (`input-sm md:input-md`). Nothing else sets their height, fixed width or font size, or a button's padding; `w-full` and `flex-1` may still fill a layout. `local/daisyui-control-size` enforces it.
 - **Positioned controls:** a `.btn` or `.tap-target` never carries `absolute`, `fixed` or `sticky` itself. On a touch screen `libs/ui`'s stylesheet makes both `relative` for their 44px hit area, which beats a position utility on the same element and drops the control back into the layout; a desktop never shows it. Put the position on a wrapper. `local/no-positioned-tap-target` enforces it.
 - **Forms:** shared Zod schemas remain the contract. TanStack Form is available for forms that benefit from it; local React state is also acceptable when validation still reuses the shared schema and the component remains thin.
 - **Tables/grids:** TanStack Table. **Long lists:** TanStack Virtual.
@@ -349,3 +349,7 @@ These are non-negotiable platform-specific rules; several correct common mistake
 - **Ambiguity about _what_ to build, _when_, or in what order** → check `docs/implementation-plan.md`. Still unclear → ask. Do not infer a requirement from history; the plan is the only live specification.
 - **Tempted to add a library/service/integration** → stop and ask (§1.8).
 - **Tempted to skip a rule "just this once"** → don't. The rules exist because the team chose them deliberately. Raise it in a ticket instead.
+
+## 19. UI verification workflow
+
+- The user prefers to perform browser and UI checks themselves. For UI work, start the dev server with `npm run ui:dev` on port 3000 and monitor its logs for errors; do not open or operate the browser unless the user explicitly asks.

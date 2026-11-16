@@ -1,4 +1,4 @@
-import type { Db } from '@founders-coffee/db';
+import { eq, hackathons, type Db } from '@founders-coffee/db';
 
 import {
   criterion,
@@ -6,11 +6,10 @@ import {
   hackathonWithDetails,
   ORGANISATION,
 } from './edit.fixtures.js';
-import { submitHackathonForReviewResolver } from './review.js';
 import { saveHackathonRubricResolver } from './rubric.js';
 import { saveHackathonTracksResolver } from './tracks.js';
 
-/** A drafted hackathon with its details, a track and a rubric saved, ready to send for review. */
+/** A drafted hackathon with its details, a track and a rubric saved for admin review. */
 export const readyHackathon = async (db: Db) => {
   const { eventId, version } = await hackathonWithDetails(db);
   const tracks = await saveHackathonTracksResolver(db, {
@@ -34,14 +33,12 @@ export const readyHackathon = async (db: Db) => {
   return { eventId, version: rubric.data.version };
 };
 
-/** A hackathon sent for review, at the version that left it. */
+/** A legacy submitted hackathon, retained to cover review of existing queue entries. */
 export const submittedHackathon = async (db: Db) => {
-  const { eventId, version } = await readyHackathon(db);
-  const submitted = await submitHackathonForReviewResolver(db, {
-    eventId,
-    version,
-    organisationId: ORGANISATION,
-  });
-  if (!submitted.ok) throw submitted.error;
-  return { eventId, version: submitted.data.version };
+  const hackathon = await readyHackathon(db);
+  await db
+    .update(hackathons)
+    .set({ reviewStatus: 'submitted' })
+    .where(eq(hackathons.eventId, hackathon.eventId));
+  return hackathon;
 };

@@ -75,7 +75,7 @@ export const useHostPublish = ({
    */
   const handleSuccess = (created: {
     marketCode: string;
-    cityCode: string;
+    cityCode: string | null;
     hostId: string;
     slug: string;
   }) => {

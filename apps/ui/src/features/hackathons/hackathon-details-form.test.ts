@@ -27,7 +27,7 @@ const filled = (
   registrationClosesAt: '2099-03-10T22:00',
   submissionDeadlineAt: '2099-03-14T13:00',
   judgingEndsAt: '2099-03-21T18:00',
-  aiPolicy: 'ai_native',
+  aiPolicy: 'disclosed',
   ...changes,
 });
 
@@ -48,12 +48,14 @@ describe('the market’s wall clock in a datetime field', () => {
 });
 
 describe('initialDetailsValues', () => {
-  it('starts a new hackathon with no date or AI policy, and the format’s attendance', () => {
+  it('suggests dates for a new hackathon, and keeps AI policy for the organiser', () => {
     const values = initialDetailsValues(draftView(), ALGIERS);
 
     expect(values).toMatchObject({
-      registrationOpensAt: '',
-      judgingEndsAt: '',
+      registrationOpensAt: '2099-03-05T09:00',
+      registrationClosesAt: '2099-03-12T08:00',
+      submissionDeadlineAt: '2099-03-14T18:00',
+      judgingEndsAt: '2099-03-21T18:00',
       attendanceModes: ['online'],
       teamMin: '1',
       teamMax: '4',
@@ -97,18 +99,22 @@ describe('checkDetails', () => {
         attendanceModes: ['online'],
         teamMin: 1,
         teamMax: 4,
-        aiPolicy: 'ai_native',
+        aiPolicy: 'disclosed',
       },
     });
   });
 
   it('files a timeline issue under the date the organiser can move', () => {
     const late = check(filled({ registrationClosesAt: '2099-03-12T10:00' }));
+    const afterSubmissions = check(
+      filled({ registrationClosesAt: '2099-03-14T14:00' }),
+    );
     const after = check(filled({ submissionDeadlineAt: '2099-03-14T19:00' }));
 
-    expect(late.ok ? null : Object.keys(late.errors)).toEqual([
-      'registrationClosesAt',
-    ]);
+    expect(late.ok).toBe(true);
+    expect(
+      afterSubmissions.ok ? null : Object.keys(afterSubmissions.errors),
+    ).toEqual(['registrationClosesAt']);
     expect(after.ok ? null : after.errors).toEqual({
       submissionDeadlineAt:
         'Submissions close after kickoff, and no later than the end of demo day.',

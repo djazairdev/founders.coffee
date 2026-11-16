@@ -1,7 +1,6 @@
 import {
   hackathon_banner_approved,
-  hackathon_banner_draft,
-  hackathon_manage_created,
+  hackathon_review_auto,
   hackathon_review_note,
   hackathon_review_rejected,
   hackathon_review_submitted,
@@ -14,11 +13,9 @@ import type { HackathonDraftView } from '../api';
 export const HackathonReviewBanner = ({
   draft,
   locale,
-  isJustCreated,
 }: {
   draft: HackathonDraftView;
   locale: Locale;
-  isJustCreated: boolean;
 }) => {
   const options = { locale };
   const { review } = draft;
@@ -29,6 +26,12 @@ export const HackathonReviewBanner = ({
       </StatusMessage>
     );
   if (draft.event.status !== 'draft') return null;
+  if (review.status === 'draft' && draft.details !== null)
+    return (
+      <StatusMessage variant="info" className="mt-6">
+        {hackathon_review_auto({}, options)}
+      </StatusMessage>
+    );
   if (review.status === 'submitted')
     return (
       <StatusMessage variant="info" className="mt-6">
@@ -53,14 +56,5 @@ export const HackathonReviewBanner = ({
         ) : null}
       </div>
     );
-  if (review.status !== 'draft' || !draft.isEditable) return null;
-  return isJustCreated && draft.details === null ? (
-    <StatusMessage variant="success" className="mt-6">
-      {hackathon_manage_created({}, options)}
-    </StatusMessage>
-  ) : (
-    <StatusMessage variant="info" className="mt-6">
-      {hackathon_banner_draft({}, options)}
-    </StatusMessage>
-  );
+  return null;
 };

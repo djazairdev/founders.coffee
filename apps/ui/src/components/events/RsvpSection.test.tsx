@@ -26,6 +26,7 @@ vi.mock('../../lib/app-providers', () => ({
 }));
 
 vi.mock('./HostEventPanel', () => ({ HostEventPanel: () => null }));
+vi.mock('./OrganiserRepeatLink', () => ({ OrganiserRepeatLink: () => null }));
 vi.mock('../../features/chat/components/ChatOpenButton', () => ({
   ChatOpenButton: () => null,
 }));

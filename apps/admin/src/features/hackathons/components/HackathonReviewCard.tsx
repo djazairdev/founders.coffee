@@ -10,7 +10,7 @@ import {
   admin_hkn_registration,
   admin_hkn_rules,
   admin_hkn_runs,
-  admin_hkn_submitted_on,
+  admin_hkn_updated_on,
   admin_hkn_team_size,
   admin_hkn_team_size_value,
   admin_hkn_tracks,
@@ -114,13 +114,14 @@ export const HackathonReviewCard = ({
       ) : null}
       <HackathonReviewPreview item={item} locale={locale} />
       <p className="text-caption text-neutral">
-        {admin_hkn_submitted_on({ date: momentOf(item.submittedAt) }, options)}
+        {admin_hkn_updated_on({ date: momentOf(item.updatedAt) }, options)}
       </p>
       <HackathonDecisionForm
         eventId={item.eventId}
         isDeciding={isDeciding}
         locale={locale}
         onDecide={onDecide}
+        version={item.version}
       />
     </li>
   );

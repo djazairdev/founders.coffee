@@ -23,6 +23,22 @@ export type HackathonDetails = {
   readonly licenceNote: string | null;
 };
 
+export type HackathonDeadlines = Pick<
+  HackathonDetails,
+  | 'registrationOpensAt'
+  | 'registrationClosesAt'
+  | 'submissionDeadlineAt'
+  | 'judgingEndsAt'
+>;
+
+export type HackathonSettings = Omit<
+  HackathonDetails,
+  | 'registrationOpensAt'
+  | 'registrationClosesAt'
+  | 'submissionDeadlineAt'
+  | 'judgingEndsAt'
+>;
+
 /** Seconds since the epoch, the unit every timestamp column stores. */
 const seconds = (date: Date): number => Math.floor(date.getTime() / 1000);
 
@@ -129,6 +145,63 @@ export const hackathonDetailsWrite = (
         updatedAt: sql`unixepoch()`,
       },
     });
+
+export const hackathonDeadlinesUpdate = (
+  db: Db,
+  input: {
+    readonly eventId: string;
+    readonly version: number;
+    readonly deadlines: HackathonDeadlines;
+  },
+) =>
+  db
+    .update(hackathons)
+    .set({ ...input.deadlines, updatedAt: new Date() })
+    .where(
+      and(
+        eq(hackathons.eventId, input.eventId),
+        hackathonAtVersion(input.eventId, input.version),
+      ),
+    )
+    .returning({ eventId: hackathons.eventId });
+
+export const hackathonSettingsUpdate = (
+  db: Db,
+  input: {
+    readonly eventId: string;
+    readonly version: number;
+    readonly settings: HackathonSettings;
+  },
+) =>
+  db
+    .update(hackathons)
+    .set({
+      ...input.settings,
+      attendanceModes: [...input.settings.attendanceModes],
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(hackathons.eventId, input.eventId),
+        hackathonAtVersion(input.eventId, input.version),
+      ),
+    )
+    .returning({ eventId: hackathons.eventId });
+
+export const touchHackathonDetails = (
+  db: Db,
+  input: { readonly eventId: string; readonly version: number },
+) =>
+  db
+    .update(hackathons)
+    .set({ updatedAt: new Date() })
+    .where(
+      and(
+        eq(hackathons.eventId, input.eventId),
+        hackathonAtVersion(input.eventId, input.version),
+      ),
+    )
+    .returning({ eventId: hackathons.eventId });
 
 /** A hackathon's event and its details, or `null` when the event is not a hackathon with details. */
 export const getHackathon = async (

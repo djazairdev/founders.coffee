@@ -9,8 +9,8 @@ export type HackathonEditWrite = BatchItem<'sqlite'>;
 
 /**
  * Whether a hackathon is still as its organiser last saw it (B-HKN-07): its event at `version`, not
- * cancelled, and its details not with the reviewers. Every statement of an edit carries it, so an
- * edit built from a stale page, or landing after the hackathon moved on, writes nothing.
+ * cancelled or in the legacy locked review state. Every statement of an edit carries it, so an edit
+ * built from a stale page, or landing after the hackathon moved on, writes nothing.
  */
 export const hackathonAtVersion = (eventId: string, version: number): SQL =>
   sql`EXISTS (SELECT 1 FROM ${events} LEFT JOIN ${hackathons} ON ${hackathons.eventId} = ${events.id} WHERE ${events.id} = ${eventId} AND ${events.kind} = 'hackathon' AND ${events.version} = ${version} AND ${events.status} != 'cancelled' AND coalesce(${hackathons.reviewStatus}, 'draft') != 'submitted')`;
@@ -18,12 +18,11 @@ export const hackathonAtVersion = (eventId: string, version: number): SQL =>
 /**
  * Run an edit's writes, then move the event to its next version, in one batch (B-HKN-07).
  *
- * The version moves last and the order is load-bearing: D1 applies a batch in order inside one
- * transaction, so every write sees the version the organiser saw, and a write placed after the bump
- * would see the new one and never land. Each write carries {@link hackathonAtVersion}, so either the
- * hackathon was current and everything lands with the bump, or nothing does. With `isSingleRow`, the
- * bump also needs the one write before it to have changed a row, for an edit whose own condition
- * can fail while the hackathon is current. Returns the new version, or `null` when nothing landed.
+ * The version bump follows the edit writes, then a rejected draft returns to the admin queue only if
+ * that bump landed. D1 applies a batch in order inside one transaction, so every edit write sees the
+ * version the organiser saw. Each write carries {@link hackathonAtVersion}, so either the hackathon
+ * was current and everything lands, or nothing does. With `isSingleRow`, the bump also needs the
+ * one write before it to have changed a row. Returns the new version, or `null` when nothing landed.
  */
 export const applyHackathonEdit = async (
   db: Db,
@@ -48,7 +47,20 @@ export const applyHackathonEdit = async (
         ),
       )
       .returning({ version: events.version }),
+    db
+      .update(hackathons)
+      .set({ reviewStatus: 'draft', reviewNote: null, updatedAt: new Date() })
+      .where(
+        and(
+          eq(hackathons.eventId, input.eventId),
+          eq(hackathons.reviewStatus, 'rejected'),
+          sql`EXISTS (SELECT 1 FROM ${events} WHERE ${events.id} = ${input.eventId} AND ${events.version} = ${next})`,
+          sql`changes() = 1`,
+        ),
+      ),
   ]);
-  const bumped = results.at(-1) as readonly { version: number }[];
+  const bumped = results[input.writes.length] as readonly {
+    version: number;
+  }[];
   return bumped.length === 1 ? next : null;
 };

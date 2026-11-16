@@ -1,30 +1,35 @@
 import { useMemo, useState } from 'react';
 import { flushSync } from 'react-dom';
 
-import type { Locale } from '@founders-coffee/i18n';
+import { hackathon_details_saved, type Locale } from '@founders-coffee/i18n';
 
 import { seekField } from '../events/seek-field';
 import type { HackathonDraftView } from './api';
+import type { HackathonFeedback } from './hackathon-feedback';
 import { lockedFieldsOf } from './details-locks';
 import { hackathonEditError } from './edit-errors';
 import {
-  checkDetails,
-  DETAILS_FIELD_ORDER,
+  checkDeadlines,
+  checkSettings,
+  DEADLINE_FIELD_ORDER,
   initialDetailsValues,
+  SETTINGS_FIELD_ORDER,
   type DetailsField,
   type DetailsFormErrors,
   type DetailsFormValues,
 } from './hackathon-details-form';
-import { useSaveHackathonDetails } from './hooks';
+import { useSaveHackathonDeadlines, useSaveHackathonSettings } from './hooks';
 
 export const detailsFieldId = (field: DetailsField) => `hackathon-${field}`;
 
 const FOCUSABLE = 'input, textarea, select, button';
 
-/** Take the organiser to a field holding the form back, or to the first control inside a group. */
+/** Move focus to a field holding a section save back. */
 const seekDetailsField = (field: DetailsField): void => {
   const element = document.getElementById(detailsFieldId(field));
   if (!element) return;
+  const disclosure = element.closest('details');
+  if (disclosure && !disclosure.open) disclosure.open = true;
   seekField(
     element.matches(FOCUSABLE)
       ? element
@@ -32,39 +37,53 @@ const seekDetailsField = (field: DetailsField): void => {
   );
 };
 
-/**
- * The organiser flow's second step as a form (B-HKN-12): the values, the check Save runs before it
- * sends anything, and the save itself.
- *
- * Save checks every field with the rule the server applies, against the saved kickoff, demo day and
- * format, and takes the organiser to the first field holding it back. A field's message goes as
- * soon as it changes; "saved" stays until the next change. Once registration is open, the fields
- * the hackathon's promise fixes are locked (B-HKN-07), and every save names the version it was
- * built from, so one made from a stale page is refused rather than landing over a newer one.
- */
-export const useHackathonDetailsForm = ({
-  draft,
-  timeZone,
-  locale,
-}: {
+export type DetailsFormState = {
+  readonly values: DetailsFormValues;
+  readonly errors: DetailsFormErrors;
+  readonly set: <F extends DetailsField>(
+    field: F,
+    value: DetailsFormValues[F],
+  ) => void;
+  readonly submit: () => void;
+  readonly isLocked: (field: DetailsField) => boolean;
+  readonly isSaving: boolean;
+};
+
+type FormOptions = {
   draft: HackathonDraftView;
   timeZone: string;
   locale: Locale;
-}) => {
-  const save = useSaveHackathonDetails();
-  const [values, setValues] = useState(() =>
-    initialDetailsValues(draft, timeZone),
-  );
-  const [errors, setErrors] = useState<DetailsFormErrors>({});
+  onFeedback: HackathonFeedback;
+};
+
+const useValues = (draft: HackathonDraftView, timeZone: string) =>
+  useState(() => initialDetailsValues(draft, timeZone));
+
+const useLockState = (draft: HackathonDraftView) => {
   const lockedFields = useMemo(
     () => lockedFieldsOf(draft, Date.now()),
     [draft],
   );
+  return (field: DetailsField) => lockedFields.has(field);
+};
 
-  const set = <F extends DetailsField>(
-    field: F,
-    value: DetailsFormValues[F],
-  ) => {
+const firstError = (
+  fields: readonly DetailsField[],
+  errors: DetailsFormErrors,
+) => fields.find((field) => errors[field]);
+
+export const useHackathonDeadlinesForm = ({
+  draft,
+  timeZone,
+  locale,
+  onFeedback,
+}: FormOptions): DetailsFormState => {
+  const save = useSaveHackathonDeadlines();
+  const [values, setValues] = useValues(draft, timeZone);
+  const [errors, setErrors] = useState<DetailsFormErrors>({});
+  const isLocked = useLockState(draft);
+
+  const set: DetailsFormState['set'] = (field, value) => {
     setValues((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: undefined }));
     save.reset();
@@ -72,29 +91,77 @@ export const useHackathonDetailsForm = ({
 
   const submit = () => {
     if (save.isPending) return;
-    const check = checkDetails(values, draft, timeZone, locale);
-    if (!check.ok) {
-      flushSync(() => setErrors(check.errors));
-      const first = DETAILS_FIELD_ORDER.find((field) => check.errors[field]);
-      if (first) seekDetailsField(first);
+    const checked = checkDeadlines(values, draft, timeZone, locale);
+    if (!checked.ok) {
+      flushSync(() => setErrors(checked.errors));
+      const first = firstError(DEADLINE_FIELD_ORDER, checked.errors);
+      if (first) {
+        seekDetailsField(first);
+      }
       return;
     }
     setErrors({});
-    save.mutate({
-      eventId: draft.event.id,
-      version: draft.version,
-      details: check.details,
-    });
+    save.mutate(
+      {
+        eventId: draft.event.id,
+        version: draft.version,
+        deadlines: checked.deadlines,
+      },
+      {
+        onSuccess: () =>
+          onFeedback(hackathon_details_saved({}, { locale }), 'success'),
+        onError: (error) =>
+          onFeedback(hackathonEditError(error, locale), 'error'),
+      },
+    );
   };
 
-  return {
-    values,
-    errors,
-    set,
-    submit,
-    isLocked: (field: DetailsField) => lockedFields.has(field),
-    isSaving: save.isPending,
-    isSaved: save.isSuccess,
-    saveError: save.isError ? hackathonEditError(save.error, locale) : null,
+  return { values, errors, set, submit, isLocked, isSaving: save.isPending };
+};
+
+export const useHackathonSettingsForm = ({
+  draft,
+  timeZone,
+  locale,
+  onFeedback,
+}: FormOptions): DetailsFormState => {
+  const save = useSaveHackathonSettings();
+  const [values, setValues] = useValues(draft, timeZone);
+  const [errors, setErrors] = useState<DetailsFormErrors>({});
+  const isLocked = useLockState(draft);
+
+  const set: DetailsFormState['set'] = (field, value) => {
+    setValues((current) => ({ ...current, [field]: value }));
+    setErrors((current) => ({ ...current, [field]: undefined }));
+    save.reset();
   };
+
+  const submit = () => {
+    if (save.isPending) return;
+    const checked = checkSettings(values, draft, locale);
+    if (!checked.ok) {
+      flushSync(() => setErrors(checked.errors));
+      const first = firstError(SETTINGS_FIELD_ORDER, checked.errors);
+      if (first) {
+        seekDetailsField(first);
+      }
+      return;
+    }
+    setErrors({});
+    save.mutate(
+      {
+        eventId: draft.event.id,
+        version: draft.version,
+        settings: checked.settings,
+      },
+      {
+        onSuccess: () =>
+          onFeedback(hackathon_details_saved({}, { locale }), 'success'),
+        onError: (error) =>
+          onFeedback(hackathonEditError(error, locale), 'error'),
+      },
+    );
+  };
+
+  return { values, errors, set, submit, isLocked, isSaving: save.isPending };
 };

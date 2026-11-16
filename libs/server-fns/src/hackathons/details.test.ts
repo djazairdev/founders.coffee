@@ -9,7 +9,10 @@ import {
 } from '@founders-coffee/db';
 
 import { hostAnEvent } from '../events/update.fixtures.js';
-import { saveHackathonDetailsResolver } from './details.js';
+import {
+  saveHackathonDeadlinesResolver,
+  saveHackathonSettingsResolver,
+} from './details.js';
 import { hackathonDraftResolver } from './draft-view.js';
 import {
   codeOf,
@@ -17,9 +20,9 @@ import {
   detailsFor,
   draftHackathon,
   hackathonWithDetails,
-  HOUR,
   ORGANISATION,
   setHackathons,
+  saveHackathonDetailsFixture,
   setupHackathonDb,
 } from './edit.fixtures.js';
 
@@ -64,25 +67,25 @@ describe("a hackathon's details (B-HKN-12, B-HKN-07, real D1)", () => {
   it('writes the details the first time and replaces them after', async () => {
     const { eventId, kickoff } = await draftHackathon(db);
 
-    const first = await saveHackathonDetailsResolver(db, {
+    const first = await saveHackathonDetailsFixture(db, {
       eventId,
       version: 1,
       organisationId: ORGANISATION,
       details: detailsFor(kickoff),
     });
-    expect(first.ok && first.data.version).toBe(2);
-    const second = await saveHackathonDetailsResolver(db, {
+    expect(first.ok && first.data.version).toBe(3);
+    const second = await saveHackathonDetailsFixture(db, {
       eventId,
-      version: 2,
+      version: first.ok ? first.data.version : 0,
       organisationId: ORGANISATION,
       details: detailsFor(kickoff, {
         teamMax: 5,
         capacity: 80,
         minimumAge: 18,
-        aiPolicyNote: undefined,
+        aiPolicyNote: 'Name tools used at submission.',
       }),
     });
-    expect(second.ok && second.data.version).toBe(3);
+    expect(second.ok && second.data.version).toBe(5);
 
     const read = await hackathonDraftResolver(db, eventId);
     if (!read.ok) throw read.error;
@@ -92,8 +95,8 @@ describe("a hackathon's details (B-HKN-12, B-HKN-07, real D1)", () => {
       teamMax: 5,
       capacity: 80,
       minimumAge: 18,
-      aiPolicy: 'ai_native',
-      aiPolicyNote: null,
+      aiPolicy: 'conditional',
+      aiPolicyNote: 'Name tools used at submission.',
       licenceNote: 'Teams keep what they build.',
       registrationClosesAt: kickoff - DAY,
     });
@@ -108,17 +111,35 @@ describe("a hackathon's details (B-HKN-12, B-HKN-07, real D1)", () => {
   it('holds the details to the saved event, and writes nothing that does not fit', async () => {
     const { eventId, kickoff } = await draftHackathon(db);
 
-    const late = await saveHackathonDetailsResolver(db, {
-      eventId,
-      version: 1,
-      organisationId: ORGANISATION,
-      details: detailsFor(kickoff, { registrationClosesAt: kickoff + HOUR }),
+    const details = detailsFor(kickoff, {
+      registrationClosesAt: kickoff + 2 * DAY,
     });
-    const inPerson = await saveHackathonDetailsResolver(db, {
+    const late = await saveHackathonDeadlinesResolver(db, {
       eventId,
       version: 1,
       organisationId: ORGANISATION,
-      details: detailsFor(kickoff, { attendanceModes: ['in_person'] }),
+      deadlines: {
+        registrationOpensAt: details.registrationOpensAt,
+        registrationClosesAt: details.registrationClosesAt,
+        submissionDeadlineAt: details.submissionDeadlineAt,
+        judgingEndsAt: details.judgingEndsAt,
+      },
+    });
+    const invalidSettings = detailsFor(kickoff, {
+      attendanceModes: ['in_person'],
+    });
+    const inPerson = await saveHackathonSettingsResolver(db, {
+      eventId,
+      version: 1,
+      organisationId: ORGANISATION,
+      settings: {
+        attendanceModes: invalidSettings.attendanceModes,
+        teamMin: invalidSettings.teamMin,
+        teamMax: invalidSettings.teamMax,
+        aiPolicy: invalidSettings.aiPolicy,
+        aiPolicyNote: invalidSettings.aiPolicyNote,
+        licenceNote: invalidSettings.licenceNote,
+      },
     });
 
     expect(codeOf(late)).toBe('validation_failed');
@@ -134,7 +155,7 @@ describe("a hackathon's details (B-HKN-12, B-HKN-07, real D1)", () => {
   it('refuses a save built from a stale page, and writes nothing', async () => {
     const { eventId, kickoff, version } = await hackathonWithDetails(db);
 
-    const stale = await saveHackathonDetailsResolver(db, {
+    const stale = await saveHackathonDetailsFixture(db, {
       eventId,
       version: version - 1,
       organisationId: ORGANISATION,
@@ -162,7 +183,7 @@ describe("a hackathon's details (B-HKN-12, B-HKN-07, real D1)", () => {
       .where(eq(hackathonDetails.eventId, submitted.eventId));
 
     for (const { eventId, kickoff, version } of [cancelled, submitted]) {
-      const saved = await saveHackathonDetailsResolver(db, {
+      const saved = await saveHackathonDetailsFixture(db, {
         eventId,
         version,
         organisationId: ORGANISATION,
@@ -181,28 +202,63 @@ describe("a hackathon's details (B-HKN-12, B-HKN-07, real D1)", () => {
       { registrationOpensAt: opened, capacity: 50 },
       true,
     );
-    const edit = (overrides: Record<string, unknown>, at: number) =>
-      saveHackathonDetailsResolver(db, {
+    const saved = detailsFor(kickoff, {
+      registrationOpensAt: opened,
+      capacity: 50,
+    });
+    const saveSettings = (
+      settings: {
+        readonly attendanceModes: typeof saved.attendanceModes;
+        readonly teamMin: number;
+        readonly teamMax: number;
+        readonly capacity?: number;
+        readonly aiPolicy: typeof saved.aiPolicy;
+        readonly aiPolicyNote?: string;
+        readonly licenceNote?: string;
+      },
+      at: number,
+    ) =>
+      saveHackathonSettingsResolver(db, {
         eventId,
         version: at,
         organisationId: ORGANISATION,
-        details: detailsFor(kickoff, {
-          registrationOpensAt: opened,
-          capacity: 50,
-          ...overrides,
-        }),
+        settings,
       });
 
-    const locked = await edit({ teamMax: 5, capacity: 40 }, version);
+    const settings = {
+      attendanceModes: saved.attendanceModes,
+      teamMin: saved.teamMin,
+      teamMax: saved.teamMax,
+      capacity: saved.capacity,
+      aiPolicy: saved.aiPolicy,
+      aiPolicyNote: saved.aiPolicyNote,
+      licenceNote: saved.licenceNote,
+    };
+    const locked = await saveSettings(
+      { ...settings, teamMax: 5, capacity: 40 },
+      version,
+    );
     expect(locked.ok ? null : locked.error).toMatchObject({
       code: 'hackathon_field_locked',
       details: { fields: expect.arrayContaining(['teamMax', 'capacity']) },
     });
-    const later = await edit(
-      { capacity: 80, judgingEndsAt: kickoff + 10 * DAY },
+    const laterSettings = await saveSettings(
+      { ...settings, capacity: 80 },
       version,
     );
-    expect(later.ok && later.data.version).toBe(version + 1);
+    expect(laterSettings.ok && laterSettings.data.version).toBe(version + 1);
+    const laterDeadlines = await saveHackathonDeadlinesResolver(db, {
+      eventId,
+      version: version + 1,
+      organisationId: ORGANISATION,
+      deadlines: {
+        registrationOpensAt: saved.registrationOpensAt,
+        registrationClosesAt: saved.registrationClosesAt,
+        submissionDeadlineAt: saved.submissionDeadlineAt,
+        judgingEndsAt: kickoff + 10 * DAY,
+      },
+    });
+    expect(laterDeadlines.ok && laterDeadlines.data.version).toBe(version + 2);
     const read = await hackathonDraftResolver(db, eventId);
     expect(read.ok && read.data.stage).toBe('locked');
     expect(read.ok && read.data.details?.capacity).toBe(80);
@@ -223,7 +279,7 @@ describe("a hackathon's details (B-HKN-12, B-HKN-07, real D1)", () => {
     );
     expect(
       codeOf(
-        await saveHackathonDetailsResolver(db, {
+        await saveHackathonDetailsFixture(db, {
           eventId,
           version: 1,
           organisationId: ORGANISATION,

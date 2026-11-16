@@ -134,6 +134,12 @@ body {
   opacity: 0.65;
 }
 
+.hackathon-date-calendar.host-daypicker.rdp-root {
+  --rdp-day-height: 42px;
+  --rdp-day_button-height: 40px;
+  --rdp-nav-height: 2rem;
+}
+
 /* timepicker-ui → round-table theme (single instance in the host wizard). Overrides the default
    Material-3 purple palette on both the input wrapper and the body-appended modal. */
 .tp-ui-wrapper,

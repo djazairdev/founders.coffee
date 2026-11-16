@@ -23,7 +23,7 @@ export type EventOrganisers = readonly {
 type EventHostCardProps = {
   locale: Locale;
   host: PublicProfile | null;
-  cityName: string;
+  cityName: string | null;
   isHost: boolean;
   organisations?: EventOrganisers;
 };
@@ -74,9 +74,11 @@ export const EventHostCard = ({
             <bdi>{host.displayName}</bdi>
           </span>
         ) : null}
-        <span className="block text-body-sm text-neutral">
-          <bdi>{cityName}</bdi>
-        </span>
+        {cityName ? (
+          <span className="block text-body-sm text-neutral">
+            <bdi>{cityName}</bdi>
+          </span>
+        ) : null}
       </span>
       {host ? (
         <Link

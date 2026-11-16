@@ -102,6 +102,7 @@ const Entry = ({
         tracks={view.tracks}
         entry={view.entry}
         aiPolicy={view.aiPolicy}
+        aiPolicyNote={view.aiPolicyNote}
         isReadOnly={!view.team.isCaptain || !isOpen}
         isOpen={isOpen}
         locale={locale}

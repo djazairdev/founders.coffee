@@ -9,7 +9,6 @@ import {
   hackathon_rubric_locked,
   hackathon_rubric_needs_details,
   hackathon_rubric_save,
-  hackathon_rubric_saved,
   hackathon_rubric_scale,
   hackathon_rubric_scale_10,
   hackathon_rubric_scale_5,
@@ -19,9 +18,11 @@ import {
 import { Button, StatusMessage } from '@founders-coffee/ui';
 
 import type { HackathonDraftView } from '../api';
+import type { HackathonFeedback } from '../hackathon-feedback';
 import { WEIGHT_TOTAL } from '../hackathon-rubric-form';
 import { useHackathonRubricForm } from '../useHackathonRubricForm';
 import { HackathonCriterionEditor } from './HackathonCriterionEditor';
+import { HackathonSaveButton } from './HackathonSaveButton';
 
 const HEADING_ID = 'hackathon-rubric-heading';
 const SCALE_ID = 'hackathon-rubric-scale';
@@ -34,11 +35,13 @@ const SCALE_LABELS = {
 const RubricForm = ({
   draft,
   locale,
+  onFeedback,
 }: {
   draft: HackathonDraftView;
   locale: Locale;
+  onFeedback: HackathonFeedback;
 }) => {
-  const form = useHackathonRubricForm({ draft, locale });
+  const form = useHackathonRubricForm({ draft, locale, onFeedback });
   return (
     <form
       noValidate
@@ -91,20 +94,12 @@ const RubricForm = ({
       {form.rubricError ? (
         <StatusMessage variant="error">{form.rubricError}</StatusMessage>
       ) : null}
-      {form.saveError ? (
-        <StatusMessage variant="error">{form.saveError}</StatusMessage>
-      ) : null}
-      {form.isSaved ? (
-        <StatusMessage variant="success">
-          {hackathon_rubric_saved({}, { locale })}
-        </StatusMessage>
-      ) : null}
       <div>
-        <Button type="submit" variant="primary" isBusy={form.isSaving}>
+        <HackathonSaveButton type="submit" isBusy={form.isSaving}>
           {form.isSaving
             ? hackathon_details_saving({}, { locale })
             : hackathon_rubric_save({}, { locale })}
-        </Button>
+        </HackathonSaveButton>
       </div>
     </form>
   );
@@ -143,9 +138,11 @@ const LockedRubric = ({
 export const HackathonRubricSection = ({
   draft,
   locale,
+  onFeedback,
 }: {
   draft: HackathonDraftView;
   locale: Locale;
+  onFeedback: HackathonFeedback;
 }) => (
   <section aria-labelledby={HEADING_ID} className="mt-12">
     <h2 id={HEADING_ID} className="font-display text-h4">
@@ -159,7 +156,7 @@ export const HackathonRubricSection = ({
         {hackathon_rubric_needs_details({}, { locale })}
       </StatusMessage>
     ) : draft.stage === 'open' ? (
-      <RubricForm draft={draft} locale={locale} />
+      <RubricForm draft={draft} locale={locale} onFeedback={onFeedback} />
     ) : (
       <LockedRubric draft={draft} locale={locale} />
     )}

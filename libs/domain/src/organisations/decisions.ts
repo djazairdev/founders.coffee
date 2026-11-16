@@ -9,16 +9,10 @@ import {
   type Result,
 } from '@founders-coffee/core';
 
-export const ORGANISATION_DECISIONS = [
-  'approve',
-  'reject',
-  'suspend',
-  'reinstate',
-] as const;
+export const ORGANISATION_DECISIONS = ['suspend', 'reinstate'] as const;
 export type OrganisationDecision = (typeof ORGANISATION_DECISIONS)[number];
 
 export const ORGANISATION_REVIEW_NOTE_MAX_LENGTH = 1000;
-export const ORGANISATION_REJECTION_NOTE_MIN_LENGTH = 10;
 
 type DecisionRule = {
   readonly from: OrganisationStatus;
@@ -27,37 +21,22 @@ type DecisionRule = {
 };
 
 const RULES: Record<OrganisationDecision, DecisionRule> = {
-  approve: { from: 'pending', to: 'approved', action: 'approved' },
-  reject: { from: 'pending', to: 'rejected', action: 'rejected' },
   suspend: { from: 'approved', to: 'suspended', action: 'suspended' },
   reinstate: { from: 'suspended', to: 'approved', action: 'approved' },
 };
 
 const note = z.string().trim().max(ORGANISATION_REVIEW_NOTE_MAX_LENGTH);
 
-export const organisationDecisionSchema = z.discriminatedUnion('decision', [
-  z.strictObject({
-    decision: z.literal('reject'),
-    note: note.min(ORGANISATION_REJECTION_NOTE_MIN_LENGTH),
-  }),
-  z.strictObject({
-    decision: z.enum(['approve', 'suspend', 'reinstate']),
-    note: note.optional().transform((value) => value || undefined),
-  }),
-]);
+export const organisationDecisionSchema = z.strictObject({
+  decision: z.enum(ORGANISATION_DECISIONS),
+  note: note.optional().transform((value) => value || undefined),
+});
 
 export type OrganisationDecisionInput = z.infer<
   typeof organisationDecisionSchema
 >;
 
-/**
- * What an operator's decision does to an organisation in `current` status (B-ORG-06), or a typed
- * refusal.
- *
- * Each decision moves from one status only: approving and rejecting decide a pending application,
- * suspending stops an approved organisation, and reinstating approves a suspended one again. So
- * "approve" can never quietly reinstate, and the audit's action says what the operator meant.
- */
+/** Apply an organisation moderation decision; initial registration requires no review (B-ORG-06). */
 export const decideOrganisationStatus = (
   current: OrganisationStatus,
   decision: OrganisationDecision,

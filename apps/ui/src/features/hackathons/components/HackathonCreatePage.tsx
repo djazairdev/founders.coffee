@@ -8,11 +8,11 @@ import {
   hackathon_create_back,
   hackathon_create_forbidden,
   hackathon_online_panel,
+  hackathon_progress_label,
   hackathon_save_draft,
   hackathon_saving,
+  hackathon_step_progress,
   host_map_error,
-  host_progress_label,
-  host_step_progress,
   type Locale,
 } from '@founders-coffee/i18n';
 import { StatusMessage } from '@founders-coffee/ui';
@@ -31,11 +31,15 @@ import {
 } from '../../../lib/locale-routing';
 import { useHostMapContext } from '../../events/hooks';
 import type { OrganisationRoster } from '../../organisations/types';
-import { hackathonStepCopy } from '../hackathon-create-copy';
+import {
+  hackathonPlaceCopy,
+  hackathonStepCopy,
+} from '../hackathon-create-copy';
 import {
   HACKATHON_WIZARD_STEPS,
   useHackathonCreateWizard,
 } from '../useHackathonCreateWizard';
+import { HackathonDescriptionPreview } from './HackathonDescriptionPreview';
 import { HackathonWizardStepBody } from './HackathonWizardStepBody';
 
 type HackathonCreatePageProps = {
@@ -79,6 +83,7 @@ export const HackathonCreatePage = ({
   const venueOverlay = useVenueOverlay();
   const backToOrganisation = localizedMyOrganisation(locale, organisation.slug);
   const copy = hackathonStepCopy(locale);
+  const placeCopy = hackathonPlaceCopy(locale);
   const stepTitle = copy.titles[wizard.step - 1] ?? copy.titles[0];
 
   if (!organisation.canCreateHackathon)
@@ -109,13 +114,16 @@ export const HackathonCreatePage = ({
     wizard.venue ??
     mapContext.data?.center ?? { latitude: 0, longitude: 0 };
   const isMapStep = wizard.step === 1 && wizard.isVenueFormat;
+  const isPreviewStep = wizard.step === 3;
 
   return (
     <div
       className={`grid min-h-dvh grid-cols-1 lg:h-[calc(100vh-4rem)] lg:min-h-0 lg:grid-cols-[26rem_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)_auto] xl:grid-cols-[30rem_minmax(0,1fr)] ${
         isMapStep
           ? 'grid-rows-[auto_auto_minmax(16rem,1fr)_auto]'
-          : 'grid-rows-[auto_1fr_auto]'
+          : isPreviewStep
+            ? 'grid-rows-[auto_1fr_auto_auto]'
+            : 'grid-rows-[auto_1fr_auto]'
       }`}
     >
       <HostWizardHeader
@@ -123,12 +131,13 @@ export const HackathonCreatePage = ({
         marketName={organisation.name}
         step={wizard.step}
         totalSteps={HACKATHON_WIZARD_STEPS}
+        isMetaVisible={false}
       >
         <WizardSteps
           current={wizard.step}
           labels={copy.labels}
-          ariaLabel={host_progress_label({}, { locale })}
-          statusText={host_step_progress(
+          ariaLabel={hackathon_progress_label({}, { locale })}
+          statusText={hackathon_step_progress(
             {
               current: wizard.step,
               total: HACKATHON_WIZARD_STEPS,
@@ -152,6 +161,7 @@ export const HackathonCreatePage = ({
             sub={copy.descriptions[wizard.step - 1] ?? null}
             repeatTitle={null}
             pageTitle={hackathon_create({}, { locale })}
+            isVisibleOnMobile={wizard.step === 1}
           />
           <HackathonWizardStepBody
             locale={locale}
@@ -173,10 +183,18 @@ export const HackathonCreatePage = ({
 
       <div
         className={`min-h-0 lg:col-start-2 lg:row-span-3 lg:row-start-1 ${
-          isMapStep ? '' : 'hidden lg:block'
+          isMapStep || isPreviewStep || !wizard.isVenueFormat
+            ? ''
+            : 'hidden lg:block'
         }`}
       >
-        {!wizard.isVenueFormat ? (
+        {isPreviewStep ? (
+          <HackathonDescriptionPreview
+            locale={locale}
+            title={wizard.title}
+            description={wizard.description}
+          />
+        ) : !wizard.isVenueFormat ? (
           <HostOnlinePanel
             locale={locale}
             text={hackathon_online_panel({}, { locale })}
@@ -192,6 +210,7 @@ export const HackathonCreatePage = ({
             error={mapContext.error}
             isInteractive={wizard.step === 1}
             covered={wizard.step === 1 ? venueOverlay.covered : 0}
+            locationPromptCopy={placeCopy.locationPrompt}
             onRetry={() => void mapContext.refetch()}
             onCitySelect={switchCity}
             onVenueSelect={wizard.selectVenue}

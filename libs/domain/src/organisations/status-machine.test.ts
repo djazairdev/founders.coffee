@@ -9,8 +9,6 @@ import {
 } from './status-machine.js';
 
 const ALLOWED = [
-  ['pending', 'approved'],
-  ['pending', 'rejected'],
   ['approved', 'suspended'],
   ['suspended', 'approved'],
 ] as const;

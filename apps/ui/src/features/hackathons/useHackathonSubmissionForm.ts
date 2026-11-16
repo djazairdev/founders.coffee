@@ -75,7 +75,11 @@ export const useHackathonSubmissionForm = ({
   };
 
   const checked = (): SubmissionDraftFields | null => {
-    const draft = checkSubmissionDraft(form, { isOpenSource, locale });
+    const draft = checkSubmissionDraft(form, {
+      aiPolicy,
+      isOpenSource,
+      locale,
+    });
     if (draft.ok) return draft.draft;
     begin(draft.errors);
     return null;
@@ -112,7 +116,11 @@ export const useHackathonSubmissionForm = ({
 
   const submit = () => {
     if (isBusy) return;
-    const draft = checkSubmissionDraft(form, { isOpenSource, locale });
+    const draft = checkSubmissionDraft(form, {
+      aiPolicy,
+      isOpenSource,
+      locale,
+    });
     const missing = missingForSubmit(draftFieldsOf(form, isOpenSource), {
       aiPolicy,
       isOriginalWorkAttested,

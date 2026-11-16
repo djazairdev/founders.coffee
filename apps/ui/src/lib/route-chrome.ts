@@ -41,7 +41,7 @@ export const cityCodeInView = (
       return match.loaderData?.city.code;
     }
     if (match.routeId === '/$locale/$market/e/$slug') {
-      return match.loaderData?.event.cityCode;
+      return match.loaderData?.event.cityCode ?? undefined;
     }
     if (match.routeId === '/$locale/$market/host/create') {
       return match.loaderData?.city?.code;

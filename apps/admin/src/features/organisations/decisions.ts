@@ -3,8 +3,6 @@ import { organisations } from '@founders-coffee/domain';
 
 export type OrganisationDecision = organisations.OrganisationDecision;
 
-export const REJECTION_NOTE_MIN_LENGTH =
-  organisations.ORGANISATION_REJECTION_NOTE_MIN_LENGTH;
 export const REVIEW_NOTE_MAX_LENGTH =
   organisations.ORGANISATION_REVIEW_NOTE_MAX_LENGTH;
 
@@ -12,7 +10,7 @@ const DECISIONS_BY_STATUS: Record<
   OrganisationStatus,
   readonly OrganisationDecision[]
 > = {
-  pending: ['approve', 'reject'],
+  pending: [],
   approved: ['suspend'],
   suspended: ['reinstate'],
   rejected: [],
@@ -25,7 +23,7 @@ export const decisionsFor = (
 
 /**
  * The decision the server will accept, read through the same schema it validates with, or `null`
- * when the note does not do for that decision (a rejection needs one).
+ * when the note exceeds the allowed length.
  */
 export const decisionRequest = (
   decision: OrganisationDecision,

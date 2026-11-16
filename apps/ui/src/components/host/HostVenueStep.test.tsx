@@ -83,7 +83,7 @@ describe('the venue step when a lookup fails', () => {
     );
 
     expect(lookups.nearby.refetch).toHaveBeenCalledOnce();
-    expect(venueHint().textContent).toBe('Pick a spot on the map.');
+    expect(venueHint().textContent).toBe('Choose a location on the map.');
   });
 
   it('reads the toast straight after the search box, where a keyboard reaches its retry', () => {
@@ -108,7 +108,7 @@ describe('the venue step with nothing to list', () => {
     showVenueStep();
 
     const hint = venueHint();
-    expect(hint.textContent).toBe('Pick a spot on the map.');
+    expect(hint.textContent).toBe('Choose a location on the map.');
     expect(hint.className).toContain('alert-info');
     expect(hint.querySelector('svg'), 'the info icon').not.toBeNull();
     expect(

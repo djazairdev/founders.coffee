@@ -5,7 +5,6 @@ export {
   resolveMarketLanding,
 } from './resolver.js';
 export type {
-  MarketHackathon,
   MarketWithCities,
   MarketCity,
   TrendingCity,

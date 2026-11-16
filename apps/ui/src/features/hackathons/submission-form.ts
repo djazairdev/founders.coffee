@@ -8,6 +8,7 @@ import {
 } from '@founders-coffee/core';
 import { hackathons } from '@founders-coffee/domain';
 import {
+  hackathon_submission_ai_tools_not_allowed,
   hackathon_submission_error_ai_statement,
   hackathon_submission_error_ai_tools,
   hackathon_submission_error_description,
@@ -159,19 +160,35 @@ export const checkSubmissionDraft = (
   form: SubmissionFormDraft,
   options: {
     readonly isOpenSource: boolean;
+    readonly aiPolicy: SubmissionPageView['aiPolicy'];
     readonly locale: Locale;
   },
 ): SubmissionDraftCheck => {
-  const parsed = hackathons.submissionDraftSchema.safeParse(
-    draftFieldsOf(form, options.isOpenSource),
+  const draft = draftFieldsOf(form, options.isOpenSource);
+  const parsed = hackathons.submissionDraftSchema.safeParse(draft);
+  const toolsAllowed = hackathons.checkAiToolsPolicy(
+    draft.aiTools,
+    options.aiPolicy,
   );
-  if (parsed.success) return { ok: true, draft: parsed.data };
-  const failed = new Set(parsed.error.issues.map((issue) => issue.path[0]));
+  const failed = new Set(
+    parsed.success ? [] : parsed.error.issues.map((issue) => issue.path[0]),
+  );
+  if (!toolsAllowed.ok) failed.add('aiTools');
+  if (failed.size === 0 && parsed.success)
+    return { ok: true, draft: parsed.data };
   return {
     ok: false,
     errors: Object.fromEntries(
       SUBMISSION_FIELD_ORDER.filter((field) => failed.has(field)).map(
-        (field) => [field, messageFor(field, options.locale)],
+        (field) => [
+          field,
+          field === 'aiTools' && !toolsAllowed.ok
+            ? hackathon_submission_ai_tools_not_allowed(
+                {},
+                { locale: options.locale },
+              )
+            : messageFor(field, options.locale),
+        ],
       ),
     ),
   };

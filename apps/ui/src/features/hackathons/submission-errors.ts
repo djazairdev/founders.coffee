@@ -5,10 +5,10 @@ import {
   hackathon_submission_error_conflict,
   hackathon_submission_error_failed,
   hackathon_submission_error_incomplete,
+  hackathon_submission_ai_tools_not_allowed,
   hackathon_submission_error_not_started,
   hackathon_submission_error_track,
   hackathon_submission_locked,
-  hackathon_submission_need_ai_tools,
   hackathon_team_error_rate_limited,
   type Locale,
 } from '@founders-coffee/i18n';
@@ -32,8 +32,8 @@ export const submissionErrorMessage = (
       return hackathon_submission_error_incomplete({}, options);
     case 'submission_locked':
       return hackathon_submission_locked({}, options);
-    case 'ai_tools_required':
-      return hackathon_submission_need_ai_tools({}, options);
+    case 'ai_tools_not_allowed':
+      return hackathon_submission_ai_tools_not_allowed({}, options);
     case 'track_not_in_hackathon':
       return hackathon_submission_error_track({}, options);
     case 'rate_limited':

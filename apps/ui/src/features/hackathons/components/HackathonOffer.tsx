@@ -103,12 +103,19 @@ const Prize = ({
       <h3 className="font-display text-body-lg font-semibold break-words">
         <bdi>{prize.title}</bdi>
       </h3>
-      <p className="whitespace-pre-line text-body-sm">
-        <bdi>{prize.description}</bdi>
-      </p>
-      <p className="text-body-sm text-neutral">
-        {hackathon_prize_provider_value({ name: prize.providerName }, options)}
-      </p>
+      {prize.description.trim() !== '' ? (
+        <p className="whitespace-pre-line text-body-sm">
+          <bdi>{prize.description}</bdi>
+        </p>
+      ) : null}
+      {prize.providerName !== null ? (
+        <p className="text-body-sm text-neutral">
+          {hackathon_prize_provider_value(
+            { name: prize.providerName },
+            options,
+          )}
+        </p>
+      ) : null}
       {prize.value ? (
         <p className="text-body-sm font-medium">
           {hackathon_prize_value_text(

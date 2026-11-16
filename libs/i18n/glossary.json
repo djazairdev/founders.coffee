@@ -58,7 +58,10 @@
       "canonical": "الجهة المنظمة",
       "banned": ["منظم", "المنظم"],
       "why": "B-I18N-01 (Stage B): the approved organisation that runs a hackathon, never a single person; المنظّمين in the meetup terms names hosts and stays.",
-      "allow": {}
+      "allow": {
+        "org_apply_title": "B-ORG-08: the approved action wording invites the reader to apply as an organiser on behalf of their club, community or company; the entity itself remains الجهة المنظِّمة.",
+        "org_apply_link": "B-ORG-08: the application link uses the same approved action wording as the page title, while management screens name the entity الجهة المنظِّمة."
+      }
     }
   ],
   "fr": [

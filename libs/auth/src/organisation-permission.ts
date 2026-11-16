@@ -52,8 +52,8 @@ const hasOrganisationPermission = async <R extends OrganisationResource>(
  * refusing them here also keeps Better Auth from throwing for a non-member. The role is then asked of
  * Better Auth's `hasPermission`, against the organisation roles the plugin is given, the same table
  * its own member and invitation endpoints use. Last, a member is refused with
- * `organisation_not_approved` until an operator approves the organisation, and again once it is
- * rejected or suspended: an unapproved organisation can do nothing.
+ * `organisation_not_approved` when the organisation is disabled or suspended. New registrations
+ * start active; hackathon publication is reviewed separately.
  */
 export const authorizeOrganisationAction = async <
   R extends OrganisationResource,
@@ -74,7 +74,7 @@ export const authorizeOrganisationAction = async <
   if (!organisations.isOrganisationActive(membership.status)) {
     throw new AppError(
       'organisation_not_approved',
-      'This organisation is not approved',
+      'This organisation is not active',
     );
   }
   return session;

@@ -1,9 +1,6 @@
 import { z } from 'zod';
 
-import {
-  marketCodeSchema,
-  organisationKindSchema,
-} from '@founders-coffee/core';
+import { organisationKindSchema } from '@founders-coffee/core';
 
 import { professionalLinkSchema } from '../profile/schemas.js';
 
@@ -74,10 +71,7 @@ export const applicantOrganisationKindSchema = organisationKindSchema.exclude([
 
 export const organisationApplicationSchema = z.strictObject({
   name: organisationNameSchema,
-  slug: organisationSlugSchema,
   kind: applicantOrganisationKindSchema,
-  marketCode: marketCodeSchema,
-  cityCode: cityCodeSchema.nullable().default(null),
   description: organisationDescriptionSchema,
   websiteUrl: professionalLinkSchema.default(null),
 });

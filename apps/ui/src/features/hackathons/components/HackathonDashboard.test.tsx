@@ -1,5 +1,4 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { Locale } from '@founders-coffee/i18n';
@@ -19,22 +18,6 @@ const mocks = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@tanstack/react-router', () => ({
-  Link: ({
-    children,
-    className,
-    params,
-  }: {
-    children: ReactNode;
-    className?: string;
-    params: { slug: string };
-  }) => (
-    <a href={`/e/${params.slug}`} className={className}>
-      {children}
-    </a>
-  ),
-}));
-
 vi.mock('../hooks', () => ({
   useHackathonDashboard: () => mocks.dashboard,
 }));
@@ -43,17 +26,6 @@ afterEach(() => {
   cleanup();
   mocks.dashboard = { data: undefined, isError: false, refetch: vi.fn() };
 });
-
-const markets = [
-  {
-    code: 'DZ',
-    slug: 'algeria',
-    name: 'Algeria',
-    nameAr: 'الجزائر',
-    nameFr: 'Algérie',
-    timezone: 'Africa/Algiers',
-  },
-] as never;
 
 const dashboard = (changes: Partial<Dashboard> = {}): Dashboard => ({
   eventId: 'evt_draft',
@@ -88,76 +60,35 @@ const renderDashboard = (
     { status: 'published' },
   ),
   locale: Locale = 'en',
-) =>
-  render(
-    <HackathonDashboard
-      draft={draft}
-      locale={locale}
-      timeZone="Africa/Algiers"
-      markets={markets}
-    />,
-  );
+) => render(<HackathonDashboard draft={draft} locale={locale} />);
 
 const statOf = (label: string) =>
   screen.getByText(label).closest('div')?.textContent;
 
 describe('HackathonDashboard (B-OPS-01)', () => {
-  it('shows the phase and every count, with the places there are', () => {
-    mocks.dashboard.data = dashboard();
-    renderDashboard();
-
-    expect(screen.getByRole('heading', { name: 'Overview' })).toBeTruthy();
-    expect(
-      screen.getByText('Registration is open until Tue, Mar 10, 18:00.'),
-    ).toBeTruthy();
-    expect(statOf('Registered')).toBe('Registered86of 120 places');
-    expect(statOf('Waitlisted')).toBe('Waitlisted4');
-    expect(statOf('Teams')).toBe('Teams21');
-    expect(statOf('Submissions')).toBe('Submissions0');
-    expect(statOf('Judges')).toBe('Judges3');
-    expect(statOf('Reviews done')).toBe('Reviews done0 of 0');
-  });
-
-  it('links to the public page, the details and the review status', () => {
+  it('shows the overview counts without phase, review, or navigation copy', () => {
     mocks.dashboard.data = dashboard();
     renderDashboard(
       draftView(
         {
           details: savedDetails,
           isEditable: true,
-          review: { status: 'approved', note: null, gaps: [] },
+          review: { status: 'approved', note: null },
         },
         { status: 'published' },
       ),
     );
 
-    expect(
-      screen.getByRole('link', { name: 'Public page' }).getAttribute('href'),
-    ).toBe('/e/algiers-builders-weekend');
-    expect(
-      screen
-        .getByRole('link', { name: 'Edit the details' })
-        .getAttribute('href'),
-    ).toBe('#hackathon-details-heading');
-    expect(screen.queryByRole('link', { name: 'Go to review' })).toBeNull();
-    expect(screen.getByText('Review: approved')).toBeTruthy();
-  });
-
-  it('sends a draft to its review, with no public page yet', () => {
-    mocks.dashboard.data = dashboard({ status: 'draft' });
-    renderDashboard(
-      draftView({
-        details: savedDetails,
-        review: { status: 'rejected', note: 'Add a rule.', gaps: [] },
-      }),
-    );
-
-    expect(screen.queryByRole('link', { name: 'Public page' })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Overview' })).toBeTruthy();
     expect(screen.queryByText(/^Registration is open/u)).toBeNull();
-    expect(
-      screen.getByRole('link', { name: 'Go to review' }).getAttribute('href'),
-    ).toBe('#hackathon-review-heading');
-    expect(screen.getByText('Review: sent back with a note')).toBeTruthy();
+    expect(statOf('Registered')).toBe('Registered86of 120 places');
+    expect(statOf('Waitlisted')).toBe('Waitlisted4');
+    expect(statOf('Teams')).toBe('Teams21');
+    expect(statOf('Submissions')).toBe('Submissions0');
+    expect(statOf('Judges')).toBe('Judges3');
+    expect(statOf('Reviews done')).toBe('Reviews done0 of 0');
+    expect(screen.queryByRole('link')).toBeNull();
+    expect(screen.queryByText(/Review:/u)).toBeNull();
   });
 
   it('leaves the phase out once the hackathon is cancelled', () => {
@@ -174,10 +105,11 @@ describe('HackathonDashboard (B-OPS-01)', () => {
     expect(screen.queryByRole('link', { name: 'Edit the details' })).toBeNull();
   });
 
-  it('shows nothing before the details are saved', () => {
-    const { container } = renderDashboard(draftView());
+  it('shows a loading state before dashboard counts arrive', () => {
+    renderDashboard(draftView());
 
-    expect(container.textContent).toBe('');
+    expect(screen.getByRole('heading', { name: 'Overview' })).toBeTruthy();
+    expect(screen.getByText('Loading the overview…')).toBeTruthy();
   });
 
   it('says it is loading, and offers to retry when the read fails', () => {

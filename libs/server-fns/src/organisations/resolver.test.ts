@@ -30,10 +30,7 @@ const application = (
 ): organisations.OrganisationApplication =>
   organisations.organisationApplicationSchema.parse({
     name: 'Algiers Builders Club',
-    slug: `builders-${Math.random().toString(36).slice(2, 10)}`,
     kind: 'club',
-    marketCode: 'DZ',
-    cityCode: '556',
     description: 'A club for students who build software in Algiers.',
     ...changes,
   });
@@ -66,7 +63,7 @@ describe('organisation applications (B-ORG-04, real D1)', () => {
     await setHackathons(db, 'EG', false);
   });
 
-  it('files the organisation as pending, with the applicant as its owner', async () => {
+  it('files the organisation as active, with the applicant as its owner', async () => {
     const userId = await signUp();
     const input = application();
 
@@ -76,11 +73,11 @@ describe('organisation applications (B-ORG-04, real D1)', () => {
       ok: true,
       data: {
         name: input.name,
-        slug: input.slug,
+        slug: 'algiers-builders-club',
         kind: 'club',
-        status: 'pending',
         marketCode: 'DZ',
-        cityCode: '556',
+        cityCode: null,
+        status: 'approved',
         role: 'owner',
       },
     });
@@ -93,7 +90,7 @@ describe('organisation applications (B-ORG-04, real D1)', () => {
   it('writes nothing while the market has hackathons off', async () => {
     await setHackathons(db, 'DZ', false);
     const userId = await signUp();
-    const input = application();
+    const input = application({ name: 'Blocked Builders' });
 
     const result = await applyForOrganisationResolver(db, userId, input);
 
@@ -105,44 +102,61 @@ describe('organisation applications (B-ORG-04, real D1)', () => {
       await db
         .select()
         .from(organization)
-        .where(eq(organization.slug, input.slug)),
+        .where(eq(organization.name, input.name)),
     ).toEqual([]);
   });
 
-  it('refuses an address another organisation holds, and makes nobody an owner', async () => {
-    const first = await signUp();
-    const second = await signUp();
-    const input = application();
-    await applyForOrganisationResolver(db, first, input);
-
-    const result = await applyForOrganisationResolver(db, second, {
-      ...input,
-      name: 'Another club',
-    });
-
-    expect(result).toMatchObject({
-      ok: false,
-      error: { code: 'organisation_slug_taken' },
-    });
-    expect(
-      await db
-        .select({ userId: member.userId })
-        .from(member)
-        .where(eq(member.userId, second)),
-    ).toEqual([]);
-  });
-
-  it('refuses a city outside the organisation’s market', async () => {
-    const userId = await signUp();
-
-    expect(
-      await applyForOrganisationResolver(
-        db,
-        userId,
-        application({ cityCode: 'not-a-city' }),
+  it('allocates unique numeric suffixes for concurrent same-name applications', async () => {
+    const users = await Promise.all([signUp(), signUp(), signUp()]);
+    const results = await Promise.all(
+      users.map((userId) =>
+        applyForOrganisationResolver(
+          db,
+          userId,
+          application({ name: 'Concurrent Builders' }),
+        ),
       ),
-    ).toMatchObject({ ok: false, error: { code: 'validation_failed' } });
+    );
+    const created = results.flatMap((result) =>
+      result.ok ? [result.data] : [],
+    );
+    expect(created).toHaveLength(3);
+    expect(new Set(created.map((row) => row.slug)).size).toBe(3);
+    expect(created.map((row) => row.slug)).toContain('concurrent-builders');
+    expect(
+      created
+        .filter((row) => row.slug !== 'concurrent-builders')
+        .every((row) => /^concurrent-builders-\d{8}$/u.test(row.slug)),
+    ).toBe(true);
+    for (const [index, result] of results.entries()) {
+      if (!result.ok) throw result.error;
+      expect(await membersOf(result.data.id)).toEqual([
+        { userId: users[index], role: 'owner' },
+      ]);
+    }
   });
+
+  it.each(['نادي البرمجة', 'AI', 'Admin'])(
+    'saves %s with a valid generated address and Algeria scope',
+    async (name) => {
+      const result = await applyForOrganisationResolver(
+        db,
+        await signUp(),
+        application({ name }),
+      );
+      if (!result.ok) throw result.error;
+      expect(result.data).toMatchObject({
+        name,
+        marketCode: 'DZ',
+        cityCode: null,
+      });
+      expect(
+        organisations.organisationSlugSchema.safeParse(result.data.slug)
+          .success,
+      ).toBe(true);
+      expect(result.data.slug).toMatch(/-\d{8}$/u);
+    },
+  );
 
   it('lists the member’s organisations in markets with hackathons on, newest first', async () => {
     const userId = await signUp();
@@ -154,11 +168,12 @@ describe('organisation applications (B-ORG-04, real D1)', () => {
       .set({ createdAt: new Date('2026-01-01T00:00:00Z') })
       .where(eq(organization.id, older.ok ? older.data.id : ''));
     const newer = await applyForOrganisationResolver(db, userId, application());
-    const egypt = await applyForOrganisationResolver(
-      db,
-      userId,
-      application({ marketCode: 'EG', cityCode: null }),
-    );
+    const egypt = await applyForOrganisationResolver(db, userId, application());
+    if (!egypt.ok) throw egypt.error;
+    await db
+      .update(organization)
+      .set({ marketCode: 'EG' })
+      .where(eq(organization.id, egypt.data.id));
     await applyForOrganisationResolver(db, other, application());
     await setHackathons(db, 'EG', false);
 

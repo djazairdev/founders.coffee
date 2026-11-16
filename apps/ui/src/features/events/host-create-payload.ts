@@ -25,20 +25,30 @@ export type EventPlaceFields = Pick<
 
 /**
  * Where a new event happens, carrying only what its format has (B-EVT-10): the venue for an
- * in-person one, the link for an online one, both for a hybrid one. A field a format does not have
- * is left out rather than sent empty, because the server refuses an online event that names a
- * venue. `null` while the place still lacks what its format needs, an online event's city included.
+ * in-person one, the link for an online one, both for a hybrid one. An online hackathon may omit
+ * an external meeting link and its city. A field a format does not have is left out rather than
+ * sent empty. `null` means the place still lacks a required field.
  */
 export const eventPlaceFields = (
   place: EventPlace,
   cityCode: string | undefined,
+  options: {
+    allowNationwideOnline?: boolean;
+    allowOnlineWithoutMeetingLink?: boolean;
+  } = {},
 ): EventPlaceFields | null => {
   const { venue, format } = place;
   const hasVenue = events.hasVenue(format);
   if (hasVenue && !venue) return null;
-  if (format === 'online' && !cityCode) return null;
+  if (format === 'online' && !cityCode && !options.allowNationwideOnline)
+    return null;
   const meetingUrl = place.meetingUrl.trim();
-  if (events.hasMeetingLink(format) && !meetingUrl) return null;
+  if (
+    events.hasMeetingLink(format) &&
+    !meetingUrl &&
+    !(format === 'online' && options.allowOnlineWithoutMeetingLink)
+  )
+    return null;
   return {
     format,
     ...(hasVenue && venue
@@ -50,7 +60,7 @@ export const eventPlaceFields = (
           longitude: venue.longitude,
         }
       : {}),
-    ...(events.hasMeetingLink(format) ? { meetingUrl } : {}),
+    ...(events.hasMeetingLink(format) && meetingUrl ? { meetingUrl } : {}),
   };
 };
 

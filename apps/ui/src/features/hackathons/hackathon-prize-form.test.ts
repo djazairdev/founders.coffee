@@ -88,8 +88,6 @@ describe('the prize form (B-HKN-14)', () => {
     expect(check.errors).toEqual({
       place: 'Enter a place from 1 to 10.',
       title: 'Name the prize in 3 to 100 characters.',
-      description: 'Describe it in 10 to 1,000 characters.',
-      providerName: 'Name who provides it in 2 to 100 characters.',
       value: 'Enter an amount such as 50000 or 1500.50.',
     });
   });

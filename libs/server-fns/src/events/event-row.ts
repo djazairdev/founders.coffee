@@ -34,7 +34,12 @@ export type EventRowRequest = {
   readonly leadOrganisationId?: string;
 };
 
-type EventPlacement = Omit<LocatedPoint, 'address'> & {
+type EventPlacement = Omit<
+  LocatedPoint,
+  'address' | 'stateCode' | 'cityCode'
+> & {
+  readonly stateCode: string | null;
+  readonly cityCode: string | null;
   readonly address: string | null;
 };
 
@@ -73,11 +78,16 @@ const eventLocation = async (
   mapProvider: MapProvider | null,
   input: EventRowInput,
   locale: Locale,
+  kind: EventKind,
 ): Promise<Result<EventPlacement>> => {
   if (input.latitude === undefined || input.longitude === undefined)
-    return input.cityCode === undefined
-      ? err(new AppError('validation_failed', 'An online event names its city'))
-      : namedCity(input.marketCode, input.cityCode, null);
+    return input.cityCode !== undefined
+      ? namedCity(input.marketCode, input.cityCode, null)
+      : input.format === 'online' && kind === 'hackathon'
+        ? ok({ stateCode: null, cityCode: null, address: null })
+        : err(
+            new AppError('validation_failed', 'An online event names its city'),
+          );
 
   if (!mapProvider)
     return err(
@@ -165,7 +175,12 @@ export const prepareEventRow = async (
     input.languages,
     market.defaultLocale,
   );
-  const located = await eventLocation(mapProvider, input, language);
+  const located = await eventLocation(
+    mapProvider,
+    input,
+    language,
+    request.kind,
+  );
   if (!located.ok) return located;
 
   return ok({
@@ -186,6 +201,8 @@ export const prepareEventRow = async (
     languages: input.languages,
     kind: request.kind,
     tags: input.tags,
+    hackathonFields: input.hackathonFields ?? [],
+    hackathonTypeTags: input.hackathonTypeTags ?? [],
     format: input.format,
     meetingUrl: input.meetingUrl ?? null,
     status: request.status,

@@ -47,7 +47,14 @@ const saved: HackathonDraftView['tracks'] = [
 const renderSection = (
   draft: HackathonDraftView = draftView({ details: savedDetails }),
   locale: Locale = 'en',
-) => render(<HackathonTracksSection draft={draft} locale={locale} />);
+) =>
+  render(
+    <HackathonTracksSection
+      draft={draft}
+      locale={locale}
+      onFeedback={vi.fn()}
+    />,
+  );
 
 const titles = () =>
   screen
@@ -101,24 +108,27 @@ describe('HackathonTracksSection (B-HKN-13)', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Save tracks' }));
 
-    expect(mocks.save.mutate).toHaveBeenCalledWith({
-      eventId: 'evt_draft',
-      version: 1,
-      tracks: [
-        {
-          id: null,
-          track: {
-            kind: 'open_source',
-            title: 'Open source',
-            brief: BRIEF,
-            sourceUrls: [
-              'https://github.com/djazairdev/founders.coffee',
-              'https://github.com/djazairdev/founders.coffee/issues/12',
-            ],
+    expect(mocks.save.mutate).toHaveBeenCalledWith(
+      {
+        eventId: 'evt_draft',
+        version: 1,
+        tracks: [
+          {
+            id: null,
+            track: {
+              kind: 'open_source',
+              title: 'Open source',
+              brief: BRIEF,
+              sourceUrls: [
+                'https://github.com/djazairdev/founders.coffee',
+                'https://github.com/djazairdev/founders.coffee/issues/12',
+              ],
+            },
           },
-        },
-      ],
-    });
+        ],
+      },
+      expect.anything(),
+    );
   });
 
   it('reorders, removes and adds tracks, keeping saved ones by id', () => {
@@ -148,6 +158,7 @@ describe('HackathonTracksSection (B-HKN-13)', () => {
           { id: null, track: expect.objectContaining({ title: 'Logistics' }) },
         ],
       }),
+      expect.anything(),
     );
   });
 
@@ -163,9 +174,7 @@ describe('HackathonTracksSection (B-HKN-13)', () => {
     ).toBeTruthy();
   });
 
-  it('keeps saved tracks once registration is open, and explains a refusal', () => {
-    mocks.save.isError = true;
-    mocks.save.error = { code: 'hackathon_track_has_prizes' };
+  it('keeps saved tracks and disables removal once registration is open', () => {
     renderSection(
       draftView(
         { details: savedDetails, tracks: saved, stage: 'locked' },
@@ -179,11 +188,6 @@ describe('HackathonTracksSection (B-HKN-13)', () => {
       ),
     ).toBeTruthy();
     expect(screen.queryByRole('button', { name: /^Remove track/ })).toBeNull();
-    expect(
-      screen.getByText(
-        'A prize names a track you removed. Change or remove that prize first.',
-      ),
-    ).toBeTruthy();
   });
 
   it('reads in Arabic', () => {

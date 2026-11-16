@@ -7,9 +7,9 @@ export type EventCard = {
   readonly version: number;
   readonly hostName: string;
   readonly timezone: string;
-  readonly cityName: string;
-  readonly cityNameAr: string;
-  readonly cityNameFr: string;
+  readonly cityName: string | null;
+  readonly cityNameAr: string | null;
+  readonly cityNameFr: string | null;
 };
 
 /**
@@ -31,15 +31,17 @@ export const readEventCard = async (
 ): Promise<EventCard | null> => {
   const card = await getEventCard(db, id);
   if (!card || card.status !== 'published') return null;
-  const city = geo.findCity(card.marketCode, card.cityCode);
+  const city = card.cityCode
+    ? geo.findCity(card.marketCode, card.cityCode)
+    : null;
   return {
     title: card.title,
     startsAt: card.startsAt,
     version: card.version,
     hostName: card.hostName,
     timezone: card.timezone,
-    cityName: city?.name ?? card.cityCode,
-    cityNameAr: city?.nameAr ?? city?.name ?? card.cityCode,
-    cityNameFr: city?.nameFr ?? city?.name ?? card.cityCode,
+    cityName: city?.name ?? null,
+    cityNameAr: city?.nameAr ?? city?.name ?? null,
+    cityNameFr: city?.nameFr ?? city?.name ?? null,
   };
 };

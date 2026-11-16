@@ -22,6 +22,7 @@ export const HackathonSubmissionForm = ({
   tracks,
   entry,
   aiPolicy,
+  aiPolicyNote,
   isReadOnly,
   isOpen,
   locale,
@@ -31,6 +32,7 @@ export const HackathonSubmissionForm = ({
   tracks: SubmissionPageView['tracks'];
   entry: SubmissionPageView['entry'];
   aiPolicy: HackathonAiPolicy;
+  aiPolicyNote: SubmissionPageView['aiPolicyNote'];
   isReadOnly: boolean;
   isOpen: boolean;
   locale: Locale;
@@ -79,6 +81,7 @@ export const HackathonSubmissionForm = ({
       <HackathonSubmissionAiFields
         form={project.form}
         aiPolicy={aiPolicy}
+        aiPolicyNote={aiPolicyNote}
         errors={project.errors}
         isReadOnly={isReadOnly}
         locale={locale}

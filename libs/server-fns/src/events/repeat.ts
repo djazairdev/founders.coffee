@@ -71,7 +71,8 @@ export const readRepeatEventTemplate = async (
   if (
     event.status === 'cancelled' ||
     event.endsAt === null ||
-    event.endsAt.getTime() > Date.now()
+    event.endsAt.getTime() > Date.now() ||
+    event.cityCode === null
   ) {
     return ineligible();
   }

@@ -3,7 +3,6 @@ import {
   org_apply_error_description,
   org_apply_error_kind,
   org_apply_error_name,
-  org_apply_error_slug,
   org_apply_error_website,
   type Locale,
 } from '@founders-coffee/i18n';
@@ -15,24 +14,14 @@ import {
 } from './application';
 
 export type ApplicationRefusal =
-  | { readonly kind: 'field'; readonly field: ApplicationField }
-  | { readonly kind: 'slug_taken' }
   | { readonly kind: 'hackathons_disabled' }
   | { readonly kind: 'rate_limited' }
   | { readonly kind: 'signed_out' }
   | { readonly kind: 'failed' };
 
-/**
- * What a refused application means for the form. A taken address and a city the market does not
- * have send the applicant back to that field; a market with hackathons off is not an error but a
- * state, shown as such.
- */
+/** Translate an application refusal into a form-wide message. */
 export const applicationRefusal = (error: unknown): ApplicationRefusal => {
   switch (appErrorCode(error)) {
-    case 'organisation_slug_taken':
-      return { kind: 'slug_taken' };
-    case 'validation_failed':
-      return { kind: 'field', field: 'cityCode' };
     case 'hackathons_disabled':
       return { kind: 'hackathons_disabled' };
     case 'rate_limited':
@@ -86,8 +75,6 @@ export const applicationFieldError = (
   switch (field) {
     case 'name':
       return org_apply_error_name(NAME_LENGTH, { locale });
-    case 'slug':
-      return org_apply_error_slug({}, { locale });
     case 'kind':
       return org_apply_error_kind({}, { locale });
     case 'description':

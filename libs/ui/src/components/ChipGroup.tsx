@@ -6,6 +6,7 @@ export const ChipGroup = <T extends string>({
   max,
   groupLabel,
   describedBy,
+  isInvalid = false,
   onToggle,
 }: {
   id?: string;
@@ -15,6 +16,7 @@ export const ChipGroup = <T extends string>({
   max: number;
   groupLabel: string;
   describedBy?: string;
+  isInvalid?: boolean;
   onToggle: (option: T) => void;
 }) => (
   <div
@@ -24,6 +26,7 @@ export const ChipGroup = <T extends string>({
     role="group"
     aria-label={groupLabel}
     aria-describedby={describedBy}
+    aria-invalid={isInvalid || undefined}
   >
     {options.map((option) => {
       const isOn = selected.includes(option);

@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 import {
   eventFormatSchema,
+  hackathonFieldSchema,
+  hackathonTypeTagSchema,
   localeSchema,
   marketCodeSchema,
   topicSchema,
@@ -14,7 +16,6 @@ import {
   CREATE_VENUE_FIELDS,
   eventFormatIssues,
   eventMeetingUrlSchema,
-  hasVenue,
   UPDATE_VENUE_FIELDS,
 } from './format.js';
 import { eventLanguagesSchema } from './languages.js';
@@ -23,6 +24,7 @@ export const EVENT_TITLE_MIN_LENGTH = 3;
 export const EVENT_TITLE_MAX_LENGTH = 120;
 export const EVENT_DESCRIPTION_MIN_LENGTH = 10;
 export const EVENT_DESCRIPTION_MAX_LENGTH = 2000;
+export const EVENT_DESCRIPTION_STORAGE_MAX_LENGTH = 20_000;
 export const EVENT_VENUE_NAME_MIN_LENGTH = 2;
 export const EVENT_VENUE_NAME_MAX_LENGTH = 200;
 export const EVENT_VENUE_ADDRESS_MIN_LENGTH = 2;
@@ -35,6 +37,17 @@ export const MEMBER_EVENT_KINDS = [
 export const memberEventKindSchema = z.enum(MEMBER_EVENT_KINDS);
 
 export const EVENT_TAG_LIMIT = 5;
+export const HACKATHON_FIELD_LIMIT = 5;
+export const hackathonFieldsSchema = z
+  .array(hackathonFieldSchema)
+  .max(HACKATHON_FIELD_LIMIT)
+  .refine(
+    (fields) => new Set(fields).size === fields.length,
+    'Each field once',
+  );
+export const hackathonTypeTagsSchema = z
+  .array(hackathonTypeTagSchema)
+  .refine((tags) => new Set(tags).size === tags.length, 'Each tag once');
 export const eventTagsSchema = z
   .array(topicSchema)
   .max(EVENT_TAG_LIMIT)
@@ -54,6 +67,12 @@ export const eventDescriptionSchema = z
   .trim()
   .min(EVENT_DESCRIPTION_MIN_LENGTH)
   .max(EVENT_DESCRIPTION_MAX_LENGTH);
+
+export const eventDescriptionStorageSchema = z
+  .string()
+  .trim()
+  .min(EVENT_DESCRIPTION_MIN_LENGTH)
+  .max(EVENT_DESCRIPTION_STORAGE_MAX_LENGTH);
 
 export const eventVenueNameSchema = z
   .string()
@@ -126,6 +145,8 @@ const eventCreateFields = {
   endsAt: z.number().int().positive(),
   languages: eventLanguagesSchema,
   tags: eventTagsSchema.default([]),
+  hackathonFields: hackathonFieldsSchema.optional(),
+  hackathonTypeTags: hackathonTypeTagsSchema.optional(),
   format: eventFormatSchema.default('in_person'),
   meetingUrl: eventMeetingUrlSchema.optional(),
 };
@@ -138,18 +159,39 @@ type EventCreateCheck = z.infer<z.ZodObject<typeof eventCreateFields>> & {
 
 /**
  * Add the rules every new event is held to: its schedule for its type, its venue or link for its
- * format, and the city an online event names in place of a venue.
+ * format, and the city an online event names in place of a venue. Online hackathons belong to a
+ * market, so they do not need a city.
  */
 export const addEventCreateIssues = (
   input: EventCreateCheck,
   context: z.RefinementCtx,
 ): void => {
   addScheduleIssues(input, context);
+  if (
+    input.kind !== 'hackathon' &&
+    ((input.hackathonFields?.length ?? 0) > 0 ||
+      (input.hackathonTypeTags?.length ?? 0) > 0)
+  ) {
+    context.addIssue({
+      code: 'custom',
+      message: 'Hackathon classification belongs to hackathons',
+      path: ['hackathonFields'],
+    });
+  }
   addFormatIssues(
-    eventFormatIssues(input.format, input, CREATE_VENUE_FIELDS),
+    eventFormatIssues(
+      input.format,
+      input,
+      CREATE_VENUE_FIELDS,
+      input.kind !== 'hackathon' || input.format !== 'online',
+    ),
     context,
   );
-  if (!hasVenue(input.format) && input.cityCode === undefined)
+  if (
+    input.format === 'online' &&
+    input.kind !== 'hackathon' &&
+    input.cityCode === undefined
+  )
     context.addIssue({
       code: 'custom',
       message: 'An online event names its city',
@@ -225,11 +267,11 @@ export type EventUpdateInput = z.infer<typeof eventUpdateSchema>;
 
 export const publicEventDiscoverySchema = z.strictObject({
   market: z.string().trim().min(1).max(80),
-  city: z.string().trim().min(1).max(80),
-  cityName: z.string().trim().min(1).max(160),
+  city: z.string().trim().min(1).max(80).nullable(),
+  cityName: z.string().trim().min(1).max(160).nullable(),
   slug: z.string().trim().min(1).max(80),
   title: eventTitleSchema,
-  description: eventDescriptionSchema,
+  description: eventDescriptionStorageSchema,
   format: eventFormatSchema,
   venue: eventVenueNameSchema.nullable(),
   venueAddress: eventVenueAddressSchema.nullable(),

@@ -1,10 +1,12 @@
 import { id, type Result } from '@founders-coffee/core';
 import {
+  eq,
+  hackathons as hackathonTable,
   listOrganiserHackathonPrizes,
   readHackathonDraft,
   type Db,
 } from '@founders-coffee/db';
-import { hackathons } from '@founders-coffee/domain';
+import { hackathons as hackathonSchemas } from '@founders-coffee/domain';
 
 import { decideHackathonReviewResolver } from '../../admin/hackathon-review.js';
 import { TEST_HOST_ID } from '../../events/resolver.fixtures.js';
@@ -23,7 +25,6 @@ import { addHackathonPrizeResolver } from '../prizes.js';
 import { registerForHackathonResolver } from '../registration.js';
 import { reportHackathonTargetResolver } from '../reports.js';
 import { readyHackathon } from '../review.fixtures.js';
-import { submitHackathonForReviewResolver } from '../review.js';
 import { createHackathonTeamResolver } from '../team-creation.js';
 import {
   createTeamInviteResolver,
@@ -129,13 +130,10 @@ export const inReview = async (
   extra?: Extra,
 ): Promise<Ids> => {
   const seed = await drafted(db, cast, extra);
-  unwrap(
-    await submitHackathonForReviewResolver(db, {
-      eventId: seed.eventId,
-      organisationId: ORGANISATION,
-      version: await versionOf(db, seed.eventId),
-    }),
-  );
+  await db
+    .update(hackathonTable)
+    .set({ reviewStatus: 'submitted' })
+    .where(eq(hackathonTable.eventId, seed.eventId));
   return seed;
 };
 
@@ -149,8 +147,9 @@ export const opened = async (
   const { eventId } = seed;
   unwrap(
     await decideHackathonReviewResolver(db, () => Promise.resolve(), null, {
-      decision: hackathons.hackathonReviewDecisionSchema.parse({
+      decision: hackathonSchemas.hackathonReviewDecisionSchema.parse({
         eventId,
+        version: await versionOf(db, eventId),
         decision: 'approve',
       }),
       actorUserId: TEST_HOST_ID,

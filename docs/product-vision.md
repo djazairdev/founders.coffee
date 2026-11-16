@@ -61,7 +61,7 @@ These hold at every stage.
 
 A hackathon is an event with a brief, a schedule, teams, submissions, judges and prizes. The default format is **hybrid**: registration, teams, building and submissions happen online, with an in-person kickoff or demo day in one city that online teams can follow and present at. Fully **online** hackathons are also supported.
 
-- **Who creates them:** the founders.coffee team and organisations we approve (clubs, universities, companies). Other hosts later.
+- **Who creates them:** the Founders Coffee team and registered organisers (clubs, universities, companies); each hackathon is reviewed before publication. Other hosts later.
 - **Tracks:** a hackathon has one or more tracks. A track can be a founder's real problem, a sponsor's technology, or the **open-source track** (§4.5).
 - **Teams:** created on founders.coffee: create a team, invite by link, request to join, or appear on a _Looking for a team_ list. The organiser sets the team size.
 - **Submissions:** on founders.coffee: repository link, demo video link, description, screenshots, the track, an AI-use statement and an original-work statement. The server enforces the deadline; edits before it keep earlier versions.
@@ -151,7 +151,7 @@ Each stage ships, is used, and is reviewed before the next one starts. The evide
 | Area                | What ships                                                                                                                                                                                                | From the retired plans    |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
 | Events              | Event types, online and hybrid events, _Hosted by / Co-hosted / Community_ labels, repeat an event                                                                                                        | —                         |
-| Organisers          | Organisation profiles; approval in `apps/admin`                                                                                                                                                           | HACK-018 (part)           |
+| Organisers          | Organisation profiles, active on registration; hackathon publication reviewed in `apps/admin`                                                                                                             | HACK-018 (part)           |
 | Hackathon page      | Brief, rules, schedule, tracks (including open-source), confirmed prizes, judges, AI policy, eligibility, licence and ownership                                                                           | HACK-001, HACK-003        |
 | Registration        | Eligibility, code of conduct, capacity and waitlist, in-person or online attendance                                                                                                                       | HACK-004                  |
 | Teams               | Create, invite link, request to join, _Looking for a team_, size limits, captain                                                                                                                          | HACK-005                  |

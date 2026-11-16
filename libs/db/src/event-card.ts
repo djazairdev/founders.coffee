@@ -27,7 +27,7 @@ export const getEventCard = async (
       title: string;
       startsAt: Date;
       marketCode: string;
-      cityCode: string;
+      cityCode: string | null;
       status: string;
       version: number;
       hostName: string;

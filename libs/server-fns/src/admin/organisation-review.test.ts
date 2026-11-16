@@ -45,7 +45,7 @@ const failing: EmailProvider = {
 };
 
 const application = async (
-  status: 'pending' | 'approved' | 'suspended' = 'pending',
+  status: 'pending' | 'approved' | 'suspended' = 'approved',
 ) => {
   sequence += 1;
   const suffix = `${Date.now()}${sequence}`.padStart(32, '0').slice(-32);
@@ -121,10 +121,10 @@ describe('reviewing organisation applications (B-ORG-06, real D1)', () => {
     );
   });
 
-  it('queues a pending application with its details and owner', async () => {
+  it('lists an active organiser with its details and owner', async () => {
     const { organisationId } = await application();
 
-    const queue = await listOrganisationReviewQueueResolver(db, 'pending', 0);
+    const queue = await listOrganisationReviewQueueResolver(db, 'approved', 0);
     if (!queue.ok) throw queue.error;
 
     expect(
@@ -138,19 +138,19 @@ describe('reviewing organisation applications (B-ORG-06, real D1)', () => {
     });
   });
 
-  it('approves, audits with the Access subject, and emails the owner in their language', async () => {
+  it('suspends, audits with the Access subject, and emails the owner in their language', async () => {
     const { organisationId, ownerEmail } = await application();
 
-    const result = await decide(organisationId, { decision: 'approve' });
+    const result = await decide(organisationId, { decision: 'suspend' });
     if (!result.ok) throw result.error;
 
-    expect(result.data.status).toBe('approved');
+    expect(result.data.status).toBe('suspended');
     expect((await getOrganisation(db, organisationId))?.status).toBe(
-      'approved',
+      'suspended',
     );
     expect(await trail(organisationId)).toEqual([
       expect.objectContaining({
-        action: 'approved',
+        action: 'suspended',
         actorUserId: OPERATOR,
         accessSubject: 'access-subject-review',
       }),
@@ -160,14 +160,17 @@ describe('reviewing organisation applications (B-ORG-06, real D1)', () => {
     expect(sent[0]?.text).toMatch(/[؀-ۿ]/);
   });
 
-  it('rejects with the note, and the owner reads the note', async () => {
+  it('suspends with the note, and the owner reads the note', async () => {
     const { organisationId } = await application();
     const note = 'Please add a link to the club’s past events.';
 
-    const result = await decide(organisationId, { decision: 'reject', note });
+    const result = await decide(organisationId, { decision: 'suspend', note });
     if (!result.ok) throw result.error;
 
-    expect(result.data).toMatchObject({ status: 'rejected', reviewNote: note });
+    expect(result.data).toMatchObject({
+      status: 'suspended',
+      reviewNote: note,
+    });
     expect(sent[0]?.text).toContain(note);
   });
 
@@ -188,7 +191,7 @@ describe('reviewing organisation applications (B-ORG-06, real D1)', () => {
   it('refuses a decision that does not fit the status, and writes and sends nothing', async () => {
     const { organisationId } = await application('approved');
 
-    const result = await decide(organisationId, { decision: 'approve' });
+    const result = await decide(organisationId, { decision: 'reinstate' });
 
     expect(result.ok ? null : result.error.code).toBe(
       'invalid_organisation_transition',
@@ -199,7 +202,7 @@ describe('reviewing organisation applications (B-ORG-06, real D1)', () => {
 
   it('refuses an organisation that does not exist', async () => {
     const result = await decide('org_00000000000000000000000000000000', {
-      decision: 'approve',
+      decision: 'suspend',
     });
 
     expect(result.ok ? null : result.error.code).toBe('not_found');
@@ -210,26 +213,26 @@ describe('reviewing organisation applications (B-ORG-06, real D1)', () => {
 
     const result = await decide(
       organisationId,
-      { decision: 'approve' },
+      { decision: 'suspend' },
       failing,
     );
 
     expect(result.ok).toBe(true);
     expect((await getOrganisation(db, organisationId))?.status).toBe(
-      'approved',
+      'suspended',
     );
     expect(
       entries.find(
         (entry) => entry.msg === 'organisation_decision_email_failed',
       ),
-    ).toMatchObject({ organisationId, decision: 'approve' });
+    ).toMatchObject({ organisationId, decision: 'suspend' });
     expect(JSON.stringify(entries)).not.toContain(ownerEmail);
   });
 
   it('keeps the decision when the Worker has no mail binding', async () => {
     const { organisationId } = await application();
 
-    const result = await decide(organisationId, { decision: 'approve' }, null);
+    const result = await decide(organisationId, { decision: 'suspend' }, null);
 
     expect(result.ok).toBe(true);
     expect(

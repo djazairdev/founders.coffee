@@ -1,5 +1,6 @@
 import { err, ok, type EventStatus, type Result } from '@founders-coffee/core';
 import {
+  getEvent,
   getHackathon,
   readHackathonDashboardCounts,
   type Db,
@@ -19,15 +20,14 @@ export type HackathonDashboard = {
   readonly marketCode: string;
   readonly status: EventStatus;
   readonly capacity: number | null;
-  readonly schedule: HackathonSchedule;
+  readonly schedule: HackathonSchedule | null;
   readonly counts: HackathonDashboardCounts;
 };
 
 /**
  * A hackathon at a glance for its organisers (B-OPS-01): the phase it is in, decided here from its
- * dates, and the counts of its registrations, teams, entries and judging. The middleware has
- * checked that the reader may manage it; a hackathon without its details has nothing to count yet
- * and is not found.
+ * dates when its details exist, and the counts of its registrations, teams, entries and judging.
+ * The middleware has checked that the reader may manage it.
  */
 export const hackathonDashboardResolver = async (
   db: Db,
@@ -35,18 +35,21 @@ export const hackathonDashboardResolver = async (
   now: number = Date.now(),
 ): Promise<Result<HackathonDashboard>> => {
   const found = await getHackathon(db, eventId);
-  if (!found) return hackathonNotFound();
-  const { event, hackathon } = found;
+  const event = found?.event ?? (await getEvent(db, eventId));
+  if (!event || event.kind !== 'hackathon') return hackathonNotFound();
   const disabled = await requireHackathonsEnabled(db, event.marketCode);
   if (disabled) return err(disabled);
-  const schedule = hackathonScheduleOf(event, hackathon, now);
-  if (!schedule) return hackathonNotFound();
+  const hackathon = found?.hackathon ?? null;
+  const schedule = hackathon
+    ? hackathonScheduleOf(event, hackathon, now)
+    : null;
+  if (hackathon && !schedule) return hackathonNotFound();
   return ok({
     eventId: event.id,
     slug: event.slug,
     marketCode: event.marketCode,
     status: event.status,
-    capacity: hackathon.capacity,
+    capacity: hackathon?.capacity ?? null,
     schedule,
     counts: await readHackathonDashboardCounts(db, eventId),
   });

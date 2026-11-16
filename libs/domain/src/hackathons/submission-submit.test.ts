@@ -100,7 +100,7 @@ describe('submitting an entry (B-SUB-04)', () => {
     );
   });
 
-  it('holds the hackathon’s own rules: its tracks, and AI tools when it is AI-native', () => {
+  it('holds the hackathon’s own rules: its tracks and its AI tool policy', () => {
     expect(
       codeOf(
         decide({
@@ -113,8 +113,11 @@ describe('submitting an entry (B-SUB-04)', () => {
     ).toBe('track_not_in_hackathon');
     expect(
       codeOf(
-        decide({ hackathon: { trackIds: [TRACK], aiPolicy: 'ai_native' } }),
+        decide({
+          entry: { ...entry, aiTools: ['Copilot'] },
+          hackathon: { trackIds: [TRACK], aiPolicy: 'not_allowed' },
+        }),
       ),
-    ).toBe('ai_tools_required');
+    ).toBe('ai_tools_not_allowed');
   });
 });

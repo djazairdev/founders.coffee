@@ -1,10 +1,12 @@
 export {
   applyForOrganisation,
+  deleteOrganisation,
   listMyOrganisations,
   updateOrganisation,
 } from './rpc.js';
 export type {
   ApplyForOrganisationRequest,
+  DeleteOrganisationRequest,
   UpdateOrganisationRequest,
 } from './rpc.js';
 export type { OrganisationView } from './resolver.js';

@@ -27,7 +27,7 @@ const parsed = (overrides: Record<string, unknown> = {}): Submission =>
 
 const codeOf = (
   submission: Submission,
-  aiPolicy: 'disclosed' | 'ai_native' | 'restricted' = 'disclosed',
+  aiPolicy: 'disclosed' | 'conditional' | 'not_allowed' = 'disclosed',
 ) => {
   const result = checkSubmission(submission, { trackIds: [TRACK], aiPolicy });
   return result.ok ? null : result.error.code;
@@ -105,14 +105,14 @@ describe('a submission against its hackathon', () => {
     );
   });
 
-  it('asks an AI-native entry to name its tools', () => {
-    expect(codeOf(parsed(), 'ai_native')).toBe('ai_tools_required');
-    expect(
-      codeOf(parsed({ aiTools: ['Claude Code', 'Copilot'] }), 'ai_native'),
-    ).toBeNull();
+  it('refuses tools when a hackathon does not allow AI use', () => {
+    expect(codeOf(parsed({ aiTools: ['Claude Code'] }), 'not_allowed')).toBe(
+      'ai_tools_not_allowed',
+    );
+    expect(codeOf(parsed(), 'not_allowed')).toBeNull();
   });
 
-  it.each(['disclosed', 'restricted'] as const)(
+  it.each(['disclosed', 'conditional'] as const)(
     'lets a team under the %s policy say in its statement that it used no tools',
     (policy) => {
       expect(codeOf(parsed({ aiTools: [] }), policy)).toBeNull();

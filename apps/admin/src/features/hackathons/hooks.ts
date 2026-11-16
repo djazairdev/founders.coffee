@@ -22,11 +22,13 @@ export const useDecideHackathon = () => {
   return useMutation({
     mutationFn: (input: {
       eventId: string;
+      version: number;
       decision: HackathonDecision;
       note: string;
     }) => {
       const request = decisionRequest(
         input.eventId,
+        input.version,
         input.decision,
         input.note,
       );

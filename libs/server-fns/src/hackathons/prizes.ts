@@ -1,4 +1,4 @@
-import { AppError, err, id, type Result } from '@founders-coffee/core';
+import { AppError, err, id, ok, type Result } from '@founders-coffee/core';
 import {
   addHackathonPrize,
   hackathonAtVersion,
@@ -26,6 +26,9 @@ type EditInput = {
 };
 
 type Saved = Result<{ readonly eventId: string; readonly version: number }>;
+type SavedPrize = Awaited<
+  ReturnType<typeof listOrganiserHackathonPrizes>
+>[number];
 
 const prizeNotFound = () =>
   err(new AppError('hackathon_prize_not_found', 'No such prize'));
@@ -99,7 +102,9 @@ const loadPrizeFor = async (
   input: EditInput & { readonly prizeId: string },
   now: number,
   isAllowed: PrizeRule,
-): Promise<Result<HackathonEditTarget>> => {
+): Promise<
+  Result<{ readonly target: HackathonEditTarget; readonly prize: SavedPrize }>
+> => {
   const loaded = await loadPrizeEdit(db, input, now);
   if (!loaded.ok) return loaded;
   const prizes = await listOrganiserHackathonPrizes(db, input.eventId);
@@ -113,7 +118,7 @@ const loadPrizeFor = async (
         { fields: ['prizes'] },
       ),
     );
-  return loaded;
+  return ok({ target: loaded.data, prize });
 };
 
 /**
@@ -136,9 +141,19 @@ export const changeHackathonPrizeResolver = async (
     hackathons.isPrizeChangeable,
   );
   if (!loaded.ok) return loaded;
+  if (
+    loaded.data.prize.providerName !== null &&
+    input.prize.providerName === null
+  )
+    return err(
+      new AppError(
+        'validation_failed',
+        'An external sponsor must remain attached to its prize.',
+      ),
+    );
   const trackRefused = await checkPrizeTrack(db, input.eventId, input.prize);
   if (trackRefused) return err(trackRefused);
-  return runHackathonEdit(db, loaded.data, {
+  return runHackathonEdit(db, loaded.data.target, {
     operation: 'hackathon_prize_changed',
     organisationId: input.organisationId,
     writes: [hackathonPrizeChange(db, input)],
@@ -162,7 +177,7 @@ export const removeHackathonPrizeResolver = async (
     hackathons.isPrizeRemovable,
   );
   if (!loaded.ok) return loaded;
-  return runHackathonEdit(db, loaded.data, {
+  return runHackathonEdit(db, loaded.data.target, {
     operation: 'hackathon_prize_removed',
     organisationId: input.organisationId,
     writes: [hackathonPrizeRemoval(db, input)],
@@ -187,7 +202,14 @@ export const confirmHackathonPrizeResolver = async (
     hackathons.isPrizeConfirmable,
   );
   if (!loaded.ok) return loaded;
-  return runHackathonEdit(db, loaded.data, {
+  if (loaded.data.prize.providerName === null)
+    return err(
+      new AppError(
+        'validation_failed',
+        'A prize without an external sponsor does not need confirmation.',
+      ),
+    );
+  return runHackathonEdit(db, loaded.data.target, {
     operation: 'hackathon_prize_confirmed',
     organisationId: input.organisationId,
     writes: [

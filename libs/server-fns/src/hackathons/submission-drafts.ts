@@ -44,6 +44,11 @@ export const saveSubmissionDraftResolver = async (
 ): Promise<Result<SubmissionDraftSaved>> => {
   const loaded = await loadTeamHackathon(db, input.eventId);
   if (!loaded.ok) return loaded;
+  const toolsAllowed = hackathons.checkAiToolsPolicy(
+    input.draft.aiTools,
+    loaded.data.aiPolicy,
+  );
+  if (!toolsAllowed.ok) return err(toolsAllowed.error);
   const decide = async (): Promise<Result<{ readonly teamId: string }>> => {
     const standing = await readParticipantStanding(db, input);
     const decided = hackathons.decideDraftSave({

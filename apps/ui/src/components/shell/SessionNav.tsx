@@ -1,4 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router';
+import { Building2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import {
@@ -6,6 +7,7 @@ import {
   sign_in,
   sign_out,
   nav_signed_in_as,
+  profile_organisations,
   profile_loading,
   profile_title,
   live_status_connected,
@@ -127,6 +129,12 @@ export const SessionNav = ({ locale }: SessionNavProps) => {
             <Link {...localizedProfile(locale)}>
               <ProfileIcon />
               {profile_title({}, { locale })}
+            </Link>
+          </li>
+          <li>
+            <Link to="/$locale/profile/organisations" params={{ locale }}>
+              <Building2 className="size-4" aria-hidden="true" />
+              {profile_organisations({}, { locale })}
             </Link>
           </li>
           <li>

@@ -58,10 +58,10 @@ import {
   joinHackathonInterest,
   registerForHackathon,
   removeHackathonPrize,
-  saveHackathonDetails,
+  saveHackathonDeadlines,
+  saveHackathonSettings,
   saveHackathonRubric,
   saveHackathonTracks,
-  submitHackathonForReview,
   withdrawFromHackathon,
   type AddHackathonPrizeRequest,
   type CertificatePage,
@@ -80,15 +80,14 @@ import {
   type JoinHackathonInterestRequest,
   type RegistrationCreated,
   type Withdrawn,
-  type MarketHackathon,
   type PublicHackathonPrizeView,
   type PublicHackathonRules,
   type PublicHackathonTrack,
   type RemoveHackathonPrizeRequest,
-  type SaveHackathonDetailsRequest,
+  type SaveHackathonDeadlinesRequest,
+  type SaveHackathonSettingsRequest,
   type SaveHackathonRubricRequest,
   type SaveHackathonTracksRequest,
-  type SubmitHackathonForReviewRequest,
 } from '@founders-coffee/server-fns';
 import type { SubmissionDraftFields } from './submission-draft-fields';
 
@@ -101,14 +100,14 @@ export const hackathonsApi = {
   dashboard: (eventId: string) => getHackathonDashboard({ data: { eventId } }),
   roster: (eventId: string) => getHackathonParticipants({ data: { eventId } }),
   teams: (eventId: string) => getHackathonTeams({ data: { eventId } }),
-  saveDetails: (request: SaveHackathonDetailsRequest) =>
-    saveHackathonDetails({ data: request }),
+  saveDeadlines: (request: SaveHackathonDeadlinesRequest) =>
+    saveHackathonDeadlines({ data: request }),
+  saveSettings: (request: SaveHackathonSettingsRequest) =>
+    saveHackathonSettings({ data: request }),
   saveTracks: (request: SaveHackathonTracksRequest) =>
     saveHackathonTracks({ data: request }),
   saveRubric: (request: SaveHackathonRubricRequest) =>
     saveHackathonRubric({ data: request }),
-  submitForReview: (request: SubmitHackathonForReviewRequest) =>
-    submitHackathonForReview({ data: request }),
   addPrize: (request: AddHackathonPrizeRequest) =>
     addHackathonPrize({ data: request }),
   changePrize: (request: ChangeHackathonPrizeRequest) =>
@@ -262,15 +261,14 @@ export type {
   JoinHackathonInterestRequest,
   RegistrationCreated,
   Withdrawn,
-  MarketHackathon,
   PublicHackathonPrizeView,
   PublicHackathonRules,
   PublicHackathonTrack,
   RemoveHackathonPrizeRequest,
-  SaveHackathonDetailsRequest,
+  SaveHackathonDeadlinesRequest,
+  SaveHackathonSettingsRequest,
   SaveHackathonRubricRequest,
   SaveHackathonTracksRequest,
-  SubmitHackathonForReviewRequest,
 };
 export type * from './view-types';
 

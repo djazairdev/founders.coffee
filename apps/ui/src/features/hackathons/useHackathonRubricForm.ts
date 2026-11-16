@@ -2,10 +2,15 @@ import { useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 
 import type { HackathonCriterionScale } from '@founders-coffee/core';
-import { hackathon_rubric_locked, type Locale } from '@founders-coffee/i18n';
+import {
+  hackathon_rubric_locked,
+  hackathon_rubric_saved,
+  type Locale,
+} from '@founders-coffee/i18n';
 
 import { seekField } from '../events/seek-field';
 import type { HackathonDraftView } from './api';
+import type { HackathonFeedback } from './hackathon-feedback';
 import { hackathonEditError } from './edit-errors';
 import {
   checkRubric,
@@ -37,9 +42,11 @@ const seekId = (id: string) => {
 export const useHackathonRubricForm = ({
   draft,
   locale,
+  onFeedback,
 }: {
   draft: HackathonDraftView;
   locale: Locale;
+  onFeedback: HackathonFeedback;
 }) => {
   const save = useSaveHackathonRubric();
   const counter = useRef(0);
@@ -103,15 +110,35 @@ export const useHackathonRubricForm = ({
         setErrors(check.errors);
         setRubricError(check.rubricError);
       });
+      const fieldError = Object.values(check.errors).flatMap((fields) =>
+        Object.values(fields),
+      )[0];
+      const message = check.rubricError ?? fieldError;
+      if (message) onFeedback(message, 'error');
       if (check.first) seekId(check.first);
       return;
     }
     setErrors({});
-    save.mutate({
-      eventId: draft.event.id,
-      version: draft.version,
-      criteria: check.criteria,
-    });
+    save.mutate(
+      {
+        eventId: draft.event.id,
+        version: draft.version,
+        criteria: check.criteria,
+      },
+      {
+        onSuccess: () =>
+          onFeedback(hackathon_rubric_saved({}, { locale }), 'success'),
+        onError: (error) =>
+          onFeedback(
+            hackathonEditError(
+              error,
+              locale,
+              hackathon_rubric_locked({}, { locale }),
+            ),
+            'error',
+          ),
+      },
+    );
   };
 
   return {
@@ -131,13 +158,5 @@ export const useHackathonRubricForm = ({
     canRemove: criteria.length > CRITERIA_MIN,
     submit,
     isSaving: save.isPending,
-    isSaved: save.isSuccess,
-    saveError: save.isError
-      ? hackathonEditError(
-          save.error,
-          locale,
-          hackathon_rubric_locked({}, { locale }),
-        )
-      : null,
   };
 };

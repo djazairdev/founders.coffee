@@ -65,6 +65,7 @@ describe('local/daisyui-control-size in the workspace config', () => {
     for (const file of [
       'apps/ui/src/components/landing/MarketHero.tsx',
       'apps/ui/src/components/landing/HowItWorks.tsx',
+      'apps/ui/src/features/hackathons/components/HackathonOrganisers.tsx',
     ]) {
       expect(await optionsFor(file), file).toEqual({
         buttons: 'call-to-action',

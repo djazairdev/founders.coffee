@@ -547,6 +547,55 @@
       "when": 1793875602904,
       "tag": "0077_hackathon_submission_screenshots",
       "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "6",
+      "when": 1794497353460,
+      "tag": "0078_organiser_registration",
+      "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "6",
+      "when": 1794565009146,
+      "tag": "0079_thankful_rogue",
+      "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "6",
+      "when": 1794666701877,
+      "tag": "0080_clean_randall_flagg",
+      "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "6",
+      "when": 1794745829481,
+      "tag": "0081_chemical_power_pack",
+      "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "6",
+      "when": 1794749719442,
+      "tag": "0082_ai_policy_semantics",
+      "breakpoints": true
+    },
+    {
+      "idx": 83,
+      "version": "6",
+      "when": 1794752170269,
+      "tag": "0083_large_ego",
+      "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "6",
+      "when": 1794811445219,
+      "tag": "0084_optional_event_location",
+      "breakpoints": true
     }
   ]
 }

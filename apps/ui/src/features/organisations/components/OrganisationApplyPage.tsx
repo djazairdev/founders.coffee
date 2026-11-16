@@ -2,32 +2,26 @@ import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 
 import {
-  org_apply_intro,
   org_apply_sent,
   org_apply_sent_link,
   org_apply_sent_title,
   org_apply_title,
+  hackathon_create,
   type Locale,
 } from '@founders-coffee/i18n';
 import { StatusMessage } from '@founders-coffee/ui';
 
-import { localizedMyOrganisation } from '../../../lib/locale-routing';
-import type { RootMarket } from '../../markets/api';
+import {
+  localizedHackathonCreate,
+  localizedMyOrganisation,
+} from '../../../lib/locale-routing';
 import { OrganisationApplyForm } from './OrganisationApplyForm';
 
 type Stage =
   | { readonly kind: 'form' }
   | { readonly kind: 'sent'; readonly name: string; readonly slug: string };
 
-export const OrganisationApplyPage = ({
-  locale,
-  markets,
-  defaultMarketCode,
-}: {
-  locale: Locale;
-  markets: readonly RootMarket[];
-  defaultMarketCode: string;
-}) => {
+export const OrganisationApplyPage = ({ locale }: { locale: Locale }) => {
   const [stage, setStage] = useState<Stage>({ kind: 'form' });
   return (
     <div className="mx-auto w-full max-w-xl px-4 py-8 sm:py-12">
@@ -43,6 +37,12 @@ export const OrganisationApplyPage = ({
             {org_apply_sent({ name: stage.name }, { locale })}
           </StatusMessage>
           <Link
+            {...localizedHackathonCreate(locale, stage.slug)}
+            className="btn btn-primary btn-xs sm:btn-sm md:btn-md"
+          >
+            {hackathon_create({}, { locale })}
+          </Link>
+          <Link
             {...localizedMyOrganisation(locale, stage.slug)}
             className="link link-hover font-medium text-secondary"
           >
@@ -50,19 +50,12 @@ export const OrganisationApplyPage = ({
           </Link>
         </section>
       ) : (
-        <>
-          <p className="mt-2 text-body text-neutral">
-            {org_apply_intro({}, { locale })}
-          </p>
-          <div className="mt-6">
-            <OrganisationApplyForm
-              defaultMarketCode={defaultMarketCode}
-              locale={locale}
-              markets={markets}
-              onSent={(sent) => setStage({ kind: 'sent', ...sent })}
-            />
-          </div>
-        </>
+        <div className="mt-6">
+          <OrganisationApplyForm
+            locale={locale}
+            onSent={(sent) => setStage({ kind: 'sent', ...sent })}
+          />
+        </div>
       )}
     </div>
   );

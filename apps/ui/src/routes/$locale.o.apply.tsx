@@ -8,14 +8,8 @@ import { NO_INDEX_VALUE } from '../lib/indexation';
 import { privatePageHead } from '../lib/seo-private';
 
 const OrganisationApplyRoute = () => {
-  const { locale, markets, activeMarket } = Route.useRouteContext();
-  return (
-    <OrganisationApplyPage
-      defaultMarketCode={activeMarket?.code ?? markets[0]?.code ?? ''}
-      locale={locale}
-      markets={markets}
-    />
-  );
+  const { locale } = Route.useRouteContext();
+  return <OrganisationApplyPage locale={locale} />;
 };
 
 export const Route = createFileRoute('/$locale/o/apply')({

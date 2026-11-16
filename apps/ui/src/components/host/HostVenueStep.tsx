@@ -48,12 +48,14 @@ type HostVenueStepProps = {
   searchValue: string;
   venue: VenueSelection | null;
   venueName: string;
+  venueNamePlaceholder?: string;
   nameError?: string;
   venueError?: VenueError;
   hideNameField?: boolean;
   boundedList?: boolean;
   overlay?: VenueOverlay;
   isDisabled: boolean;
+  isEmptyHintVisible?: boolean;
   onSearchChange: (value: string) => void;
   onVenueNameChange: (value: string) => void;
   onVenueSelect: (venue: VenueSelection) => void;
@@ -69,12 +71,14 @@ export const HostVenueStep = ({
   searchValue,
   venue,
   venueName,
+  venueNamePlaceholder,
   nameError,
   venueError,
   hideNameField = false,
   boundedList = false,
   overlay,
   isDisabled,
+  isEmptyHintVisible = true,
   onSearchChange,
   onVenueNameChange,
   onVenueSelect,
@@ -149,7 +153,9 @@ export const HostVenueStep = ({
         : host_venue_no_results({}, { locale })
       : !isSearching && nearby.isPending
         ? undefined
-        : host_venue_empty({}, { locale });
+        : isEmptyHintVisible
+          ? host_venue_empty({}, { locale })
+          : undefined;
 
   const chooseCity = (city: geo.GeoCity) => {
     onCitySelect?.(city);
@@ -230,6 +236,7 @@ export const HostVenueStep = ({
       <HostVenueNameField
         locale={locale}
         value={venueName}
+        placeholder={venueNamePlaceholder}
         error={nameError}
         onChange={onVenueNameChange}
       />

@@ -10,9 +10,7 @@ import {
 
 const APPLICATION = {
   name: 'GDG Algiers',
-  slug: 'gdg-algiers',
   kind: 'community',
-  marketCode: 'DZ',
   description:
     'Google Developer Group in Algiers: monthly talks and study jams.',
 };
@@ -56,10 +54,9 @@ describe('organisationSlugLookupSchema', () => {
 });
 
 describe('organisationApplicationSchema', () => {
-  it('fills the optional city and website with null', () => {
+  it('fills the optional website with null', () => {
     expect(organisationApplicationSchema.parse(APPLICATION)).toEqual({
       ...APPLICATION,
-      cityCode: null,
       websiteUrl: null,
     });
   });
@@ -85,7 +82,9 @@ describe('organisationApplicationSchema', () => {
   it.each([
     ['an unknown kind', { kind: 'charity' }],
     ['the platform’s own kind, which no applicant holds', { kind: 'platform' }],
-    ['a market that is not a code', { marketCode: 'Algeria' }],
+    ['a client-selected market', { marketCode: 'EG' }],
+    ['a client-selected city', { cityCode: '556' }],
+    ['a client-selected address', { slug: 'gdg-algiers' }],
     ['a one-letter name', { name: 'G' }],
     ['a description too short to review', { description: 'Tech club' }],
     ['a status, which only an admin sets', { status: 'approved' }],

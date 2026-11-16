@@ -6,13 +6,9 @@ import {
 import { renderEmail, type EmailProvider } from '@founders-coffee/email';
 import { NotificationEmail } from '@founders-coffee/email/templates';
 import {
-  email_org_decision_approved,
-  email_org_decision_approved_subject,
   email_org_decision_note,
   email_org_decision_reinstated,
   email_org_decision_reinstated_subject,
-  email_org_decision_rejected,
-  email_org_decision_rejected_subject,
   email_org_decision_suspended,
   email_org_decision_suspended_subject,
   type Locale,
@@ -37,12 +33,10 @@ export type OrganisationDecisionNotice = (
 const WORDING: Record<
   Decision,
   readonly [
-    subject: typeof email_org_decision_approved_subject,
-    line: typeof email_org_decision_approved,
+    subject: typeof email_org_decision_suspended_subject,
+    line: typeof email_org_decision_suspended,
   ]
 > = {
-  approve: [email_org_decision_approved_subject, email_org_decision_approved],
-  reject: [email_org_decision_rejected_subject, email_org_decision_rejected],
   suspend: [email_org_decision_suspended_subject, email_org_decision_suspended],
   reinstate: [
     email_org_decision_reinstated_subject,

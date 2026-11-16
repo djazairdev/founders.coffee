@@ -4,14 +4,7 @@ import {
   ORGANISATION_SLUG_MIN_LENGTH,
 } from './schemas.js';
 
-/**
- * An address to offer for an organisation called `name`, or `''` when its name gives none.
- *
- * Accents are dropped and every run of anything but a Latin letter or digit becomes one hyphen,
- * so "École 42 Alger" offers `ecole-42-alger`. A name in Arabic script has no Latin letters to
- * offer, and the applicant types the address themselves. The offer is cut at a hyphen to fit the
- * length limit, and a reserved word is never offered.
- */
+/** A name-derived Latin address, or an empty string when a generated fallback is needed. */
 export const suggestOrganisationSlug = (name: string): string => {
   const words = name
     .normalize('NFKD')
@@ -30,4 +23,11 @@ export const suggestOrganisationSlug = (name: string): string => {
     !isReservedOrganisationSlug(slug)
     ? slug
     : '';
+};
+
+/** A generated address with room for its numeric collision suffix, including non-Latin names. */
+export const organisationSlugFor = (name: string, suffix: string): string => {
+  const base = suggestOrganisationSlug(name) || 'organisation';
+  const room = ORGANISATION_SLUG_MAX_LENGTH - suffix.length - 1;
+  return `${base.slice(0, room).replace(/-+$/u, '')}-${suffix}`;
 };

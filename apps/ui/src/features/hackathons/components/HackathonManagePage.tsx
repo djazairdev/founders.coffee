@@ -1,39 +1,40 @@
-import { Link } from '@tanstack/react-router';
-
 import {
   formatDate,
-  hackathon_details_heading,
-  hackathon_details_sub,
   hackathon_manage_error,
+  hackathon_manage_outcomes_group,
+  hackathon_manage_prizes_group,
   hackathon_manage_loading,
   hackathon_manage_locked,
   hackathon_manage_not_found,
   hackathon_manage_title,
+  hackathon_prizes_hint,
   org_hackathon_dates,
   org_hackathon_status_in_review,
   retry,
   type Locale,
 } from '@founders-coffee/i18n';
-import { Button, LoadingStatus, StatusMessage } from '@founders-coffee/ui';
+import {
+  Button,
+  LoadingStatus,
+  StatusMessage,
+  useToast,
+} from '@founders-coffee/ui';
 
-import { localizedMyOrganisation } from '../../../lib/locale-routing';
+import { OrganisationBreadcrumbs } from '../../../components/OrganisationBreadcrumbs';
 import type { RootMarket } from '../../markets/api';
 import { hackathonStatusLabel } from '../../organisations/hackathon-labels';
 import { isHackathonMissing, isHackathonsDisabled } from '../errors';
+import { isolateBidi, utcOffsetAt } from '../hackathon-timezone';
 import { useHackathonDraft } from '../hooks';
 import { HackathonDashboard } from './HackathonDashboard';
 import { HackathonDetailsForm } from './HackathonDetailsForm';
 import { HackathonJudgingProgress } from './HackathonJudgingProgress';
+import { HackathonManageCollapse } from './HackathonManageCollapse';
+import { HackathonManageFeedback } from './HackathonManageFeedback';
 import { HackathonPrizeDelivery } from './HackathonPrizeDelivery';
-import { HackathonParticipantsList } from './HackathonParticipantsList';
 import { HackathonPrizesSection } from './HackathonPrizesSection';
 import { HackathonResultsPanel } from './HackathonResultsPanel';
 import { HackathonReviewBanner } from './HackathonReviewBanner';
-import { HackathonReviewSection } from './HackathonReviewSection';
-import { HackathonRoleRoster } from './HackathonRoleRoster';
-import { HackathonRubricSection } from './HackathonRubricSection';
-import { HackathonTeamsList } from './HackathonTeamsList';
-import { HackathonTracksSection } from './HackathonTracksSection';
 import { HackathonsUnavailable } from './HackathonsUnavailable';
 
 const momentOf = (epochMs: number, locale: Locale, timeZone: string) =>
@@ -51,18 +52,25 @@ export const HackathonManagePage = ({
   eventId,
   locale,
   markets,
-  isJustCreated,
 }: {
   eventId: string;
   locale: Locale;
-  markets: readonly RootMarket[];
-  isJustCreated: boolean;
+  markets?: readonly RootMarket[];
 }) => {
+  const availableMarkets = markets ?? [];
   const query = useHackathonDraft(eventId);
+  const feedback = useToast();
   const draft = query.data;
-  const timeZone =
-    markets.find((market) => market.code === draft?.event.marketCode)
-      ?.timezone ?? 'UTC';
+  const market = availableMarkets.find(
+    (candidate) => candidate.code === draft?.event.marketCode,
+  );
+  const timeZone = market?.timezone ?? 'UTC';
+  const timeZoneName =
+    locale === 'ar'
+      ? (market?.nameAr ?? market?.name ?? timeZone)
+      : locale === 'fr'
+        ? (market?.nameFr ?? market?.name ?? timeZone)
+        : (market?.name ?? timeZone);
 
   if (!draft)
     return (
@@ -103,111 +111,82 @@ export const HackathonManagePage = ({
 
   const kickoff = momentOf(draft.event.startsAt, locale, timeZone);
   const demoDay = momentOf(draft.event.endsAt, locale, timeZone);
-  const canChangeRoles =
-    draft.details !== null &&
-    draft.event.status !== 'cancelled' &&
-    Date.now() < draft.details.judgingEndsAt;
+  const utcOffset = utcOffsetAt(timeZone, draft.event.startsAt);
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:py-12">
-      <Link
-        {...localizedMyOrganisation(locale, draft.organisation.slug)}
-        className="link text-body-sm text-neutral"
-      >
-        <bdi>{draft.organisation.name}</bdi>
-      </Link>
+      <OrganisationBreadcrumbs
+        locale={locale}
+        organisationName={draft.organisation.name}
+        organisationSlug={draft.organisation.slug}
+      />
       <h1 className="mt-2 flex flex-wrap items-center gap-2 font-display text-h3">
         <bdi className="min-w-0 break-words">{draft.event.title}</bdi>
         <span className="badge badge-ghost">
-          {draft.event.status === 'draft' && draft.review.status === 'submitted'
+          {draft.event.status === 'draft' &&
+          (draft.review.status === 'submitted' ||
+            (draft.review.status === 'draft' && draft.details !== null))
             ? org_hackathon_status_in_review({}, { locale })
             : hackathonStatusLabel(draft.event.status, locale)}
         </span>
       </h1>
       <p className="mt-1 text-body-sm text-neutral">
-        {org_hackathon_dates({ start: kickoff, end: demoDay }, { locale })}
+        {org_hackathon_dates(
+          { start: isolateBidi(kickoff), end: isolateBidi(demoDay) },
+          { locale },
+        )}
       </p>
-      <HackathonReviewBanner
-        draft={draft}
-        locale={locale}
-        isJustCreated={isJustCreated}
-      />
-      <HackathonDashboard
-        draft={draft}
-        locale={locale}
-        timeZone={timeZone}
-        markets={markets}
-      />
-      {draft.details !== null ? (
-        <>
-          <HackathonRoleRoster
-            eventId={eventId}
-            role="judge"
-            canChange={canChangeRoles}
-            locale={locale}
-          />
-          <HackathonRoleRoster
-            eventId={eventId}
-            role="mentor"
-            canChange={canChangeRoles}
-            locale={locale}
-          />
-        </>
-      ) : null}
+      <HackathonReviewBanner draft={draft} locale={locale} />
+      <HackathonDashboard draft={draft} locale={locale} />
       {draft.event.status === 'published' ? (
-        <>
-          <HackathonParticipantsList eventId={draft.event.id} locale={locale} />
-          <HackathonTeamsList eventId={draft.event.id} locale={locale} />
+        <HackathonManageCollapse
+          title={hackathon_manage_outcomes_group({}, { locale })}
+        >
           <HackathonJudgingProgress eventId={draft.event.id} locale={locale} />
           <HackathonResultsPanel
             eventId={draft.event.id}
             locale={locale}
             timeZone={timeZone}
           />
-          <HackathonPrizeDelivery eventId={draft.event.id} locale={locale} />
-        </>
+          <HackathonPrizeDelivery
+            eventId={draft.event.id}
+            locale={locale}
+            onFeedback={feedback.show}
+          />
+        </HackathonManageCollapse>
       ) : null}
       {draft.isEditable ? (
         <>
-          <section aria-labelledby="hackathon-details-heading" className="mt-8">
-            <h2 id="hackathon-details-heading" className="font-display text-h4">
-              {hackathon_details_heading({}, { locale })}
-            </h2>
-            <p className="mt-1 mb-6 text-body-sm text-neutral">
-              {hackathon_details_sub({}, { locale })}
-            </p>
-            <HackathonDetailsForm
+          <HackathonDetailsForm
+            draft={draft}
+            locale={locale}
+            timeZone={timeZone}
+            timeZoneName={timeZoneName}
+            utcOffset={utcOffset}
+            onFeedback={feedback.show}
+          />
+          <HackathonManageCollapse
+            title={hackathon_manage_prizes_group({}, { locale })}
+            description={hackathon_prizes_hint({}, { locale })}
+          >
+            <HackathonPrizesSection
               draft={draft}
               locale={locale}
               timeZone={timeZone}
-              kickoff={kickoff}
-              demoDay={demoDay}
+              onFeedback={feedback.show}
             />
-          </section>
-          <HackathonTracksSection draft={draft} locale={locale} />
-          <HackathonPrizesSection
-            draft={draft}
-            locale={locale}
-            timeZone={timeZone}
-          />
-          <HackathonRubricSection draft={draft} locale={locale} />
-          <HackathonReviewSection
-            draft={draft}
-            locale={locale}
-            timeZone={timeZone}
-          />
+          </HackathonManageCollapse>
         </>
-      ) : draft.review.status === 'submitted' ? (
-        <HackathonReviewSection
-          draft={draft}
-          locale={locale}
-          timeZone={timeZone}
-        />
-      ) : (
+      ) : draft.review.status !== 'submitted' ? (
         <StatusMessage variant="info" className="mt-6">
           {hackathon_manage_locked({}, { locale })}
         </StatusMessage>
-      )}
+      ) : null}
+      <HackathonManageFeedback
+        locale={locale}
+        notification={feedback.notification}
+        onDismiss={feedback.clear}
+      />
     </div>
   );
 };

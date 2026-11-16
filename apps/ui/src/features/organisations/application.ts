@@ -11,92 +11,34 @@ export const NAME_LENGTH = {
   min: organisations.ORGANISATION_NAME_MIN_LENGTH,
   max: organisations.ORGANISATION_NAME_MAX_LENGTH,
 };
-export const SLUG_MAX_LENGTH = organisations.ORGANISATION_SLUG_MAX_LENGTH;
 export const DESCRIPTION_LENGTH = {
   min: organisations.ORGANISATION_DESCRIPTION_MIN_LENGTH,
   max: organisations.ORGANISATION_DESCRIPTION_MAX_LENGTH,
 };
 
-export type ApplicationField =
-  | 'name'
-  | 'slug'
-  | 'kind'
-  | 'marketCode'
-  | 'cityCode'
-  | 'description'
-  | 'websiteUrl';
+export type ApplicationField = 'name' | 'kind' | 'description' | 'websiteUrl';
 
 export type ApplicationDraft = {
   readonly name: string;
-  readonly slug: string;
-  readonly isSlugEdited: boolean;
   readonly kind: ApplicantKind | '';
-  readonly marketCode: string;
-  readonly stateCode: string;
-  readonly cityCode: string;
   readonly description: string;
   readonly websiteUrl: string;
 };
 
 export const FIELD_ORDER: readonly ApplicationField[] = [
   'name',
-  'slug',
   'kind',
-  'marketCode',
-  'cityCode',
   'description',
   'websiteUrl',
 ];
 
-/** An empty application in `marketCode`, the market the member is browsing. */
-export const emptyApplication = (marketCode: string): ApplicationDraft => ({
+/** An empty organiser application; the server supplies the address and Algeria scope. */
+export const emptyApplication = (): ApplicationDraft => ({
   name: '',
-  slug: '',
-  isSlugEdited: false,
   kind: '',
-  marketCode,
-  stateCode: '',
-  cityCode: '',
   description: '',
   websiteUrl: '',
 });
-
-/**
- * The draft after its name changes. Until the applicant edits the address themselves, it follows
- * the name, so most never have to think about it.
- */
-export const withName = (
-  draft: ApplicationDraft,
-  name: string,
-): ApplicationDraft => ({
-  ...draft,
-  name,
-  slug: draft.isSlugEdited
-    ? draft.slug
-    : organisations.suggestOrganisationSlug(name),
-});
-
-/** The draft after the applicant edits the address; it stops following the name. */
-export const withSlug = (
-  draft: ApplicationDraft,
-  slug: string,
-): ApplicationDraft => ({
-  ...draft,
-  slug: slug.toLowerCase(),
-  isSlugEdited: true,
-});
-
-/** The draft in another market: a state and city belong to one market, so both are cleared. */
-export const withMarket = (
-  draft: ApplicationDraft,
-  marketCode: string,
-): ApplicationDraft => ({ ...draft, marketCode, stateCode: '', cityCode: '' });
-
-/** The draft in another state: its city belonged to the state before, so it is cleared. */
-export const withState = (
-  draft: ApplicationDraft,
-  stateCode: string,
-): ApplicationDraft => ({ ...draft, stateCode, cityCode: '' });
 
 const withScheme = (url: string): string | null => {
   const trimmed = url.trim();
@@ -116,10 +58,7 @@ export const applicationFrom = (
   | { readonly ok: false; readonly field: ApplicationField } => {
   const parsed = organisations.organisationApplicationSchema.safeParse({
     name: draft.name,
-    slug: draft.slug,
     kind: draft.kind,
-    marketCode: draft.marketCode,
-    cityCode: draft.cityCode || null,
     description: draft.description,
     websiteUrl: withScheme(draft.websiteUrl),
   });

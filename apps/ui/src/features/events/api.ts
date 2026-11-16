@@ -15,7 +15,6 @@ import {
   getPublicAuthConfig,
   getRepeatEventTemplate,
   getUpcomingEvents,
-  listMyOrganisations,
   listNearbyVenues,
   reverseEventVenue,
   searchEventVenues,
@@ -45,7 +44,6 @@ export const eventsApi = {
     createEvent({ data: { ...input.data, attribution: browserCampaign() } }),
   createOrganisationEvent: (input: CreateOrganisationEventInput) =>
     createOrganisationEvent(input),
-  listMyOrganisations: () => listMyOrganisations({ data: {} }),
   updateEvent,
   getEvent,
   getHostedEvents,

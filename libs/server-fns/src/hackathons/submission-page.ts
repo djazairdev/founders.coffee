@@ -30,6 +30,7 @@ export type SubmissionPageView = {
   readonly submissionDeadlineAt: number;
   readonly stage: SubmissionStage;
   readonly aiPolicy: HackathonAiPolicy;
+  readonly aiPolicyNote: string | null;
   readonly registration: HackathonRegistrationStatus | null;
   readonly team: {
     readonly id: string;
@@ -80,7 +81,7 @@ export const submissionPageResolver = async (
 ): Promise<Result<SubmissionPageView>> => {
   const loaded = await loadTeamHackathon(db, input.eventId);
   if (!loaded.ok) return loaded;
-  const { event, timeline, aiPolicy } = loaded.data;
+  const { event, timeline, aiPolicy, aiPolicyNote } = loaded.data;
   const { status, membership } = await readParticipantStanding(db, input);
   const rows = membership
     ? await readSubmissionPageRows(db, {
@@ -103,6 +104,7 @@ export const submissionPageResolver = async (
     submissionDeadlineAt: timeline.submissionDeadlineAt,
     stage: stageAt(timeline, now),
     aiPolicy,
+    aiPolicyNote,
     registration: status,
     team:
       membership && rows?.teamName

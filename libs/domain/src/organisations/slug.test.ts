@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { organisationSlugSchema } from './schemas.js';
-import { suggestOrganisationSlug } from './slug.js';
+import { organisationSlugFor, suggestOrganisationSlug } from './slug.js';
 
 describe('suggestOrganisationSlug', () => {
   it('offers a lowercase hyphenated address without accents', () => {
@@ -45,5 +45,25 @@ describe('suggestOrganisationSlug', () => {
       if (slug)
         expect(organisationSlugSchema.safeParse(slug).success).toBe(true);
     }
+  });
+});
+
+describe('organisationSlugFor', () => {
+  it.each(['نادي البرمجة', 'AI', 'Admin', 'Founders Coffee', 'a'.repeat(80)])(
+    'allocates a valid fallback or shortened address for %s',
+    (name) => {
+      const slug = organisationSlugFor(name, '12345678');
+      expect(organisationSlugSchema.safeParse(slug).success).toBe(true);
+      expect(slug).toMatch(/-12345678$/u);
+    },
+  );
+
+  it('keeps the name when adding a collision suffix without trailing hyphens', () => {
+    expect(organisationSlugFor('Oran Makers', '12345678')).toBe(
+      'oran-makers-12345678',
+    );
+    expect(organisationSlugFor(`${'a'.repeat(30)} Builders`, '12345678')).toBe(
+      `${'a'.repeat(30)}-12345678`,
+    );
   });
 });

@@ -22,7 +22,6 @@ import {
   type EventFeedItem,
 } from '../events/resolver.js';
 import { attachAttendance } from '../events/attendance.js';
-import { resolveMarketHackathons, type MarketHackathon } from './hackathons.js';
 import { resolveTrendingStates, type TrendingSection } from './trending.js';
 
 export { resolveTrendingStates } from './trending.js';
@@ -32,7 +31,6 @@ export type {
   TrendingState,
 } from './trending.js';
 export type { TrendingHost } from './city-hosts.js';
-export type { MarketHackathon } from './hackathons.js';
 
 export type LandingFeed = {
   readonly afterStartsAt?: number;
@@ -47,7 +45,6 @@ export interface MarketWithCities {
   readonly eventsNextCursor: EventFeedCursor | null;
   readonly cityEventCounts: Record<string, number>;
   readonly trending: TrendingSection;
-  readonly hackathons: readonly MarketHackathon[];
   readonly cursorValid: boolean;
 }
 
@@ -147,7 +144,6 @@ export const resolveMarketLanding = async (
     cityEventCounts,
     trending,
     cursorValid,
-    upcomingHackathons,
   ] = await Promise.all([
     listEvents(db, {
       marketCode: market.code,
@@ -159,7 +155,6 @@ export const resolveMarketLanding = async (
     countUpcomingByCity(db, market.code),
     resolveTrendingStates(db, market.code),
     cursorNamesAPosition(db, { marketCode: market.code }, pagination),
-    resolveMarketHackathons(db, market),
   ]);
   const eventsWithAttendance = await attachAttendance(db, events);
   return ok({
@@ -169,7 +164,6 @@ export const resolveMarketLanding = async (
     eventsNextCursor,
     cityEventCounts,
     trending,
-    hackathons: upcomingHackathons,
     cursorValid,
   });
 };

@@ -1,11 +1,16 @@
 import type { CurrencyCode, Money } from '@founders-coffee/core';
 import { hackathons } from '@founders-coffee/domain';
 import {
+  formatNumber,
   hackathon_prize_error_description,
   hackathon_prize_error_note,
   hackathon_prize_error_place,
   hackathon_prize_error_provider,
   hackathon_prize_error_title,
+  hackathon_prize_place_first,
+  hackathon_prize_place_second,
+  hackathon_prize_place_third,
+  hackathon_prize_place_value,
   hackathon_prize_error_value,
   host_error_invalid,
   type Locale,
@@ -54,14 +59,41 @@ export const prizeFieldId = (formKey: string, field: PrizeField) =>
   `hackathon-prize-${formKey}-${field}`;
 
 /** A new prize's form: for the whole hackathon, in first place. */
-export const emptyPrize = (): PrizeDraft => ({
+export const emptyPrize = (place = '1'): PrizeDraft => ({
   trackId: '',
-  place: '1',
+  place,
   title: '',
   description: '',
   providerName: '',
   value: '',
 });
+
+export const nextAvailablePrizePlace = (
+  prizes: readonly Pick<HackathonPrizeView, 'place'>[],
+) => {
+  const occupied = new Set(prizes.map((prize) => prize.place));
+  for (let place = 1; place <= PRIZE_PLACE_MAX; place += 1) {
+    if (!occupied.has(place)) return String(place);
+  }
+  return '';
+};
+
+export const prizePlaceLabel = (place: number, locale: Locale) => {
+  const options = { locale };
+  switch (place) {
+    case 1:
+      return hackathon_prize_place_first({}, options);
+    case 2:
+      return hackathon_prize_place_second({}, options);
+    case 3:
+      return hackathon_prize_place_third({}, options);
+    default:
+      return hackathon_prize_place_value(
+        { place: formatNumber(place, locale) },
+        options,
+      );
+  }
+};
 
 /** An amount in minor units, written in major units the way an organiser types it back. */
 export const majorText = (money: Money): string => {
@@ -78,7 +110,7 @@ export const prizeDraftOf = (prize: HackathonPrizeView): PrizeDraft => ({
   place: String(prize.place),
   title: prize.title,
   description: prize.description,
-  providerName: prize.providerName,
+  providerName: prize.providerName ?? '',
   value: prize.value ? majorText(prize.value) : '',
 });
 
@@ -135,6 +167,7 @@ export const checkPrize = (
   draft: PrizeDraft,
   currency: CurrencyCode,
   locale: Locale,
+  isProviderRequired = false,
 ): PrizeCheck => {
   const value = valueOf(draft.value, currency);
   const parsed = hackathons.hackathonPrizeSchema.safeParse({
@@ -142,7 +175,7 @@ export const checkPrize = (
     place: Number(toLatinDigits(draft.place.trim())),
     title: draft.title,
     description: draft.description,
-    providerName: draft.providerName,
+    providerName: draft.providerName.trim() || null,
     value: value === 'invalid' ? null : value,
   });
   const failed = new Set<PrizeField>(
@@ -150,6 +183,8 @@ export const checkPrize = (
       ? []
       : parsed.error.issues.map((issue) => issue.path[0] as PrizeField),
   );
+  if (isProviderRequired && draft.providerName.trim() === '')
+    failed.add('providerName');
   if (value === 'invalid') failed.add('value');
   const first = FIELD_ORDER.find((field) => failed.has(field));
   if (!parsed.success || first) {

@@ -16,6 +16,7 @@ const renderStep = (
       timeZone={ALGIERS}
       startsAt={null}
       endsAt={null}
+      showValidation={false}
       onChange={onChange}
       onError={onError}
       {...props}
@@ -24,53 +25,48 @@ const renderStep = (
   return { onChange, onError };
 };
 
-const futureMonthDay = (day: number) => {
-  const next = new Date();
-  next.setDate(1);
-  next.setMonth(next.getMonth() + 1);
-  next.setDate(day);
-  return next;
-};
-
 describe('HackathonScheduleStep', () => {
   afterEach(cleanup);
 
-  it('opens on the saved kickoff and demo day', () => {
+  it('shows localized saved dates and 24-hour times', () => {
     renderStep({
       startsAt: Date.UTC(2099, 2, 12, 8, 30),
       endsAt: Date.UTC(2099, 2, 14, 16, 0),
     });
 
     expect(
-      (screen.getByLabelText('Kickoff time') as HTMLInputElement).value,
-    ).toBe('09:30');
-    expect(
-      (screen.getByLabelText('End of demo day') as HTMLInputElement).value,
-    ).toBe('17:00');
-    expect(
-      screen.getByText('Kickoff March 12 · Demo day March 14'),
+      screen.getByRole('button', { name: 'Start date March 12, 2099' }),
     ).toBeTruthy();
+    expect(
+      screen.getByRole('button', { name: 'End date March 14, 2099' }),
+    ).toBeTruthy();
+    expect(
+      (screen.getByLabelText('Start time') as HTMLInputElement).value,
+    ).toBe('09:30');
+    expect((screen.getByLabelText('End time') as HTMLInputElement).value).toBe(
+      '17:00',
+    );
+    expect(screen.getByText('March 12, 2099 – March 14, 2099')).toBeTruthy();
   });
 
-  it('sets kickoff and demo day from two days on the calendar', () => {
-    const { onChange } = renderStep();
-    const kickoff = futureMonthDay(10);
-    const demoDay = futureMonthDay(12);
+  it('selects a date from the React Day Picker calendar', () => {
+    const { onChange } = renderStep({
+      startsAt: Date.UTC(2099, 2, 12, 8, 0),
+      endsAt: Date.UTC(2099, 2, 14, 17, 0),
+    });
 
-    fireEvent.click(screen.getByRole('button', { name: /Next month/i }));
     fireEvent.click(
-      screen.getByRole('button', {
-        name: new RegExp(`${kickoff.getDate()}th`),
-      }),
+      screen.getByRole('button', { name: 'Start date March 12, 2099' }),
     );
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: new RegExp(`${demoDay.getDate()}th`),
-      }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: /March 13th, 2099/ }));
 
-    const [startsAt, endsAt] = onChange.mock.lastCall ?? [];
-    expect(endsAt - startsAt).toBe(2 * 86_400_000 + 9 * 3_600_000);
+    expect(
+      screen.getByRole('button', { name: 'Start date March 13, 2099' }),
+    ).toBeTruthy();
+    expect(onChange).toHaveBeenLastCalledWith(
+      Date.UTC(2099, 2, 13, 8, 0),
+      Date.UTC(2099, 2, 14, 17, 0),
+    );
   });
 
   it('reports a time that cannot be read and clears the schedule', () => {
@@ -79,12 +75,56 @@ describe('HackathonScheduleStep', () => {
       endsAt: Date.UTC(2099, 2, 14, 17, 0),
     });
 
-    fireEvent.change(screen.getByLabelText('Kickoff time'), {
+    fireEvent.change(screen.getByLabelText('Start time'), {
       target: { value: '' },
     });
 
     expect(onChange).toHaveBeenLastCalledWith(null, null);
     expect(onError).toHaveBeenLastCalledWith('invalid_wall_time');
+  });
+
+  it('shows required date validation after the organiser tries to continue', () => {
+    renderStep({ showValidation: true });
+
+    expect(
+      screen.getByLabelText('Start date').getAttribute('aria-invalid'),
+    ).toBe('true');
+    expect(screen.getByLabelText('End date').getAttribute('aria-invalid')).toBe(
+      'true',
+    );
+    expect(screen.getAllByText('Choose a date to continue.')).toHaveLength(2);
+  });
+
+  it('opens the calendar by keyboard and returns focus after Escape', () => {
+    renderStep({ showValidation: true });
+
+    const dateButton = screen.getByLabelText('Start date');
+    dateButton.focus();
+    fireEvent.keyDown(dateButton, { key: 'Enter' });
+    fireEvent.click(dateButton);
+
+    const calendar = screen.getByRole('dialog', { name: 'Start date' });
+    expect(calendar).toBeTruthy();
+    fireEvent.keyDown(calendar, { key: 'Escape' });
+    expect(screen.queryByRole('dialog', { name: 'Start date' })).toBeNull();
+    expect(document.activeElement).toBe(dateButton);
+  });
+
+  it('shows invalid time feedback when the value is outside the 24-hour format', () => {
+    renderStep({ showValidation: true });
+
+    fireEvent.change(screen.getByLabelText('Start time'), {
+      target: { value: '25:00' },
+    });
+
+    expect(
+      screen.getByLabelText('Start time').getAttribute('aria-invalid'),
+    ).toBe('true');
+    expect(
+      screen.getByText('Enter a valid 24-hour time, such as 09:00.', {
+        selector: '#hackathon-kickoff-time-validation',
+      }),
+    ).toBeTruthy();
   });
 
   it('shows the message it is given', () => {

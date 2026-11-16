@@ -14,6 +14,9 @@ export const HostMeetingLinkField = ({
   value,
   error,
   isDisabled = false,
+  label,
+  labelClassName,
+  hint,
   onChange,
 }: {
   id?: string;
@@ -21,13 +24,19 @@ export const HostMeetingLinkField = ({
   value: string;
   error?: string;
   isDisabled?: boolean;
+  label?: string;
+  labelClassName?: string;
+  hint?: string;
   onChange: (value: string) => void;
 }) => {
   const noteId = `${id}-note`;
   return (
     <div className="flex flex-col">
-      <label className="mb-1.5 text-body-sm text-neutral" htmlFor={id}>
-        {host_meeting_url_label({}, { locale })}
+      <label
+        className={labelClassName ?? 'mb-1.5 text-body-sm text-neutral'}
+        htmlFor={id}
+      >
+        {label ?? host_meeting_url_label({}, { locale })}
       </label>
       <Input
         aria-describedby={noteId}
@@ -48,7 +57,7 @@ export const HostMeetingLinkField = ({
         className={`mt-1.5 text-body-sm ${error ? 'text-error' : 'text-neutral'}`}
         id={noteId}
       >
-        {error ?? host_meeting_url_hint({}, { locale })}
+        {error ?? hint ?? host_meeting_url_hint({}, { locale })}
       </p>
     </div>
   );

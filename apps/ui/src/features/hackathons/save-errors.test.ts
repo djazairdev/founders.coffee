@@ -12,7 +12,7 @@ describe('hackathonSaveError', () => {
     expect(
       hackathonSaveError({ code: 'organisation_not_approved' }, 'en'),
     ).toBe(
-      'Only members of an approved organisation can create its hackathons.',
+      'Only members of an active organiser account can create its hackathons.',
     );
     expect(hackathonSaveError({ code: 'hackathons_disabled' }, 'fr')).toBe(
       'Les hackathons ne sont pas encore ouverts dans ce pays.',

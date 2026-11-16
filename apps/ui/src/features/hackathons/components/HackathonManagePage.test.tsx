@@ -63,20 +63,15 @@ describe('HackathonManagePage (B-HKN-12)', () => {
     mocks.draft.data = draftView();
     renderPage('ar');
 
-    expect(
-      screen.getByRole('heading', {
-        name: 'القواعد وشروط المشاركة',
-        level: 2,
-      }),
-    ).toBeTruthy();
-    expect(screen.getByLabelText('بدء التسجيل')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'حفظ' })).toBeTruthy();
+    expect(screen.getByText('الفرق وشروط المشاركة')).toBeTruthy();
+    expect(screen.getByText('فتح التسجيل')).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: 'حفظ' })).toHaveLength(2);
   });
 
   it('shows a hackathon with the reviewers as in review, instead of the forms', () => {
     mocks.draft.data = draftView({
       isEditable: false,
-      review: { status: 'submitted', note: null, gaps: [] },
+      review: { status: 'submitted', note: null },
     });
     renderPage();
 

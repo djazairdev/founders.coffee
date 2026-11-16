@@ -10,11 +10,14 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('../../features/events/hooks', () => ({
-  useMyOrganisations: () => ({ data: mocks.organisations }),
   useRepeatEventTemplate: (_eventId: string, enabled: boolean) => {
     mocks.templateEnabled = enabled;
     return { data: enabled ? mocks.template : undefined };
   },
+}));
+
+vi.mock('../../features/organisations/hooks', () => ({
+  useMyOrganisations: () => ({ data: mocks.organisations }),
 }));
 
 vi.mock('./RepeatHostLink', () => ({

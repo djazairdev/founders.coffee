@@ -1,5 +1,39 @@
 import { z } from 'zod';
 
+export const HACKATHON_FIELDS = [
+  'artificial_intelligence',
+  'software_development',
+  'cybersecurity',
+  'web_development',
+  'mobile_apps',
+  'robotics',
+  'internet_of_things',
+  'blockchain',
+  'fintech',
+  'health',
+  'education',
+  'environment_sustainability',
+  'smart_agriculture',
+  'smart_cities',
+  'games',
+  'design',
+  'social_innovation',
+  'entrepreneurship',
+  'cloud_computing',
+] as const;
+export type HackathonField = (typeof HACKATHON_FIELDS)[number];
+export const hackathonFieldSchema = z.enum(HACKATHON_FIELDS);
+
+export const HACKATHON_TYPE_TAGS = [
+  'open_topics',
+  'beginner_friendly',
+  'company_challenges',
+  'open_source',
+  'no_code',
+] as const;
+export type HackathonTypeTag = (typeof HACKATHON_TYPE_TAGS)[number];
+export const hackathonTypeTagSchema = z.enum(HACKATHON_TYPE_TAGS);
+
 export const HACKATHON_PHASES = [
   'upcoming',
   'registration_open',
@@ -130,8 +164,8 @@ export type HackathonResultTieNote =
 
 export const HACKATHON_AI_POLICIES = [
   'disclosed',
-  'ai_native',
-  'restricted',
+  'conditional',
+  'not_allowed',
 ] as const;
 export type HackathonAiPolicy = (typeof HACKATHON_AI_POLICIES)[number];
 export const hackathonAiPolicySchema = z.enum(HACKATHON_AI_POLICIES);

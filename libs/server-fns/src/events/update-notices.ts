@@ -122,11 +122,14 @@ const announceToChat = async (
   db: Db,
   opts: { after: Event; notice: EventChangeTemplateKey | null },
 ): Promise<void> => {
-  if (!hasVenue(opts.after)) return;
+  const event = opts.after;
+  const cityCode = event.cityCode;
+  if (!hasVenue(event) || !cityCode) return;
+  const venueEvent = { ...event, cityCode };
   if (opts.notice === 'event_rescheduled')
-    await postChatNotice(db, opts.after.id, rescheduledNotice(opts.after));
+    await postChatNotice(db, event.id, rescheduledNotice(venueEvent));
   else if (opts.notice === 'event_relocated')
-    await postChatNotice(db, opts.after.id, relocatedNotice(opts.after));
+    await postChatNotice(db, event.id, relocatedNotice(venueEvent));
 };
 
 /**

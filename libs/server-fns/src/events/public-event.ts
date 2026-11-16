@@ -1,6 +1,10 @@
 import type { Event } from '@founders-coffee/db';
 
-export type PublicEvent = Omit<Event, 'meetingUrl'>;
+export type PublicEvent = Omit<
+  Event,
+  'meetingUrl' | 'hackathonFields' | 'hackathonTypeTags'
+> &
+  Partial<Pick<Event, 'hackathonFields' | 'hackathonTypeTags'>>;
 
 /**
  * An event as anyone may read it. A public meeting link invites strangers into an online event, so

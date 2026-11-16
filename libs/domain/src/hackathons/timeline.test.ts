@@ -48,9 +48,9 @@ describe('hackathonTimelineSchema', () => {
       'registrationClosesAt',
     ],
     [
-      'registration closing after kickoff',
-      { registrationClosesAt: FIRST.kickoffAt + 1 },
-      'kickoffAt',
+      'registration closing after submissions',
+      { registrationClosesAt: FIRST.submissionDeadlineAt + 1 },
+      'registrationClosesAt',
     ],
     [
       'submissions closing at kickoff',

@@ -10,6 +10,9 @@ const organisation = (
   overrides: Partial<OrganisationView> = {},
 ): OrganisationView => ({
   id: 'org_codeclub',
+  logo: null,
+  canEdit: false,
+  canDelete: false,
   name: 'Code Club Alger',
   slug: 'code-club-alger',
   kind: 'club',

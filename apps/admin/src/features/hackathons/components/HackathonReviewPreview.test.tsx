@@ -10,6 +10,7 @@ afterEach(() => cleanup());
 
 const item: HackathonReviewItem = {
   eventId: 'evt_review',
+  version: 1,
   title: 'Algiers Builders Hackathon',
   description: 'Two days of building with founders across Algiers.',
   marketCode: 'DZ',
@@ -18,7 +19,7 @@ const item: HackathonReviewItem = {
   endsAt: new Date('2026-12-07T08:00:00Z'),
   timeZone: 'Africa/Algiers',
   organisation: { name: 'Algiers Builders', slug: 'algiers-builders' },
-  submittedAt: new Date('2026-10-22T09:00:00Z'),
+  updatedAt: new Date('2026-10-22T09:00:00Z'),
   registrationOpensAt: new Date('2026-11-01T08:00:00Z'),
   registrationClosesAt: new Date('2026-12-04T08:00:00Z'),
   submissionDeadlineAt: new Date('2026-12-07T07:00:00Z'),
@@ -33,7 +34,7 @@ const item: HackathonReviewItem = {
   meetingUrl: 'https://meet.example.com/builders',
   languages: ['ar', 'fr'],
   attendanceModes: ['in_person', 'online'],
-  aiPolicy: 'ai_native',
+  aiPolicy: 'conditional',
   aiPolicyNote: 'Any assistant, named in the submission.',
   licenceNote: null,
   tracks: [

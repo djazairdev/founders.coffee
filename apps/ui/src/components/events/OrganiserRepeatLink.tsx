@@ -1,9 +1,7 @@
 import type { Locale } from '@founders-coffee/i18n';
 
-import {
-  useMyOrganisations,
-  useRepeatEventTemplate,
-} from '../../features/events/hooks';
+import { useRepeatEventTemplate } from '../../features/events/hooks';
+import { useMyOrganisations } from '../../features/organisations/hooks';
 import { RepeatHostLink } from './RepeatHostLink';
 
 export const OrganiserRepeatLink = ({

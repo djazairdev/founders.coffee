@@ -11,7 +11,6 @@ import {
   admin_org_stale,
   admin_org_status_approved,
   admin_org_status_label,
-  admin_org_status_pending,
   admin_org_status_rejected,
   admin_org_status_suspended,
   admin_org_unavailable,
@@ -30,7 +29,6 @@ import type { OrganisationReviewSearch } from '../search';
 import { OrganisationReviewCard } from './OrganisationReviewCard';
 
 const STATUSES: readonly [OrganisationStatus, typeof admin_org_heading][] = [
-  ['pending', admin_org_status_pending],
   ['approved', admin_org_status_approved],
   ['suspended', admin_org_status_suspended],
   ['rejected', admin_org_status_rejected],

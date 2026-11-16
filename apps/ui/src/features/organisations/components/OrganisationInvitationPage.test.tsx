@@ -89,9 +89,7 @@ describe('OrganisationInvitationPage (B-ORG-10)', () => {
 
     expect(await screen.findByText(/You joined/)).toBeTruthy();
     expect(mocks.acceptInvitation).toHaveBeenCalledWith('inv_1');
-    expect(
-      screen.getByRole('link', { name: 'See your organisation' }),
-    ).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Manage organiser' })).toBeTruthy();
   });
 
   it('declines, and says that it did', async () => {
@@ -114,9 +112,7 @@ describe('OrganisationInvitationPage (B-ORG-10)', () => {
     renderPage();
 
     expect(await screen.findByText(/no longer belong/u)).toBeTruthy();
-    expect(
-      screen.queryByRole('link', { name: 'See your organisation' }),
-    ).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Manage organiser' })).toBeNull();
   });
 
   it('says when an answer could not be saved', async () => {

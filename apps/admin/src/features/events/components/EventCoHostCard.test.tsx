@@ -106,7 +106,7 @@ describe("an event's co-hosts, for an operator (B-EVT-20)", () => {
       ),
     ).toBeTruthy();
     expect(
-      screen.getByText('No other approved organisation in this market.'),
+      screen.getByText('No other active organiser in this country.'),
     ).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Add' })).toBeNull();
   });

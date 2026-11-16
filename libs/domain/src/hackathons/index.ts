@@ -99,6 +99,7 @@ export {
   type SubmissionSubmitInput,
 } from './submission-submit.js';
 export {
+  checkAiToolsPolicy,
   checkSubmission,
   SUBMISSION_AI_TOOL_LIMIT,
   SUBMISSION_PULL_REQUEST_LIMIT,
@@ -111,13 +112,25 @@ export {
   HACKATHON_NOTE_MAX_LENGTH,
   HACKATHON_RULES_MAX_LENGTH,
   hackathonDetailsFor,
+  hackathonDeadlinesFor,
+  hackathonDeadlinesSchema,
   hackathonDetailsSchema,
+  hackathonSettingsSchema,
+  hackathonSettingsFor,
   hackathonDraftSchema,
   type HackathonDetailsInput,
+  type HackathonDeadlinesInput,
+  type HackathonSettingsInput,
   type HackathonDraft,
   type HackathonEventFrame,
 } from './draft.js';
-export { hackathonBasicsSchema, type HackathonBasics } from './basics.js';
+export {
+  HACKATHON_DESCRIPTION_MAX_LENGTH,
+  HACKATHON_EVENT_FIELDS,
+  hackathonBasicsSchema,
+  hackathonDescriptionSchema,
+  type HackathonBasics,
+} from './basics.js';
 export {
   HACKATHON_TRACK_LIMIT,
   HACKATHON_TRACK_SOURCE_LIMIT,
@@ -173,14 +186,9 @@ export {
 } from './withdrawal.js';
 export {
   decideHackathonReview,
-  decideSubmission,
-  HACKATHON_READINESS_GAPS,
   HACKATHON_REJECTION_NOTE_MIN_LENGTH,
   HACKATHON_REVIEW_NOTE_MAX_LENGTH,
-  hackathonReadinessGaps,
   hackathonReviewDecisionSchema,
-  hackathonSubmitSchema,
-  type HackathonReadinessGap,
   type HackathonReviewDecision,
   type HackathonReviewDecisionInput,
 } from './review.js';

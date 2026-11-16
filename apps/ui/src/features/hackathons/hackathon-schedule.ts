@@ -67,9 +67,8 @@ const resolveAt = (
 };
 
 /**
- * Kickoff and the end of demo day as instants, from the days picked on the calendar and the two
- * times, read in the market's time zone. One day picked is a hackathon that ends the day it starts.
- * No day yet is no schedule yet, and a time that does not exist there says why.
+ * Start and end as instants, from the chosen dates and times in the market's time zone.
+ * Missing dates leave the schedule empty; a time that does not exist there reports why.
  */
 export const resolveHackathonSchedule = (
   days: ScheduleDays | undefined,

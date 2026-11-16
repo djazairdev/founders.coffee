@@ -95,6 +95,8 @@ import {
   RSVP_STATUSES,
   USER_ROLES,
   type AttendanceMode,
+  type HackathonField,
+  type HackathonTypeTag,
   type HackathonCriterionScale,
   type Topic,
 } from '@founders-coffee/core';
@@ -408,8 +410,8 @@ export const events = sqliteTable(
     marketCode: text('market_code')
       .notNull()
       .references(() => markets.code),
-    stateCode: text('state_code').notNull(),
-    cityCode: text('city_code').notNull(),
+    stateCode: text('state_code'),
+    cityCode: text('city_code'),
     title: text('title').notNull(),
     description: text('description').notNull(),
     venue: text('venue'),
@@ -433,6 +435,14 @@ export const events = sqliteTable(
       .default('meetup'),
     tags: text('tags', { mode: 'json' })
       .$type<Topic[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    hackathonFields: text('hackathon_fields', { mode: 'json' })
+      .$type<HackathonField[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    hackathonTypeTags: text('hackathon_type_tags', { mode: 'json' })
+      .$type<HackathonTypeTag[]>()
       .notNull()
       .default(sql`'[]'`),
     format: text('format', { enum: [...EVENT_FORMATS] })
@@ -462,7 +472,10 @@ export const events = sqliteTable(
 );
 
 export type Event = typeof events.$inferSelect;
-export type VenuedEvent = Event & { readonly venue: string };
+export type VenuedEvent = Event & {
+  readonly venue: string;
+  readonly cityCode: string;
+};
 export type NewEvent = typeof events.$inferInsert;
 
 /**
@@ -573,6 +586,28 @@ export const hackathons = sqliteTable(
 export type Hackathon = typeof hackathons.$inferSelect;
 export type NewHackathon = typeof hackathons.$inferInsert;
 
+export const hackathonSectionDrafts = sqliteTable(
+  'hackathon_section_drafts',
+  {
+    eventId: text('event_id')
+      .primaryKey()
+      .references(() => events.id, { onDelete: 'cascade' }),
+    deadlines: text('deadlines', { mode: 'json' }).$type<unknown>(),
+    settings: text('settings', { mode: 'json' }).$type<unknown>(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    check(
+      'hackathon_section_drafts_content_check',
+      sql`(${table.deadlines} IS NOT NULL OR ${table.settings} IS NOT NULL) AND (${table.deadlines} IS NULL OR json_valid(${table.deadlines})) AND (${table.settings} IS NULL OR json_valid(${table.settings}))`,
+    ),
+  ],
+);
+
+export type HackathonSectionDraft = typeof hackathonSectionDrafts.$inferSelect;
+
 /**
  * What a hackathon's teams build (B-HKN-03): a founder's real problem, a partner's technology, or the
  * open-source track. A partner technology track names its partner; an open-source track lists the
@@ -643,7 +678,7 @@ export const hackathonPrizes = sqliteTable(
     place: integer('place').notNull(),
     title: text('title').notNull(),
     description: text('description').notNull(),
-    providerName: text('provider_name').notNull(),
+    providerName: text('provider_name'),
     valueAmountMinor: integer('value_amount_minor'),
     valueCurrency: text('value_currency', { enum: [...CURRENCY_CODES] }),
     confirmedAt: integer('confirmed_at', { mode: 'timestamp' }),
@@ -2267,8 +2302,8 @@ export const eventCloseouts = sqliteTable(
     marketCode: text('market_code')
       .notNull()
       .references(() => markets.code),
-    stateCode: text('state_code').notNull(),
-    cityCode: text('city_code').notNull(),
+    stateCode: text('state_code'),
+    cityCode: text('city_code'),
     outcome: text('outcome', { enum: [...CLOSEOUT_OUTCOMES] }).notNull(),
     walkInCount: integer('walk_in_count').notNull().default(0),
     wouldHostAgain: integer('would_host_again', { mode: 'boolean' }),
@@ -2319,8 +2354,8 @@ export const eventAttendance = sqliteTable(
     marketCode: text('market_code')
       .notNull()
       .references(() => markets.code),
-    stateCode: text('state_code').notNull(),
-    cityCode: text('city_code').notNull(),
+    stateCode: text('state_code'),
+    cityCode: text('city_code'),
     outcome: text('outcome', { enum: [...ATTENDANCE_OUTCOMES] }).notNull(),
     recordedByUserId: text('recorded_by_user_id')
       .notNull()
@@ -2361,8 +2396,8 @@ export const eventFeedback = sqliteTable(
     marketCode: text('market_code')
       .notNull()
       .references(() => markets.code),
-    stateCode: text('state_code').notNull(),
-    cityCode: text('city_code').notNull(),
+    stateCode: text('state_code'),
+    cityCode: text('city_code'),
     valueRating: text('value_rating', {
       enum: [...FEEDBACK_RATINGS],
     }).notNull(),

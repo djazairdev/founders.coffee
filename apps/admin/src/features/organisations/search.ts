@@ -8,14 +8,15 @@ export type OrganisationReviewSearch = {
   readonly page: number;
 };
 
-/** The queue's status and page from the address, falling back to the first page of pending ones. */
+/** The queue's status and page from the address, falling back to the first page of active organisers. */
 export const readOrganisationReviewSearch = (
   search: Record<string, unknown>,
 ): OrganisationReviewSearch => {
   const status = organisationStatusSchema.safeParse(search.status);
   const page = Number(search.page);
   return {
-    status: status.success ? status.data : 'pending',
+    status:
+      status.success && status.data !== 'pending' ? status.data : 'approved',
     page: Number.isInteger(page) && page > 0 && page <= 1000 ? page : 0,
   };
 };

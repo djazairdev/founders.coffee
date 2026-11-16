@@ -23,7 +23,7 @@ export type OrganisationInvitationSender = (
  * Organisations, their members, roles and invitations come from the plugin rather than new tables.
  * Teams stay off: a hackathon team is not a team of the organiser, and its participants are not
  * the organiser's members. Our fields sit on the organisation row; `status` cannot be sent by a
- * caller, so every organisation starts `pending` until an operator approves it. Roles carry our
+ * caller; organisations are active immediately, while hackathons require publication review. Roles carry our
  * organising grants (B-ORG-02) beside Better Auth's own.
  *
  * An invitation lasts seven days, and only a member whose address is verified may accept or decline
@@ -60,7 +60,7 @@ export const organisationPlugin = (
             type: 'string',
             required: false,
             input: false,
-            defaultValue: 'pending',
+            defaultValue: 'approved',
           },
           marketCode: { type: 'string', required: true },
           cityCode: { type: 'string', required: false },

@@ -1,66 +1,48 @@
+import { Save } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 import {
+  direction,
   optional,
-  org_apply_description,
-  org_apply_description_hint,
+  save,
+  saving,
   org_apply_error_failed,
   org_apply_error_rate_limited,
-  org_apply_error_slug_taken,
   org_apply_kind,
   org_apply_kind_choose,
-  org_apply_name,
-  org_apply_slug,
-  org_apply_slug_hint,
-  org_apply_submit,
-  org_apply_website,
-  sending,
   type Locale,
 } from '@founders-coffee/i18n';
 import {
   fieldNoteId,
   FormField,
-  Input,
-  Select,
+  ListboxSelect,
   StatusMessage,
 } from '@founders-coffee/ui';
 
 import { HackathonsUnavailable } from '../../hackathons/components/HackathonsUnavailable';
-import type { RootMarket } from '../../markets/api';
 import {
   APPLICANT_KINDS,
   applicationFrom,
-  DESCRIPTION_LENGTH,
   emptyApplication,
-  NAME_LENGTH,
-  SLUG_MAX_LENGTH,
-  withMarket,
-  withName,
-  withSlug,
-  withState,
   type ApplicationField as Field,
   type ApplicationDraft,
 } from '../application';
 import { applicationFieldError, applicationRefusal } from '../errors';
 import { useApplyForOrganisation } from '../hooks';
+import { OrganisationDetailsFields } from './OrganisationDetailsFields';
 import { KIND_LABELS } from '../kind-labels';
-import { OrganisationLocationFields } from './OrganisationLocationFields';
 
-type Problem = 'slug_taken' | 'unavailable' | 'rate_limited' | 'failed';
+type Problem = 'unavailable' | 'rate_limited' | 'failed';
 type Focusable = { focus: () => void };
 
 export const OrganisationApplyForm = ({
   locale,
-  markets,
-  defaultMarketCode,
   onSent,
 }: {
   locale: Locale;
-  markets: readonly RootMarket[];
-  defaultMarketCode: string;
   onSent: (sent: { readonly name: string; readonly slug: string }) => void;
 }) => {
-  const [draft, setDraft] = useState(() => emptyApplication(defaultMarketCode));
+  const [draft, setDraft] = useState(emptyApplication);
   const [invalid, setInvalid] = useState<Field | null>(null);
   const [problem, setProblem] = useState<Problem | null>(null);
   const apply = useApplyForOrganisation();
@@ -80,7 +62,6 @@ export const OrganisationApplyForm = ({
   const change = (field: Field, next: ApplicationDraft) => {
     setDraft(next);
     if (invalid === field) setInvalid(null);
-    if (field === 'slug' && problem === 'slug_taken') setProblem(null);
   };
 
   const point = (field: Field) => {
@@ -98,176 +79,62 @@ export const OrganisationApplyForm = ({
       return;
     }
     try {
-      await apply.mutateAsync(checked.application);
-      onSent({
-        name: checked.application.name,
-        slug: checked.application.slug,
-      });
+      const created = await apply.mutateAsync(checked.application);
+      onSent({ name: created.name, slug: created.slug });
     } catch (caught) {
       const refusal = applicationRefusal(caught);
       if (refusal.kind === 'hackathons_disabled') setProblem('unavailable');
-      else if (refusal.kind === 'field') point(refusal.field);
-      else if (refusal.kind === 'slug_taken') {
-        setProblem('slug_taken');
-        point('slug');
-      } else
+      else
         setProblem(refusal.kind === 'rate_limited' ? 'rate_limited' : 'failed');
     }
   };
 
-  const errorFor = (field: Field): string | null => {
-    if (field === 'slug' && problem === 'slug_taken')
-      return org_apply_error_slug_taken({}, { locale });
-    return invalid === field ? applicationFieldError(field, locale) : null;
-  };
+  const errorFor = (field: Field): string | null =>
+    invalid === field ? applicationFieldError(field, locale) : null;
 
-  const describe = (field: Field, id: string, hasHint = false) => ({
+  const describe = (field: Field, id: string) => ({
     'aria-invalid': errorFor(field) ? true : undefined,
-    'aria-describedby':
-      errorFor(field) || hasHint ? fieldNoteId(id) : undefined,
+    'aria-describedby': errorFor(field) ? fieldNoteId(id) : undefined,
   });
   const optionalLabel = optional({}, { locale });
 
   return (
     <form className="space-y-5" noValidate onSubmit={submit}>
-      <FormField
-        error={errorFor('name')}
-        id="organisation-name"
-        label={org_apply_name({}, { locale })}
-        optionalLabel={optionalLabel}
-      >
-        <Input
-          {...describe('name', 'organisation-name')}
-          autoComplete="organization"
-          disabled={isBusy}
-          id="organisation-name"
-          maxLength={NAME_LENGTH.max}
-          onChange={(event) =>
-            change('name', withName(draft, event.target.value))
-          }
-          ref={bind('name')}
-          value={draft.name}
-        />
-      </FormField>
-      <FormField
-        error={errorFor('slug')}
-        hint={org_apply_slug_hint({}, { locale })}
-        id="organisation-slug"
-        label={org_apply_slug({}, { locale })}
-        optionalLabel={optionalLabel}
-      >
-        <Input
-          {...describe('slug', 'organisation-slug', true)}
-          autoCapitalize="off"
-          autoComplete="off"
-          dir="ltr"
-          disabled={isBusy}
-          id="organisation-slug"
-          maxLength={SLUG_MAX_LENGTH}
-          onChange={(event) =>
-            change('slug', withSlug(draft, event.target.value))
-          }
-          ref={bind('slug')}
-          spellCheck={false}
-          value={draft.slug}
-        />
-      </FormField>
-      <FormField
-        error={errorFor('kind')}
-        id="organisation-kind"
-        label={org_apply_kind({}, { locale })}
-        optionalLabel={optionalLabel}
-      >
-        <Select
-          {...describe('kind', 'organisation-kind')}
-          disabled={isBusy}
-          id="organisation-kind"
-          onChange={(event) =>
-            change('kind', {
-              ...draft,
-              kind: event.target.value as ApplicationDraft['kind'],
-            })
-          }
-          ref={bind('kind')}
-          value={draft.kind}
-        >
-          <option disabled value="">
-            {org_apply_kind_choose({}, { locale })}
-          </option>
-          {APPLICANT_KINDS.map((kind) => (
-            <option key={kind} value={kind}>
-              {KIND_LABELS[kind]({}, { locale })}
-            </option>
-          ))}
-        </Select>
-      </FormField>
-      <OrganisationLocationFields
-        cityCode={draft.cityCode}
-        cityRef={bind('cityCode')}
-        isCityInvalid={invalid === 'cityCode'}
-        isDisabled={isBusy}
+      <OrganisationDetailsFields
         locale={locale}
-        marketCode={draft.marketCode}
-        markets={markets}
-        onCity={(cityCode) => change('cityCode', { ...draft, cityCode })}
-        onMarket={(marketCode) =>
-          change('marketCode', withMarket(draft, marketCode))
-        }
-        onState={(stateCode) => change('cityCode', withState(draft, stateCode))}
-        stateCode={draft.stateCode}
-      />
-      <FormField
-        aside={
-          <span className="shrink-0 text-caption text-neutral" dir="ltr">
-            {draft.description.trim().length} / {DESCRIPTION_LENGTH.max}
-          </span>
-        }
-        error={errorFor('description')}
-        hint={org_apply_description_hint({}, { locale })}
-        id="organisation-description"
-        label={org_apply_description({}, { locale })}
-        optionalLabel={optionalLabel}
+        draft={draft}
+        isBusy={isBusy}
+        errorFor={errorFor}
+        change={(field, next) => change(field, { ...draft, ...next })}
+        bind={bind}
       >
-        <textarea
-          {...describe('description', 'organisation-description', true)}
-          className="textarea textarea-sm md:textarea-md w-full"
-          dir="auto"
-          disabled={isBusy}
-          id="organisation-description"
-          maxLength={DESCRIPTION_LENGTH.max}
-          onChange={(event) =>
-            change('description', {
-              ...draft,
-              description: event.target.value,
-            })
-          }
-          ref={bind('description')}
-          rows={5}
-          value={draft.description}
-        />
-      </FormField>
-      <FormField
-        error={errorFor('websiteUrl')}
-        id="organisation-website"
-        isOptional
-        label={org_apply_website({}, { locale })}
-        optionalLabel={optionalLabel}
-      >
-        <Input
-          {...describe('websiteUrl', 'organisation-website')}
-          autoComplete="url"
-          disabled={isBusy}
-          id="organisation-website"
-          inputMode="url"
-          onChange={(event) =>
-            change('websiteUrl', { ...draft, websiteUrl: event.target.value })
-          }
-          placeholder="https://"
-          ref={bind('websiteUrl')}
-          type="url"
-          value={draft.websiteUrl}
-        />
-      </FormField>
+        <FormField
+          error={errorFor('kind')}
+          id="organisation-kind"
+          label={org_apply_kind({}, { locale })}
+          optionalLabel={optionalLabel}
+        >
+          <ListboxSelect
+            {...describe('kind', 'organisation-kind')}
+            dir={direction(locale)}
+            disabled={isBusy}
+            id="organisation-kind"
+            onChange={(kind) =>
+              change('kind', {
+                ...draft,
+                kind: kind as ApplicationDraft['kind'],
+              })
+            }
+            options={APPLICANT_KINDS.map((kind) => ({
+              value: kind,
+              label: KIND_LABELS[kind]({}, { locale }),
+            }))}
+            placeholder={org_apply_kind_choose({}, { locale })}
+            ref={bind('kind')}
+            value={draft.kind}
+          />
+        </FormField>
+      </OrganisationDetailsFields>
       {problem === 'unavailable' ? (
         <HackathonsUnavailable locale={locale} />
       ) : null}
@@ -283,7 +150,8 @@ export const OrganisationApplyForm = ({
         disabled={isBusy}
         type="submit"
       >
-        {isBusy ? sending({}, { locale }) : org_apply_submit({}, { locale })}
+        <Save aria-hidden="true" className="size-4" />
+        {isBusy ? saving({}, { locale }) : save({}, { locale })}
       </button>
     </form>
   );

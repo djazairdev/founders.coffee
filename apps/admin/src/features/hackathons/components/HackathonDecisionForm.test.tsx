@@ -12,6 +12,7 @@ const renderForm = (locale: 'en' | 'ar' = 'en') => {
   render(
     <HackathonDecisionForm
       eventId={EVENT_ID}
+      version={1}
       isDeciding={false}
       locale={locale}
       onDecide={onDecide}

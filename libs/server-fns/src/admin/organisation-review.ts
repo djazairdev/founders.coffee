@@ -74,7 +74,7 @@ export const listOrganisationReviewQueueResolver = async (
 };
 
 /**
- * Approve, reject, suspend or reinstate an organisation, as an operator (B-ORG-06).
+ * Suspend or reinstate an organisation, as an operator (B-ORG-06).
  *
  * The decision has to fit the status the organisation is in, and is written only if that status has
  * not moved since, with its audit entry in the same batch. The owners are then told by email; a

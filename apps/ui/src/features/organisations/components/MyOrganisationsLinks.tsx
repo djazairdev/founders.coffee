@@ -4,7 +4,7 @@ import { activity_organisations, type Locale } from '@founders-coffee/i18n';
 
 import { useAuth } from '../../../lib/app-providers';
 import { localizedMyOrganisation } from '../../../lib/locale-routing';
-import { useMyOrganisations } from '../../events/hooks';
+import { useMyOrganisations } from '../hooks';
 
 export const MyOrganisationsLinks = ({ locale }: { locale: Locale }) => {
   const { isAuthenticated } = useAuth();

@@ -18,13 +18,13 @@ import {
 
 import { TEST_HOST_ID } from '../events/resolver.fixtures.js';
 import { announceUpdate } from '../events/update-notices.js';
-import { saveHackathonDetailsResolver } from '../hackathons/details.js';
 import {
   DAY,
   detailsFor,
   hackathonWithDetails,
   HOUR,
   ORGANISATION,
+  saveHackathonDetailsFixture as saveHackathonDetailsResolver,
   setupHackathonDb,
 } from '../hackathons/edit.fixtures.js';
 import {

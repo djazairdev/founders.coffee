@@ -8,17 +8,18 @@ import {
   hackathon_tracks_locked_hint,
   hackathon_tracks_needs_details,
   hackathon_tracks_save,
-  hackathon_tracks_saved,
   type Locale,
 } from '@founders-coffee/i18n';
 import { Button, StatusMessage } from '@founders-coffee/ui';
 
 import type { HackathonDraftView } from '../api';
+import type { HackathonFeedback } from '../hackathon-feedback';
 import { TRACK_LIMIT } from '../hackathon-tracks-form';
 import {
   TRACKS_ADD_ID,
   useHackathonTracksForm,
 } from '../useHackathonTracksForm';
+import { HackathonSaveButton } from './HackathonSaveButton';
 import { HackathonTrackEditor } from './HackathonTrackEditor';
 
 const HEADING_ID = 'hackathon-tracks-heading';
@@ -26,11 +27,13 @@ const HEADING_ID = 'hackathon-tracks-heading';
 const TracksForm = ({
   draft,
   locale,
+  onFeedback,
 }: {
   draft: HackathonDraftView;
   locale: Locale;
+  onFeedback: HackathonFeedback;
 }) => {
-  const form = useHackathonTracksForm({ draft, locale });
+  const form = useHackathonTracksForm({ draft, locale, onFeedback });
   return (
     <form
       noValidate
@@ -71,20 +74,12 @@ const TracksForm = ({
       {form.listError ? (
         <StatusMessage variant="error">{form.listError}</StatusMessage>
       ) : null}
-      {form.saveError ? (
-        <StatusMessage variant="error">{form.saveError}</StatusMessage>
-      ) : null}
-      {form.isSaved ? (
-        <StatusMessage variant="success">
-          {hackathon_tracks_saved({}, { locale })}
-        </StatusMessage>
-      ) : null}
       <div>
-        <Button type="submit" variant="primary" isBusy={form.isSaving}>
+        <HackathonSaveButton type="submit" isBusy={form.isSaving}>
           {form.isSaving
             ? hackathon_details_saving({}, { locale })
             : hackathon_tracks_save({}, { locale })}
-        </Button>
+        </HackathonSaveButton>
       </div>
     </form>
   );
@@ -93,9 +88,11 @@ const TracksForm = ({
 export const HackathonTracksSection = ({
   draft,
   locale,
+  onFeedback,
 }: {
   draft: HackathonDraftView;
   locale: Locale;
+  onFeedback: HackathonFeedback;
 }) => (
   <section aria-labelledby={HEADING_ID} className="mt-12">
     <h2 id={HEADING_ID} className="font-display text-h4">
@@ -105,7 +102,7 @@ export const HackathonTracksSection = ({
       {hackathon_tracks_hint({ max: TRACK_LIMIT }, { locale })}
     </p>
     {draft.details ? (
-      <TracksForm draft={draft} locale={locale} />
+      <TracksForm draft={draft} locale={locale} onFeedback={onFeedback} />
     ) : (
       <StatusMessage variant="info">
         {hackathon_tracks_needs_details({}, { locale })}

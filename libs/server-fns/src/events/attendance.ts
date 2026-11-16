@@ -14,9 +14,9 @@ export type EventWithAttendance = PublicEvent & EventAttendance;
 export type EventDetailItem = EventWithAttendance & {
   readonly meetingLink: string | null;
   readonly runBy: EventRunBy;
-  readonly cityName: string;
-  readonly cityNameAr: string;
-  readonly cityNameFr: string;
+  readonly cityName: string | null;
+  readonly cityNameAr: string | null;
+  readonly cityNameFr: string | null;
   readonly citySlug: string | null;
   readonly stateName: string | null;
   readonly stateNameAr: string | null;

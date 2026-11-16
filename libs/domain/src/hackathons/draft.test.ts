@@ -16,6 +16,8 @@ const draft = (overrides: Record<string, unknown> = {}) => ({
   startsAt: kickoff,
   endsAt: kickoff + 2 * DAY,
   languages: ['ar', 'fr'],
+  hackathonFields: ['artificial_intelligence'],
+  hackathonTypeTags: ['open_topics'],
   registrationOpensAt: Date.now() + DAY,
   registrationClosesAt: kickoff - DAY,
   submissionDeadlineAt: kickoff + 2 * DAY - 3_600_000,
@@ -80,10 +82,13 @@ describe('a hackathon draft (B-HKN-06)', () => {
     );
   });
 
-  it('places registration before kickoff and judging after demo day', () => {
-    expect(pathsOf(draft({ registrationClosesAt: kickoff + DAY }))).toContain(
-      'startsAt',
-    );
+  it('allows late registration until submissions and judging after demo day', () => {
+    expect(
+      pathsOf(draft({ registrationClosesAt: kickoff + DAY })),
+    ).not.toContain('registrationClosesAt');
+    expect(
+      pathsOf(draft({ registrationClosesAt: kickoff + 2 * DAY })),
+    ).toContain('registrationClosesAt');
     expect(
       pathsOf(draft({ registrationClosesAt: Date.now() + DAY / 2 })),
     ).toContain('registrationClosesAt');
@@ -119,7 +124,7 @@ describe('a hackathon draft (B-HKN-06)', () => {
     ).toEqual([]);
   });
 
-  it('holds the event fields to their own rules: a venue in person, a link online', () => {
+  it('requires a venue in person but no external link online', () => {
     expect(pathsOf(draft({ venueName: undefined }))).toContain('venueName');
     expect(
       pathsOf(
@@ -133,7 +138,7 @@ describe('a hackathon draft (B-HKN-06)', () => {
           attendanceModes: ['online'],
         }),
       ),
-    ).toContain('meetingUrl');
+    ).toEqual([]);
   });
 
   it('keeps its optional limits sane, and refuses anything it does not know', () => {

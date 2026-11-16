@@ -32,7 +32,7 @@ export const HostDetailsStep = ({
   locale: Locale;
   title: string;
   description: string;
-  languages: readonly MeetupLanguage[];
+  languages?: readonly MeetupLanguage[];
   tags?: readonly Topic[];
   constraints: {
     titleMin: number;
@@ -43,15 +43,15 @@ export const HostDetailsStep = ({
   errors: HostCreateFieldErrors;
   onTitleChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
-  onLanguagesChange: (value: MeetupLanguage[]) => void;
+  onLanguagesChange?: (value: MeetupLanguage[]) => void;
   onTagsChange?: (value: Topic[]) => void;
   copy?: {
     titleLabel: string;
     titlePlaceholder: string;
     descriptionLabel: string;
     descriptionPlaceholder: string;
-    languagesLabel: string;
-    languagesHint: string;
+    languagesLabel?: string;
+    languagesHint?: string;
   };
 }) => (
   <div className="grid gap-5">
@@ -136,15 +136,17 @@ export const HostDetailsStep = ({
       )}
     </div>
 
-    <EventLanguagesField
-      id="host-languages"
-      locale={locale}
-      value={languages}
-      error={errors.languages}
-      label={copy?.languagesLabel}
-      hint={copy?.languagesHint}
-      onChange={onLanguagesChange}
-    />
+    {languages && onLanguagesChange ? (
+      <EventLanguagesField
+        id="host-languages"
+        locale={locale}
+        value={languages}
+        error={errors.languages}
+        label={copy?.languagesLabel}
+        hint={copy?.languagesHint}
+        onChange={onLanguagesChange}
+      />
+    ) : null}
 
     {tags && onTagsChange ? (
       <EventTagsField

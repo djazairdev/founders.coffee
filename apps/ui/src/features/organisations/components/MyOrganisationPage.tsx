@@ -13,6 +13,7 @@ import {
 } from '@founders-coffee/i18n';
 import { Button, LoadingStatus, StatusMessage } from '@founders-coffee/ui';
 
+import { OrganisationBreadcrumbs } from '../../../components/OrganisationBreadcrumbs';
 import type { RootMarket } from '../../markets/api';
 import { isOrganisationNotFound, rosterRefusal } from '../errors';
 import {
@@ -111,6 +112,10 @@ export const MyOrganisationPage = ({
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:py-12">
+      <OrganisationBreadcrumbs
+        locale={locale}
+        organisationName={roster?.name ?? org_manage_title({}, { locale })}
+      />
       <h1 className="font-display text-h3">
         {roster ? <bdi>{roster.name}</bdi> : org_manage_title({}, { locale })}
       </h1>

@@ -17,6 +17,7 @@ import {
 export type PublicOrganisation = Pick<
   Organization,
   | 'id'
+  | 'logo'
   | 'name'
   | 'slug'
   | 'kind'
@@ -71,6 +72,7 @@ export const readOrganisationPageRows = async (
       .select({
         id: organization.id,
         name: organization.name,
+        logo: organization.logo,
         slug: organization.slug,
         kind: organization.kind,
         description: organization.description,

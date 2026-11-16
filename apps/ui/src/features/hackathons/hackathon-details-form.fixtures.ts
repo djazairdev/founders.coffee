@@ -30,9 +30,10 @@ export const draftView = (
   review: {
     status: 'draft',
     note: null,
-    gaps: ['details', 'tracks', 'rubric'],
   },
   details: null,
+  deadlines: null,
+  settings: null,
   tracks: [],
   prizes: [],
   criteria: [],

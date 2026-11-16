@@ -6,8 +6,8 @@ import type {
 } from '@founders-coffee/core';
 import {
   hackathon_details_ai_disclosed,
-  hackathon_details_ai_native,
-  hackathon_details_ai_restricted,
+  hackathon_details_ai_conditional,
+  hackathon_details_ai_not_allowed,
   hackathon_track_kind_founder_problem,
   hackathon_track_kind_open_source,
   hackathon_track_kind_partner_technology,
@@ -34,8 +34,8 @@ const MODES: Record<AttendanceMode, Message> = {
 
 const POLICIES: Record<HackathonAiPolicy, Message> = {
   disclosed: hackathon_details_ai_disclosed,
-  ai_native: hackathon_details_ai_native,
-  restricted: hackathon_details_ai_restricted,
+  conditional: hackathon_details_ai_conditional,
+  not_allowed: hackathon_details_ai_not_allowed,
 };
 
 const TRACK_KINDS: Record<HackathonTrackKind, Message> = {

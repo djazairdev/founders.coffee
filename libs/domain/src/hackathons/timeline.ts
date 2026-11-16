@@ -7,9 +7,9 @@ const instant = z.number().int().positive();
 /**
  * Check that a hackathon's dates come in the one order every phase depends on.
  *
- * Registration opens before it closes, and closes no later than kickoff; the build runs from kickoff
- * to the submission deadline, which is no later than the event's end; judging ends after both.
- * Kickoff is the event's start, so the event's own schedule rules still apply to it and to `endsAt`.
+ * Registration opens before it closes, and closes no later than submissions; submissions close
+ * after kickoff and no later than the event's end; judging ends after the event. Late registration
+ * is allowed while teams can still form and submissions can still be made.
  */
 const checkOrder = (
   timeline: HackathonTimeline,
@@ -19,10 +19,13 @@ const checkOrder = (
     context.addIssue({ code: 'custom', path: [path], message });
   if (timeline.registrationOpensAt >= timeline.registrationClosesAt)
     issue('registrationClosesAt', 'Registration must close after it opens');
-  if (timeline.registrationClosesAt > timeline.kickoffAt)
-    issue('kickoffAt', 'Kickoff cannot come before registration closes');
   if (timeline.kickoffAt >= timeline.submissionDeadlineAt)
     issue('submissionDeadlineAt', 'Submissions must close after kickoff');
+  if (timeline.registrationClosesAt > timeline.submissionDeadlineAt)
+    issue(
+      'registrationClosesAt',
+      'Registration must close no later than submissions',
+    );
   if (timeline.submissionDeadlineAt > timeline.endsAt)
     issue('endsAt', 'The event cannot end before submissions close');
   if (timeline.endsAt >= timeline.judgingEndsAt)

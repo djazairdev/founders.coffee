@@ -7,7 +7,7 @@ import {
 } from '@founders-coffee/core';
 
 const TRANSITIONS: Record<OrganisationStatus, readonly OrganisationStatus[]> = {
-  pending: ['approved', 'rejected'],
+  pending: [],
   approved: ['suspended'],
   suspended: ['approved'],
   rejected: [],
@@ -18,13 +18,7 @@ export const canTransitionOrganisation = (
   to: OrganisationStatus,
 ): boolean => TRANSITIONS[from].includes(to);
 
-/**
- * Move an organisation to `to`, or refuse with a typed error.
- *
- * An application is decided once: approved or rejected. An approved organisation can be suspended
- * and reinstated as often as needed; a rejected one stays rejected, and its people apply again as a
- * new organisation, so a decision on the record is never quietly reversed.
- */
+/** Suspend or reinstate an active organisation; legacy blocked statuses remain read-only. */
 export const transitionOrganisation = (
   from: OrganisationStatus,
   to: OrganisationStatus,
@@ -38,11 +32,6 @@ export const transitionOrganisation = (
         ),
       );
 
-/**
- * Whether an organisation may act: create hackathons, host events, invite members.
- *
- * Only an approved one may. Pending is waiting for an admin, and rejected and suspended are
- * decisions against it, so every Stage B action that needs an organisation checks this first.
- */
+/** Active registrations can organise; suspended and legacy blocked records cannot. */
 export const isOrganisationActive = (status: OrganisationStatus): boolean =>
   status === 'approved';

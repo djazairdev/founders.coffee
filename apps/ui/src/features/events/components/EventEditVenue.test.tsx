@@ -89,7 +89,10 @@ const event = {
   runBy: { kind: 'community' },
 } satisfies EventDetailItem;
 
-const show = (locale: Locale = 'en', item: EventDetailItem = event) =>
+const show = (
+  locale: Locale = 'en',
+  item: EventDetailItem & { cityCode: string } = event,
+) =>
   render(
     <EventEditVenue
       locale={locale}
