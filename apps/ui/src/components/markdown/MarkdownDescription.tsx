@@ -8,6 +8,7 @@ type MarkdownDescriptionProps = {
   label: string;
   className?: string;
   language?: string | null;
+  isRegion?: boolean;
 };
 
 export const MarkdownDescription = ({
@@ -16,6 +17,7 @@ export const MarkdownDescription = ({
   label,
   className,
   language,
+  isRegion = true,
 }: MarkdownDescriptionProps) => {
   const runtime = useMarkdownRuntime();
   const contentLanguage = language === undefined ? locale : language;
@@ -27,11 +29,11 @@ export const MarkdownDescription = ({
   return (
     <div
       aria-busy={runtime.status === 'loading'}
-      aria-label={label}
+      aria-label={isRegion ? label : undefined}
       className={className}
       dir={direction}
       lang={contentLanguage ?? undefined}
-      role="region"
+      role={isRegion ? 'region' : undefined}
     >
       {runtime.status === 'ready' ? (
         <runtime.Component
