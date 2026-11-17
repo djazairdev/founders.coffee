@@ -73,7 +73,7 @@ export const HackathonEventDetail = ({
         event={event}
         schedule={schedule}
         registration={details?.registration ?? null}
-        minimumAge={details?.rules.minimumAge ?? null}
+        minimumAge={details?.rules?.minimumAge ?? null}
         teamSize={
           details
             ? { min: details.rules.teamMin, max: details.rules.teamMax }

@@ -77,7 +77,10 @@ describe('the public hackathon layout', () => {
     });
     const header = container.querySelector('header');
 
-    expect(header?.textContent).toContain(
+    expect(header?.textContent).not.toContain(
+      'Build a useful tool that helps teams plan a hackathon project.',
+    );
+    expect(fullDescription.textContent).toContain(
       'Build a useful tool that helps teams plan a hackathon project.',
     );
     expect(header?.textContent).not.toContain('Challenge');
