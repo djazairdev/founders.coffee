@@ -782,6 +782,9 @@ export const hackathonRegistrations = sqliteTable(
     attendanceMode: text('attendance_mode', {
       enum: [...ATTENDANCE_MODES],
     }).notNull(),
+    codeOfConductAcceptedAt: integer('code_of_conduct_accepted_at', {
+      mode: 'timestamp',
+    }),
     ageAttestedAt: integer('age_attested_at', { mode: 'timestamp' }),
     isLookingForTeam: integer('looking_for_team', { mode: 'boolean' })
       .notNull()

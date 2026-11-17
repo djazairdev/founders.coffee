@@ -1,1 +1,0 @@
-ALTER TABLE `hackathon_registrations` DROP COLUMN `code_of_conduct_accepted_at`;

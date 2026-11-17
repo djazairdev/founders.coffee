@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "6145f8d4-7561-4ffc-ab01-53b523ff6012",
+  "id": "7ad55b0e-009f-4ca0-bca6-7d1d5d1cdc6a",
   "prevId": "f509d527-4a5b-4c31-9a23-bc54908095d2",
   "tables": {
     "account": {
@@ -3115,6 +3115,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "code_of_conduct_accepted_at": {
+          "name": "code_of_conduct_accepted_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "age_attested_at": {

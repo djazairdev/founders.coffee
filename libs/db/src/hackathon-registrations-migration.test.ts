@@ -28,13 +28,13 @@ const priorHackathon = async (eventId: string) => {
   );
 };
 
-const registration = (eventId: string, skills: string) =>
+const registration = (eventId: string, skills: string, userId = priorHost.id) =>
   run(
     `INSERT INTO hackathon_registrations (id, event_id, user_id, attendance_mode, code_of_conduct_accepted_at, skills)
      VALUES (?, ?, ?, 'online', 4000000500, ?)`,
     `reg_${eventId}_${skills.length}`,
     eventId,
-    priorHost.id,
+    userId,
     skills,
   );
 
@@ -104,19 +104,55 @@ describe('hackathon registration migrations (real D1)', () => {
     );
   });
 
-  it('0085 removes the code-of-conduct timestamp and preserves registration data', async () => {
-    const { apply, event } = await atMigration('0085_wise_ink.sql');
+  it('0085 clears legacy consent data and preserves registrations and team records', async () => {
+    const { apply, event, suffix } = await atMigration(
+      '0085_hackathon_consent_optional.sql',
+    );
     await priorHackathon(event.id);
     await registration(event.id, 'TypeScript');
+    const teammateId = `usr_team_${suffix}`;
+    await run(
+      'INSERT INTO user (id, name, email, email_verified, role) VALUES (?, ?, ?, 0, ?)',
+      teammateId,
+      'Team Member',
+      `team-${suffix}@test.coffee`,
+      'member',
+    );
+    await registration(event.id, 'Design', teammateId);
+    const teamId = `team_${suffix}`;
+    await run(
+      'INSERT INTO hackathon_teams (id, event_id, name) VALUES (?, ?, ?)',
+      teamId,
+      event.id,
+      `Team ${suffix}`,
+    );
+    await run(
+      'INSERT INTO hackathon_team_members (team_id, event_id, user_id, is_captain) VALUES (?, ?, ?, 1)',
+      teamId,
+      event.id,
+      priorHost.id,
+    );
+    const requestId = `request_${suffix}`;
+    await run(
+      'INSERT INTO hackathon_team_requests (id, team_id, event_id, user_id) VALUES (?, ?, ?, ?)',
+      requestId,
+      teamId,
+      event.id,
+      teammateId,
+    );
 
     await apply();
 
-    expect(await columnNames('hackathon_registrations')).not.toContain(
-      'code_of_conduct_accepted_at',
-    );
+    const columns = await env.PRIOR_DB.prepare(
+      "PRAGMA table_info('hackathon_registrations')",
+    ).all<{ name: string; notnull: number }>();
+    expect(
+      columns.results.find(({ name }) => name === 'code_of_conduct_accepted_at')
+        ?.notnull,
+    ).toBe(0);
     expect(
       await env.PRIOR_DB.prepare(
-        'SELECT event_id, user_id, attendance_mode, skills FROM hackathon_registrations WHERE event_id = ?',
+        'SELECT event_id, user_id, attendance_mode, code_of_conduct_accepted_at, skills FROM hackathon_registrations WHERE event_id = ?',
       )
         .bind(event.id)
         .first(),
@@ -124,7 +160,33 @@ describe('hackathon registration migrations (real D1)', () => {
       event_id: event.id,
       user_id: priorHost.id,
       attendance_mode: 'online',
+      code_of_conduct_accepted_at: null,
       skills: 'TypeScript',
+    });
+    expect(
+      await env.PRIOR_DB.prepare(
+        'SELECT team_id, event_id, user_id, is_captain FROM hackathon_team_members WHERE team_id = ?',
+      )
+        .bind(teamId)
+        .first(),
+    ).toEqual({
+      team_id: teamId,
+      event_id: event.id,
+      user_id: priorHost.id,
+      is_captain: 1,
+    });
+    expect(
+      await env.PRIOR_DB.prepare(
+        'SELECT id, team_id, event_id, user_id, status FROM hackathon_team_requests WHERE id = ?',
+      )
+        .bind(requestId)
+        .first(),
+    ).toEqual({
+      id: requestId,
+      team_id: teamId,
+      event_id: event.id,
+      user_id: teammateId,
+      status: 'pending',
     });
   });
 });
