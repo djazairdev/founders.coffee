@@ -30,6 +30,26 @@ const show = (kind: EventDetailItem['kind'], details?: HackathonPageDetails) =>
     />,
   );
 
+const hackathonDetails: HackathonPageDetails = {
+  tracks: [],
+  prizes: [],
+  rules: {
+    rules: null,
+    minimumAge: null,
+    attendanceModes: [],
+    teamMin: 1,
+    teamMax: 4,
+    aiPolicy: 'disclosed',
+    aiPolicyNote: null,
+    licenceNote: null,
+  },
+  judges: [],
+  mentors: [],
+  workshops: [],
+  results: null,
+  registration: null,
+};
+
 describe('what the details of an event are called (#477)', () => {
   it('calls a meetup a meetup', () => {
     show('meetup');
@@ -49,7 +69,7 @@ describe('what the details of an event are called (#477)', () => {
   });
 
   it('renders a hackathon description separately from its rules', () => {
-    show('hackathon', {} as HackathonPageDetails);
+    show('hackathon', hackathonDetails);
 
     const description = screen.getByRole('region', {
       name: 'Hackathon description',
