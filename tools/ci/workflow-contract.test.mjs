@@ -53,6 +53,16 @@ describe('verified staging tree workflow contract', () => {
     expect(ciWorkflow).toContain('[ "$SERVER_TESTS" != "success" ]');
   });
 
+  it('requires the dependency advisory audit in release verification', () => {
+    expect(ciWorkflow).toContain(
+      'run: npm audit --package-lock-only --audit-level=high',
+    );
+    expect(ciWorkflow).toContain(
+      'DEPENDENCY_AUDIT: ${{ needs.dependency-audit.result }}',
+    );
+    expect(ciWorkflow).toContain('[ "$DEPENDENCY_AUDIT" != "success" ]');
+  });
+
   it('restores the task artifacts and their database from the configured Nx paths', () => {
     expect(ciWorkflow).toContain('NX_CACHE_DIRECTORY: .nx/cache');
     expect(ciWorkflow).toContain(
