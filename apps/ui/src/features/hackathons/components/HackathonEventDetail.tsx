@@ -24,6 +24,7 @@ export const HackathonEventDetail = ({
   mapboxToken,
   schedule,
   details,
+  organisations,
   canReport,
 }: {
   locale: Locale;
@@ -34,6 +35,7 @@ export const HackathonEventDetail = ({
   mapboxToken: string | null;
   schedule: HackathonSchedule | null;
   details: HackathonPageDetails | null;
+  organisations?: readonly { readonly name: string; readonly slug: string }[];
   canReport: boolean;
 }) => {
   const cityName = eventCityName(event, locale);
@@ -62,6 +64,7 @@ export const HackathonEventDetail = ({
         market={market}
         locale={locale}
         isCancelled={isCancelled}
+        organisations={organisations}
       />
       <HackathonPublicContent
         event={event}

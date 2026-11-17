@@ -114,4 +114,27 @@ describe('the public hackathon layout', () => {
       screen.getByRole('link', { name: 'Yacine' }).getAttribute('href'),
     ).toBe('/en/u/usr_1');
   });
+
+  it('shows and links the hackathon organising organisations in the hero', () => {
+    render(
+      <EventDetail
+        locale="en"
+        market={market}
+        event={{ ...event, kind: 'hackathon' }}
+        host={null}
+        isHost={false}
+        live={null}
+        isWindowOpen={false}
+        phase="upcoming"
+        mapboxToken={null}
+        organisations={[{ name: 'Code Club Alger', slug: 'code-club-alger' }]}
+      />,
+    );
+
+    expect(
+      screen
+        .getByRole('link', { name: 'Code Club Alger' })
+        .getAttribute('href'),
+    ).toBe('/en/o/code-club-alger');
+  });
 });

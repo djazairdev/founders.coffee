@@ -34,12 +34,14 @@ export const HackathonPublicHero = ({
   market,
   locale,
   isCancelled,
+  organisations,
 }: {
   event: EventDetailItem;
   host: PublicProfile | null;
   market: Market;
   locale: Locale;
   isCancelled: boolean;
+  organisations?: readonly { readonly name: string; readonly slug: string }[];
 }) => {
   const options = { locale };
   const cityName = eventCityName(event, locale);
@@ -68,6 +70,7 @@ export const HackathonPublicHero = ({
         locale={locale}
         isLinked
         className="mt-3"
+        organisations={organisations?.length ? organisations : undefined}
       />
       {host ? (
         <p className="mt-2 flex items-start gap-1.5 text-body-sm text-neutral">

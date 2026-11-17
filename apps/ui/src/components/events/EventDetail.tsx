@@ -108,6 +108,7 @@ export const EventDetail = ({
         market={market}
         event={event}
         host={host}
+        organisations={organisations}
         isHost={isHost}
         mapboxToken={mapboxToken}
         schedule={hackathon}
