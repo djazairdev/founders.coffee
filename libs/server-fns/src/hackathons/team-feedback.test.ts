@@ -67,7 +67,6 @@ const joinRival = async (setup: JudgingTwoEntries) => {
     userId: rivalMember,
     status: 'registered',
     attendanceMode: 'in_person',
-    codeOfConductAcceptedAt: new Date(),
   });
   await db.insert(hackathonTeamMembers).values({
     eventId,

@@ -136,7 +136,6 @@ export const hackathonRows = (now) => {
         user_id: user,
         status: 'registered',
         attendance_mode: 'in_person',
-        code_of_conduct_accepted_at: now + phase.opens,
         looking_for_team: isLooking,
       })),
     ),

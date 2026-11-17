@@ -80,7 +80,6 @@ describe('submissionPageResolver (B-SUB-05, real D1)', () => {
       eventId,
       userId: outsider,
       attendanceMode: 'in_person',
-      codeOfConductAcceptedAt: new Date(),
     });
 
     expect(await page(eventId, outsider)).toMatchObject({

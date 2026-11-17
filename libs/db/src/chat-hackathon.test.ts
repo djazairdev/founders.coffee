@@ -67,7 +67,6 @@ const register = (
     userId,
     status,
     attendanceMode: 'online',
-    codeOfConductAcceptedAt: new Date(),
   });
 
 type PlaceStatus = 'invited' | 'accepted' | 'declined';

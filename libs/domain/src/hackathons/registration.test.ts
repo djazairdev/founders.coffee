@@ -123,10 +123,9 @@ describe('the registration request (B-REG-03)', () => {
   const request = {
     eventId: `evt_${'a'.repeat(32)}`,
     attendanceMode: 'online',
-    acceptsCodeOfConduct: true,
   };
 
-  it('takes the code of conduct accepted, and nothing else assumed', () => {
+  it('accepts a registration request without requiring consent', () => {
     expect(hackathonRegistrationSchema.parse(request)).toEqual({
       ...request,
       isAgeAttested: false,
@@ -148,13 +147,9 @@ describe('the registration request (B-REG-03)', () => {
     ).toBe(false);
   });
 
-  it('refuses a request without the code of conduct, or with fields it does not know', () => {
+  it('refuses fields it does not know', () => {
     const accepts = (input: object) =>
       hackathonRegistrationSchema.safeParse(input).success;
-    expect(accepts({ ...request, acceptsCodeOfConduct: false })).toBe(false);
-    expect(accepts({ ...request, acceptsCodeOfConduct: undefined })).toBe(
-      false,
-    );
     expect(accepts({ ...request, status: 'registered' })).toBe(false);
     expect(accepts({ ...request, eventId: 'evt-1' })).toBe(false);
   });

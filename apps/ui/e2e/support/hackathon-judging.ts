@@ -44,7 +44,7 @@ const seedEntry = (
   const teamId = newId('tem');
   const { eventId, trackId } = hackathon;
   return (
-    `INSERT INTO hackathon_registrations (id, event_id, user_id, attendance_mode, code_of_conduct_accepted_at) VALUES ('${newId('hrg')}', '${eventId}', '${entry.captainId}', 'in_person', ${submittedAt}); ` +
+    `INSERT INTO hackathon_registrations (id, event_id, user_id, attendance_mode) VALUES ('${newId('hrg')}', '${eventId}', '${entry.captainId}', 'in_person'); ` +
     `INSERT INTO hackathon_teams (id, event_id, name) VALUES ('${teamId}', '${eventId}', '${entry.team}'); ` +
     `INSERT INTO hackathon_team_members (team_id, event_id, user_id, is_captain) VALUES ('${teamId}', '${eventId}', '${entry.captainId}', 1); ` +
     `INSERT INTO hackathon_submissions (id, event_id, team_id, track_id, title, description, repository_url, ai_statement, original_work_attested_at, status, submitted_at) ` +

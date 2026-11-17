@@ -41,13 +41,12 @@ const notFound = () => new AppError('event_not_found', 'Event not found');
  *
  * The hackathon's rules decide first, in the order a member can act on them: registration has to be
  * open, the way they attend has to be one the format offers, and a minimum age has to be attested
- * (`registration_closed`, `attendance_mode_unavailable`, `not_eligible`). Accepting the code of
- * conduct is the request's own condition. The write then re-checks the dates and the event in one
- * atomic batch and decides the place against the count it updates, so a hackathon filling up between
- * the read and the write puts the member on the waitlist rather than over capacity. A member already
- * registered, in any status, is told `already_registered`, and one who judges it `already_judge`.
- * A member who got a place, or a place on
- * the waitlist, is then told which (B-REG-07).
+ * (`registration_closed`, `attendance_mode_unavailable`, `not_eligible`). The write then re-checks
+ * the dates and the event in one atomic batch and decides the place against the count it updates, so
+ * a hackathon filling up between the read and the write puts the member on the waitlist rather than
+ * over capacity. A member already registered, in any status, is told `already_registered`, and one
+ * who judges it `already_judge`. A member who got a place, or a place on the waitlist, is then told
+ * which (B-REG-07).
  */
 export const registerForHackathonResolver = async (
   db: Db,
@@ -79,15 +78,13 @@ export const registerForHackathonResolver = async (
   });
   if (!decided.ok) return decided;
   const registrationId = id('reg');
-  const accepted = new Date(now);
   const written = await createHackathonRegistration(db, {
     id: registrationId,
     eventId: input.eventId,
     userId: input.userId,
     attendanceMode: input.attendanceMode,
-    codeOfConductAcceptedAt: accepted,
     ageAttestedAt:
-      hackathon.minimumAge !== null && input.isAgeAttested ? accepted : null,
+      hackathon.minimumAge !== null && input.isAgeAttested ? new Date(now) : null,
     isLookingForTeam: input.isLookingForTeam,
     skills: input.skills,
   });
