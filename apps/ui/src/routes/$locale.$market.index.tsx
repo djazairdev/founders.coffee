@@ -133,6 +133,7 @@ export const Route = createFileRoute('/$locale/$market/')({
         locale: loaderData.locale,
         marketName: localizedName(loaderData.market, loaderData.locale),
         marketCode: loaderData.market.code,
+        hackathonsEnabled: loaderData.market.featureFlags.hackathons,
         markets: loaderData.markets,
         defaultMarket: DEFAULT_MARKET_SLUG,
         events: loaderData.events.map((event) => ({

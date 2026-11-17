@@ -1,6 +1,8 @@
 import {
   baseLocale,
   LOCALES,
+  market_hackathon_meta_description,
+  market_hackathon_meta_title,
   market_hero_desc,
   type Locale,
 } from '@founders-coffee/i18n';
@@ -8,6 +10,7 @@ import {
 import {
   buildPageMetadata,
   canonicalUrl,
+  defaultRobotsDirective,
   localeAlternates,
   type AlternateLink,
   type CanonicalRoute,
@@ -87,6 +90,7 @@ type MarketHeadInput = {
   readonly markets: readonly MarketReference[];
   readonly defaultMarket: string;
   readonly route: MarketRoute;
+  readonly hackathonsEnabled?: boolean;
   readonly events?: readonly StructuredListItem[];
 };
 
@@ -97,13 +101,20 @@ export const marketPageHead = ({
   markets,
   defaultMarket,
   route,
+  hackathonsEnabled = false,
   events = [],
 }: MarketHeadInput) => {
-  const description = market_hero_desc({ market: marketName }, { locale });
+  const title = hackathonsEnabled
+    ? market_hackathon_meta_title({ market: marketName }, { locale })
+    : marketName;
+  const description = hackathonsEnabled
+    ? market_hackathon_meta_description({ market: marketName }, { locale })
+    : market_hero_desc({ market: marketName }, { locale });
   const metadata = buildPageMetadata({
     locale,
-    title: marketName,
+    title,
     description,
+    robots: `${defaultRobotsDirective()}, max-image-preview:large`,
     route,
     alternates: landingAlternates(route, markets, defaultMarket),
     marketCode,
@@ -115,7 +126,7 @@ export const marketPageHead = ({
         type: 'application/ld+json',
         children: jsonLdText(
           collectionPageJsonLd({
-            name: marketName,
+            name: title,
             description,
             url: canonicalUrl(route),
             locale,

@@ -4,7 +4,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { Market } from '@founders-coffee/db';
 import type { geo } from '@founders-coffee/domain';
-import { hero_search_cta, type Locale } from '@founders-coffee/i18n';
+import {
+  hero_search_cta,
+  market_hackathon_subtitle,
+  market_hackathon_tagline,
+  type Locale,
+} from '@founders-coffee/i18n';
 
 import { CitySelectionFeedback } from './CitySelectionFeedback';
 import { EmptyCityCard } from './EmptyCityCard';
@@ -101,6 +106,43 @@ describe('MarketHero call to action', () => {
     expect(cta.getAttribute('aria-current')).toBeNull();
     expect(cta.className.split(' ')).not.toContain('active');
   });
+});
+
+describe('MarketHero hackathon market copy', () => {
+  it.each<Locale>(['ar', 'fr', 'en'])(
+    'shows localized hackathon, student club, and tech community copy in %s',
+    (locale) => {
+      const hackathonMarket: Market = {
+        ...market,
+        featureFlags: { ...market.featureFlags, hackathons: true },
+      };
+
+      render(
+        <MarketHero
+          locale={locale}
+          market={hackathonMarket}
+          cityEventCounts={{}}
+        />,
+      );
+
+      expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(
+        market_hackathon_tagline(
+          {
+            market:
+              locale === 'ar'
+                ? 'الجزائر'
+                : locale === 'fr'
+                  ? 'Algérie'
+                  : 'Algeria',
+          },
+          { locale },
+        ),
+      );
+      expect(
+        screen.getByText(market_hackathon_subtitle({}, { locale })),
+      ).toBeTruthy();
+    },
+  );
 });
 
 describe('the hero names the chosen city the way French does', () => {
