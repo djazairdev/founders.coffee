@@ -1,17 +1,20 @@
 import { Link } from '@tanstack/react-router';
 
-import { back_to_city, cityInputs, type Locale } from '@founders-coffee/i18n';
+import {
+  back_to_city,
+  back_to_hackathons,
+  cityInputs,
+  type Locale,
+} from '@founders-coffee/i18n';
 import type { Market } from '@founders-coffee/db';
-import type {
-  EventDetailItem,
-  PublicProfile,
-} from '@founders-coffee/server-fns';
+import type { EventDetailItem } from '@founders-coffee/server-fns';
 
 import { EventCancelledNotice } from '../../../components/events/EventCancelledNotice';
 import { EventChat } from '../../chat/components/EventChat';
 import { eventCityName } from '../../events/event-city-name';
 import type { HackathonPageDetails, HackathonSchedule } from '../api';
-import { localizedCity } from '../../../lib/locale-routing';
+import { typeSearch } from '../../../lib/event-type-filter';
+import { localizedCity, localizedLanding } from '../../../lib/locale-routing';
 import { HackathonPublicContent } from './HackathonPublicContent';
 import { HackathonPublicHero } from './HackathonPublicHero';
 
@@ -19,7 +22,6 @@ export const HackathonEventDetail = ({
   locale,
   market,
   event,
-  host,
   isHost,
   mapboxToken,
   schedule,
@@ -30,7 +32,6 @@ export const HackathonEventDetail = ({
   locale: Locale;
   market: Market;
   event: EventDetailItem;
-  host: PublicProfile | null;
   isHost: boolean;
   mapboxToken: string | null;
   schedule: HackathonSchedule | null;
@@ -41,17 +42,27 @@ export const HackathonEventDetail = ({
   const cityName = eventCityName(event, locale);
   const isCancelled = event.status === 'cancelled';
   const isGoing = event.viewerRsvp === 'going';
+  const backLink =
+    event.format === 'online' ? (
+      <Link
+        {...localizedLanding(locale, market.slug)}
+        search={typeSearch('hackathon')}
+        className="mb-4 inline-flex min-h-6 items-center text-body-sm font-medium underline decoration-secondary underline-offset-[3px] hover:text-accent"
+      >
+        {back_to_hackathons({}, { locale })}
+      </Link>
+    ) : event.citySlug && cityName ? (
+      <Link
+        {...localizedCity(locale, market.slug, event.citySlug)}
+        className="mb-4 inline-flex min-h-6 items-center text-body-sm font-medium underline decoration-secondary underline-offset-[3px] hover:text-accent"
+      >
+        {back_to_city(cityInputs(cityName), { locale })}
+      </Link>
+    ) : null;
 
   return (
     <article className="mx-auto max-w-5xl px-4 py-6 sm:py-8 md:px-8 md:py-10">
-      {event.citySlug && cityName ? (
-        <Link
-          {...localizedCity(locale, market.slug, event.citySlug)}
-          className="mb-4 inline-flex min-h-6 items-center text-body-sm font-medium underline decoration-secondary underline-offset-[3px] hover:text-accent"
-        >
-          {back_to_city(cityInputs(cityName), { locale })}
-        </Link>
-      ) : null}
+      {backLink}
       {isCancelled ? (
         <EventCancelledNotice
           reason={event.cancellationReason}
@@ -60,7 +71,14 @@ export const HackathonEventDetail = ({
       ) : null}
       <HackathonPublicHero
         event={event}
-        host={host}
+        schedule={schedule}
+        registration={details?.registration ?? null}
+        minimumAge={details?.rules.minimumAge ?? null}
+        teamSize={
+          details
+            ? { min: details.rules.teamMin, max: details.rules.teamMax }
+            : null
+        }
         market={market}
         locale={locale}
         isCancelled={isCancelled}

@@ -70,7 +70,7 @@ describe('the public hackathon layout', () => {
       />,
     );
     const registration = screen.getByRole('region', {
-      name: 'Registration card',
+      name: 'Registration action',
     });
     const fullDescription = screen.getByRole('region', {
       name: 'Hackathon description',
@@ -91,7 +91,7 @@ describe('the public hackathon layout', () => {
     ).toBeTruthy();
   });
 
-  it('links the organizer profile from the compact hero', () => {
+  it('shows and links the hackathon organising organisations in the hero', () => {
     render(
       <EventDetail
         locale="en"
@@ -107,26 +107,6 @@ describe('the public hackathon layout', () => {
         isWindowOpen={false}
         phase="upcoming"
         mapboxToken={null}
-      />,
-    );
-
-    expect(
-      screen.getByRole('link', { name: 'Yacine' }).getAttribute('href'),
-    ).toBe('/en/u/usr_1');
-  });
-
-  it('shows and links the hackathon organising organisations in the hero', () => {
-    render(
-      <EventDetail
-        locale="en"
-        market={market}
-        event={{ ...event, kind: 'hackathon' }}
-        host={null}
-        isHost={false}
-        live={null}
-        isWindowOpen={false}
-        phase="upcoming"
-        mapboxToken={null}
         organisations={[{ name: 'Code Club Alger', slug: 'code-club-alger' }]}
       />,
     );
@@ -136,5 +116,6 @@ describe('the public hackathon layout', () => {
         .getByRole('link', { name: 'Code Club Alger' })
         .getAttribute('href'),
     ).toBe('/en/o/code-club-alger');
+    expect(screen.queryByRole('link', { name: 'Yacine' })).toBeNull();
   });
 });

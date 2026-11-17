@@ -6,7 +6,6 @@ import { HackathonJudges } from './HackathonJudges';
 import { HackathonMentors } from './HackathonMentors';
 import { HackathonPrizes, HackathonTracks } from './HackathonOffer';
 import { HackathonResults } from './HackathonResults';
-import { HackathonRules } from './HackathonRules';
 import { HackathonWorkshops } from './HackathonWorkshops';
 
 export const HackathonPageDetails = ({
@@ -22,7 +21,6 @@ export const HackathonPageDetails = ({
 }) => (
   <div className="*:first:mt-0 lg:col-start-1">
     <HackathonTracks tracks={details.tracks} locale={locale} />
-    <HackathonRules rules={details.rules} locale={locale} />
     <HackathonPrizes offer={details} locale={locale} />
     {details.judges.length > 0 ? (
       <HackathonJudges judges={details.judges} locale={locale} />

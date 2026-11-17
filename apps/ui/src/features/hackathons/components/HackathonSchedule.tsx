@@ -1,4 +1,4 @@
-import { Circle, CircleCheck, CircleDot } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 import {
   hackathon_schedule_heading,
@@ -31,7 +31,7 @@ export const HackathonSchedule = ({
   return (
     <section
       aria-labelledby={HEADING_ID}
-      className="self-start rounded-box border border-base-300 bg-base-100 p-5"
+      className="rounded-box border border-base-300 bg-base-100 p-5"
     >
       <h2 id={HEADING_ID} className="font-display text-h4 font-semibold">
         {hackathon_schedule_heading({}, { locale })}
@@ -45,17 +45,20 @@ export const HackathonSchedule = ({
         {steps.map((step, index) => {
           const isCurrent = index === current;
           const isDone = index < current;
-          const Icon = isDone ? CircleCheck : isCurrent ? CircleDot : Circle;
+          const isSelected = isDone || isCurrent;
           return (
             <li key={step.phase} aria-current={isCurrent ? 'step' : undefined}>
               {index > 0 ? (
                 <hr className={index <= current ? 'bg-primary' : undefined} />
               ) : null}
               <div className="timeline-middle">
-                <Icon
-                  aria-hidden="true"
-                  className={`size-5 ${isDone || isCurrent ? 'text-primary' : 'text-neutral'}`}
-                />
+                <span
+                  className={`flex size-5 items-center justify-center rounded-full ${isSelected ? 'bg-primary text-primary-content' : 'border-2 border-neutral'}`}
+                >
+                  {isSelected ? (
+                    <Check aria-hidden="true" className="size-3 stroke-[3]" />
+                  ) : null}
+                </span>
               </div>
               <div className="timeline-end mb-4 ms-2">
                 <p className="flex flex-wrap items-center gap-2 font-medium">

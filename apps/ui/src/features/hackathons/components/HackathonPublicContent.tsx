@@ -35,10 +35,8 @@ export const HackathonPublicContent = ({
     className={`mt-6 grid min-w-0 gap-8 ${schedule ? 'lg:grid-cols-[minmax(0,1fr)_minmax(17rem,0.78fr)]' : ''}`}
   >
     {schedule ? (
-      <div className="min-w-0 self-start lg:col-start-2 lg:row-start-1">
+      <div className="min-w-0 lg:col-start-2 lg:row-start-1">
         <HackathonAside
-          eventId={event.id}
-          format={event.format}
           schedule={schedule}
           details={details}
           isCancelled={isCancelled}

@@ -10,12 +10,10 @@ import {
   hackathon_schedule_building,
   hackathon_schedule_closes,
   hackathon_schedule_deadline,
-  hackathon_schedule_demo_day,
   hackathon_schedule_judging,
   hackathon_schedule_judging_ends,
   hackathon_schedule_kickoff,
   hackathon_schedule_moment,
-  hackathon_schedule_opens,
   hackathon_schedule_registration,
   hackathon_schedule_results,
   type Locale,
@@ -85,7 +83,6 @@ export const scheduleSteps = (
       phase: 'registration_open',
       title: hackathon_schedule_registration({}, options),
       lines: [
-        hackathon_schedule_opens(at(schedule.registrationOpensAt), options),
         hackathon_schedule_closes(at(schedule.registrationClosesAt), options),
       ],
     },
@@ -105,7 +102,6 @@ export const scheduleSteps = (
       phase: 'judging',
       title: hackathon_schedule_judging({}, options),
       lines: [
-        hackathon_schedule_demo_day(at(schedule.endsAt), options),
         hackathon_schedule_judging_ends(at(schedule.judgingEndsAt), options),
       ],
     },
