@@ -760,9 +760,9 @@ export type NewHackathonCriterion = typeof hackathonCriteria.$inferInsert;
  * `status` is `registered` while it holds a place and `waitlisted` while it waits for one; a member
  * who leaves is `withdrawn` and one removed by the organisers `disqualified`, and both stay as the
  * record of what happened. `attendance_mode` is how the member takes part, from the modes the
- * hackathon offers. `code_of_conduct_accepted_at` is when they accepted it, which every registration
- * does, and `age_attested_at` when they confirmed the minimum age, null for a hackathon that has
- * none. `skills` is the line a member looking for a team shows the others, up to 140 characters.
+ * hackathon offers. `age_attested_at` is when they confirmed the minimum age, null for a hackathon
+ * that has none. `skills` is the line a member looking for a team shows the others, up to 140
+ * characters.
  *
  * Account closure deletes the member's registrations and gives back the places they held.
  */
@@ -784,7 +784,7 @@ export const hackathonRegistrations = sqliteTable(
     }).notNull(),
     codeOfConductAcceptedAt: integer('code_of_conduct_accepted_at', {
       mode: 'timestamp',
-    }).notNull(),
+    }),
     ageAttestedAt: integer('age_attested_at', { mode: 'timestamp' }),
     isLookingForTeam: integer('looking_for_team', { mode: 'boolean' })
       .notNull()

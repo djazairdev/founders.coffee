@@ -44,7 +44,6 @@ const registering = (eventId: string, userId: string) => ({
   eventId,
   userId,
   attendanceMode: 'in_person' as const,
-  codeOfConductAcceptedAt: new Date(),
   ageAttestedAt: null,
   isLookingForTeam: false,
   skills: null,

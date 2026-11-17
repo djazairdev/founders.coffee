@@ -30,7 +30,6 @@ export type RegistrationRequest = {
 export const hackathonRegistrationSchema = z.strictObject({
   eventId: idSchema,
   attendanceMode: attendanceModeSchema,
-  acceptsCodeOfConduct: z.literal(true),
   isAgeAttested: z.boolean().default(false),
   isLookingForTeam: z.boolean().default(false),
   skills: z

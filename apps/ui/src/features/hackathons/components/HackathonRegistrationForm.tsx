@@ -1,4 +1,4 @@
-import { Link, useRouter } from '@tanstack/react-router';
+import { useRouter } from '@tanstack/react-router';
 import { useRef, useState, type FormEvent } from 'react';
 
 import {
@@ -9,11 +9,8 @@ import {
 import {
   formatNumber,
   hackathon_register_age,
-  hackathon_register_conduct,
-  hackathon_register_conduct_link,
   hackathon_register_mode,
   hackathon_register_need_age,
-  hackathon_register_need_conduct,
   hackathon_register_need_mode,
   hackathon_register_saving,
   hackathon_register_submit,
@@ -22,15 +19,12 @@ import {
 } from '@founders-coffee/i18n';
 import { Button, StatusMessage } from '@founders-coffee/ui';
 
-import { localizedLanding } from '../../../lib/locale-routing';
 import { ATTENDANCE_LABELS } from '../detail-labels';
 import { registrationErrorMessage } from '../registration-errors';
 import { useRegisterForHackathon } from '../registration-hooks';
 
 const MODE_ID = 'hackathon-register-mode';
 const AGE_ID = 'hackathon-register-age';
-const CONDUCT_ID = 'hackathon-register-conduct';
-const CONDUCT_SLOT = '<<CONDUCT>>';
 
 export const HackathonRegistrationForm = ({
   eventId,
@@ -53,11 +47,9 @@ export const HackathonRegistrationForm = ({
     modes.length === 1 ? modes[0] : null,
   );
   const [isAgeAttested, setIsAgeAttested] = useState(false);
-  const [acceptsConduct, setAcceptsConduct] = useState(false);
   const [missing, setMissing] = useState<string | null>(null);
   const modeRef = useRef<HTMLInputElement>(null);
   const ageRef = useRef<HTMLInputElement>(null);
-  const conductRef = useRef<HTMLInputElement>(null);
 
   const guide = (message: string, field: HTMLInputElement | null) => {
     setMissing(message);
@@ -70,27 +62,17 @@ export const HackathonRegistrationForm = ({
       return guide(hackathon_register_need_mode({}, options), modeRef.current);
     if (minimumAge !== null && !isAgeAttested)
       return guide(hackathon_register_need_age({}, options), ageRef.current);
-    if (!acceptsConduct)
-      return guide(
-        hackathon_register_need_conduct({}, options),
-        conductRef.current,
-      );
     setMissing(null);
     register.mutate(
       {
         eventId,
         attendanceMode: mode,
-        acceptsCodeOfConduct: true,
         isAgeAttested,
       },
       { onSuccess: () => void router.invalidate() },
     );
   };
 
-  const [beforeConduct, afterConduct] = hackathon_register_conduct(
-    { conduct: CONDUCT_SLOT },
-    options,
-  ).split(CONDUCT_SLOT);
   const message =
     missing ??
     (register.isError
@@ -146,26 +128,6 @@ export const HackathonRegistrationForm = ({
           </span>
         </label>
       ) : null}
-      <div className="flex items-start gap-2">
-        <input
-          ref={conductRef}
-          id={CONDUCT_ID}
-          type="checkbox"
-          className="checkbox checkbox-sm checkbox-primary mt-0.5"
-          checked={acceptsConduct}
-          onChange={(event) => setAcceptsConduct(event.target.checked)}
-        />
-        <label htmlFor={CONDUCT_ID} className="text-body-sm">
-          {beforeConduct}
-          <Link
-            {...localizedLanding(locale, 'community')}
-            className="font-medium underline underline-offset-2 hover:text-primary"
-          >
-            {hackathon_register_conduct_link({}, options)}
-          </Link>
-          {afterConduct}
-        </label>
-      </div>
       {message ? (
         <StatusMessage variant="error" aria-live="polite">
           {message}
@@ -175,7 +137,7 @@ export const HackathonRegistrationForm = ({
         <Button
           type="submit"
           variant="secondary"
-          className="w-full sm:w-auto"
+          className="w-full rounded-full sm:w-auto"
           isBusy={register.isPending}
         >
           {register.isPending

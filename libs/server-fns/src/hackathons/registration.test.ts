@@ -89,7 +89,7 @@ describe('registering for a hackathon (B-REG-03, real D1)', () => {
     expect(await rowOf(eventId, members[0].id)).toMatchObject({
       status: 'registered',
       attendanceMode: 'in_person',
-      codeOfConductAcceptedAt: expect.any(Date),
+      codeOfConductAcceptedAt: null,
       ageAttestedAt: expect.any(Date),
       isLookingForTeam: true,
       skills: 'Go, Postgres',

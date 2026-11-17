@@ -20,7 +20,6 @@ export type NewRegistration = {
   readonly eventId: string;
   readonly userId: string;
   readonly attendanceMode: AttendanceMode;
-  readonly codeOfConductAcceptedAt: Date;
   readonly ageAttestedAt: Date | null;
   readonly isLookingForTeam: boolean;
   readonly skills: string | null;
@@ -73,10 +72,7 @@ export const createHackathonRegistration = async (
               registration.attendanceMode,
               'attendance_mode',
             ),
-            codeOfConductAcceptedAt: bound(
-              seconds(registration.codeOfConductAcceptedAt),
-              'code_of_conduct_accepted_at',
-            ),
+            codeOfConductAcceptedAt: bound(null, 'code_of_conduct_accepted_at'),
             ageAttestedAt: bound(
               registration.ageAttestedAt && seconds(registration.ageAttestedAt),
               'age_attested_at',

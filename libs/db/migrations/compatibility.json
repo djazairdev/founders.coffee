@@ -83,5 +83,6 @@
   "0081_chemical_power_pack": "compatible",
   "0082_ai_policy_semantics": "compatible",
   "0083_large_ego": "compatible",
-  "0084_optional_event_location": "compatible"
+  "0084_optional_event_location": "compatible",
+  "0085_hackathon_consent_optional": "compatible"
 }

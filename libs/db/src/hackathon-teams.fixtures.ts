@@ -19,7 +19,6 @@ export const register = (
     userId,
     status,
     attendanceMode: 'online',
-    codeOfConductAcceptedAt: new Date('2099-01-05T09:00:00Z'),
     skills: 'TypeScript, product design',
     isLookingForTeam: true,
   });
