@@ -5,7 +5,7 @@ export const privacyHackathonsEnglish = section(
   [
     subheading('Registering and taking part'),
     ...text(
-      'When you register for a hackathon, we store how you will attend, when you accepted its code of conduct, that you confirmed your age where it sets a minimum, whether you are looking for a team, and any skills you enter when registering. We use these to hold your place and to help teams form.',
+      'When you register for a hackathon, we store how you will attend, that you confirmed your age where it sets a minimum, whether you are looking for a team, and any skills you enter when registering. We use these to hold your place and to help teams form.',
       'For a team, we store its name and description, its members and captain, requests to join it, and its invite links.',
     ),
     subheading('Submissions, scores and results'),

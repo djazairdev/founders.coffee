@@ -38,7 +38,7 @@ const registration = (eventId: string, skills: string) =>
     skills,
   );
 
-describe('0059 — hackathon registrations (real D1)', () => {
+describe('hackathon registration migrations (real D1)', () => {
   it('adds the table and the count in place, keeping every hackathon, track and event', async () => {
     const { apply, event } = await atMigration(
       '0059_hackathon_registrations.sql',
@@ -102,5 +102,29 @@ describe('0059 — hackathon registrations (real D1)', () => {
     await expect(registration(event.id, 'x'.repeat(141))).rejects.toThrow(
       /CHECK/,
     );
+  });
+
+  it('0085 removes the code-of-conduct timestamp and preserves registration data', async () => {
+    const { apply, event } = await atMigration('0085_wise_ink.sql');
+    await priorHackathon(event.id);
+    await registration(event.id, 'TypeScript');
+
+    await apply();
+
+    expect(await columnNames('hackathon_registrations')).not.toContain(
+      'code_of_conduct_accepted_at',
+    );
+    expect(
+      await env.PRIOR_DB.prepare(
+        'SELECT event_id, user_id, attendance_mode, skills FROM hackathon_registrations WHERE event_id = ?',
+      )
+        .bind(event.id)
+        .first(),
+    ).toEqual({
+      event_id: event.id,
+      user_id: priorHost.id,
+      attendance_mode: 'online',
+      skills: 'TypeScript',
+    });
   });
 });

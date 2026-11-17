@@ -5,7 +5,7 @@ export const privacyHackathonsFrench = section(
   [
     subheading('S’inscrire et participer'),
     ...text(
-      'Lorsque vous vous inscrivez à un hackathon, nous conservons votre mode de participation, la date à laquelle vous avez accepté son code de conduite, la confirmation de votre âge s’il fixe un minimum, le fait que vous cherchiez ou non une équipe, et les compétences que vous indiquez à l’inscription. Nous les utilisons pour réserver votre place et aider les équipes à se former.',
+      'Lorsque vous vous inscrivez à un hackathon, nous conservons votre mode de participation, la confirmation de votre âge s’il fixe un minimum, le fait que vous cherchiez ou non une équipe, et les compétences que vous indiquez à l’inscription. Nous les utilisons pour réserver votre place et aider les équipes à se former.',
       'Pour une équipe, nous conservons son nom et sa description, ses membres et son capitaine, les demandes pour la rejoindre et ses liens d’invitation.',
     ),
     subheading('Dépôts, notes et résultats'),
