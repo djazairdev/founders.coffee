@@ -1,9 +1,8 @@
 import type { EventKind } from '@founders-coffee/core';
 import type { Market } from '@founders-coffee/db';
 import {
-  cities_in,
-  localizedName,
   no_events_yet,
+  upcoming_events,
   type Locale,
 } from '@founders-coffee/i18n';
 import type { EventFeedItem, EventFeedPage } from '@founders-coffee/server-fns';
@@ -54,7 +53,6 @@ export const DiscoverFeed = ({
     events,
   );
   const items = pagination.items;
-  const marketName = localizedName(market, locale);
 
   return (
     <section
@@ -67,7 +65,7 @@ export const DiscoverFeed = ({
             id="market-events-title"
             className="discover-title mb-6 font-display text-h3 font-semibold tracking-tight text-balance md:mb-8 md:text-h2"
           >
-            {cities_in({ market: marketName }, { locale })}
+            {upcoming_events({}, { locale })}
           </h2>
           <div className="mb-6 md:mb-8">
             <EventTypeFilter

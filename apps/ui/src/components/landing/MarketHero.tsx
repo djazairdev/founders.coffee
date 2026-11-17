@@ -80,10 +80,7 @@ export const MarketHero = ({
     ? localizedName(selectedCity, locale)
     : '';
   const heroTagline = market.featureFlags.hackathons
-    ? market_hackathon_tagline(
-        { market: localizedName(market, locale) },
-        { locale },
-      )
+    ? market_hackathon_tagline({}, { locale })
     : hero_tagline({}, { locale });
   const heroSubtitle = market.featureFlags.hackathons
     ? market_hackathon_subtitle({}, { locale })

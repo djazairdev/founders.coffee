@@ -110,7 +110,7 @@ describe('MarketHero call to action', () => {
 
 describe('MarketHero hackathon market copy', () => {
   it.each<Locale>(['ar', 'fr', 'en'])(
-    'shows localized hackathon, student club, and tech community copy in %s',
+    'shows localized market hero copy in %s',
     (locale) => {
       const hackathonMarket: Market = {
         ...market,
@@ -126,17 +126,7 @@ describe('MarketHero hackathon market copy', () => {
       );
 
       expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(
-        market_hackathon_tagline(
-          {
-            market:
-              locale === 'ar'
-                ? 'الجزائر'
-                : locale === 'fr'
-                  ? 'Algérie'
-                  : 'Algeria',
-          },
-          { locale },
-        ),
+        market_hackathon_tagline({}, { locale }),
       );
       expect(
         screen.getByText(market_hackathon_subtitle({}, { locale })),
