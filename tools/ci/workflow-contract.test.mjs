@@ -208,7 +208,7 @@ describe('pull request gate contract', () => {
   });
 
   it("skips long verification only for this repository's develop into main", () => {
-    expect(ciWorkflow.split(RELEASE_PULL_REQUEST)).toHaveLength(5);
+    expect(ciWorkflow.split(RELEASE_PULL_REQUEST)).toHaveLength(6);
     expect(
       ciWorkflow,
       'a fork can name its branch develop, so a head ref alone must not skip the gates',
