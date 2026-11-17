@@ -137,7 +137,6 @@ describe('GEO document contract', () => {
       }),
     ).toContain('WebPage JSON-LD inLanguage does not match the route');
   });
-
 });
 
 const MEETUP = 'https://founders.coffee/en/algeria/e/meetup';
