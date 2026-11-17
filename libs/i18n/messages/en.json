@@ -146,7 +146,7 @@
   "hero_waitlist_already": "You're already on the {city} waitlist!",
   "hero_waitlist_invalid_email": "Please enter a valid email",
   "host_in_your_city": "Host in your city",
-  "cities_in": "Events starting now in cities across {market}",
+  "cities_in": "Upcoming events",
   "market_cities": "Cities",
   "going_count": "+{count} going",
   "no_events_yet": "No upcoming meetups yet.",
