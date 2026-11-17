@@ -8,6 +8,13 @@ export const REQUIRED_STAGING_JOBS = [
   'Migrate and deploy',
 ];
 
+export const REQUIRED_PULL_REQUEST_JOBS = [
+  'Format, sync, typecheck, lint and test',
+  'Server functions tests',
+  'Build and Miniflare SEO gate',
+  'Verification evidence',
+];
+
 const isTreeId = (value) =>
   typeof value === 'string' && /^[0-9a-f]{40}$/i.test(value);
 
@@ -35,6 +42,16 @@ export const hasSuccessfulStagingJobs = (jobs) =>
     ),
   );
 
+const hasSuccessfulPullRequestJobs = (jobs) =>
+  REQUIRED_PULL_REQUEST_JOBS.every((name) =>
+    jobs.some(
+      (job) =>
+        job?.name === name &&
+        job?.status === 'completed' &&
+        job?.conclusion === 'success',
+    ),
+  );
+
 export const findVerifiedStagingRun = async ({
   currentRunCreatedAt,
   getJobs,
@@ -54,14 +71,63 @@ export const findVerifiedStagingRun = async ({
   return null;
 };
 
-const workflowRunsUrl = ({ repository, sourceBranch }) => {
+export const findVerifiedPullRequestRun = async ({
+  currentRunCreatedAt,
+  getJobs,
+  getPullRequest,
+  repository,
+  runs,
+  sourceBranch,
+  targetSha,
+  targetTree,
+}) => {
+  if (!isTimestamp(currentRunCreatedAt)) return null;
+  for (const run of runs) {
+    if (
+      run?.event !== 'pull_request' ||
+      run?.status !== 'completed' ||
+      run?.conclusion !== 'success' ||
+      run?.head_commit?.tree_id !== targetTree ||
+      !isTimestamp(run?.updated_at) ||
+      Date.parse(run.updated_at) >= Date.parse(currentRunCreatedAt) ||
+      typeof run?.html_url !== 'string' ||
+      run.html_url.length === 0 ||
+      typeof run?.id !== 'number'
+    ) {
+      continue;
+    }
+    const pullRequest = run.pull_requests?.find(
+      (candidate) =>
+        candidate?.base?.ref === sourceBranch &&
+        candidate?.base?.repo?.full_name === repository &&
+        typeof candidate?.number === 'number',
+    );
+    if (!pullRequest) continue;
+    const mergedPullRequest = await getPullRequest(pullRequest.number);
+    if (
+      mergedPullRequest?.merged !== true ||
+      mergedPullRequest?.base?.ref !== sourceBranch ||
+      mergedPullRequest?.head?.repo?.full_name !== repository ||
+      mergedPullRequest?.merge_commit_sha !== targetSha
+    ) {
+      continue;
+    }
+    const payload = await getJobs(run.id);
+    if (!hasSuccessfulPullRequestJobs(payload.jobs ?? [])) continue;
+    return run;
+  }
+  return null;
+};
+
+export const workflowRunsUrl = ({ event, repository, sourceBranch }) => {
   const query = new URLSearchParams({
-    branch: sourceBranch,
-    event: 'push',
+    event,
     per_page: '100',
     status: 'completed',
   });
-  return `https://api.github.com/repos/${repository}/actions/workflows/deploy.yml/runs?${query}`;
+  const branchQuery = event === 'push' ? `&branch=${sourceBranch}` : '';
+  const workflow = event === 'push' ? 'deploy.yml' : 'ci.yml';
+  return `https://api.github.com/repos/${repository}/actions/workflows/${workflow}/runs?${query}${branchQuery}`;
 };
 
 const jobsUrl = (repository, runId) =>
@@ -69,6 +135,9 @@ const jobsUrl = (repository, runId) =>
 
 const workflowRunUrl = (repository, runId) =>
   `https://api.github.com/repos/${repository}/actions/runs/${runId}`;
+
+const pullRequestUrl = (repository, number) =>
+  `https://api.github.com/repos/${repository}/pulls/${number}`;
 
 export const createGitHubRequester = ({ fetchImpl = fetch, token }) => {
   return async (url) => {
@@ -92,14 +161,17 @@ export const resolveReuse = async ({
   eventName,
   getCurrentRun,
   getJobs,
+  getPullRequest,
   getRuns,
+  repository,
   sourceBranch,
   targetBranch,
   targetSha,
   targetTree,
 }) => {
   if (eventName !== 'push') return { reason: 'not_a_push', reuse: false };
-  if (targetBranch !== 'main') return { reason: 'not_main', reuse: false };
+  if (!['main', 'develop'].includes(targetBranch))
+    return { reason: 'not_release_branch', reuse: false };
   if (!isTreeId(targetTree))
     return { reason: 'invalid_target_tree', reuse: false };
   try {
@@ -114,17 +186,38 @@ export const resolveReuse = async ({
       return { reason: 'current_run_mismatch', reuse: false };
     }
     const payload = await getRuns();
-    const source = await findVerifiedStagingRun({
-      currentRunCreatedAt: current.created_at,
-      getJobs,
-      runs: payload.workflow_runs ?? [],
-      sourceBranch,
-      targetTree,
-    });
+    const source =
+      targetBranch === 'main'
+        ? await findVerifiedStagingRun({
+            currentRunCreatedAt: current.created_at,
+            getJobs,
+            runs: payload.workflow_runs ?? [],
+            sourceBranch,
+            targetTree,
+          })
+        : await findVerifiedPullRequestRun({
+            currentRunCreatedAt: current.created_at,
+            getJobs,
+            getPullRequest,
+            repository,
+            runs: payload.workflow_runs ?? [],
+            sourceBranch,
+            targetSha,
+            targetTree,
+          });
     if (source === null)
-      return { reason: 'no_verified_staging_tree', reuse: false };
+      return {
+        reason:
+          targetBranch === 'main'
+            ? 'no_verified_staging_tree'
+            : 'no_verified_pull_request_tree',
+        reuse: false,
+      };
     return {
-      reason: 'verified_staging_tree',
+      reason:
+        targetBranch === 'main'
+          ? 'verified_staging_tree'
+          : 'verified_pull_request_tree',
       reuse: true,
       sourceRunUrl: source.html_url,
       tree: targetTree,
@@ -152,6 +245,7 @@ export const emitReuseOutputs = (result, outputPath) => {
 const main = async () => {
   const repository = process.env.GITHUB_REPOSITORY ?? '';
   const sourceBranch = 'develop';
+  const targetBranch = process.env.GITHUB_REF_NAME ?? '';
   const requester = createGitHubRequester({
     token: process.env.GITHUB_TOKEN ?? '',
   });
@@ -160,9 +254,18 @@ const main = async () => {
     getCurrentRun: () =>
       requester(workflowRunUrl(repository, process.env.GITHUB_RUN_ID ?? '')),
     getJobs: (runId) => requester(jobsUrl(repository, runId)),
-    getRuns: () => requester(workflowRunsUrl({ repository, sourceBranch })),
+    getPullRequest: (number) => requester(pullRequestUrl(repository, number)),
+    getRuns: () =>
+      requester(
+        workflowRunsUrl({
+          event: targetBranch === 'main' ? 'push' : 'pull_request',
+          repository,
+          sourceBranch,
+        }),
+      ),
+    repository,
     sourceBranch,
-    targetBranch: process.env.GITHUB_REF_NAME ?? '',
+    targetBranch,
     targetSha: process.env.GITHUB_SHA ?? '',
     targetTree: process.env.TARGET_TREE ?? '',
   });

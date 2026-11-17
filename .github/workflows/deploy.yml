@@ -57,7 +57,10 @@ jobs:
     permissions:
       actions: read
       contents: read
+      pull-requests: read
     uses: ./.github/workflows/ci.yml
+    with:
+      base_sha: ${{ github.event.before || '' }}
 
   deploy:
     name: Migrate and deploy

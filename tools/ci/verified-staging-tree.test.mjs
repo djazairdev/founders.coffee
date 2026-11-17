@@ -124,7 +124,7 @@ describe('resolveReuse', () => {
 
   it.each([
     ['workflow_dispatch', 'main', 'not_a_push'],
-    ['push', 'develop', 'not_main'],
+    ['push', 'feature', 'not_release_branch'],
   ])(
     'keeps full verification for %s on %s',
     async (eventName, targetBranch, reason) => {
