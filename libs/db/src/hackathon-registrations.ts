@@ -72,6 +72,7 @@ export const createHackathonRegistration = async (
               registration.attendanceMode,
               'attendance_mode',
             ),
+            codeOfConductAcceptedAt: bound(null, 'code_of_conduct_accepted_at'),
             ageAttestedAt: bound(
               registration.ageAttestedAt && seconds(registration.ageAttestedAt),
               'age_attested_at',
