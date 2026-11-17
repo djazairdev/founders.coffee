@@ -42,14 +42,12 @@ describe('HackathonSchedule (B-HKN-17)', () => {
     renderSchedule();
 
     expect(screen.getByRole('heading', { name: 'Schedule' })).toBeTruthy();
-    expect(screen.getByText('Opens Thu, Jan 1, 09:00')).toBeTruthy();
     expect(screen.getByText('Closes Sat, Jan 10, 18:00')).toBeTruthy();
     expect(screen.getByText('Thu, Jan 15, 10:00')).toBeTruthy();
-    expect(
-      screen.getByText('Submissions close Fri, Jan 16, 12:00'),
-    ).toBeTruthy();
-    expect(screen.getByText('Demo day ends Fri, Jan 16, 18:00')).toBeTruthy();
+    expect(screen.getByText('Fri, Jan 16, 12:00')).toBeTruthy();
     expect(screen.getByText('Judging ends Tue, Jan 20, 18:00')).toBeTruthy();
+    expect(screen.queryByText('Opens Thu, Jan 1, 09:00')).toBeNull();
+    expect(screen.queryByText('Demo day ends Fri, Jan 16, 18:00')).toBeNull();
     expect(screen.getAllByRole('listitem')).toHaveLength(4);
     expect(screen.queryByText('Results')).toBeNull();
   });
@@ -65,7 +63,7 @@ describe('HackathonSchedule (B-HKN-17)', () => {
     renderSchedule();
 
     const step = current();
-    expect(step && within(step).getByText('Building')).toBeTruthy();
+    expect(step && within(step).getByText('Submission deadline')).toBeTruthy();
     expect(step && within(step).getByText('Now')).toBeTruthy();
     expect(
       screen.getByText(
@@ -95,7 +93,7 @@ describe('HackathonSchedule (B-HKN-17)', () => {
 
     expect(current()).toBeUndefined();
     expect(screen.queryByText(/^Teams are building/u)).toBeNull();
-    expect(screen.getByText('Opens Thu, Jan 1, 09:00')).toBeTruthy();
+    expect(screen.getByText('Closes Sat, Jan 10, 18:00')).toBeTruthy();
   });
 
   it('reads in Arabic and in French', () => {

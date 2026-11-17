@@ -39,7 +39,7 @@ describe('the event type badge (B-EVT-04)', () => {
     expect(badgeIn(container)).toBe(NAMES[locale][kind]);
   });
 
-  it.each(CASES)('names the type on a %s event page: %s', (locale, kind) => {
+  it.each(CASES)('handles the type on a %s event page: %s', (locale, kind) => {
     const { container } = render(
       <EventDetail
         locale={locale}
@@ -55,6 +55,11 @@ describe('the event type badge (B-EVT-04)', () => {
     );
 
     const header = container.querySelector('header');
+    if (kind === 'hackathon') {
+      expect(header?.querySelector('.badge')).toBeNull();
+      return;
+    }
+
     expect(header?.querySelector('.badge')?.textContent).toBe(
       NAMES[locale][kind],
     );

@@ -23,6 +23,17 @@ export const eventDayLabel = (
   });
 };
 
+export const eventShortDateLabel = (
+  value: Date,
+  locale: Locale,
+  timeZone: string,
+): string =>
+  inZone(value, locale, timeZone, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+
 /** The time on a clock in the market's time zone. */
 export const eventClockLabel = (
   value: Date,

@@ -39,10 +39,10 @@ vi.mock('../../features/chat/components/EventChat', () => ({
 }));
 
 vi.mock(
-  '../../features/hackathons/components/HackathonRegistrationCard',
+  '../../features/hackathons/components/HackathonRegistrationAction',
   () => ({
-    HackathonRegistrationCard: () =>
-      createElement('section', { 'aria-label': 'Registration card' }),
+    HackathonRegistrationAction: () =>
+      createElement('section', { 'aria-label': 'Registration action' }),
   }),
 );
 

@@ -4,7 +4,6 @@ import type { EventFormat, HackathonPhase } from '@founders-coffee/core';
 import {
   hackathon_disqualified,
   hackathon_register_full,
-  hackathon_register_heading,
   hackathon_register_sign_in,
   hackathon_withdrawn,
   type Locale,
@@ -19,7 +18,6 @@ import { HackathonParticipantLinks } from './HackathonParticipantLinks';
 import { HackathonRegistrationForm } from './HackathonRegistrationForm';
 import { HackathonRegistrationStanding } from './HackathonRegistrationStanding';
 
-const HEADING_ID = 'hackathon-registration-heading';
 const WITHDRAWABLE: readonly HackathonPhase[] = [
   'upcoming',
   'registration_open',
@@ -27,7 +25,7 @@ const WITHDRAWABLE: readonly HackathonPhase[] = [
   'building',
 ];
 
-type HackathonRegistrationCardProps = {
+type HackathonRegistrationActionProps = {
   eventId: string;
   format: EventFormat;
   minimumAge: number | null;
@@ -45,7 +43,7 @@ const Body = ({
   registration,
   timeZone,
   locale,
-}: HackathonRegistrationCardProps) => {
+}: HackathonRegistrationActionProps) => {
   const options = { locale };
   const { isAuthenticated } = useAuth();
   const pathname = useLocation({ select: (location) => location.pathname });
@@ -93,7 +91,7 @@ const Body = ({
           <Link
             {...localizedLogin(locale)}
             search={{ redirect: pathname }}
-            className="btn btn-secondary btn-xs sm:btn-sm md:btn-md w-full sm:w-auto"
+            className="btn btn-secondary btn-xs sm:btn-sm md:btn-md w-full rounded-full sm:w-auto"
           >
             {hackathon_register_sign_in({}, options)}
           </Link>
@@ -103,28 +101,19 @@ const Body = ({
   );
 };
 
-export const HackathonRegistrationCard = (
-  props: HackathonRegistrationCardProps,
+export const HackathonRegistrationAction = (
+  props: HackathonRegistrationActionProps,
 ) => {
-  const heading = useFocusAfterChange<HTMLHeadingElement>(
+  const action = useFocusAfterChange<HTMLDivElement>(
     props.registration.viewer?.status ?? 'none',
   );
   return (
-    <section
-      aria-labelledby={HEADING_ID}
-      className="rounded-box border-2 border-secondary bg-base-100 p-3 shadow-[var(--shadow-2)] sm:p-5"
+    <div
+      ref={action}
+      tabIndex={-1}
+      className="ms-auto grid w-full gap-3 sm:w-fit"
     >
-      <h2
-        ref={heading}
-        tabIndex={-1}
-        id={HEADING_ID}
-        className="font-display text-h4 font-semibold"
-      >
-        {hackathon_register_heading({}, { locale: props.locale })}
-      </h2>
-      <div className="mt-3">
-        <Body {...props} />
-      </div>
+      <Body {...props} />
       <HackathonParticipantLinks
         eventId={props.eventId}
         isRegistered={props.registration.viewer?.status === 'registered'}
@@ -132,6 +121,6 @@ export const HackathonRegistrationCard = (
         isOrganiser={props.registration.isOrganiser}
         locale={props.locale}
       />
-    </section>
+    </div>
   );
 };
