@@ -6,6 +6,11 @@ name: CI
 on:
   pull_request:
   workflow_call:
+    inputs:
+      base_sha:
+        type: string
+        required: false
+        default: ''
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -14,6 +19,7 @@ concurrency:
 permissions:
   actions: read
   contents: read
+  pull-requests: read
 
 env:
   NX_CACHE_DIRECTORY: .nx/cache
@@ -21,8 +27,8 @@ env:
 
 jobs:
   reuse-evidence:
-    name: Reuse verified staging tree
-    if: github.event_name == 'push' && github.ref_name == 'main'
+    name: Reuse exact-tree verification
+    if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'develop')
     runs-on: ubuntu-latest
     outputs:
       reuse: ${{ steps.lookup.outputs.reuse }}
@@ -40,6 +46,7 @@ jobs:
       - id: lookup
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
           TARGET_TREE: ${{ steps.target-tree.outputs.tree }}
         run: node tools/ci/verified-staging-tree.mjs
 
@@ -95,6 +102,25 @@ jobs:
         if: steps.modules.outputs.cache-hit != 'true'
         run: npm ci --no-audit --no-fund
 
+      - &nx-range
+        name: Resolve affected range
+        id: nx-range
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || inputs.base_sha }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            echo "full=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git fetch --no-tags --depth=1 origin "$BASE_SHA"; then
+            echo "full=false" >> "$GITHUB_OUTPUT"
+            echo "base=$BASE_SHA" >> "$GITHUB_OUTPUT"
+            echo "head=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          else
+            echo "full=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Check formatting
         run: npm run format:check
 
@@ -106,10 +132,28 @@ jobs:
       # `lint` includes the Nx module-boundary rules that enforce the one-directional
       # data flow (AGENTS.md §4), so a boundary violation fails CI here.
       - name: Typecheck and lint
-        run: npx nx run-many -t typecheck lint --parallel=2
+        env:
+          FULL: ${{ steps.nx-range.outputs.full }}
+          NX_BASE: ${{ steps.nx-range.outputs.base }}
+          NX_HEAD: ${{ steps.nx-range.outputs.head }}
+        run: |
+          if [ "$FULL" = "true" ]; then
+            npx nx run-many -t typecheck lint --parallel=2
+          else
+            npx nx affected -t typecheck lint --base="$NX_BASE" --head="$NX_HEAD" --parallel=2
+          fi
 
       - name: Test workspace projects
-        run: npx nx run-many -t test --exclude=server-fns --parallel=1
+        env:
+          FULL: ${{ steps.nx-range.outputs.full }}
+          NX_BASE: ${{ steps.nx-range.outputs.base }}
+          NX_HEAD: ${{ steps.nx-range.outputs.head }}
+        run: |
+          if [ "$FULL" = "true" ]; then
+            npx nx run-many -t test --exclude=server-fns --parallel=2
+          else
+            npx nx affected -t test --exclude=server-fns --base="$NX_BASE" --head="$NX_HEAD" --parallel=2
+          fi
 
   server-tests:
     name: Server functions tests
@@ -125,6 +169,7 @@ jobs:
       - *nx-cache
       - *modules
       - *install
+      - *nx-range
 
       - name: Test server functions with coverage
         run: npx nx run server-fns:test
@@ -143,9 +188,20 @@ jobs:
       - *nx-cache
       - *modules
       - *install
+      - *nx-range
 
       - name: Build
-        run: npx nx run-many -t build --parallel=1
+        env:
+          FULL: ${{ steps.nx-range.outputs.full }}
+          NX_BASE: ${{ steps.nx-range.outputs.base }}
+          NX_HEAD: ${{ steps.nx-range.outputs.head }}
+        run: |
+          if [ "$FULL" = "true" ]; then
+            npx nx run-many -t build --parallel=2
+          else
+            npx nx affected -t build --base="$NX_BASE" --head="$NX_HEAD" --parallel=2
+            npx nx run public:build
+          fi
 
       - name: Run Miniflare SEO integration gate
         run: npx nx run public:integration-test
@@ -169,11 +225,11 @@ jobs:
         run: |
           if [ "$REUSED" = "true" ]; then
             if [ "$REUSE_EVIDENCE" != "success" ] || [ "$QUALITY" != "skipped" ] || [ "$SERVER_TESTS" != "skipped" ] || [ "$BUILD" != "skipped" ] || [ -z "$SOURCE_RUN_URL" ] || [ -z "$SOURCE_TREE" ]; then
-              echo "::error::Verified-tree reuse evidence is incomplete."
+              echo "::error::Exact-tree reuse evidence is incomplete."
               exit 1
             fi
             {
-              echo "## Reused verified staging tree"
+              echo "## Reused exact-tree verification"
               echo
               echo "Source: $SOURCE_RUN_URL"
               echo "Tree: \`$SOURCE_TREE\`"
