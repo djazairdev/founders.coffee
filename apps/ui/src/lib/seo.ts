@@ -99,7 +99,7 @@ export const getSiteOrigin = (): string => {
   return SITE_ORIGIN;
 };
 
-const defaultRobotsDirective = (): string => {
+export const defaultRobotsDirective = (): string => {
   const { isSearchIndexable } = getRequestContext();
   if (isSearchIndexable !== undefined)
     return isSearchIndexable ? 'index,follow' : NO_INDEX_VALUE;
@@ -201,6 +201,7 @@ export const buildTitledPageMetadata = ({
       { property: 'og:url', content: url },
       { property: 'og:locale', content: openGraphLocale(locale, marketCode) },
       { property: 'og:image', content: socialImage },
+      { property: 'og:image:type', content: 'image/png' },
       { property: 'og:image:width', content: '1200' },
       { property: 'og:image:height', content: '630' },
       { property: 'og:image:alt', content: socialImageAlt },
