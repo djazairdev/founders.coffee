@@ -80,7 +80,10 @@ export const getMyCloseoutStates = createServerFn({
  * check and the statement cannot slip through.
  */
 export const submitCloseout = createServerFn({ method: 'POST', strict: false })
-  .middleware([authMiddleware, rateLimit('submit_closeout', 10, 600_000)])
+  .middleware([
+    requirePermission('closeout', 'submit'),
+    rateLimit('submit_closeout', 10, 600_000),
+  ])
   .validator(appValidator(submitCloseoutRequestSchema))
   .handler(async ({ context, data }) => {
     const session = requireAuth(context.session);

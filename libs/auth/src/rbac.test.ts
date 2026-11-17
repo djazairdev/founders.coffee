@@ -29,6 +29,12 @@ describe('the operations actions the permission table defines', () => {
   it('withholds the closeout override from a moderator', () => {
     expect(roleAllows('moderator', { closeout: ['override'] })).toBe(false);
   });
+
+  it('lets hosts submit their own closeout but not override one', () => {
+    expect(roleAllows('host', { closeout: ['submit'] })).toBe(true);
+    expect(roleAllows('host', { closeout: ['override'] })).toBe(false);
+    expect(roleAllows('member', { closeout: ['submit'] })).toBe(false);
+  });
 });
 
 describe('roles that are not operators', () => {
