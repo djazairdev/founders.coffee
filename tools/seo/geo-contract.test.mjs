@@ -137,6 +137,48 @@ describe('GEO document contract', () => {
       }),
     ).toContain('WebPage JSON-LD inLanguage does not match the route');
   });
+
+  it('does not count script text as visible when an end tag has whitespace', () => {
+    const url = 'https://founders.coffee/en/algeria';
+    const body = document({
+      type: 'CollectionPage',
+      name: 'Hidden name',
+      url,
+    })
+      .replace('<h1>Hidden name</h1>', '<h1>Visible name</h1>')
+      .replace('</body>', '<script>Hidden name</script ></body>');
+
+    expect(
+      inspectGeoDocument({
+        path: '/en/algeria',
+        type: 'market',
+        body,
+        canonical: url,
+      }),
+    ).toContain('CollectionPage name is not visible in the document');
+  });
+
+  it('decodes HTML entities in one pass when checking visible names', () => {
+    const url = 'https://founders.coffee/en/algeria';
+    const name = 'Builders &quot;literal&quot;';
+    const body = document({
+      type: 'CollectionPage',
+      name,
+      url,
+    }).replace(
+      `<h1>${name}</h1>`,
+      '<h1>Builders &amp;quot;literal&amp;quot;</h1>',
+    );
+
+    expect(
+      inspectGeoDocument({
+        path: '/en/algeria',
+        type: 'market',
+        body,
+        canonical: url,
+      }),
+    ).toEqual([]);
+  });
 });
 
 const MEETUP = 'https://founders.coffee/en/algeria/e/meetup';

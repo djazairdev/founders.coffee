@@ -27,8 +27,13 @@ const ALGIERS_OFFSET_SECONDS = HOUR_SECONDS;
  * The wizard opens in person, so the map starts loading before the run picks online, and what
  * Mapbox answers a development token says nothing about the organiser flow.
  */
-const isMapResponse = (failure: string): boolean =>
-  failure.includes('https://api.mapbox.com/');
+const isMapResponse = (failure: string): boolean => {
+  try {
+    return new URL(failure).origin === 'https://api.mapbox.com';
+  } catch {
+    return false;
+  }
+};
 
 const organiserFor = (locale: E2eLocale) => ({
   organisationId: `org_e2e_hkn_${locale}_${RUN_ID}`,
