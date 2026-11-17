@@ -13,7 +13,6 @@ import {
   footer_cookies,
   footer_copyright_brand,
   footer_copyright_made,
-  footer_cta,
   footer_cta_host,
   footer_faq,
   footer_legal,
@@ -124,12 +123,6 @@ export const Footer = ({ locale, markets, market, cityCode }: FooterProps) => {
             <p className="max-w-xs text-body-sm leading-relaxed text-pretty text-neutral">
               {footer_tagline({ market: primaryMarketLabel }, { locale })}
             </p>
-            <Link
-              {...localizedHome(locale, primaryMarket?.slug)}
-              className="btn btn-primary btn-xs sm:btn-sm md:btn-md rounded-full border-0 shadow-none"
-            >
-              {footer_cta({}, { locale })}
-            </Link>
           </div>
 
           <FooterNavGroup

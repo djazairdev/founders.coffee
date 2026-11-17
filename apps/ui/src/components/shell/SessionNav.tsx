@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router';
-import { Building2 } from 'lucide-react';
+import { Bell, Building2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import {
@@ -7,6 +7,7 @@ import {
   sign_in,
   sign_out,
   nav_signed_in_as,
+  notifications,
   profile_organisations,
   profile_loading,
   profile_title,
@@ -22,6 +23,7 @@ import {
   localizedLogin,
   localizedProfile,
   localizedProfileActivity,
+  localizedProfileNotifications,
   withoutLocale,
 } from '../../lib/locale-routing';
 import { useAuth } from '../../lib/app-providers';
@@ -96,61 +98,70 @@ export const SessionNav = ({ locale }: SessionNavProps) => {
     profile?.userId === user.id ? profile.photoAssetId : null;
 
   return (
-    <details ref={ref} className="dropdown dropdown-end">
-      <summary
-        aria-label={profile_title({}, { locale })}
-        className={`avatar ${presence ? presenceClass(presence) : ''} flex size-8 cursor-pointer list-none items-center justify-center rounded-full bg-base-200 text-xs font-semibold text-base-content`}
+    <div className="flex items-center gap-1">
+      <Link
+        {...localizedProfileNotifications(locale)}
+        aria-label={notifications({}, { locale })}
+        className="btn btn-ghost btn-square btn-xs sm:btn-sm md:btn-md"
       >
-        {presenceLabel && <span className="sr-only">{presenceLabel}</span>}
-        {photoAssetId && photoAssetId !== failedPhoto ? (
-          <img
-            key={photoAssetId}
-            src={profilePhotoUrl(photoAssetId, 'sm')}
-            alt=""
-            width={32}
-            height={32}
-            className="size-8 rounded-full object-cover"
-            onError={() => setFailedPhoto(photoAssetId)}
-          />
-        ) : (
-          initials(user.name, user.email)
-        )}
-      </summary>
-      <div className="dropdown-content z-50 mt-2 flex w-60 flex-col rounded-box border border-base-300 bg-base-100 p-1 shadow-[var(--shadow-2)]">
-        <p className="px-3 pt-2 text-caption text-neutral">
-          {nav_signed_in_as({}, { locale })}
-        </p>
-        <p className="truncate px-3 text-body-sm" title={user.email}>
-          <bdi>{user.email}</bdi>
-        </p>
-        <div className="divider my-1" role="presentation" />
-        <ul className="menu w-full p-0" onClick={close}>
-          <li>
-            <Link {...localizedProfile(locale)}>
-              <ProfileIcon />
-              {profile_title({}, { locale })}
-            </Link>
-          </li>
-          <li>
-            <Link to="/$locale/profile/organisations" params={{ locale }}>
-              <Building2 className="size-4" aria-hidden="true" />
-              {profile_organisations({}, { locale })}
-            </Link>
-          </li>
-          <li>
-            <Link {...localizedProfileActivity(locale)}>
-              <ActivityIcon />
-              {activity({}, { locale })}
-            </Link>
-          </li>
-          <li>
-            <button type="button" onClick={() => authClient.signOut()}>
-              <SignOutIcon locale={locale} />
-              {sign_out({}, { locale })}
-            </button>
-          </li>
-        </ul>
-      </div>
-    </details>
+        <Bell className="size-5" aria-hidden="true" />
+      </Link>
+      <details ref={ref} className="dropdown dropdown-end">
+        <summary
+          aria-label={profile_title({}, { locale })}
+          className={`avatar ${presence ? presenceClass(presence) : ''} flex size-8 cursor-pointer list-none items-center justify-center rounded-full bg-base-200 text-xs font-semibold text-base-content`}
+        >
+          {presenceLabel && <span className="sr-only">{presenceLabel}</span>}
+          {photoAssetId && photoAssetId !== failedPhoto ? (
+            <img
+              key={photoAssetId}
+              src={profilePhotoUrl(photoAssetId, 'sm')}
+              alt=""
+              width={32}
+              height={32}
+              className="size-8 rounded-full object-cover"
+              onError={() => setFailedPhoto(photoAssetId)}
+            />
+          ) : (
+            initials(user.name, user.email)
+          )}
+        </summary>
+        <div className="dropdown-content z-50 mt-2 flex w-60 flex-col rounded-box border border-base-300 bg-base-100 p-1 shadow-[var(--shadow-2)]">
+          <p className="px-3 pt-2 text-caption text-neutral">
+            {nav_signed_in_as({}, { locale })}
+          </p>
+          <p className="truncate px-3 text-body-sm" title={user.email}>
+            <bdi>{user.email}</bdi>
+          </p>
+          <div className="divider my-1" role="presentation" />
+          <ul className="menu w-full p-0" onClick={close}>
+            <li>
+              <Link {...localizedProfile(locale)}>
+                <ProfileIcon />
+                {profile_title({}, { locale })}
+              </Link>
+            </li>
+            <li>
+              <Link to="/$locale/profile/organisations" params={{ locale }}>
+                <Building2 className="size-4" aria-hidden="true" />
+                {profile_organisations({}, { locale })}
+              </Link>
+            </li>
+            <li>
+              <Link {...localizedProfileActivity(locale)}>
+                <ActivityIcon />
+                {activity({}, { locale })}
+              </Link>
+            </li>
+            <li>
+              <button type="button" onClick={() => authClient.signOut()}>
+                <SignOutIcon locale={locale} />
+                {sign_out({}, { locale })}
+              </button>
+            </li>
+          </ul>
+        </div>
+      </details>
+    </div>
   );
 };
