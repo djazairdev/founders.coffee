@@ -84,7 +84,9 @@ export const registerForHackathonResolver = async (
     userId: input.userId,
     attendanceMode: input.attendanceMode,
     ageAttestedAt:
-      hackathon.minimumAge !== null && input.isAgeAttested ? new Date(now) : null,
+      hackathon.minimumAge !== null && input.isAgeAttested
+        ? new Date(now)
+        : null,
     isLookingForTeam: input.isLookingForTeam,
     skills: input.skills,
   });

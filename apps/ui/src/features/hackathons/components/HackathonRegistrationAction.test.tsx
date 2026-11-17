@@ -111,9 +111,7 @@ const viewer = (
 });
 
 const submit = () =>
-  fireEvent.click(
-    screen.getByRole('button', { name: 'Join the hackathon' }),
-  );
+  fireEvent.click(screen.getByRole('button', { name: 'Join the hackathon' }));
 
 afterEach(() => {
   cleanup();
