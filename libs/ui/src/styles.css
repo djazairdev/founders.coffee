@@ -534,6 +534,10 @@
   justify-content: flex-end;
 }
 
+:root[data-auth-slot='in'] .navbar-host-cta {
+  display: none;
+}
+
 :root[data-auth-slot='in'] .auth-slot {
   order: 1;
 }
