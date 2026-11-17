@@ -151,8 +151,7 @@ describe('HackathonPageDetails (B-HKN-19, B-HKN-26)', () => {
     const judges = screen.getByRole('region', { name: 'Judges' });
 
     expect(
-      tracks.compareDocumentPosition(prizes) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
+      tracks.compareDocumentPosition(prizes) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(
       prizes.compareDocumentPosition(judges) & Node.DOCUMENT_POSITION_FOLLOWING,

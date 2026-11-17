@@ -63,9 +63,7 @@ describe('HackathonSchedule (B-HKN-17)', () => {
     renderSchedule();
 
     const step = current();
-    expect(
-      step && within(step).getByText('Submission deadline'),
-    ).toBeTruthy();
+    expect(step && within(step).getByText('Submission deadline')).toBeTruthy();
     expect(step && within(step).getByText('Now')).toBeTruthy();
     expect(
       screen.getByText(

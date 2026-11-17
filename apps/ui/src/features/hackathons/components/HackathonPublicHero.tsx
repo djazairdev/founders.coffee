@@ -35,10 +35,7 @@ import { eventStreetAddress } from '../../events/event-street-address';
 import { EventCoHosts } from '../../../components/events/EventCoHosts';
 import { ShareEventButton } from '../../../components/events/ShareEventButton';
 import { eventShortDateLabel } from '../../../components/events/event-time';
-import type {
-  HackathonRegistrationView,
-  HackathonSchedule,
-} from '../api';
+import type { HackathonRegistrationView, HackathonSchedule } from '../api';
 import { HackathonRegistrationAction } from './HackathonRegistrationAction';
 
 const MetaItem = ({
@@ -93,9 +90,8 @@ export const HackathonPublicHero = ({
   const registrationCloses = schedule
     ? new Date(schedule.registrationClosesAt)
     : null;
-  const locationParts = (event.format === 'online'
-    ? []
-    : [event.venue, streetAddress, cityName]
+  const locationParts = (
+    event.format === 'online' ? [] : [event.venue, streetAddress, cityName]
   )
     .filter((part): part is string => part !== null)
     .filter((part, index, parts) => parts.indexOf(part) === index);
