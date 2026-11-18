@@ -8,6 +8,7 @@ import { Input } from '@founders-coffee/ui';
 type HostVenueNameFieldProps = {
   locale: Locale;
   value: string;
+  placeholder?: string;
   error?: string;
   onChange: (value: string) => void;
 };
@@ -15,6 +16,7 @@ type HostVenueNameFieldProps = {
 export const HostVenueNameField = ({
   locale,
   value,
+  placeholder,
   error,
   onChange,
 }: HostVenueNameFieldProps) => (
@@ -26,7 +28,7 @@ export const HostVenueNameField = ({
       id="host-venue-name"
       value={value}
       maxLength={200}
-      placeholder={host_venue_name_ph({}, { locale })}
+      placeholder={placeholder ?? host_venue_name_ph({}, { locale })}
       required
       aria-invalid={!!error}
       aria-describedby="host-venue-name-error"

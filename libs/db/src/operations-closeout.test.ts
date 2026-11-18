@@ -92,6 +92,13 @@ describe('submitCloseout', () => {
     expect((await submit(db, eventId)).outcome).toBe('event_cancelled');
   });
 
+  it('refuses a draft as if there were no event, and writes nothing', async () => {
+    const eventId = await pastEvent(db, { status: 'draft' });
+
+    expect((await submit(db, eventId)).outcome).toBe('not_host');
+    expect(await getCloseout(db, eventId)).toBeUndefined();
+  });
+
   it('refuses a legacy event with no end time rather than inferring one', async () => {
     const eventId = await pastEvent(db, { withEndsAt: false });
 

@@ -5,6 +5,7 @@ import {
   createEvent,
   createRsvp,
   eq,
+  events,
   markets,
   user,
 } from '@founders-coffee/db';
@@ -176,6 +177,41 @@ describe('readEventPage (real D1)', () => {
     );
 
     expect(!page.ok && page.error.code).toBe('event_not_found');
+  });
+
+  it('answers a draft as a missing meetup to a reader signed out, its host excepted, and a cancelled one with its page', async () => {
+    const db = await setupDb();
+    const draft = await createTestEvent(db);
+    const cancelled = await createTestEvent(db);
+    await db
+      .update(events)
+      .set({ status: 'draft' })
+      .where(eq(events.id, draft.id))
+      .run();
+    await db
+      .update(events)
+      .set({ status: 'cancelled' })
+      .where(eq(events.id, cancelled.id))
+      .run();
+
+    const hidden = await readEventPage(
+      db,
+      { marketCode: 'DZ', slug: draft.slug },
+      anonymous(),
+    );
+    const hosted = await readEventPage(
+      db,
+      { marketCode: 'DZ', slug: draft.slug },
+      Promise.resolve(TEST_HOST_ID),
+    );
+    expect(!hidden.ok && hidden.error.code).toBe('event_not_found');
+    expect(hosted.ok && hosted.data.event.status).toBe('draft');
+    const shown = await readEventPage(
+      db,
+      { marketCode: 'DZ', slug: cancelled.slug },
+      anonymous(),
+    );
+    expect(shown.ok && shown.data.event.status).toBe('cancelled');
   });
 
   it('answers a meetup in a dark market as a missing market', async () => {

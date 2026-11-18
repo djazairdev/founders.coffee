@@ -38,6 +38,14 @@ vi.mock('../../features/chat/components/EventChat', () => ({
   EventChat: () => null,
 }));
 
+vi.mock(
+  '../../features/hackathons/components/HackathonRegistrationAction',
+  () => ({
+    HackathonRegistrationAction: () =>
+      createElement('section', { 'aria-label': 'Registration action' }),
+  }),
+);
+
 export const market = {
   code: 'DZ',
   name: 'Algeria',
@@ -78,6 +86,9 @@ export const event = {
   venueAddress: null,
   slug: 'founders-breakfast',
   status: 'published',
+  kind: 'meetup',
+  tags: [],
+  format: 'in_person',
   version: 1,
   createdAt: new Date('2026-09-01T00:00:00Z'),
   updatedAt: new Date('2026-09-01T00:00:00Z'),
@@ -92,4 +103,6 @@ export const event = {
   stateName: 'Alger',
   stateNameAr: 'الجزائر',
   stateNameFr: 'Alger',
+  meetingLink: null,
+  runBy: { kind: 'community' },
 } satisfies EventDetailItem;

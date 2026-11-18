@@ -96,6 +96,16 @@ export const accountId = (email) =>
 const HOST_EMAIL = 'dev-host@dev.invalid';
 const MEMBER_EMAIL = 'dev-member@dev.invalid';
 const SECOND_MEMBER_EMAIL = 'dev-member-two@dev.invalid';
+const TEAMMATE_EMAIL = 'dev-teammate@dev.invalid';
+const RIVAL_EMAIL = 'dev-rival@dev.invalid';
+
+export const HACKATHON_ACCOUNT_EMAILS = {
+  organiser: HOST_EMAIL,
+  captain: MEMBER_EMAIL,
+  judge: SECOND_MEMBER_EMAIL,
+  teammate: TEAMMATE_EMAIL,
+  rival: RIVAL_EMAIL,
+};
 
 export const ACCOUNT_ROWS = [
   {
@@ -119,7 +129,67 @@ export const ACCOUNT_ROWS = [
     email_verified: 1,
     role: 'member',
   },
+  {
+    id: accountId(TEAMMATE_EMAIL),
+    name: 'Sofiane Meziane',
+    email: TEAMMATE_EMAIL,
+    email_verified: 1,
+    role: 'member',
+  },
+  {
+    id: accountId(RIVAL_EMAIL),
+    name: 'Lina Cherif',
+    email: RIVAL_EMAIL,
+    email_verified: 1,
+    role: 'member',
+  },
 ];
+
+/*
+ * The platform organisation, which must stay identical to `PLATFORM_ORGANISATION` in
+ * `libs/db/src/seed.ts` and migration 0051; `market-agreement.test.mjs` holds the copy to it.
+ */
+export const PLATFORM_ORGANISATION_ROW = {
+  id: 'org_founders_coffee',
+  name: 'founders.coffee',
+  slug: 'founders-coffee',
+  kind: 'platform',
+  status: 'approved',
+  market_code: 'DZ',
+  city_code: null,
+  description:
+    'founders.coffee runs free meetups and hackathons for founders and builders.',
+  website_url: 'https://founders.coffee',
+};
+
+/**
+ * The organisations a local database starts with: the platform, and an approved club in Algiers
+ * that `dev-host` owns, so organisation permissions have a member to answer for (B-ORG-07).
+ *
+ * @returns {{organisations: object[], members: object[]}} rows ready to insert.
+ */
+export const organisationRows = () => {
+  const club = {
+    id: derivedId('org', 'dev-code-club'),
+    name: 'Code Club Alger',
+    slug: 'dev-code-club',
+    kind: 'club',
+    status: 'approved',
+    market_code: 'DZ',
+    city_code: '556',
+    description: 'نادٍ محلي للبرمجة، لتجربة صلاحيات المنظمات على جهازك المحلي.',
+    website_url: null,
+  };
+  const members = [
+    {
+      id: derivedId('mem', 'dev-code-club/dev-host'),
+      organization_id: club.id,
+      user_id: accountId(HOST_EMAIL),
+      role: 'owner',
+    },
+  ];
+  return { organisations: [PLATFORM_ORGANISATION_ROW, club], members };
+};
 
 /**
  * Three events chosen so every operations path has something to run against.

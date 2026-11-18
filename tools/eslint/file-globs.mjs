@@ -91,12 +91,15 @@ export const REACT_SOURCE_FILES = [
 /**
  * The buttons that go on to daisyUI's large size from 1024px up, where every other button stops at
  * medium (AGENTS.md §8): the market landing's two calls to action, the hero's search button and the
- * pair that closes How it works. Each file holds no other button, so the whole file takes the
- * larger scale, and `local/daisyui-control-size` holds every button in it to that scale.
+ * pair that closes How it works, and the hackathon organiser button. Each file holds no other
+ * button, so the whole file takes the larger scale, and `local/daisyui-control-size` holds every
+ * button in it to that scale.
  */
 export const CALL_TO_ACTION_BUTTON_FILES = [
   'apps/ui/src/components/landing/MarketHero.tsx',
   'apps/ui/src/components/landing/HowItWorks.tsx',
+  'apps/ui/src/features/hackathons/components/HackathonOrganisers.tsx',
+  'apps/ui/src/features/organisations/components/OrganisationProfileEmpty.tsx',
 ];
 
 /**

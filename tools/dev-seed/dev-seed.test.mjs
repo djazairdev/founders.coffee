@@ -1,62 +1,12 @@
-import { readFileSync, readdirSync } from 'node:fs';
-import path from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { describe, expect, it } from 'vitest';
 
+import { count, migrated, rows, seeded } from './dev-seed.fixtures.mjs';
 import { ACCOUNT_ROWS, accountId, derivedId, eventRows } from './rows.mjs';
 import { insertIgnore, literal } from './sql.mjs';
 import { seedStatements } from './statements.mjs';
 
-const MIGRATIONS = path.resolve(
-  import.meta.dirname,
-  '..',
-  '..',
-  'libs/db/migrations',
-);
-
 const ID_FORMAT = /^[a-z]{2,8}_[0-9a-f]{32}$/;
 const ACCOUNT_FORMAT = /^[A-Za-z0-9]{32}$/;
-
-/**
- * A database built by the migrations themselves, not by a copy of the schema.
- *
- * Every statement the product has ever run against D1 runs here in order, so a column added,
- * dropped or made `NOT NULL` reaches this test the same day it reaches the database. A fixture
- * holding its own `CREATE TABLE` would instead keep agreeing with a schema that no longer exists.
- * Foreign keys stay off while the migrations run — several rebuild a table by copying it — and go
- * on before the seed, which is the part whose references are under test.
- *
- * @returns {DatabaseSync} an in-memory database at the current schema.
- */
-const migrated = () => {
-  const db = new DatabaseSync(':memory:');
-  const files = readdirSync(MIGRATIONS)
-    .filter((file) => file.endsWith('.sql'))
-    .sort();
-  expect(files.length, 'no migrations were found to apply').toBeGreaterThan(0);
-
-  for (const file of files)
-    for (const statement of readFileSync(
-      path.join(MIGRATIONS, file),
-      'utf8',
-    ).split('--> statement-breakpoint')) {
-      const trimmed = statement.trim();
-      if (trimmed !== '') db.exec(trimmed);
-    }
-
-  db.exec('PRAGMA foreign_keys = ON');
-  return db;
-};
-
-const seeded = (now = 1_800_000_000) => {
-  const db = migrated();
-  for (const statement of seedStatements(now)) db.exec(statement);
-  return db;
-};
-
-const rows = (db, sql) => db.prepare(sql).all();
-const count = (db, table) =>
-  db.prepare(`select count(*) as n from "${table}"`).get().n;
 
 describe('the dev seed against a database the migrations built', () => {
   it('lands every row it declares', () => {
@@ -66,8 +16,30 @@ describe('the dev seed against a database the migrations built', () => {
     expect(count(db, 'user')).toBe(ACCOUNT_ROWS.length);
     expect(count(db, 'member_profiles')).toBe(ACCOUNT_ROWS.length);
     expect(count(db, 'account_preferences')).toBe(ACCOUNT_ROWS.length);
-    expect(count(db, 'events')).toBe(3);
+    expect(count(db, 'events')).toBe(7);
     expect(count(db, 'event_rsvps')).toBe(2);
+    expect(count(db, 'organization')).toBe(2);
+    expect(count(db, 'member')).toBe(1);
+  });
+
+  it('gives dev-host an approved club to organise, beside the approved platform', () => {
+    const db = seeded();
+
+    expect(
+      rows(db, 'select slug, kind, status from organization order by slug').map(
+        (row) => ({ ...row }),
+      ),
+    ).toEqual([
+      { slug: 'dev-code-club', kind: 'club', status: 'approved' },
+      { slug: 'founders-coffee', kind: 'platform', status: 'approved' },
+    ]);
+    expect(
+      rows(
+        db,
+        'select o.slug, m.role from member m join organization o on o.id = m.organization_id where m.user_id = ' +
+          literal(accountId('dev-host@dev.invalid')),
+      ).map((row) => ({ ...row })),
+    ).toEqual([{ slug: 'dev-code-club', role: 'owner' }]);
   });
 
   it('breaks no foreign key', () => {
@@ -85,7 +57,7 @@ describe('the dev seed against a database the migrations built', () => {
     expect(
       count(db, 'events'),
       'a second run inserted again, so the seed is not safe to re-run and a developer who runs it twice gets duplicate events under different ids',
-    ).toBe(3);
+    ).toBe(7);
     expect(count(db, 'event_rsvps')).toBe(2);
     expect(
       rows(db, 'select * from events order by id'),

@@ -14,11 +14,14 @@
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
       "!{projectRoot}/tsconfig.spec.json",
       "!{projectRoot}/vitest.config.[jt]s",
-      "!{projectRoot}/vite.config.[jt]s",
       "!{projectRoot}/src/test-setup.[jt]s",
       "!{projectRoot}/test-setup.[jt]s"
     ],
-    "sharedGlobals": []
+    "sharedGlobals": [
+      "{workspaceRoot}/tsconfig.base.json",
+      "{workspaceRoot}/.github/workflows/**/*",
+      "{workspaceRoot}/tools/ci/**/*"
+    ]
   },
   "plugins": [
     {
@@ -48,6 +51,7 @@
       }
     }
   ],
+  "affected": { "legacy": true },
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"],
@@ -55,7 +59,11 @@
       "cache": true
     },
     "lint": {
-      "inputs": ["default", "{workspaceRoot}/eslint.config.mjs"],
+      "inputs": [
+        "default",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint/**/*"
+      ],
       "cache": true
     },
     "test": {

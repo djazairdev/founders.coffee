@@ -4,6 +4,7 @@ import {
   breadcrumbJsonLd,
   collectionPageJsonLd,
   eventJsonLd,
+  jsonLdText,
   type StructuredEventData,
 } from './seo-structured-data';
 
@@ -15,6 +16,7 @@ const BREAKFAST: StructuredEventData = {
   createdAt: new Date('2026-09-01T08:30:00Z'),
   timezone: 'Africa/Algiers',
   status: 'published',
+  format: 'in_person',
   venue: 'Café Atlas',
   cityName: 'Alger',
   regionName: 'Alger',
@@ -146,6 +148,24 @@ describe('structured discovery data', () => {
     });
   });
 
+  it('names no place for a meetup that has no venue, and keeps its city', () => {
+    const schema = eventJsonLd(
+      { ...BREAKFAST, venue: null, latitude: null, longitude: null },
+      0,
+    );
+
+    expect(schema.location).toEqual({
+      '@type': 'Place',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: BREAKFAST.venueAddress,
+        addressLocality: 'Alger',
+        addressRegion: 'Alger',
+        addressCountry: 'DZ',
+      },
+    });
+  });
+
   it('leaves the region out when the dataset no longer knows it', () => {
     const schema = eventJsonLd({ ...BREAKFAST, regionName: null }, 0);
 
@@ -199,5 +219,24 @@ describe('structured discovery data', () => {
       ],
     });
     expect(JSON.stringify(schema)).not.toContain('email');
+  });
+});
+
+describe('jsonLdText', () => {
+  const probe = 'Probe</script><i id="fc-probe">x</i><!--';
+
+  it('leaves no `<` that could end the script or open a comment', () => {
+    const text = jsonLdText(eventJsonLd({ ...BREAKFAST, title: probe }));
+
+    expect(text).not.toContain('<');
+    expect(text).toContain('Probe\\u003c/script>');
+  });
+
+  it('parses back to the very same values', () => {
+    const schema = breadcrumbJsonLd([
+      { name: probe, url: 'https://founders.coffee/en/algeria' },
+    ]);
+
+    expect(JSON.parse(jsonLdText(schema))).toEqual(schema);
   });
 });

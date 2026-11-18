@@ -10,6 +10,8 @@ import {
   hero_subtitle,
   hero_tagline,
   localizedName,
+  market_hackathon_subtitle,
+  market_hackathon_tagline,
   type Locale,
 } from '@founders-coffee/i18n';
 
@@ -77,6 +79,12 @@ export const MarketHero = ({
   const cityDisplayName = selectedCity
     ? localizedName(selectedCity, locale)
     : '';
+  const heroTagline = market.featureFlags.hackathons
+    ? market_hackathon_tagline({}, { locale })
+    : hero_tagline({}, { locale });
+  const heroSubtitle = market.featureFlags.hackathons
+    ? market_hackathon_subtitle({}, { locale })
+    : hero_subtitle({}, { locale });
 
   return (
     <section
@@ -88,10 +96,10 @@ export const MarketHero = ({
           id="market-hero-title"
           className="font-display text-display-fit font-semibold text-base-content"
         >
-          {hero_tagline({}, { locale })}
+          {heroTagline}
         </h1>
         <p className="hero-subtitle mx-auto mt-4 max-w-prose text-body-lg text-balance text-neutral">
-          {hero_subtitle({}, { locale })}
+          {heroSubtitle}
         </p>
 
         {heroArt && (

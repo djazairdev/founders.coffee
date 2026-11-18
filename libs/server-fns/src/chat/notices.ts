@@ -1,7 +1,7 @@
 import {
   postChatSystemMessage,
   type Db,
-  type Event,
+  type VenuedEvent,
 } from '@founders-coffee/db';
 import type { chat } from '@founders-coffee/domain';
 import { reportError } from '@founders-coffee/observability';
@@ -9,7 +9,9 @@ import { reportError } from '@founders-coffee/observability';
 import { tellChatRoom } from './room.js';
 
 /** What a meetup's chat is told when its start moves: the new start, and where it is. */
-export const rescheduledNotice = (event: Event): chat.ChatSystemNotice => ({
+export const rescheduledNotice = (
+  event: VenuedEvent,
+): chat.ChatSystemNotice => ({
   key: 'rescheduled',
   params: { startsAt: event.startsAt.toISOString(), venue: event.venue },
 });
@@ -19,7 +21,7 @@ export const rescheduledNotice = (event: Event): chat.ChatSystemNotice => ({
  * address when the host gave one that says more than the venue does. The address is where the move
  * shows, since a host who drops a pin across town can keep the café's name.
  */
-export const relocatedNotice = (event: Event): chat.ChatSystemNotice => {
+export const relocatedNotice = (event: VenuedEvent): chat.ChatSystemNotice => {
   const address = event.venueAddress?.trim();
   return {
     key: 'relocated',

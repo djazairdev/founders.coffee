@@ -12,6 +12,8 @@ import { emailPayloadFor } from './email-templates.js';
 const VALUES = {
   title: 'Coffee + Code',
   venue: 'Café des Délices',
+  where: 'at Café des Délices',
+  isOnline: false,
   address: '12 Rue des Entrepreneurs, Alger',
   date: 'Friday, Jan 15',
   url: 'https://staging.founders.coffee/algeria/e/coffee-code',
@@ -45,9 +47,11 @@ const EVERY_KEY: NotificationTemplateKey[] = [
 const AUTHORED_FIELDS = [
   'title',
   'venue',
+  'where',
   'address',
   'date',
   'reason',
+  'meetingLink',
 ] as const;
 
 const HOSTILE = '<img src=x onerror="alert(1)">';

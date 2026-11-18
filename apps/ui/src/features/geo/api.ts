@@ -1,5 +1,11 @@
-import { searchCities } from '@founders-coffee/server-fns';
+import {
+  getCities,
+  getStates,
+  searchCities,
+} from '@founders-coffee/server-fns';
 
 export const geoApi = {
+  getStates,
+  getCities,
   searchCities,
 };

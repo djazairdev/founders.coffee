@@ -54,7 +54,7 @@ export const enqueueEventChangeNotices = async (
     eventSlug: string;
     marketCode: string;
     startsAt: Date;
-    venue: string;
+    venue: string | null;
     venueAddress: string | null;
     templateKey: EventChangeTemplateKey;
   },
@@ -82,7 +82,7 @@ export const enqueueEventChangeNotices = async (
       eventSlug: opts.eventSlug,
       marketCode: opts.marketCode,
       startsAt: opts.startsAt.toISOString(),
-      venue: opts.venue,
+      ...(opts.venue ? { venue: opts.venue } : {}),
       venueAddress: opts.venueAddress ?? undefined,
       locale: context.locale,
     };

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { flushSync } from 'react-dom';
 
+import type { EventFormat } from '@founders-coffee/core';
 import type { Market } from '@founders-coffee/db';
-import type { geo } from '@founders-coffee/domain';
+import { events, type geo } from '@founders-coffee/domain';
 import {
   host_time_invalid,
   host_time_nonexistent,
@@ -14,6 +15,7 @@ import {
 
 import { hostCreateStepCopy, hostCreateViewCopy } from './host-create-copy';
 import { writeHostCreateDraft } from './host-create-draft';
+import { hostCreatePayload } from './host-create-payload';
 import { useHostCreateDraftState } from './useHostCreateDraftState';
 import {
   firstInvalidField,
@@ -21,10 +23,15 @@ import {
   shownErrors,
   validateDetailsStep,
   validateScheduleStep,
-  validateVenueStep,
+  validatePlaceStep,
   type HostCreateFieldErrors,
 } from './host-create-validation';
 import type { RepeatEventTemplate } from './api';
+import { useMyOrganisations } from '../organisations/hooks';
+import {
+  chosenHostOrganisation,
+  hostableOrganisations,
+} from './host-organisations';
 import type { MeetupLanguage, VenueArea, VenueSelection } from './types';
 import { useHostPublish } from './useHostPublish';
 import { useAuth } from '../../lib/app-providers';
@@ -65,17 +72,28 @@ export const useHostCreateWizard = ({
     setEndsAt,
     setTitle,
     setDescription,
+    setKind,
     setChosenLanguages,
+    setHostAs,
+    setTags,
+    setFormat,
+    setMeetingUrl,
   } = useHostCreateDraftState({
     locale,
     marketCode: market.code,
+    cityCode: city?.code,
     repeatTemplate,
   });
-  const { step, venue, venueName, startsAt, endsAt, title, description } =
-    draft;
+  const { step, startsAt, endsAt, title, description } = draft;
   const languages: readonly MeetupLanguage[] = draft.chosenLanguages ?? [
     locale,
   ];
+  const myOrganisations = useMyOrganisations(isAuthenticated);
+  const organisations = hostableOrganisations(
+    myOrganisations.data,
+    market.code,
+  );
+  const hostOrganisation = chosenHostOrganisation(draft.hostAs, organisations);
   const {
     publishing,
     publishError,
@@ -145,7 +163,7 @@ export const useHostCreateWizard = ({
   const validateCurrentStep = (): boolean => {
     const check =
       step === 1
-        ? validateVenueStep(venue, venueName, locale)
+        ? validatePlaceStep({ ...draft, cityCode: city?.code }, locale)
         : step === 2
           ? validateScheduleStep(startsAt, endsAt, locale)
           : validateDetailsStep({ title, description, languages }, locale);
@@ -155,21 +173,12 @@ export const useHostCreateWizard = ({
     return first === null;
   };
   const publish = () => {
-    if (!venue || startsAt === null || endsAt === null) return;
-    void publishEvent({
+    const event = hostCreatePayload(draft, {
       marketCode: market.code,
       cityCode: city?.code,
-      title,
-      description,
-      languages: [...languages],
-      venueName,
-      venueProviderId: venue.providerId,
-      venueAddress: venue.address,
-      latitude: venue.latitude,
-      longitude: venue.longitude,
-      startsAt,
-      endsAt,
+      languages,
     });
+    if (event) void publishEvent(event, hostOrganisation?.id ?? null);
   };
 
   /**
@@ -205,6 +214,11 @@ export const useHostCreateWizard = ({
 
   return {
     ...draft,
+    isVenueFormat: events.hasVenue(draft.format),
+    isLinkFormat: events.hasMeetingLink(draft.format),
+    hostAs: hostOrganisation?.id ?? null,
+    organisations,
+    setHostAs,
     fieldErrors,
     publishing,
     publishError,
@@ -241,6 +255,17 @@ export const useHostCreateWizard = ({
     setDescription: (value: string) => {
       setDescription(value);
       setFieldErrors((current) => ({ ...current, description: undefined }));
+    },
+    setKind,
+    setTags,
+    setFormat: (value: EventFormat) => {
+      setFormat(value);
+      setFieldErrors({});
+      clearPublishError();
+    },
+    setMeetingUrl: (value: string) => {
+      setMeetingUrl(value);
+      setFieldErrors((current) => ({ ...current, meetingUrl: undefined }));
     },
     setSchedule,
     setScheduleError,

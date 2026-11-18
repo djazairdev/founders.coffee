@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { eq, getMarketByCode, markets } from '@founders-coffee/db';
 
 import type { MapProvider } from '../maps/provider.js';
-import { createEventResolver } from './resolver.js';
+import { createEventResolver } from './create-resolver.js';
 import {
   createInput,
   setupDb,

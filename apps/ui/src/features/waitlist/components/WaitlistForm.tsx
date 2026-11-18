@@ -11,7 +11,7 @@ import {
   type Locale,
 } from '@founders-coffee/i18n';
 import { useState } from 'react';
-import { StatusMessage, Turnstile } from '@founders-coffee/ui';
+import { Input, StatusMessage, Turnstile } from '@founders-coffee/ui';
 
 import { LegalNotice } from '../../../components/company/LegalNotice';
 import { usePublicAuthConfig } from '../../auth/hooks';
@@ -92,11 +92,10 @@ export const WaitlistForm = ({
   return (
     <div className="mt-3 space-y-2">
       <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row">
-        <input
+        <Input
           type="email"
           inputMode="email"
           autoComplete="email"
-          dir="ltr"
           value={email}
           onChange={(e) => {
             setEmail(e.target.value);
@@ -105,7 +104,7 @@ export const WaitlistForm = ({
           placeholder={email_label({}, { locale })}
           aria-label={email_label({}, { locale })}
           aria-invalid={!!localError}
-          className="input input-sm md:input-md flex-1"
+          className="sm:flex-1"
           disabled={joinWaitlist.isPending}
           required
         />

@@ -1,14 +1,15 @@
 import { defineConfig, type Plugin } from 'vite';
 import { fileURLToPath } from 'node:url';
 
+import { nxReadySignal } from '@nx/vite/plugins/nx-ready-signal.plugin';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 
 import viteReact from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { cloudflare } from '@cloudflare/vite-plugin';
 
-import { assertAssetsIgnored } from './vite-assets-ignore';
-import { mapboxCspWorker } from './vite-mapbox-worker';
+import { assertAssetsIgnored } from './vite-assets-ignore.ts';
+import { mapboxCspWorker } from './vite-mapbox-worker.ts';
 import {
   CLIENT_OUT_DIR,
   offlinePrecacheEntry,
@@ -16,7 +17,7 @@ import {
   SW_DEST,
   assertServiceWorkerEmitted,
   clientOnlyServwist,
-} from './vite-service-worker';
+} from './vite-service-worker.ts';
 
 const LOCAL_STATE_PATH = fileURLToPath(
   new URL('../../.wrangler/state', import.meta.url),
@@ -61,12 +62,7 @@ const clientNodeBuiltinStubs: Plugin = {
 export default defineConfig(({ command }) => ({
   server: {
     watch: {
-      ignored: [
-        '**/.osm-snapshot/**',
-        '**/.wrangler/**',
-        '**/dist/**',
-        '**/libs/i18n/src/paraglide/**',
-      ],
+      ignored: ['**/.osm-snapshot/**', '**/.wrangler/**', '**/dist/**'],
     },
   },
   resolve: {
@@ -97,6 +93,7 @@ export default defineConfig(({ command }) => ({
     ],
   },
   plugins: [
+    nxReadySignal(),
     cloudflare({
       viteEnvironment: { name: 'ssr' },
       persistState: { path: LOCAL_STATE_PATH },

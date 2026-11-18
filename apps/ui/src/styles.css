@@ -134,6 +134,12 @@ body {
   opacity: 0.65;
 }
 
+.hackathon-date-calendar.host-daypicker.rdp-root {
+  --rdp-day-height: 42px;
+  --rdp-day_button-height: 40px;
+  --rdp-nav-height: 2rem;
+}
+
 /* timepicker-ui → round-table theme (single instance in the host wizard). Overrides the default
    Material-3 purple palette on both the input wrapper and the body-appended modal. */
 .tp-ui-wrapper,
@@ -190,4 +196,24 @@ body {
 .countdown,
 .countdown * {
   font-family: var(--font-mono);
+}
+
+@media print {
+  @page certificate {
+    size: A4 landscape;
+    margin: 12mm;
+  }
+
+  body:has(.certificate-sheet) :is(header, footer, nav, a[href='#main']) {
+    display: none;
+  }
+
+  .certificate-sheet {
+    page: certificate;
+    margin: 0;
+    max-width: none;
+    min-height: 180mm;
+    align-content: center;
+    break-inside: avoid;
+  }
 }

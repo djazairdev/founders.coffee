@@ -80,3 +80,50 @@ export const formatDate = (
 /** True if a formatted string is free of Arabic-Indic digits (Latin-digit guard). */
 export const hasOnlyLatinDigits = (formatted: string): boolean =>
   !ARABIC_INDIC.test(formatted);
+
+export type CalendarDayParts = {
+  readonly weekday: string;
+  readonly day: string;
+  readonly month: string;
+  readonly year: string;
+};
+
+const calendarDayCache = new Map<string, Intl.DateTimeFormat>();
+
+/**
+ * A calendar day's weekday, day, month and year as one market names them, for copy that puts them
+ * in its own order.
+ *
+ * The day is `YYYY-MM-DD` and names no instant, so it is read at noon UTC, where no time zone can
+ * move it to another date. The language takes the market as its region: Arabic in Algeria names
+ * January جانفي where bare Arabic writes يناير, and V8 and Apple's ICU agree on both. The message
+ * decides the order, so English can read "Friday 22 January" rather than the bare formatter's
+ * "Friday, January 22".
+ */
+export const calendarDayParts = (
+  isoDay: string,
+  locale: Locale,
+  marketCode: string,
+): CalendarDayParts => {
+  const tag = `${locale}-${marketCode}`;
+  const formatter =
+    calendarDayCache.get(tag) ??
+    new Intl.DateTimeFormat(tag, {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+      numberingSystem: 'latn',
+    });
+  calendarDayCache.set(tag, formatter);
+  const parts = formatter.formatToParts(new Date(`${isoDay}T12:00:00Z`));
+  const part = (type: Intl.DateTimeFormatPartTypes): string =>
+    parts.find((candidate) => candidate.type === type)?.value ?? '';
+  return {
+    weekday: part('weekday'),
+    day: part('day'),
+    month: part('month'),
+    year: part('year'),
+  };
+};

@@ -9,5 +9,6 @@ export * from './locale.js';
 export * from './city-inputs.js';
 export * from './detect.js';
 export * from './format.js';
+export * from './spoken-languages.js';
 export * from './zoned-time.js';
 export * from './zoned-iso.js';

@@ -159,6 +159,88 @@ export const localizedProfile = (locale: Locale) => ({
   activeOptions: ONLY_THIS_PAGE,
 });
 
+/** The page where a member applies for an organisation (B-ORG-08). */
+export const localizedOrganisationApply = (locale: Locale) => ({
+  to: '/$locale/o/apply' as const,
+  params: { locale },
+});
+
+/** An organisation's public page (B-ORG-11). */
+export const localizedOrganisation = (locale: Locale, slug: string) => ({
+  to: '/$locale/o/$slug' as const,
+  params: { locale, slug },
+});
+
+/** The page that proves a certificate (B-CRT-02). */
+export const localizedCertificate = (locale: Locale, code: string) => ({
+  to: '/$locale/c/$code' as const,
+  params: { locale, code },
+});
+
+/** A published project's public page (B-PRJ-03). */
+export const localizedProject = (locale: Locale, slug: string) => ({
+  to: '/$locale/p/$slug' as const,
+  params: { locale, slug },
+});
+
+/** The screen where a project's members keep it up to date or leave it. */
+export const localizedProjectEdit = (locale: Locale, slug: string) => ({
+  to: '/$locale/p/$slug/edit' as const,
+  params: { locale, slug },
+});
+
+/** The page where a member sees their own organisation and its members (B-ORG-09). */
+export const localizedMyOrganisation = (locale: Locale, slug: string) => ({
+  to: '/$locale/o/$slug/manage' as const,
+  params: { locale, slug },
+});
+
+/** Where a member of an organisation starts one of its hackathons (B-HKN-11). */
+export const localizedHackathonCreate = (locale: Locale, slug: string) => ({
+  to: '/$locale/o/$slug/hackathons/new' as const,
+  params: { locale, slug },
+});
+
+/** Where a hackathon's organisers manage it, from the organiser flow's second step (B-HKN-12). */
+export const localizedHackathonManage = (locale: Locale, eventId: string) => ({
+  to: '/$locale/hackathon/$eventId/manage' as const,
+  params: { locale, eventId },
+});
+
+/** The reader's own team in a hackathon (B-TEAM-07). */
+export const localizedHackathonTeam = (locale: Locale, eventId: string) => ({
+  to: '/$locale/hackathon/$eventId/team' as const,
+  params: { locale, eventId },
+});
+
+/** The reader's team's project in a hackathon (B-SUB-05). */
+export const localizedHackathonSubmit = (locale: Locale, eventId: string) => ({
+  to: '/$locale/hackathon/$eventId/submit' as const,
+  params: { locale, eventId },
+});
+
+/** The submissions a judge scores in a hackathon (B-JDG-06). */
+export const localizedHackathonJudge = (locale: Locale, eventId: string) => ({
+  to: '/$locale/hackathon/$eventId/judge' as const,
+  params: { locale, eventId },
+});
+
+/** One submission as a judge scores it (B-JDG-07). */
+export const localizedHackathonJudgeEntry = (
+  locale: Locale,
+  eventId: string,
+  submissionId: string,
+) => ({
+  to: '/$locale/hackathon/$eventId/judge/$submissionId' as const,
+  params: { locale, eventId, submissionId },
+});
+
+/** The teams and participants looking for each other in a hackathon (B-TEAM-08). */
+export const localizedHackathonLooking = (locale: Locale, eventId: string) => ({
+  to: '/$locale/hackathon/$eventId/looking' as const,
+  params: { locale, eventId },
+});
+
 /** The reader's own activity, on the same terms as {@link localizedProfile}. */
 export const localizedProfileActivity = (locale: Locale) => ({
   to: '/$locale/profile/activity' as const,

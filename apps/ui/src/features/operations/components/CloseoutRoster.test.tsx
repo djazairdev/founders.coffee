@@ -47,17 +47,17 @@ const first = <T,>(items: readonly T[]): T => {
 const givePageALayout = (height: number) => {
   const original = Object.getOwnPropertyDescriptor(
     HTMLElement.prototype,
-    'offsetHeight',
+    'clientHeight',
   );
-  Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+  Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
     configurable: true,
     get: () => height,
   });
   return () => {
     if (original)
-      Object.defineProperty(HTMLElement.prototype, 'offsetHeight', original);
+      Object.defineProperty(HTMLElement.prototype, 'clientHeight', original);
     else
-      delete (HTMLElement.prototype as { offsetHeight?: number }).offsetHeight;
+      delete (HTMLElement.prototype as { clientHeight?: number }).clientHeight;
   };
 };
 

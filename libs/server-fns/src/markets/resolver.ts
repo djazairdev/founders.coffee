@@ -1,4 +1,10 @@
-import { AppError, err, ok, type Result } from '@founders-coffee/core';
+import {
+  AppError,
+  err,
+  ok,
+  type EventKind,
+  type Result,
+} from '@founders-coffee/core';
 import {
   countUpcomingByCity,
   feedCursorAnchorExists,
@@ -25,6 +31,12 @@ export type {
   TrendingState,
 } from './trending.js';
 export type { TrendingHost } from './city-hosts.js';
+
+export type LandingFeed = {
+  readonly afterStartsAt?: number;
+  readonly afterId?: string;
+  readonly kind?: EventKind;
+};
 
 export interface MarketWithCities {
   readonly market: Market;
@@ -98,7 +110,7 @@ export const listVisibleMarkets = (db: Db): Promise<Market[]> =>
 const cursorNamesAPosition = async (
   db: Db,
   scope: { readonly marketCode: string; readonly cityCode?: string },
-  pagination: { readonly afterStartsAt?: number; readonly afterId?: string },
+  pagination: LandingFeed,
 ): Promise<boolean> => {
   if (pagination.afterStartsAt === undefined || !pagination.afterId)
     return true;
@@ -107,6 +119,7 @@ const cursorNamesAPosition = async (
     id: pagination.afterId,
     marketCode: scope.marketCode,
     cityCode: scope.cityCode,
+    kind: pagination.kind,
   });
 };
 
@@ -118,10 +131,7 @@ const cursorNamesAPosition = async (
 export const resolveMarketLanding = async (
   db: Db,
   key: string,
-  pagination: {
-    readonly afterStartsAt?: number;
-    readonly afterId?: string;
-  } = {},
+  pagination: LandingFeed = {},
 ): Promise<Result<MarketWithCities>> => {
   const market = await findMarketByKey(db, key);
   if (!market) {
@@ -137,6 +147,7 @@ export const resolveMarketLanding = async (
   ] = await Promise.all([
     listEvents(db, {
       marketCode: market.code,
+      kind: pagination.kind,
       afterStartsAt: pagination.afterStartsAt,
       afterId: pagination.afterId,
       limit: 20,
@@ -164,10 +175,7 @@ export const resolveMarketLanding = async (
 export const resolveCityLanding = async (
   db: Db,
   { marketKey, citySlug }: { marketKey: string; citySlug: string },
-  pagination: {
-    readonly afterStartsAt?: number;
-    readonly afterId?: string;
-  } = {},
+  pagination: LandingFeed = {},
 ): Promise<Result<MarketCity>> => {
   const market = await findMarketByKey(db, marketKey);
   if (!market) {
@@ -191,6 +199,7 @@ export const resolveCityLanding = async (
       listEvents(db, {
         marketCode: market.code,
         cityCode: city.code,
+        kind: pagination.kind,
         afterStartsAt: pagination.afterStartsAt,
         afterId: pagination.afterId,
         limit: 20,

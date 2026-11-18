@@ -1,26 +1,30 @@
 # AGENTS.md — Engineering Constitution for founders.coffee
 
-<!-- djazairdev-template: 1.5.0 -->
+<!-- djazairdev-template: 1.7.0 -->
 
 > **Read this before writing or modifying any code.** These are binding rules, not suggestions. They encode the locked architecture, the DRY/separation discipline, the security baseline, and the production-quality bar. When this file conflicts with older code, **this file wins** — fix the code.
 
 ## 0. Authoritative references (in order)
 
 1. **This file** — _how_ we build (rules).
-2. [`docs/implementation-plan.md`](docs/implementation-plan.md) — _what_ ships and _when_ (phases, tickets, current platform state).
-3. Parent `~/CLAUDE.md` — repo tooling (code-review-graph MCP: use graph tools before grep/glob).
+2. [`docs/product-vision.md`](docs/product-vision.md) — _why_ and _what next_ (layers, decisions V1–V15, stages B–E).
+3. [`docs/implementation-plan.md`](docs/implementation-plan.md) — _what_ ships and _when_ (phases, tickets, current platform state), with
+   [`docs/stage-b-plan.md`](docs/stage-b-plan.md) for the Stage B tickets.
 
-Every code change maps to a ticket ID in the plan. No orphan work.
+Every code change maps to a ticket ID in these plans. No orphan work.
 
 The `FR-*`/`NFR-*` requirements register and the standalone plans it fed (SRS, release
 strategy, validation, and the per-feature remediation plans) were consolidated away; they are
 readable in history at `964f514`. Nothing in the source tree cites an `FR-*` or `NFR-*` ID, so
-the plan above is the only live specification — if it does not say it, it is not decided.
+the files above are the only live specification — if they do not say it, it is not decided.
 
-The current release is community-building only. Free local events, repeat participation, hosts,
-trust, and the supporting PWA operations are current scope. Challenges, sponsorship products,
-talent, payments, and expansion are future work gated by demonstrated community density and an
-explicit Founder / Product decision.
+Current scope is the community (free local events, repeat participation, hosts, trust and the PWA
+operations behind them) and Stage B of the product vision: event types, online and hybrid events,
+organisations, hackathons with registration, teams, submissions and judging, portfolio profiles,
+project pages from hackathon entries and certificates, as ticketed in the Stage B plan. Sponsorship
+products, talent introductions, projects for every member, payments and expansion
+belong to later stages and are not built until their stage opens. New markets still wait for the
+density gate (V5).
 
 ---
 
@@ -41,7 +45,7 @@ explicit Founder / Product decision.
 
 **Use exactly these. Anything else requires explicit approval.**
 
-- **Monorepo:** Nx 23 + TanStack Config. TypeScript, **strict**, in two installs: TypeScript 7 compiles and typechecks (`tsc`, the `@typescript/native` alias), and TypeScript 6 stays as the `typescript` package (`@typescript/typescript6`, command `tsc6`) because typescript-eslint and Nx load its compiler API, which TypeScript 7 does not ship. The typecheck gate is TypeScript 7; TypeScript 6 only gives lint its type information. Never call `tsc6` in a target. Drop TypeScript 6 once typescript-eslint and `@nx/eslint` support 7.
+- **Monorepo:** Nx 24 + TanStack Config. TypeScript, **strict**, in two installs: TypeScript 7 compiles and typechecks (`tsc`, the `@typescript/native` alias), and TypeScript 6 stays as the `typescript` package (`@typescript/typescript6`, command `tsc6`) because typescript-eslint and Nx load its compiler API, which TypeScript 7 does not ship. The typecheck gate is TypeScript 7; TypeScript 6 only gives lint its type information. Never call `tsc6` in a target. Drop TypeScript 6 once typescript-eslint and `@nx/eslint` support 7.
 - **Apps:** TanStack Start (fullstack: SSR + typed server functions). Runtime: **Cloudflare Workers**.
 - **TanStack:** Router, Query (server state), Form (forms), Table (data grids), Virtual (long lists), Store (client UI state).
 - **Styling:** **Tailwind CSS v4 + DaisyUI** (shared in `libs/ui`).
@@ -152,7 +156,7 @@ If you need data in a component that the current hook doesn't provide → add/ex
 
 - **Money:** ALWAYS the `Money` value object from `libs/core` — `{ amount_minor: number (integer), currency: string (ISO 4217) }`. **Never** a bare number. **Never** floating-point math on money. All arithmetic in integer minor units.
 - **Schemas first:** define a Zod schema for every entity/command; infer TS types (`z.infer`). Shared primitives (Money, id, pagination, market code) live in [`libs/core/src/validation.ts`](libs/core/src/validation.ts); per-domain schemas live in `libs/domain/src/<domain>/schemas.ts`. The schema is the single contract shared by `api.ts`, server functions, and forms (DRY). Server functions validate input via `createServerFn().validator(appValidator(schema))` — invalid input throws `AppError('validation_failed')` (the §7 throw boundary).
-- **Geo/market scoping:** market-facing records carry `market_code` and, where geographic, `state_code`/`city_code` from creation. The global user identity and its profile/account preferences are location-free under FR-A1/FR-A3; never infer or require residence. Events, activity, notifications and host trust retain their actual market/geographic scope. `market_code` references D1; state/city codes reference the versioned server-side geography datasets. No global activity queries that silently cross markets.
+- **Geo/market scoping:** market-facing records carry `market_code` and, where geographic, `state_code`/`city_code` from creation. The global user identity and its profile/account preferences are location-free; never infer or require residence. Events, activity, notifications and host trust retain their actual market/geographic scope. `market_code` references D1; state/city codes reference the versioned server-side geography datasets. No global activity queries that silently cross markets.
 - **Time:** store UTC; render in the city/market timezone via `libs/i18n`. Never store localized times.
 - **IDs:** from the `libs/core` id factory — consistent format, no ad-hoc UUIDs in different styles.
 - **Enums/status:** as string union types backed by Zod enums; status transitions live in `libs/domain` (e.g., Order: `pending → paid → refunded`).
@@ -183,7 +187,7 @@ without rendering or requiring a browser challenge.
 - **Presentational + thin.** Components receive props, call hooks (`hooks.ts`) for data, and dispatch via hooks. They **never** import server functions, DB, Drizzle, or domain internals.
 - **Organized by domain** in `features/<domain>/components/`. Cross-domain shared UI lives in `libs/ui`.
 - **Styling:** Tailwind v4 + DaisyUI. Use design tokens / DaisyUI components; avoid arbitrary inline values where a token exists. RTL-aware (use logical properties — `ps-`/`pe-`/`ms-`/`me-`, not `pl-`/`pr-`).
-- **Control sizes:** every DaisyUI button takes the responsive size up to `md`, `btn-xs sm:btn-sm md:btn-md`. Only the market landing's calls to action, the hero's search button and How it works' pair, go on to `lg:btn-lg`; their files are listed in `CALL_TO_ACTION_BUTTON_FILES` (`tools/eslint/file-globs.mjs`), and no button takes `xl:btn-xl`. Every field (`input`, `select`, `textarea`, `otp`) is small below `md` and medium from it (`input-sm md:input-md`). Nothing else sets their height, fixed width or font size, or a button's padding; `w-full` and `flex-1` may still fill a layout. `local/daisyui-control-size` enforces it.
+- **Control sizes:** every DaisyUI button takes the responsive size up to `md`, `btn-xs sm:btn-sm md:btn-md`. Only the market landing's calls to action, the hero's search button, How it works' pair and the hackathon organiser button, go on to `lg:btn-lg`; their files are listed in `CALL_TO_ACTION_BUTTON_FILES` (`tools/eslint/file-globs.mjs`), and no button takes `xl:btn-xl`. Every field (`input`, `select`, `textarea`, `otp`) is small below `md` and medium from it (`input-sm md:input-md`). Nothing else sets their height, fixed width or font size, or a button's padding; `w-full` and `flex-1` may still fill a layout. `local/daisyui-control-size` enforces it.
 - **Positioned controls:** a `.btn` or `.tap-target` never carries `absolute`, `fixed` or `sticky` itself. On a touch screen `libs/ui`'s stylesheet makes both `relative` for their 44px hit area, which beats a position utility on the same element and drops the control back into the layout; a desktop never shows it. Put the position on a wrapper. `local/no-positioned-tap-target` enforces it.
 - **Forms:** shared Zod schemas remain the contract. TanStack Form is available for forms that benefit from it; local React state is also acceptable when validation still reuses the shared schema and the component remains thin.
 - **Tables/grids:** TanStack Table. **Long lists:** TanStack Virtual.
@@ -219,7 +223,7 @@ without rendering or requiring a browser challenge.
 - **Secrets:** `wrangler secret` / Secrets Store only. Never committed. `.env` for local dev only; `.env.example` sanitized.
 - **Headers:** secure-headers middleware; strict CSP with nonces; HTTPS-only; cookies `Secure; HttpOnly; SameSite=Lax`.
 - **Uploads:** worker-mediated to R2; MIME + size validation; images served through Cloudflare Images transforms. No raw HTML injection of uploads.
-- **OWASP Top-10:** addressed per NFR-4.
+- **OWASP Top-10:** addressed by the rules in this section and §16.
 
 ---
 
@@ -285,7 +289,7 @@ These are non-negotiable platform-specific rules; several correct common mistake
 
 ## 14. Performance rules
 
-- **Budget:** event listing/detail server functions respond ≤ 300ms (p95) at MVP load (NFR-1).
+- **Budget:** event listing/detail server functions respond ≤ 300ms (p95) at MVP load.
 - **Workers are edge + short-lived:** no in-memory state across requests (use Durable Objects / KV / D1 for state).
 - **Caching:** KV for hot config/flags; Cache API where appropriate. Invalidate deliberately.
 - **Frontend:** code-split via TanStack Router; virtualize long lists; prefetch route data.
@@ -294,7 +298,7 @@ These are non-negotiable platform-specific rules; several correct common mistake
 
 ## 15. Git, commits & PRs
 
-- **One ticket per PR.** PR title/description references the ticket ID and the `FR-*`/`NFR-*` it implements.
+- **One ticket per PR.** The PR description references the ticket ID and closes its issue (`Fixes #123.`).
 - **Conventional commits** (`feat:`, `fix:`, `chore:`, `refactor:`, `test:`), scoped to the domain (`feat(events): …`).
 - **CI must be green:** typecheck, lint, **boundary checks**, and unit + integration tests
   (Miniflare). The current explicit decision keeps E2E outside CI and requires it locally/on staging
@@ -335,7 +339,7 @@ These are non-negotiable platform-specific rules; several correct common mistake
 - [ ] Errors via the throw boundary (`AppError` after `handleResult`); structured logs on server paths.
 - [ ] Tests written and passing (Miniflare/Playwright — real platform).
 - [ ] Lint, typecheck, and **Nx boundary checks** pass.
-- [ ] Maps to a ticket ID and `FR-*`/`NFR-*`.
+- [ ] Maps to a ticket ID and its issue.
 - [ ] No secrets, no `console.*`, no dead code.
 
 ---
@@ -345,3 +349,7 @@ These are non-negotiable platform-specific rules; several correct common mistake
 - **Ambiguity about _what_ to build, _when_, or in what order** → check `docs/implementation-plan.md`. Still unclear → ask. Do not infer a requirement from history; the plan is the only live specification.
 - **Tempted to add a library/service/integration** → stop and ask (§1.8).
 - **Tempted to skip a rule "just this once"** → don't. The rules exist because the team chose them deliberately. Raise it in a ticket instead.
+
+## 19. UI verification workflow
+
+- The user prefers to perform browser and UI checks themselves. For UI work, start the dev server with `npm run ui:dev` on port 3000 and monitor its logs for errors; do not open or operate the browser unless the user explicitly asks.

@@ -41,7 +41,7 @@ export interface SubmitCloseoutRow {
  *
  * The audit entry must be guarded on the same condition that decides whether the closeout landed,
  * which is the `ON CONFLICT DO NOTHING` and not `closeable` alone. `closeable` reads only the events
- * table — host, not cancelled, ended — and a second submission satisfies it just as well as the
+ * table — host, published, ended — and a second submission satisfies it just as well as the
  * first, so an audit guarded on it records a submission on every retry while the insert quietly does
  * nothing. An append-only trail asserting things that did not happen is worse than no trail.
  *
@@ -58,7 +58,7 @@ const notYetClosed = (eventId: string, hostId: string) =>
 const closeable = (eventId: string, hostId: string) =>
   sql`id = ${eventId}
       AND host_id = ${hostId}
-      AND status != 'cancelled'
+      AND status = 'published'
       AND ends_at IS NOT NULL
       AND ends_at <= unixepoch()`;
 
@@ -85,7 +85,7 @@ const refusalFor = async (
     .where(eq(events.id, eventId))
     .limit(1);
   const event = rows[0];
-  if (!event) return 'not_host';
+  if (!event || event.status === 'draft') return 'not_host';
   if (event.hostId !== actorId) return 'not_host';
   if (event.status === 'cancelled') return 'event_cancelled';
   if (event.endsAt === null) return 'no_end_time';

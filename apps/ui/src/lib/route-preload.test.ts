@@ -234,12 +234,9 @@ describe('clicking a stub inside the preload window', () => {
     const router = await readerOn('/fr/terms');
     await router.preloadRoute({ to: '/' });
 
-    expect(
-      router.stores.cachedMatches.get().map(({ routeId }) => routeId),
-    ).not.toContain('/');
-
     await router.navigate({ to: '/' });
 
+    expect(lookups.made).toEqual(['getGeoCountry', 'getGeoCountry']);
     expect(router.state.location.href).toBe('/ar/algeria');
   });
 

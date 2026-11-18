@@ -16,9 +16,14 @@ const member: PublicProfile = {
   introduction: null,
   interests: [],
   spokenLanguages: [],
-  professionalLink: null,
+  skills: [],
+  links: [],
+  openTo: [],
+  indexable: false,
   hostedCount: 0,
   attendedCount: null,
+  hackathonRecord: [],
+  projects: [],
 };
 
 const items = (window: string) =>

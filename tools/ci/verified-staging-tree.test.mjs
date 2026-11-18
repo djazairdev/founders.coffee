@@ -62,6 +62,14 @@ describe('hasSuccessfulStagingJobs', () => {
       ]),
     ).toBe(false);
   });
+
+  it('rejects evidence from before the separate server coverage job', () => {
+    const jobs = successfulJobs().filter(
+      ({ name }) => name !== 'Verify / Server functions tests',
+    );
+
+    expect(hasSuccessfulStagingJobs(jobs)).toBe(false);
+  });
 });
 
 describe('findVerifiedStagingRun', () => {
@@ -116,7 +124,7 @@ describe('resolveReuse', () => {
 
   it.each([
     ['workflow_dispatch', 'main', 'not_a_push'],
-    ['push', 'develop', 'not_main'],
+    ['push', 'feature', 'not_release_branch'],
   ])(
     'keeps full verification for %s on %s',
     async (eventName, targetBranch, reason) => {

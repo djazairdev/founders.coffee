@@ -10,7 +10,7 @@ import {
 import { channelPlanFor } from './channel-plan.js';
 import { closeoutUrlFor, resolveNotificationContext } from './context.js';
 import { armNotificationSchedule } from './schedule.js';
-import { pushPayloadFor } from './templates.js';
+import { placeValues, pushPayloadFor } from './templates.js';
 import { emailPayloadFor } from './email-templates.js';
 import { validPayload } from './producer.js';
 
@@ -21,7 +21,7 @@ export interface CloseoutPromptEvent {
   readonly hostId: string;
   readonly marketCode: string;
   readonly title: string;
-  readonly venue: string;
+  readonly venue: string | null;
   readonly slug: string;
   readonly startsAt: Date;
   readonly endsAt: Date | null;
@@ -76,8 +76,8 @@ export const enqueueCloseoutPrompt = async (
   const url = closeoutUrlFor(context.locale, event.id);
   const values = {
     title: event.title,
-    venue: event.venue,
-    address: event.venue,
+    ...placeValues(event.venue, context.locale),
+    address: event.venue ?? '',
     date: formatDate(event.endsAt, context.locale, {
       timeZone: context.timeZone,
       weekday: 'long',
@@ -93,7 +93,7 @@ export const enqueueCloseoutPrompt = async (
     eventSlug: event.slug,
     marketCode: event.marketCode,
     startsAt: event.startsAt.toISOString(),
-    venue: event.venue,
+    ...(event.venue ? { venue: event.venue } : {}),
     locale: context.locale,
   };
 

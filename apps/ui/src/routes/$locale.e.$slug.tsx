@@ -12,18 +12,18 @@ import { localizedEvent } from '../lib/locale-routing';
 export const Route = createFileRoute('/$locale/e/$slug')({
   preload: false,
   component: () => null,
-  loader: async ({ params, context, location }): Promise<never> => {
+  loader: async ({ params, context, location }) => {
     let event;
     try {
       event = await getEvent({
         data: { id: prefixedId('evt', params.slug) },
       });
     } catch (error) {
-      if (appErrorCode(error) === 'event_not_found') throw notFound();
+      if (appErrorCode(error) === 'event_not_found') return notFound();
       throw error;
     }
     const market = await getMarket({ data: { code: event.marketCode } });
-    throw redirect({
+    return redirect({
       ...localizedEvent(context.locale, market.slug, event.slug),
       search: campaignSearchSchema.parse(location.search),
     });

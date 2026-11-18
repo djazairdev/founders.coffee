@@ -1,194 +1,30 @@
 import {
   AppError,
   err,
-  id,
   ok,
-  type Locale,
+  type EventKind,
   type Result,
 } from '@founders-coffee/core';
+import { events as eventsDomain } from '@founders-coffee/domain';
 import {
-  events as eventsDomain,
-  geo,
-  markets,
-  type EventCreateInput,
-} from '@founders-coffee/domain';
-import {
-  createEventIfRouteAvailable,
   getEvent,
   getEventBySlug,
-  getMarketByCode,
+  isEventOrganiser,
   isVisibleHost,
   listUpcomingEvents,
   listPublicEventHosts,
   type Db,
   type Event,
-  type NewEvent,
 } from '@founders-coffee/db';
-import { reportError } from '@founders-coffee/observability';
 
-import { attendHostOwnEvent } from './host-attendance.js';
-import { locatePoint, type LocatedPoint } from '../maps/locate.js';
-import type { MapProvider } from '../maps/provider.js';
-import { attachCityNames, type EventFeedItemBase } from './feed.js';
+import {
+  attachCityNames,
+  readEventOrganisers,
+  type EventFeedItemBase,
+} from './feed.js';
 
 export { attachCityNames } from './feed.js';
 export type { EventFeedItem, EventFeedItemBase } from './feed.js';
-
-/**
- * Where this event is, and the address to publish with it.
- *
- * The point the host chose is the location; the city and state are labels derived from it so the
- * per-state counts describe where events actually are rather than where a host said they were. A
- * host may override the city on the confirmation step, and an override is trusted only far enough
- * to name a city inside this market — the state still comes from the city, never from the client.
- *
- * The venue *name* stays host-authored. Mapbox indexes almost no points of interest in the Maghreb,
- * so a provider name is unavailable exactly where it would be most useful, and "15 Rue Yousfi
- * Mohamed" tells an attendee nothing about which door to walk through.
- */
-const eventLocation = async (
-  mapProvider: MapProvider,
-  input: EventCreateInput,
-  locale: Locale,
-): Promise<Result<LocatedPoint>> => {
-  const located = await locatePoint(mapProvider, {
-    marketCode: input.marketCode,
-    locale,
-    latitude: input.latitude,
-    longitude: input.longitude,
-    snapshotProviderId: input.venueProviderId,
-    fallbackAddress: input.venueAddress,
-  });
-  if (!located.ok || !input.cityCode) return located;
-
-  const chosen = geo.findCity(input.marketCode, input.cityCode);
-  if (!chosen) {
-    return err(
-      new AppError(
-        'validation_failed',
-        `Unknown city ${input.cityCode} for ${input.marketCode}`,
-      ),
-    );
-  }
-  return ok({
-    ...located.data,
-    stateCode: chosen.stateCode,
-    cityCode: chosen.code,
-  });
-};
-
-const slugify = (title: string): string =>
-  title
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s-]/gu, '')
-    .replace(/\s+/g, '-')
-    .slice(0, 60)
-    .replace(/^-+|-+$/g, '');
-
-const MAX_EVENT_SLUG_LENGTH = 80;
-
-export const eventSlugCandidates = (
-  title: string,
-  eventId: string,
-): readonly [string, string] => {
-  const base = slugify(title) || 'event';
-  const suffix = eventId.replace(/^evt_/, '').toLowerCase();
-  const suffixedBase = base.slice(
-    0,
-    Math.max(1, MAX_EVENT_SLUG_LENGTH - suffix.length - 1),
-  );
-  return [base, `${suffixedBase}-${suffix}`];
-};
-
-/**
- * Validate + create a new event. Generates the id + slug, requires an enabled visible D1 market,
- * resolves canonical geo state/city, verifies the venue, and inserts the complete free-event row.
- */
-export const createEventResolverWithId = async (
-  db: Db,
-  mapProvider: MapProvider,
-  hostId: string,
-  input: EventCreateInput,
-  eventId: string,
-): Promise<Result<Event>> => {
-  try {
-    const market = await getMarketByCode(db, input.marketCode);
-    if (!market || !markets.isMarketVisible(market.state)) {
-      return err(
-        new AppError(
-          'event_market_unavailable',
-          'Event creation is unavailable in this market',
-        ),
-      );
-    }
-    if (!market.featureFlags.events) {
-      return err(
-        new AppError(
-          'event_creation_disabled',
-          'Event creation is currently disabled in this market',
-        ),
-      );
-    }
-
-    const language = eventsDomain.leadLocale(
-      input.languages,
-      market.defaultLocale,
-    );
-    const located = await eventLocation(mapProvider, input, language);
-    if (!located.ok) return located;
-
-    const row: Omit<NewEvent, 'slug'> = {
-      id: eventId,
-      hostId,
-      marketCode: market.code,
-      stateCode: located.data.stateCode,
-      cityCode: located.data.cityCode,
-      title: input.title,
-      description: input.description,
-      venue: input.venueName,
-      venueAddress: located.data.address,
-      latitude: input.latitude,
-      longitude: input.longitude,
-      startsAt: new Date(input.startsAt),
-      endsAt: new Date(input.endsAt),
-      language,
-      languages: input.languages,
-      status: 'published',
-    };
-
-    for (const slug of eventSlugCandidates(input.title, eventId)) {
-      const created = await createEventIfRouteAvailable(db, { ...row, slug });
-      if (created) {
-        await attendHostOwnEvent(db, created.id, hostId);
-        return ok(created);
-      }
-    }
-
-    return err(
-      new AppError(
-        'event_route_conflict',
-        `Unable to reserve an event route in ${input.marketCode}`,
-      ),
-    );
-  } catch (error) {
-    reportError(error, {
-      operation: 'create_event',
-      market: input.marketCode,
-      city: input.cityCode,
-    });
-    return err(
-      new AppError('event_creation_failed', 'The event could not be created'),
-    );
-  }
-};
-
-export const createEventResolver = async (
-  db: Db,
-  mapProvider: MapProvider,
-  hostId: string,
-  input: EventCreateInput,
-): Promise<Result<Event>> =>
-  createEventResolverWithId(db, mapProvider, hostId, input, id('evt'));
 
 /**
  * The meetup a lookup found, if a reader may have it: `event_not_found` when there is none, or when
@@ -204,8 +40,9 @@ export const availableEvent = (
   if (!event)
     return err(new AppError('event_not_found', `No event for ${label}`));
   if (
-    event.status !== 'published' &&
-    !eventsDomain.canTransition(event.status, 'published')
+    event.status === 'draft' ||
+    (event.status !== 'published' &&
+      !eventsDomain.canTransition(event.status, 'published'))
   ) {
     return err(
       new AppError('event_not_found', `Event ${event.id} is not available`),
@@ -215,22 +52,49 @@ export const availableEvent = (
 };
 
 /**
+ * {@link availableEvent}, except that a draft is available to its organisers: its host, and the
+ * members of an organisation that organises it. Everyone else is told it does not exist, the same
+ * answer as for an address nobody holds, so a draft cannot be found by guessing (B-EVT-16).
+ */
+export const availableToReader = async (
+  db: Db,
+  event: Event | undefined,
+  label: string,
+  viewerId: string | null | undefined,
+): Promise<Result<Event>> => {
+  if (event?.status !== 'draft' || !viewerId)
+    return availableEvent(event, label);
+  if (
+    event.hostId === viewerId ||
+    (await isEventOrganiser(db, { eventId: event.id, userId: viewerId }))
+  )
+    return ok(event);
+  return availableEvent(event, label);
+};
+
+/**
  * Resolve a single event by id or by (marketCode + slug). Returns `event_not_found` on miss.
  *
  * A suppressed host's event answers the same way as one that never existed. The feed already drops
  * those rows in SQL; without the same rule here the link would simply have to be typed rather than
- * clicked, which is not a restriction.
+ * clicked, which is not a restriction. A draft answers only to its organisers.
  */
 export const resolveEvent = async (
   db: Db,
   input: { id?: string; marketCode?: string; slug?: string },
+  viewerId?: string | null,
 ): Promise<Result<Event>> => {
   const event = input.id
     ? await getEvent(db, input.id)
     : input.marketCode && input.slug
       ? await getEventBySlug(db, input.marketCode, input.slug)
       : undefined;
-  const available = availableEvent(event, input.id ?? input.slug ?? '(none)');
+  const available = await availableToReader(
+    db,
+    event,
+    input.id ?? input.slug ?? '(none)',
+    viewerId,
+  );
   if (!available.ok) return available;
   if (!(await isVisibleHost(db, available.data.hostId))) {
     return err(
@@ -260,6 +124,7 @@ export const listEvents = async (
     marketCode?: string;
     cityCode?: string;
     hostId?: string;
+    kind?: EventKind;
     afterStartsAt?: number;
     afterId?: string;
     limit?: number;
@@ -270,6 +135,7 @@ export const listEvents = async (
     marketCode: opts.marketCode,
     cityCode: opts.cityCode,
     hostId: opts.hostId,
+    kind: opts.kind,
     afterStartsAt: opts.afterStartsAt
       ? new Date(opts.afterStartsAt)
       : undefined,
@@ -277,12 +143,18 @@ export const listEvents = async (
     limit: limit + 1,
   });
   const pageRows = rows.slice(0, limit);
-  const hostRows = await listPublicEventHosts(
-    db,
-    pageRows.map((row) => row.hostId),
-  );
+  const [hostRows, organisers] = await Promise.all([
+    listPublicEventHosts(
+      db,
+      pageRows.map((row) => row.hostId),
+    ),
+    readEventOrganisers(
+      db,
+      pageRows.map((row) => row.id),
+    ),
+  ]);
   const hostMap = new Map(hostRows.map((host) => [host.userId, host]));
-  const items = attachCityNames(pageRows, hostMap);
+  const items = attachCityNames(pageRows, hostMap, organisers);
   const hasMore = rows.length > limit;
   const last = items[items.length - 1];
   return {

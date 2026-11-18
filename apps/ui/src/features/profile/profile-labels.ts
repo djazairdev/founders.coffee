@@ -1,11 +1,6 @@
 import {
   formatDate,
-  locale_ar,
-  locale_en,
-  locale_fr,
-  spoken_es,
-  spoken_de,
-  spoken_ber,
+  spokenLanguageName,
   stage_building,
   stage_idea,
   stage_launched,
@@ -47,18 +42,6 @@ const TOPIC_MESSAGES = {
   (input: Record<string, never>, options: { locale: Locale }) => string
 >;
 
-const LOCALE_MESSAGES = {
-  ar: locale_ar,
-  fr: locale_fr,
-  en: locale_en,
-  es: spoken_es,
-  de: spoken_de,
-  ber: spoken_ber,
-} as const satisfies Record<
-  (typeof profile.SPOKEN_LANGUAGES)[number],
-  (input: Record<string, never>, options: { locale: Locale }) => string
->;
-
 const STAGE_MESSAGES = {
   idea: stage_idea,
   building: stage_building,
@@ -82,7 +65,7 @@ export const topicLabel = (
 export const localeLabel = (
   spoken: (typeof profile.SPOKEN_LANGUAGES)[number],
   locale: Locale,
-): string => LOCALE_MESSAGES[spoken]({}, { locale });
+): string => spokenLanguageName(spoken, locale);
 
 /** Name how far along a member's project is, from the fixed set of stages. */
 export const stageLabel = (

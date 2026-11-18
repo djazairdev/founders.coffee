@@ -25,6 +25,10 @@ describe('what a screen reader is told about a dialog', () => {
       'features/chat/components/ChatDialog.tsx',
       'features/chat/components/ChatMessageDialog.tsx',
       'features/events/components/PushPermissionPrompt.tsx',
+      'features/hackathon-reports/components/HackathonReportDialog.tsx',
+      'features/hackathons/components/HackathonResultsConfirmDialog.tsx',
+      'features/organisations/components/OrganisationDialog.tsx',
+      'features/organisations/components/RemoveMemberDialog.tsx',
     ]);
   });
 

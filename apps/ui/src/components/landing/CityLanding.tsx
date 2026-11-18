@@ -13,11 +13,13 @@ import {
   localizedName,
   type Locale,
 } from '@founders-coffee/i18n';
+import type { EventKind } from '@founders-coffee/core';
 import type { Market } from '@founders-coffee/db';
 import type { geo } from '@founders-coffee/domain';
 import type { EventFeedItem, EventFeedPage } from '@founders-coffee/server-fns';
 
 import { applyCityFilters, type CityFilterKey } from '../../lib/city-filters';
+import { filterableTypes } from '../../lib/event-type-filter';
 import {
   localizedHostCreate,
   localizedLanding,
@@ -29,6 +31,9 @@ import { LoadMoreEvents } from '../events/LoadMoreEvents';
 import { EventCard } from '../events/EventCard';
 import { CityFilters } from './CityFilters';
 import { EmptyState } from './EmptyState';
+import { EventTypeEmpty } from './EventTypeEmpty';
+import { EventTypeFilter } from './EventTypeFilter';
+import { HackathonAnnouncement } from './HackathonAnnouncement';
 import { NoMatchingMeetups } from './NoMatchingMeetups';
 
 type CityLandingProps = {
@@ -39,6 +44,7 @@ type CityLandingProps = {
   afterStartsAt?: number;
   afterId?: string;
   nextCursor?: EventFeedPage['nextCursor'];
+  type?: EventKind;
 };
 
 const PAGE_SIZE = 20;
@@ -51,6 +57,7 @@ export const CityLanding = ({
   afterStartsAt,
   afterId,
   nextCursor,
+  type,
 }: CityLandingProps) => {
   const cityDisplayName = localizedName(city, locale);
   const cityNameInputs = cityInputs(cityDisplayName);
@@ -69,6 +76,7 @@ export const CityLanding = ({
       {
         marketCode: market.code,
         cityCode: city.code,
+        kind: type,
         limit: PAGE_SIZE,
         afterStartsAt,
         afterId,
@@ -123,13 +131,14 @@ export const CityLanding = ({
     </header>
   );
 
-  if (!hasEvents) {
+  if (!hasEvents && !type) {
     return (
       <section
         aria-labelledby="city-page-title"
         className="mx-auto flex max-w-content flex-col gap-8 px-4 py-8 md:px-8"
       >
         {pageHeader}
+        <HackathonAnnouncement locale={locale} market={market} />
         <EmptyState
           title={city_empty_title(cityNameInputs, { locale })}
           action={
@@ -152,10 +161,18 @@ export const CityLanding = ({
       className="mx-auto flex max-w-content flex-col gap-8 px-4 py-8 md:px-8"
     >
       {pageHeader}
+      <HackathonAnnouncement locale={locale} market={market} />
       <section
         aria-labelledby="city-events-title"
         className="flex flex-col gap-5"
       >
+        <EventTypeFilter
+          locale={locale}
+          marketSlug={market.slug}
+          citySlug={city.slug}
+          types={filterableTypes(market)}
+          active={type}
+        />
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2
@@ -175,7 +192,13 @@ export const CityLanding = ({
           />
         </header>
 
-        {search === 'matched' ? (
+        {!hasEvents ? (
+          <EventTypeEmpty
+            locale={locale}
+            marketSlug={market.slug}
+            citySlug={city.slug}
+          />
+        ) : search === 'matched' ? (
           <ul
             aria-labelledby="city-events-title"
             className="grid grid-cols-1 gap-3.5"
@@ -202,7 +225,7 @@ export const CityLanding = ({
         )}
       </section>
 
-      {search === 'matched' && (
+      {hasEvents && search === 'matched' && (
         <LoadMoreEvents locale={locale} pagination={pagination} />
       )}
     </section>

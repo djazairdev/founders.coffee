@@ -20,13 +20,22 @@ export const ownerProfileProjection = (
     introduction: row?.introduction ?? null,
     interests: row?.interests ?? [],
     spokenLanguages: row?.spokenLanguages ?? [],
-    professionalLink: row?.professionalLink ?? null,
+    skills: row?.skills ?? [],
+    links: (row?.links ?? []).map((url) => ({
+      kind: profile.linkKindOf(url),
+      url,
+    })),
+    openTo: row?.openTo ?? [],
+    indexable: row?.profileIndexable ?? false,
     visibility: {
       headline: row?.publishHeadline ?? false,
       stage: row?.publishStage ?? false,
       interests: row?.publishInterests ?? false,
       spokenLanguages: row?.publishSpokenLanguages ?? false,
-      professionalLink: row?.publishProfessionalLink ?? false,
+      skills: row?.publishSkills ?? false,
+      links: row?.publishLinks ?? false,
+      openTo: row?.publishOpenTo ?? false,
+      hackathonRecord: row?.publishHackathonRecord ?? false,
       attendedCount: row?.publishAttendedCount ?? false,
     },
   });
@@ -55,12 +64,14 @@ export const ownerProfileOf = (
 export const publicProfileOf = (
   owner: profile.OwnerProfile,
   record: profile.MeetupRecord,
+  hackathonRecord: readonly profile.HackathonRecordEntry[] = [],
+  projects: readonly profile.PublicProfileProject[] = [],
 ): Result<profile.PublicMemberProfile> => {
   if (!owner.displayName)
     return err(new AppError('not_found', 'Profile not found'));
   return ok(
     profile.publicMemberProfileSchema.parse(
-      profile.projectPublicProfile(owner, record),
+      profile.projectPublicProfile(owner, record, hackathonRecord, projects),
     ),
   );
 };
@@ -72,11 +83,17 @@ export const profileChanges = (input: profile.UpdateProfileInput) => ({
   introduction: input.introduction,
   interests: input.interests,
   spokenLanguages: input.spokenLanguages,
-  professionalLink: input.professionalLink,
+  skills: input.skills,
+  links: input.links.map((link) => link.url),
+  openTo: input.openTo,
+  profileIndexable: input.indexable,
   publishHeadline: input.visibility.headline,
   publishStage: input.visibility.stage,
   publishInterests: input.visibility.interests,
   publishSpokenLanguages: input.visibility.spokenLanguages,
-  publishProfessionalLink: input.visibility.professionalLink,
+  publishSkills: input.visibility.skills,
+  publishLinks: input.visibility.links,
+  publishOpenTo: input.visibility.openTo,
+  publishHackathonRecord: input.visibility.hackathonRecord,
   publishAttendedCount: input.visibility.attendedCount,
 });

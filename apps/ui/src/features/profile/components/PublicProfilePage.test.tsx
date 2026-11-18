@@ -42,9 +42,14 @@ const publicProfile: PublicProfile = {
   stage: null,
   interests: [],
   spokenLanguages: [],
-  professionalLink: null,
+  skills: [],
+  links: [],
+  openTo: [],
+  indexable: false,
   hostedCount: 0,
   attendedCount: null,
+  hackathonRecord: [],
+  projects: [],
 };
 
 const markets: readonly RootMarket[] = [
@@ -72,6 +77,8 @@ const hostedEvent = {
   endsAt: new Date('2099-04-01T19:00:00Z'),
   rsvps: 3,
   language: 'fr',
+  kind: 'meetup',
+  runBy: { kind: 'community' },
 } as never;
 
 const pastMeetup = (id: string, isOnRecord: boolean) =>
@@ -183,7 +190,7 @@ describe('PublicProfilePage', () => {
           ...publicProfile,
           interests: ['product', 'community'],
           spokenLanguages: ['ar', 'fr'],
-          professionalLink: 'https://example.com/work',
+          links: [{ kind: 'website', url: 'https://example.com/work' }],
         }}
       />,
     );

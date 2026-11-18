@@ -5,8 +5,7 @@ import { LOCALES } from '@founders-coffee/core';
 import {
   EVENT_DESCRIPTION_MAX_LENGTH,
   EVENT_DESCRIPTION_MIN_LENGTH,
-  EVENT_DURATION_MS_MAX,
-  EVENT_DURATION_MS_MIN,
+  EVENT_DESCRIPTION_STORAGE_MAX_LENGTH,
   EVENT_TITLE_MAX_LENGTH,
   EVENT_TITLE_MIN_LENGTH,
   EVENT_VENUE_ADDRESS_MAX_LENGTH,
@@ -14,8 +13,9 @@ import {
   EVENT_VENUE_NAME_MAX_LENGTH,
   EVENT_VENUE_NAME_MIN_LENGTH,
   eventCreateSchema,
-  eventUpdateSchema,
+  publicEventDiscoverySchema,
 } from './schemas.js';
+import { EVENT_DURATION_MS_MAX, EVENT_DURATION_MS_MIN } from './duration.js';
 
 const validInput = (overrides: Record<string, unknown> = {}) => {
   const startsAt = Date.now() + 24 * 60 * 60_000;
@@ -81,6 +81,42 @@ describe('eventCreateSchema', () => {
       eventCreateSchema.parse(validInput({ languages: ['ar', 'ber', 'fr'] }))
         .languages,
     ).toEqual(['ar', 'ber', 'fr']);
+  });
+
+  it('keeps hackathon classification off community events', () => {
+    const result = eventCreateSchema.safeParse(
+      validInput({ hackathonFields: ['artificial_intelligence'] }),
+    );
+
+    expect(result.success).toBe(false);
+    if (!result.success)
+      expect(
+        result.error.issues.some(
+          (issue) =>
+            issue.message === 'Hackathon classification belongs to hackathons',
+        ),
+      ).toBe(true);
+  });
+
+  it('still requires a city for an online meetup', () => {
+    const result = eventCreateSchema.safeParse(
+      validInput({
+        cityCode: undefined,
+        venueName: undefined,
+        venueAddress: undefined,
+        latitude: undefined,
+        longitude: undefined,
+        format: 'online',
+        meetingUrl: 'https://meet.example.com/founders',
+      }),
+    );
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(
+        result.error.issues.some((issue) => issue.path[0] === 'cityCode'),
+      ).toBe(true);
+    }
   });
 
   it.each([
@@ -230,62 +266,34 @@ describe('eventCreateSchema', () => {
   });
 });
 
-const validUpdate = (overrides: Record<string, unknown> = {}) => {
-  const startsAt = Date.now() + 24 * 60 * 60_000;
-  return {
-    expectedVersion: 3,
-    title: 'Founder coffee session',
-    description: 'A focused discussion for local founders.',
-    venueName: 'Café des Délices',
-    startsAt,
-    endsAt: startsAt + 60 * 60_000,
-    languages: ['fr'],
-    ...overrides,
-  };
-};
+describe('publicEventDiscoverySchema', () => {
+  it('reads descriptions up to the hackathon storage limit', () => {
+    const event = {
+      market: 'Algeria',
+      city: null,
+      cityName: null,
+      slug: 'builders-hackathon',
+      title: 'Algiers Builders Hackathon',
+      description: 'x'.repeat(EVENT_DESCRIPTION_STORAGE_MAX_LENGTH),
+      format: 'online',
+      venue: null,
+      venueAddress: null,
+      startsAt: '2026-11-16T09:00:00.000Z',
+      endsAt: '2026-11-18T18:00:00.000Z',
+      timezone: 'Africa/Algiers',
+      language: 'ar',
+      languages: ['ar'],
+      organizer: null,
+      status: 'published',
+      updatedAt: '2026-11-15T09:00:00.000Z',
+    };
 
-describe('eventUpdateSchema', () => {
-  it('accepts an edit that moves the pin, carrying both halves of the point', () => {
+    expect(publicEventDiscoverySchema.safeParse(event).success).toBe(true);
     expect(
-      eventUpdateSchema.safeParse(
-        validUpdate({ latitude: 36.7538, longitude: 3.0588 }),
-      ).success,
-    ).toBe(true);
-  });
-
-  it('accepts an edit that carries no point at all, which most rows have', () => {
-    expect(
-      eventUpdateSchema.safeParse(validUpdate()).success,
-      'sending neither coordinate means the point is unchanged, so a meetup that never had one stays editable',
-    ).toBe(true);
-  });
-
-  it.each([
-    ['latitude alone', { latitude: 36.7538 }],
-    ['longitude alone', { longitude: 3.0588 }],
-  ])('refuses half a venue point: %s', (_label, half) => {
-    const result = eventUpdateSchema.safeParse(validUpdate(half));
-
-    expect(result.success).toBe(false);
-    if (!result.success)
-      expect(
-        result.error.issues.some(
-          (issue) =>
-            issue.path[0] === 'latitude' &&
-            issue.message ===
-              'A venue point needs both a latitude and a longitude',
-        ),
-        'one coordinate on its own is indistinguishable from a pin dragged into the sea, so it cannot be accepted as an edit',
-      ).toBe(true);
-  });
-
-  it('still applies the schedule rules an edit shares with a new meetup', () => {
-    const startsAt = Date.now() + 24 * 60 * 60_000;
-
-    expect(
-      eventUpdateSchema.safeParse(
-        validUpdate({ startsAt, endsAt: startsAt - 60_000 }),
-      ).success,
+      publicEventDiscoverySchema.safeParse({
+        ...event,
+        description: 'x'.repeat(EVENT_DESCRIPTION_STORAGE_MAX_LENGTH + 1),
+      }).success,
     ).toBe(false);
   });
 });

@@ -1,14 +1,17 @@
+import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 
 import {
   profile_title,
   profile_unsaved_leave,
   profile_unsaved_stay,
+  profile_view_public,
   unsaved_changes,
   type Locale,
 } from '@founders-coffee/i18n';
 import { Button } from '@founders-coffee/ui';
 
+import { localizedPublicProfile } from '../../../lib/locale-routing';
 import { ProfileSectionNav } from '../../account/components/ProfileSectionNav';
 import { useMyProfile } from '../hooks';
 import { useUnsavedGuard } from '../useUnsavedGuard';
@@ -23,9 +26,19 @@ export const ProfilePage = ({ locale }: { locale: Locale }) => {
     <section className="mx-auto max-w-5xl px-5 py-12 lg:grid lg:grid-cols-[184px_minmax(0,1fr)] lg:gap-12">
       <ProfileSectionNav locale={locale} />
       <div className="min-w-0">
-        <h1 className="mb-6 font-display text-h3">
-          {profile_title({}, { locale })}
-        </h1>
+        <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+          <h1 className="font-display text-h3">
+            {profile_title({}, { locale })}
+          </h1>
+          {query.userId ? (
+            <Link
+              {...localizedPublicProfile(locale, query.userId)}
+              className="btn btn-outline btn-xs shrink-0 sm:btn-sm md:btn-md"
+            >
+              {profile_view_public({}, { locale })}
+            </Link>
+          ) : null}
+        </div>
         {query.data && query.userId ? (
           <ProfileForm
             key={query.userId}

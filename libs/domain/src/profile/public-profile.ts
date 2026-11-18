@@ -1,7 +1,11 @@
 import { z } from 'zod';
 
-import { idSchema } from '@founders-coffee/core';
+import { idSchema, projectStageSchema } from '@founders-coffee/core';
 
+import {
+  hackathonRecordEntrySchema,
+  type HackathonRecordEntry,
+} from './hackathon-record.js';
 import {
   spokenLanguageSchema,
   displayNameSchema,
@@ -9,11 +13,24 @@ import {
   introductionSchema,
   memberSinceSchema,
   profileInterestSchema,
-  professionalLinkSchema,
   profileIdentitySchema,
+  profileLinksSchema,
+  profileOpenToListSchema,
+  profileSkillsSchema,
   profileStageSchema,
   type OwnerProfile,
 } from './schemas.js';
+
+export const publicProfileProjectSchema = z.strictObject({
+  slug: z.string(),
+  title: z.string(),
+  stage: projectStageSchema,
+  hackathonTitle: z.string().nullable(),
+  rank: z.number().int().positive().nullable(),
+  trackRank: z.number().int().positive().nullable(),
+});
+
+export type PublicProfileProject = z.infer<typeof publicProfileProjectSchema>;
 
 export const publicMemberProfileSchema = z.strictObject({
   userId: profileIdentitySchema,
@@ -25,9 +42,14 @@ export const publicMemberProfileSchema = z.strictObject({
   introduction: introductionSchema,
   interests: z.array(profileInterestSchema).max(5),
   spokenLanguages: z.array(spokenLanguageSchema).max(6),
-  professionalLink: professionalLinkSchema,
+  skills: profileSkillsSchema,
+  links: profileLinksSchema,
+  openTo: profileOpenToListSchema,
+  indexable: z.boolean(),
   hostedCount: z.number().int().nonnegative(),
   attendedCount: z.number().int().nonnegative().nullable(),
+  hackathonRecord: z.array(hackathonRecordEntrySchema),
+  projects: z.array(publicProfileProjectSchema),
 });
 
 export type PublicMemberProfile = z.infer<typeof publicMemberProfileSchema>;
@@ -41,6 +63,8 @@ export type MeetupRecord = {
 export const projectPublicProfile = (
   profile: OwnerProfile,
   record: MeetupRecord,
+  hackathonRecord: readonly HackathonRecordEntry[] = [],
+  projects: readonly PublicProfileProject[] = [],
 ): PublicMemberProfile => ({
   userId: profile.userId,
   displayName: profile.displayName,
@@ -53,9 +77,14 @@ export const projectPublicProfile = (
   spokenLanguages: profile.visibility.spokenLanguages
     ? [...profile.spokenLanguages]
     : [],
-  professionalLink: profile.visibility.professionalLink
-    ? profile.professionalLink
-    : null,
+  skills: profile.visibility.skills ? [...profile.skills] : [],
+  links: profile.visibility.links ? [...profile.links] : [],
+  openTo: profile.visibility.openTo ? [...profile.openTo] : [],
+  indexable: profile.indexable,
   hostedCount: record.hosted,
   attendedCount: profile.visibility.attendedCount ? record.attended : null,
+  hackathonRecord: profile.visibility.hackathonRecord
+    ? [...hackathonRecord]
+    : [],
+  projects: [...projects],
 });

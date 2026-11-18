@@ -7,10 +7,25 @@ vi.mock('@tanstack/react-router', () => ({
   Link: ({
     children,
     className,
+    to = '/',
+    params = {},
   }: {
     children: ReactNode;
     className?: string;
-  }) => createElement('a', { href: '/', className }, children),
+    to?: string;
+    params?: Record<string, string>;
+  }) =>
+    createElement(
+      'a',
+      {
+        href: to.replaceAll(
+          /\$(\w+)/gu,
+          (_, name: string) => params[name] ?? '',
+        ),
+        className,
+      },
+      children,
+    ),
 }));
 
 export const event: EventFeedItem = {
@@ -32,6 +47,9 @@ export const event: EventFeedItem = {
   longitude: null,
   venueAddress: null,
   status: 'published',
+  kind: 'meetup',
+  tags: [],
+  format: 'in_person',
   version: 1,
   createdAt: new Date(0),
   updatedAt: new Date(0),
@@ -44,4 +62,5 @@ export const event: EventFeedItem = {
   goingCount: 0,
   hostName: null,
   hostPhotoAssetId: null,
+  runBy: { kind: 'community' },
 };

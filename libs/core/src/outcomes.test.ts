@@ -7,6 +7,7 @@ import {
   CLOSEOUT_SUBMISSION_OUTCOMES,
   FEEDBACK_ELIGIBILITY_STATUSES,
   FEEDBACK_SUBMISSION_OUTCOMES,
+  HACKATHON_ERROR_CODES,
   NOTIFICATION_DISPATCH_KINDS,
   OPERATIONS_ERROR_CODES,
   RSVP_CREATION_OUTCOMES,
@@ -17,6 +18,7 @@ import {
   closeoutSubmissionOutcomeSchema,
   feedbackEligibilityStatusSchema,
   feedbackSubmissionOutcomeSchema,
+  hackathonErrorCodeSchema,
   isOperationsErrorCode,
   notificationDispatchKindSchema,
   operationsErrorCodeSchema,
@@ -35,6 +37,7 @@ const contracts = [
   [CLOSEOUT_PROMPT_OUTCOMES, closeoutPromptOutcomeSchema],
   [NOTIFICATION_DISPATCH_KINDS, notificationDispatchKindSchema],
   [OPERATIONS_ERROR_CODES, operationsErrorCodeSchema],
+  [HACKATHON_ERROR_CODES, hackathonErrorCodeSchema],
 ] as const;
 
 describe('outcome contracts', () => {

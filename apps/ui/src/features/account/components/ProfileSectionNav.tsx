@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { Building2 } from 'lucide-react';
 
 import {
   localizedProfile,
@@ -12,6 +13,7 @@ import {
   account_sections,
   activity,
   notifications,
+  profile_organisations,
   profile_link,
   type Locale,
 } from '@founders-coffee/i18n';
@@ -66,6 +68,15 @@ const SECTIONS = [
     exact: true,
   },
   {
+    at: (locale: Locale) => ({
+      to: '/$locale/profile/organisations' as const,
+      params: { locale },
+    }),
+    name: 'organisations',
+    label: profile_organisations,
+    exact: true,
+  },
+  {
     at: localizedProfileActivity,
     name: 'activity',
     label: activity,
@@ -115,7 +126,11 @@ export const ProfileSectionNav = ({
             }}
             inactiveProps={{ className: 'text-neutral' }}
           >
-            <Icon name={section.name} />
+            {section.name === 'organisations' ? (
+              <Building2 className="size-[18px] shrink-0" aria-hidden="true" />
+            ) : (
+              <Icon name={section.name} />
+            )}
             {section.label({}, { locale })}
           </Link>
         </li>

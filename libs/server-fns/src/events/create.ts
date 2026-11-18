@@ -9,7 +9,7 @@ import {
 
 import type { MapProvider } from '../maps/provider.js';
 import { scheduleEventCloseoutPrompt } from './closeout-intent.js';
-import { createEventResolver } from './resolver.js';
+import { createEventResolver } from './create-resolver.js';
 import { scheduleCityWaitlistLaunch } from './waitlist-launch.js';
 
 export const EVENTS_CREATED_METRIC = 'events_created';
@@ -20,6 +20,7 @@ interface EventCreateTelemetry {
   readonly cityCode: string | null;
   readonly languages: readonly string[];
   readonly durationMinutes: number;
+  readonly leadOrganisationId: string | null;
 }
 
 /**
@@ -38,12 +39,14 @@ interface EventCreateTelemetry {
 const telemetryFor = (
   hostId: string,
   input: EventCreateInput,
+  leadOrganisationId: string | undefined,
 ): EventCreateTelemetry => ({
   hostId,
   marketCode: input.marketCode,
   cityCode: input.cityCode ?? null,
   languages: input.languages,
   durationMinutes: Math.round((input.endsAt - input.startsAt) / 60_000),
+  leadOrganisationId: leadOrganisationId ?? null,
 });
 
 /**
@@ -91,7 +94,8 @@ const recordEventCreated = (
  * `requestContextMiddleware` puts in the ambient context, so a failed creation can be traced from
  * the host's report to the rejecting stage. The `events_created` metric is emitted only on the
  * success path — after the row is durably committed — so a rejected or failed write never inflates
- * the dashboards.
+ * the dashboards. An event created as an organisation carries its lead organisation's id in both
+ * logs; an organisation is not a person, so its id is not personal data.
  */
 export const createEventWithTelemetry = async (
   db: Db,
@@ -100,11 +104,18 @@ export const createEventWithTelemetry = async (
   hostId: string,
   input: EventCreateInput,
   attribution?: Campaign,
+  leadOrganisationId?: string,
 ): Promise<Result<Event>> => {
-  const telemetry = telemetryFor(hostId, input);
+  const telemetry = telemetryFor(hostId, input, leadOrganisationId);
   logger.info('event_create_requested', { ...telemetry });
 
-  const result = await createEventResolver(db, mapProvider, hostId, input);
+  const result = await createEventResolver(
+    db,
+    mapProvider,
+    hostId,
+    input,
+    leadOrganisationId,
+  );
   if (!result.ok) {
     logger.warn('event_create_rejected', {
       ...telemetry,

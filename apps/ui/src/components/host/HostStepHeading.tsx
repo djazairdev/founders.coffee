@@ -12,6 +12,8 @@ type HostStepHeadingProps = {
   title: string;
   sub: string | null;
   repeatTitle: string | null;
+  pageTitle?: string;
+  isVisibleOnMobile?: boolean;
 };
 
 export const HostStepHeading = ({
@@ -20,13 +22,17 @@ export const HostStepHeading = ({
   title,
   sub,
   repeatTitle,
+  pageTitle,
+  isVisibleOnMobile = false,
 }: HostStepHeadingProps) => (
   <div className="max-lg:contents lg:mb-2">
-    <h1 className="sr-only">{host_page_title({}, { locale })}</h1>
+    <h1 className="sr-only">{pageTitle ?? host_page_title({}, { locale })}</h1>
     <h2
       ref={headingRef}
       tabIndex={-1}
-      className="font-display text-h3 font-semibold text-base-content outline-none max-lg:sr-only max-lg:scroll-mt-20"
+      className={`font-display text-h3 font-semibold text-base-content outline-none max-lg:scroll-mt-2 ${
+        isVisibleOnMobile ? '' : 'max-lg:sr-only'
+      }`}
     >
       {title}
     </h2>

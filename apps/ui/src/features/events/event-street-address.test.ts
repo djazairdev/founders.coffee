@@ -9,6 +9,7 @@ const sharmElSheikh = {
   stateName: 'South Sinai',
   stateNameAr: 'جنوب سيناء',
   stateNameFr: 'Sinaï du Sud',
+  meetingLink: null,
 };
 
 describe('the street address a meetup page gives search engines', () => {

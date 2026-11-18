@@ -43,6 +43,7 @@ import {
 } from '../lib/indexation';
 import { getRequestPath } from '../lib/seo';
 import { organizationJsonLd, websiteJsonLd } from '../lib/seo-company';
+import { jsonLdText } from '../lib/seo-structured-data';
 import { errorPageHead, errorPageKind } from '../lib/seo-error';
 import { installCaptureScript } from '../lib/install-prompt';
 import { installedAppMeta } from '../lib/installed-app-head';
@@ -51,6 +52,7 @@ import {
   hasOwnMobileHeader,
   isFocusedTask,
 } from '../lib/route-chrome';
+import { loadMatchedRouteChunks } from '../lib/route-chunks';
 import { manifestHref } from '../lib/web-manifest';
 
 import appCss from '../styles.css?url';
@@ -92,7 +94,11 @@ const useServiceWorker = () => {
 };
 
 const RootDocument = ({ children }: { children: React.ReactNode }) => {
-  const { locale, dir, markets, activeMarket } = Route.useRouteContext();
+  const routeContext = Route.useRouteContext();
+  const locale = routeContext?.locale ?? 'ar';
+  const dir = routeContext?.dir ?? direction(locale);
+  const markets = routeContext?.markets ?? [];
+  const activeMarket = routeContext?.activeMarket;
   const isNavbarHiddenOnMobile = useMatches({ select: hasOwnMobileHeader });
   const cityCode = useMatches({ select: cityCodeInView });
   const isOnFocusedTask = useMatches({ select: isFocusedTask });
@@ -138,12 +144,17 @@ export const Route = createRootRoute({
   validateSearch: campaignSearchSchema,
   search: { middlewares: [retainSearchParams([...CAMPAIGN_KEYS])] },
   beforeLoad: async ({ params }) => {
+    await loadMatchedRouteChunks();
     const routeParams = params as {
       readonly locale?: string;
       readonly market?: string;
     };
     const { locale, dir } = detectActiveLocale(routeParams.locale);
-    const markets = (await visibleMarkets()).map(toRootMarket);
+    const marketRows = await visibleMarkets().catch((error: unknown) => {
+      reportError(error, { source: 'visible_markets' }, logger);
+      return [];
+    });
+    const markets = marketRows.map(toRootMarket);
     const activeMarket =
       markets.find(
         (market: RootMarket) => market.slug === routeParams.market,
@@ -172,9 +183,30 @@ export const Route = createRootRoute({
       ],
       links: [
         { rel: 'stylesheet', href: appCss },
-        { rel: 'icon', href: '/android-chrome-192x192.png', sizes: '192x192' },
-        { rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32' },
-        { rel: 'icon', href: '/favicon-16x16.png', sizes: '16x16' },
+        {
+          rel: 'icon',
+          href: '/android-chrome-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+        {
+          rel: 'icon',
+          href: '/favicon-32x32.png',
+          sizes: '32x32',
+          type: 'image/png',
+        },
+        {
+          rel: 'icon',
+          href: '/favicon-16x16.png',
+          sizes: '16x16',
+          type: 'image/png',
+        },
+        {
+          rel: 'icon',
+          href: '/favicon.ico',
+          sizes: 'any',
+          type: 'image/x-icon',
+        },
         { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
         { rel: 'manifest', href: manifestHref(locale) },
         ...(pageHead?.links ?? []),
@@ -185,9 +217,12 @@ export const Route = createRootRoute({
         ...(pageHead?.scripts ?? [
           {
             type: 'application/ld+json',
-            children: organizationJsonLd(locale),
+            children: jsonLdText(organizationJsonLd(locale)),
           },
-          { type: 'application/ld+json', children: websiteJsonLd() },
+          {
+            type: 'application/ld+json',
+            children: jsonLdText(websiteJsonLd()),
+          },
         ]),
       ],
     };

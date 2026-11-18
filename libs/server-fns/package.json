@@ -19,6 +19,11 @@
       "types": "./src/profile/photo-http.ts",
       "default": "./src/profile/photo-http.ts"
     },
+    "./submission-screenshot-http": {
+      "@founders-coffee/source": "./src/hackathons/screenshot-http.ts",
+      "types": "./src/hackathons/screenshot-http.ts",
+      "default": "./src/hackathons/screenshot-http.ts"
+    },
     "./rate-limiter-do": {
       "@founders-coffee/source": "./src/rate-limiter-do.ts",
       "types": "./src/rate-limiter-do.ts",
@@ -69,6 +74,16 @@
       "types": "./src/notifications/waitlist-launch-email.ts",
       "default": "./src/notifications/waitlist-launch-email.ts"
     },
+    "./hackathon-results-notices": {
+      "@founders-coffee/source": "./src/notifications/hackathon-results-notices.ts",
+      "types": "./src/notifications/hackathon-results-notices.ts",
+      "default": "./src/notifications/hackathon-results-notices.ts"
+    },
+    "./hackathon-interest-launch": {
+      "@founders-coffee/source": "./src/notifications/hackathon-interest-email.ts",
+      "types": "./src/notifications/hackathon-interest-email.ts",
+      "default": "./src/notifications/hackathon-interest-email.ts"
+    },
     "./account-closure": {
       "@founders-coffee/source": "./src/profile/account-closure.ts",
       "types": "./src/profile/account-closure.ts",
@@ -83,10 +98,26 @@
       "@founders-coffee/source": "./src/community-health-http.ts",
       "types": "./src/community-health-http.ts",
       "default": "./src/community-health-http.ts"
+    },
+    "./admin": {
+      "@founders-coffee/source": "./src/admin/index.ts",
+      "types": "./src/admin/index.ts",
+      "default": "./src/admin/index.ts"
+    },
+    "./start": {
+      "@founders-coffee/source": "./src/start/index.ts",
+      "types": "./src/start/index.ts",
+      "default": "./src/start/index.ts"
+    },
+    "./organisation-logo-http": {
+      "@founders-coffee/source": "./src/organisations/logo-http.ts",
+      "types": "./src/organisations/logo-http.ts",
+      "default": "./src/organisations/logo-http.ts"
     }
   },
   "dependencies": {
-    "@tanstack/react-start": "^1.168.27",
-    "zod": "^4.4.3"
+    "@tanstack/react-router": "1.170.42",
+    "@tanstack/react-start": "1.168.61",
+    "zod": "^4.6.7"
   }
 }

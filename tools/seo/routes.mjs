@@ -20,14 +20,29 @@ export const COMPANY_PAGES = [
   'terms',
 ];
 
+/**
+ * The signed-in pages under `/{locale}/o/`, beside the organisations' public pages. `/fr/o/apply`
+ * has the shape of an organisation's page, `/fr/o/{slug}`; this list is what keeps the smoke from
+ * asking it for an organisation's canonical and structured data.
+ */
+export const ORGANISATION_UTILITY_PAGES = ['apply', 'invitations'];
+
 /** Which contract a path answers to, or null when the smoke does not cover it. */
 export const classifyPath = (path) => {
   const segments = path.split('/').filter(Boolean);
   if (segments.length < 2 || !LOCALES.includes(segments[0])) return null;
   if (COMPANY_PAGES.includes(segments[1])) return 'company';
+  if (segments[1] === 'o') {
+    if (ORGANISATION_UTILITY_PAGES.includes(segments[2])) return 'utility';
+    return segments.length === 3 ? 'organisation' : null;
+  }
+  if (segments[1] === 'p') return segments.length === 3 ? 'project' : null;
+  if (segments[1] === 'profile' && segments[2] === 'organisations')
+    return 'utility';
   if (segments[1] === 'host' && segments[2] === 'create') return 'utility';
   if (segments.length === 2) return 'market';
   if (segments[2] === 'e' && segments.length === 4) return 'event';
+  if (segments[1] === 'u' && segments.length === 3) return 'profile';
   if (segments.length === 3) return 'city';
   if (segments[2] === 'host' && segments.length === 4) return 'utility';
   if (segments.length === 4 && segments[3] === 'host') return 'utility';

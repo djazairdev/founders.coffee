@@ -23,6 +23,11 @@ const REPEAT_TEMPLATE: RepeatEventTemplate = {
   latitude: 36.7538,
   longitude: 3.0588,
   languages: ['ar'],
+  kind: 'meetup',
+  format: 'in_person',
+  meetingUrl: null,
+  tags: [],
+  organisationId: null,
 };
 
 const SEARCH_BOX = 'Search cafés and coworking venues';

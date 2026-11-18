@@ -1,9 +1,13 @@
 import { createServerFn } from '@tanstack/react-start';
 
-import { geo, markets } from '@founders-coffee/domain';
+import { geo, markets, profile } from '@founders-coffee/domain';
 import {
   listCitiesWithUpcomingEvents,
+  listIndexableProfiles,
   listPublicEventSitemapRows,
+  hackathonsEnabled,
+  listIndexableProjects,
+  listPublicOrganisationSlugs,
   listMarkets,
   type Market,
 } from '@founders-coffee/db';
@@ -23,10 +27,22 @@ export type SitemapEvent = {
   readonly updatedAt: Date;
 };
 
+export type SitemapOrganisation = { readonly slug: string };
+export type SitemapProject = {
+  readonly slug: string;
+  readonly updatedAt: Date;
+};
+export type SitemapProfile = {
+  readonly userId: string;
+};
+
 export type SitemapData = {
   readonly markets: readonly SitemapMarket[];
   readonly cities: readonly SitemapCity[];
   readonly events: readonly SitemapEvent[];
+  readonly organisations: readonly SitemapOrganisation[];
+  readonly projects: readonly SitemapProject[];
+  readonly profiles: readonly SitemapProfile[];
 };
 
 /**
@@ -61,14 +77,29 @@ export const getSitemapData = createServerFn({ strict: false }).handler(
     const marketByCode = new Map(
       visibleMarkets.map((market) => [market.code, market]),
     );
-    const [eventRows, cityRows] = await Promise.all([
-      listPublicEventSitemapRows(db),
-      listCitiesWithUpcomingEvents(db),
-    ]);
+    const [eventRows, cityRows, organisationSlugs, projectRows, profileRows] =
+      await Promise.all([
+        listPublicEventSitemapRows(db),
+        listCitiesWithUpcomingEvents(db),
+        listPublicOrganisationSlugs(db, markets.VISIBLE_STATES),
+        listIndexableProjects(db, markets.VISIBLE_STATES),
+        listIndexableProfiles(db),
+      ]);
+    const projectMarkets = [
+      ...new Set(projectRows.map((row) => row.marketCode)),
+    ];
+    const hackathonsOn = new Set(
+      (
+        await Promise.all(
+          projectMarkets.map(async (code) =>
+            (await hackathonsEnabled(db, code)) ? code : null,
+          ),
+        )
+      ).filter((code) => code !== null),
+    );
     const events = eventRows.flatMap((row) => {
       const market = marketByCode.get(row.marketCode);
-      const city = market && geo.findCity(market.code, row.cityCode);
-      return market && city
+      return market
         ? [
             {
               market: market.slug,
@@ -82,6 +113,13 @@ export const getSitemapData = createServerFn({ strict: false }).handler(
       markets: visibleMarkets.map(({ slug }) => ({ slug })),
       cities: citiesWithSomethingToShow(cityRows, marketByCode),
       events,
+      organisations: organisationSlugs.map((slug) => ({ slug })),
+      projects: projectRows
+        .filter((row) => hackathonsOn.has(row.marketCode))
+        .map(({ slug, updatedAt }) => ({ slug, updatedAt })),
+      profiles: profileRows
+        .filter((row) => profile.safeProfileDisplayName(row.name, row.email))
+        .map(({ userId }) => ({ userId })),
     };
   },
 );

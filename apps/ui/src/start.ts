@@ -1,38 +1,17 @@
-import { createCsrfMiddleware, createStart } from '@tanstack/react-start';
+import { createStart } from '@tanstack/react-start';
 
 import { requestContextMiddleware } from '@founders-coffee/server-fns/request-context';
-
-import { appErrorSerializationAdapter } from './lib/app-error-adapter';
-import { isStateChangingRequest } from './lib/csrf';
+import { sharedStartOptions } from '@founders-coffee/server-fns/start';
 
 /**
- * Global middleware for the UI app (P0-012 → P1-017 linchpin). This `src/start.ts` is
- * auto-discovered by the `tanstackStart()` vite plugin — the virtual server-entry `main`
- * stays as-is. Defining this file disables TanStack's auto-installed CSRF middleware, so
- * `createCsrfMiddleware()` is re-installed explicitly to keep same-origin protection on every
- * server-fn (custom prod origin lands in Phase C). `requestContextMiddleware` gives every
- * server-fn a per-request id in the ALS context the structured logger reads (AGENTS §13).
- *
- * CSRF allows `Sec-Fetch-Site: none` alongside `same-origin` so direct browser navigations
- * (typed URLs, bookmarks, inbound links) are not rejected with `403 Forbidden` — browsers send
- * `none` + no `Origin` on those. `filter` narrows the check to state-changing methods, which is
- * what lets an OAuth provider's cross-site redirect land; see `./lib/csrf`.
- *
- * `serializationAdapters` carries `AppError.code` to the client; without it TanStack's shallow
- * error plugin keeps only `message` and every `appErrorCode()` branch is dead. See the adapter.
- *
- * Both `default` and `startInstance` exports are required:
- * - `default` is the legacy TanStack Start export
- * - `startInstance` is the named export expected by `@tanstack/start-client-core`'s hydrateStart
+ * Global middleware and serialization for the UI app: the options every app shares, plus
+ * `requestContextMiddleware`, which gives every server function a per-request id in the context the
+ * structured logger reads (AGENTS §13). This file is auto-discovered by the `tanstackStart()` vite
+ * plugin. Both `default` and `startInstance` are required: `default` is the legacy export,
+ * `startInstance` the one `hydrateStart` expects.
  */
 const app = createStart(() => ({
-  serializationAdapters: [appErrorSerializationAdapter],
-  requestMiddleware: [
-    createCsrfMiddleware({
-      secFetchSite: ['none', 'same-origin'],
-      filter: ({ request }) => isStateChangingRequest(request),
-    }),
-  ],
+  ...sharedStartOptions(),
   functionMiddleware: [requestContextMiddleware],
 }));
 

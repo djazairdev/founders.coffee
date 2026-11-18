@@ -2,10 +2,23 @@ import { and, eq, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
 
 import type { Db } from './db.js';
+import { eventOrganisationsQuery } from './event-organisers.js';
+import { acceptedHackathonJudgesQuery } from './hackathon-judges.js';
+import { acceptedHackathonMentorsQuery } from './hackathon-mentors.js';
+import {
+  publicHackathonPrizesOf,
+  publicHackathonPrizesQuery,
+} from './hackathon-prizes.js';
+import {
+  publicHackathonResultsQuery,
+  publicResultPullRequestsQuery,
+} from './hackathon-results.js';
+import { publicHackathonTracksQuery } from './hackathon-tracks.js';
+import { hackathonWorkshopsQuery } from './hackathon-workshops.js';
 import { memberProfileQuery, profileIdentityQuery } from './member-profiles.js';
 import { attendedMeetupsQuery, hostedMeetupsQuery } from './member-record.js';
 import { visibleHost } from './profile-access.js';
-import { events } from './schema.js';
+import { events, hackathons } from './schema.js';
 
 /**
  * A meetup found by its address, and every row its host's card is made from, in one trip to D1.
@@ -14,12 +27,17 @@ import { events } from './schema.js';
  * profile, then count the host's record: four trips one after another, each of them a round trip
  * from wherever the Worker runs to the database's region (#114). Here the host's reads name the
  * host by a subquery on the same address instead of by the id the meetup row carries, so none of
- * them waits for that row and all five statements go in one batch.
+ * them waits for that row and every statement goes in one batch.
  *
  * The meetup comes back only while its host may still be shown ({@link visibleHost}), which is the
  * check the page used to make in a trip of its own. Its status is left to the caller. The host's
  * rows are the ones `getProfileIdentity`, `getMemberProfile` and the two record counts read, built
- * by the same functions, so the card cannot drift from the host's public profile.
+ * by the same functions, so the card cannot drift from the host's public profile. The
+ * organisations that run the meetup come back in the same batch, found by the same address, and so
+ * do a hackathon's dates and rules (B-HKN-17, B-HKN-19), `null` for any other kind of event, the
+ * judges who accepted (B-JDG-03), its tracks and confirmed prizes (B-HKN-18), and its mentors who
+ * accepted and its organisers' workshops before kickoff (B-HKN-26), and its frozen results once
+ * published (B-JDG-10), none for a meetup.
  */
 export const readEventPageRows = async (
   db: Db,
@@ -28,30 +46,78 @@ export const readEventPageRows = async (
   now: Date,
 ) => {
   const pageEvent = alias(events, 'page_event');
+  const atAddress = and(
+    eq(pageEvent.marketCode, marketCode),
+    eq(pageEvent.slug, slug),
+  );
   const hostId = sql`(${db
     .select({ id: pageEvent.hostId })
     .from(pageEvent)
-    .where(
-      and(eq(pageEvent.marketCode, marketCode), eq(pageEvent.slug, slug)),
-    )})`;
-  const [eventRows, identityRows, profileRows, hostedRows, attendedRows] =
-    await db.batch([
-      db
-        .select()
-        .from(events)
-        .where(
-          and(
-            eq(events.marketCode, marketCode),
-            eq(events.slug, slug),
-            visibleHost(events.hostId),
-          ),
-        )
-        .limit(1),
-      profileIdentityQuery(db, hostId),
-      memberProfileQuery(db, hostId),
-      hostedMeetupsQuery(db, hostId, now),
-      attendedMeetupsQuery(db, hostId, now),
-    ]);
+    .where(atAddress)})`;
+  const eventId = sql`(${db
+    .select({ id: pageEvent.id })
+    .from(pageEvent)
+    .where(atAddress)})`;
+  const [
+    eventRows,
+    identityRows,
+    profileRows,
+    hostedRows,
+    attendedRows,
+    organiserRows,
+    hackathonRows,
+    judgeRows,
+    trackRows,
+    prizeRows,
+    mentorRows,
+    workshopRows,
+    resultRows,
+    pullRequestRows,
+  ] = await db.batch([
+    db
+      .select()
+      .from(events)
+      .where(
+        and(
+          eq(events.marketCode, marketCode),
+          eq(events.slug, slug),
+          visibleHost(events.hostId),
+        ),
+      )
+      .limit(1),
+    profileIdentityQuery(db, hostId),
+    memberProfileQuery(db, hostId),
+    hostedMeetupsQuery(db, hostId, now),
+    attendedMeetupsQuery(db, hostId, now),
+    eventOrganisationsQuery(db, eventId),
+    db
+      .select({
+        registrationOpensAt: hackathons.registrationOpensAt,
+        registrationClosesAt: hackathons.registrationClosesAt,
+        submissionDeadlineAt: hackathons.submissionDeadlineAt,
+        judgingEndsAt: hackathons.judgingEndsAt,
+        rules: hackathons.rules,
+        minimumAge: hackathons.minimumAge,
+        attendanceModes: hackathons.attendanceModes,
+        teamMin: hackathons.teamMin,
+        teamMax: hackathons.teamMax,
+        aiPolicy: hackathons.aiPolicy,
+        aiPolicyNote: hackathons.aiPolicyNote,
+        licenceNote: hackathons.licenceNote,
+        capacity: hackathons.capacity,
+        registeredCount: hackathons.registeredCount,
+      })
+      .from(hackathons)
+      .where(eq(hackathons.eventId, eventId))
+      .limit(1),
+    acceptedHackathonJudgesQuery(db, eventId),
+    publicHackathonTracksQuery(db, eventId),
+    publicHackathonPrizesQuery(db, eventId),
+    acceptedHackathonMentorsQuery(db, eventId),
+    hackathonWorkshopsQuery(db, eventId),
+    publicHackathonResultsQuery(db, eventId),
+    publicResultPullRequestsQuery(db, eventId),
+  ]);
   return {
     event: eventRows[0],
     host: {
@@ -60,5 +126,14 @@ export const readEventPageRows = async (
       hosted: Number(hostedRows[0]?.total ?? 0),
       attended: Number(attendedRows[0]?.total ?? 0),
     },
+    organisers: organiserRows,
+    hackathon: hackathonRows[0] ?? null,
+    judges: judgeRows,
+    tracks: trackRows,
+    prizes: publicHackathonPrizesOf(prizeRows),
+    mentors: mentorRows,
+    workshops: workshopRows,
+    results: resultRows,
+    resultPullRequests: pullRequestRows,
   };
 };

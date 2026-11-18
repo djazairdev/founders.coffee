@@ -2,6 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
 
+const adminURL = process.env.E2E_ADMIN_URL ?? 'http://localhost:3002';
+
 const CREATE_EVENT = /create-event.*\.spec\.ts/;
 
 export default defineConfig({
@@ -51,12 +53,22 @@ export default defineConfig({
   ],
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
-    : {
-        command:
-          'mkdir -p .e2e && : > .e2e/dev-server.log && npm run dev 2>&1 | tee -a .e2e/dev-server.log',
-        cwd: '.',
-        url: baseURL,
-        reuseExistingServer: !process.env.CI,
-        timeout: 180_000,
-      },
+    : [
+        {
+          command:
+            'mkdir -p .e2e && : > .e2e/dev-server.log && npm run dev 2>&1 | tee -a .e2e/dev-server.log',
+          cwd: '.',
+          url: baseURL,
+          reuseExistingServer: !process.env.CI,
+          timeout: 180_000,
+        },
+        {
+          command:
+            'mkdir -p ../ui/.e2e && npm run dev 2>&1 | tee -a ../ui/.e2e/dev-server.log',
+          cwd: '../admin',
+          url: adminURL,
+          reuseExistingServer: !process.env.CI,
+          timeout: 180_000,
+        },
+      ],
 });

@@ -68,6 +68,8 @@ const detailOf = (base: typeof inProgress): EventDetailItem => ({
   stateName: 'Algiers',
   stateNameAr: 'الجزائر',
   stateNameFr: 'Alger',
+  meetingLink: null,
+  runBy: { kind: 'community' },
 });
 
 const serverRender = (viewerId: string | null, base = inProgress) => {
@@ -159,7 +161,7 @@ const load = async () => {
     throw new Error('the meetup route lost its loader');
   return loader({
     params: { locale: 'en', market: 'algeria', slug: upcoming.slug },
-    context: { locale: 'en', markets: [market] },
+    context: { locale: 'en', eventMarket: market },
   } as never);
 };
 
@@ -177,6 +179,8 @@ const headOf = async (
       event: { ...detailOf(upcoming), ...place },
       host: null,
       viewerId: null,
+      hackathon: null,
+      organisations: [],
       mapboxToken,
     },
   } as never);

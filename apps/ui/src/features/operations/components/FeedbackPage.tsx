@@ -17,6 +17,9 @@ import {
   feedback_saved,
   sending,
   feedback_title,
+  hackathon_feedback_closed,
+  hackathon_feedback_note,
+  hackathon_feedback_title,
   loading,
   submit,
   type Locale,
@@ -98,6 +101,7 @@ export const FeedbackPage = ({
     );
 
   const closed = query.data.status === 'window_closed';
+  const { isHackathon } = query.data;
   const onSubmit = () => {
     if (!canSubmitFeedback(draft) || closed) return;
     save.mutate(toFeedbackRequest(eventId, draft));
@@ -107,10 +111,16 @@ export const FeedbackPage = ({
     <section className="mx-auto max-w-2xl space-y-6 px-5 py-12">
       <header>
         <h1 className="font-display text-h3">
-          {feedback_title({}, { locale })}
+          {(isHackathon ? hackathon_feedback_title : feedback_title)(
+            {},
+            { locale },
+          )}
         </h1>
         <p className="mt-2 text-body-sm text-neutral">
-          {feedback_note({}, { locale })}
+          {(isHackathon ? hackathon_feedback_note : feedback_note)(
+            {},
+            { locale },
+          )}
         </p>
         <p className="mt-1 text-body-sm text-neutral">
           {feedback_privacy({}, { locale })}
@@ -118,7 +128,9 @@ export const FeedbackPage = ({
       </header>
       {closed ? (
         <StatusMessage variant="info">
-          {feedback_error_window_closed({}, { locale })}
+          {(isHackathon
+            ? hackathon_feedback_closed
+            : feedback_error_window_closed)({}, { locale })}
         </StatusMessage>
       ) : save.isSuccess ? (
         <div className="space-y-4">
@@ -153,6 +165,7 @@ export const FeedbackPage = ({
         <div className="space-y-6">
           <FeedbackForm
             locale={locale}
+            isHackathon={isHackathon}
             draft={draft}
             onChange={(changes) =>
               setDraft((current) =>

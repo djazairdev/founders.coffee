@@ -1,3 +1,4 @@
+import { privacyHackathonsFrench } from './legal-fr-privacy-hackathons';
 import {
   list,
   section,
@@ -37,9 +38,9 @@ export const privacyFrench: CompanyPageContent = translatedPage(
       ),
       subheading('Profil'),
       ...text(
-        'Votre profil peut comprendre une présentation, ce que vous construisez et son étape, vos centres d’intérêt, vos langues, votre lien professionnel et votre photo.',
-        'Votre nom, votre photo, votre présentation, votre mois d’inscription et le nombre de rencontres organisées apparaissent sur votre profil public. Ce que vous construisez et son étape, vos centres d’intérêt, vos langues, votre lien professionnel et le nombre de rencontres auxquelles vous avez participé n’apparaissent que si vous les publiez.',
-        'Chaque champ facultatif a son propre réglage de visibilité et commence masqué. Vous pouvez supprimer votre photo et votre présentation à tout moment. Votre profil public est accessible à toute personne qui en a le lien, et les pages de profil demandent aux moteurs de recherche de ne pas les indexer.',
+        'Votre profil peut comprendre une présentation, ce que vous construisez et son étape, vos centres d’intérêt, vos langues, vos compétences, vos liens (GitHub, LinkedIn et un site web), les opportunités qui vous intéressent (emploi, stage, cofondation) et votre photo.',
+        'Votre nom, votre photo, votre présentation, votre mois d’inscription et le nombre de rencontres organisées apparaissent sur votre profil public. Ce que vous construisez et son étape, vos centres d’intérêt, vos langues, vos compétences, vos liens, les opportunités qui vous intéressent et le nombre de rencontres auxquelles vous avez participé n’apparaissent que si vous les publiez.',
+        'Chaque champ facultatif a son propre réglage de visibilité et commence masqué. Vous pouvez supprimer votre photo et votre présentation à tout moment. Votre profil public est accessible à toute personne qui en a le lien. Les pages de profil demandent aux moteurs de recherche de ne pas les indexer, sauf si vous activez le réglage « Moteurs de recherche », lui aussi désactivé au départ. Tant qu’il est activé, votre page de profil figure dans notre plan du site et les moteurs de recherche peuvent l’afficher dans leurs résultats, avec seulement ce que vous y avez publié. Si vous le désactivez, la page leur demande de nouveau de ne pas l’indexer et quitte le plan du site ; un moteur de recherche peut mettre quelques jours à retirer une copie qu’il détient déjà.',
       ),
       subheading('Rencontres et inscriptions'),
       ...text(
@@ -68,16 +69,16 @@ export const privacyFrench: CompanyPageContent = translatedPage(
       ...text(
         'Pour chaque session de connexion, nous conservons **l’adresse IP**, la description du navigateur et la durée de validité de la session. Nous conservons aussi des journaux techniques des requêtes reçues par le serveur.',
         'Leur finalité se limite à trois choses : vous garder connecté, détecter les tentatives de connexion illégitimes et les abus, et diagnostiquer les pannes.',
-        'Nous utilisons aussi un service de vérification humaine lors de la connexion et de l’inscription à la liste d’attente d’une ville ; il reçoit votre adresse IP à cette seule fin.',
+        'Nous utilisons aussi un service de vérification humaine lors de la connexion, de l’inscription à la liste d’attente d’une ville et de la demande d’alerte à l’ouverture des inscriptions au hackathon ; il reçoit votre adresse IP à cette seule fin.',
         'Chaque page exécute en outre un script de Cloudflare qui détecte les programmes automatisés : il examine des caractéristiques techniques de votre navigateur et dépose un cookie de sécurité, comme le détaille la [Politique de cookies](/cookies).',
         'Nous mesurons l’usage de la plateforme par des compteurs agrégés côté serveur (nombre de requêtes, de rencontres publiées, taux d’échec), qui ne sont attribués à personne.',
         'Nous utilisons aussi **Cloudflare Web Analytics** pour mesurer l’audience : chaque page charge un script qui transmet à Cloudflare l’adresse de la page, celle de la page d’où vous venez et des mesures de vitesse de chargement, avec votre adresse IP et une description de votre navigateur et de votre appareil, comme toute connexion. Nous n’en voyons que des chiffres agrégés ; il ne dépose aucun cookie et ne vous reconnaît pas d’une visite à l’autre. **Nous n’utilisons aucun outil de suivi publicitaire et ne vendons de données à personne.**',
       ),
       subheading('Cartes et recherche de lieux'),
       ...text(
-        'La plateforme affiche des cartes grâce à **Mapbox** lors de la création d’une rencontre ou de la modification de son lieu, et sur la page d’une rencontre qui a un lieu. Votre navigateur charge la carte directement depuis Mapbox, qui reçoit donc votre adresse IP, une description de votre navigateur et la zone affichée. La page d’une rencontre affiche la carte sous forme d’image et ne charge pas la bibliothèque de cartes. Lorsque vous créez une rencontre ou modifiez son lieu, la bibliothèque de cartes enregistre aussi dans votre navigateur un identifiant aléatoire qu’elle envoie à Mapbox avec des données d’utilisation techniques, qui lui servent à comptabiliser l’usage de son service ; Mapbox traite ces données selon sa propre politique de confidentialité.',
+        'La plateforme affiche des cartes grâce à **Mapbox** lors de la création d’une rencontre ou d’un hackathon ou de la modification du lieu d’une rencontre, et sur la page d’une rencontre qui a un lieu. Votre navigateur charge la carte directement depuis Mapbox, qui reçoit donc votre adresse IP, une description de votre navigateur et la zone affichée. La page d’une rencontre affiche la carte sous forme d’image et ne charge pas la bibliothèque de cartes. Lorsque vous créez une rencontre ou un hackathon, ou modifiez le lieu d’une rencontre, la bibliothèque de cartes enregistre aussi dans votre navigateur un identifiant aléatoire qu’elle envoie à Mapbox avec des données d’utilisation techniques, qui lui servent à comptabiliser l’usage de son service ; Mapbox traite ces données selon sa propre politique de confidentialité.',
         'Lorsque vous cherchez un lieu ou choisissez un point sur la carte, notre serveur envoie à Mapbox votre texte de recherche ou la position du point, avec la zone affichée, pour trouver les lieux correspondants. Nous n’y joignons ni votre nom ni votre e-mail.',
-        'Si vous appuyez sur « Me localiser » sur la carte où vous choisissez le lieu d’une rencontre, votre navigateur donne votre position à la page, si vous l’y autorisez, et la carte s’y déplace. Votre navigateur charge alors depuis Mapbox la carte de cette zone et envoie le centre de la carte à notre serveur pour que nous vous montrions les lieux proches, comme lorsque vous déplacez la carte vous-même. Nous ne demandons votre position que lorsque vous appuyez sur le bouton, et nous ne l’enregistrons pas dans votre compte.',
+        'Si vous appuyez sur « Me localiser » sur la carte où vous choisissez le lieu d’une rencontre ou d’un hackathon, votre navigateur donne votre position à la page, si vous l’y autorisez, et la carte s’y déplace. Votre navigateur charge alors depuis Mapbox la carte de cette zone et envoie le centre de la carte à notre serveur pour que nous vous montrions les lieux proches, comme lorsque vous déplacez la carte vous-même. Nous ne demandons votre position que lorsque vous appuyez sur le bouton, et nous ne l’enregistrons pas dans votre compte.',
       ),
       ...text(
         'Nous comptons aussi les vues des pages, les actions d’organisation et d’inscription et l’utilisation du partage. Ces relevés internes contiennent uniquement le type d’action, le pays, le code de ville, la langue et des codes de campagne validés : aucun identifiant de compte ou de visiteur, adresse IP, URL complète ou texte de message. Ils n’utilisent ni cookie de suivi ni stockage du navigateur. Nous désactivons ces relevés quand le navigateur transmet Do Not Track ou Global Privacy Control. Les actions réussies sont comptées après leur enregistrement. Un partage ne prouve pas la réception du lien. Les rapports de santé communautaire utilisent les registres privés de présence et de clôture existants et ne présentent que des agrégats.',
@@ -91,12 +92,18 @@ export const privacyFrench: CompanyPageContent = translatedPage(
         'Si vous cherchez une ville sans rencontre à venir, vous pouvez laisser votre e-mail pour être prévenu de la publication de sa prochaine rencontre. Nous conservons l’e-mail, la ville, la langue et la date de la demande, sans exiger de compte.',
         'Cet e-mail ne sert qu’à cela : une seule notification, à la publication de la prochaine rencontre de la ville. Il n’est ajouté à aucune liste marketing et n’est utilisé pour rien d’autre que ce que vous avez demandé.',
       ),
+      subheading('Alerte d’ouverture des inscriptions au hackathon'),
+      ...text(
+        'Si vous demandez à être prévenu de l’ouverture des inscriptions au premier hackathon founders.coffee, nous conservons votre e-mail, la page pays depuis laquelle vous l’avez demandé, votre langue et la date de la demande, sans exiger de compte.',
+        'Cet e-mail ne sert qu’à cela : un seul message, à l’ouverture des inscriptions. Il n’est ajouté à aucune liste marketing et n’est utilisé pour rien d’autre que ce que vous avez demandé.',
+      ),
     ]),
+    privacyHackathonsFrench,
     section('Base juridique du traitement', [
       ...text('Chaque traitement repose sur un fondement prévu par la loi :'),
       list([
         '**Exécution du contrat qui nous lie :** le compte, votre profil public (votre nom, votre photo et votre présentation si vous les ajoutez, votre mois d’inscription et le nombre de rencontres organisées), la publication des rencontres, les inscriptions, la discussion de la rencontre, et les rappels et alertes liés à une rencontre à laquelle vous êtes inscrit. Ce ne sont pas des services en plus, mais l’essentiel de ce pour quoi vous vous êtes inscrit.',
-        '**Votre consentement explicite :** la publication des champs facultatifs du profil, qui ont chacun un réglage de visibilité, l’activation des notifications push ou SMS, et l’inscription à la liste d’attente d’une ville. Vous pouvez retirer votre consentement à tout moment, sans remettre en cause la licéité de ce qui a été fait auparavant.',
+        '**Votre consentement explicite :** la publication des champs facultatifs du profil, qui ont chacun un réglage de visibilité, l’activation des notifications push ou SMS, l’inscription à la liste d’attente d’une ville et la demande d’alerte à l’ouverture des inscriptions au hackathon. Vous pouvez retirer votre consentement à tout moment, sans remettre en cause la licéité de ce qui a été fait auparavant.',
         '**Intérêt légitime :** la sécurité de la plateforme, la prévention des abus et l’examen des signalements, la mesure de l’usage par des chiffres agrégés qui ne sont attribués à personne, et les registres de présence comme moyen de protéger la communauté contre les rencontres fictives. Nous avons mis cet intérêt en balance avec vos droits : c’est pourquoi les registres de présence ne sont pas publics et vous pouvez les faire corriger.',
         '**Obligation légale :** lorsqu’un texte nous impose de conserver ou de transmettre une donnée.',
       ]),
@@ -162,6 +169,34 @@ export const privacyFrench: CompanyPageContent = translatedPage(
           [
             'E-mail de liste d’attente',
             'Jusqu’à l’envoi de la notification, puis **12 mois**, ou suppression immédiate sur demande',
+          ],
+          [
+            'E-mail d’alerte des inscriptions au hackathon',
+            'Jusqu’à l’ouverture des inscriptions et l’envoi du message, puis **12 mois**, ou suppression immédiate sur demande',
+          ],
+          [
+            'Inscriptions aux hackathons et places dans les équipes ou comme mentor',
+            'Tant que le compte existe, puis suppression dans les **30 jours** suivant sa fermeture',
+          ],
+          [
+            'Compétences indiquées à l’inscription à un hackathon',
+            'Effacées **12 mois** après la fin du hackathon',
+          ],
+          [
+            'Liens d’invitation d’équipe et demandes pour rejoindre une équipe',
+            'Supprimés **30 jours** après la fin du hackathon',
+          ],
+          [
+            'Dépôts, notes et résultats publiés',
+            'Font partie de l’historique du hackathon, au nom de l’équipe ; votre nom en disparaît à la fermeture de votre compte',
+          ],
+          [
+            'Attestations',
+            'Tant que le compte existe, puis suppression dans les **30 jours** suivant sa fermeture',
+          ],
+          [
+            'Projets et organisations',
+            'Tant qu’ils existent ; votre nom en disparaît à la fermeture de votre compte',
           ],
           [
             'Messages et signalements de modération',
@@ -235,5 +270,5 @@ export const privacyFrench: CompanyPageContent = translatedPage(
       ),
     ),
   ],
-  '12 octobre 2026',
+  '5 novembre 2026',
 );

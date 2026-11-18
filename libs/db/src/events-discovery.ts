@@ -8,11 +8,12 @@ export type PublicEventDiscoveryRow = {
   readonly marketCode: string;
   readonly marketSlug: string;
   readonly timezone: string;
-  readonly cityCode: string;
+  readonly cityCode: string | null;
   readonly slug: string;
   readonly title: string;
   readonly description: string;
-  readonly venue: string;
+  readonly format: Event['format'];
+  readonly venue: string | null;
   readonly venueAddress: string | null;
   readonly startsAt: Date;
   readonly endsAt: Date | null;
@@ -61,6 +62,7 @@ export const listPublicEventDiscoveryRows = async (
       slug: events.slug,
       title: events.title,
       description: events.description,
+      format: events.format,
       venue: events.venue,
       venueAddress: events.venueAddress,
       startsAt: events.startsAt,

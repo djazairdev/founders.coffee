@@ -8,11 +8,14 @@ const OPERATOR_ACTIONS = [
   { metrics: ['read'] },
   { moderation: ['event'] },
   { moderation: ['user'] },
+  { moderation: ['organisation'] },
+  { moderation: ['hackathon'] },
+  { moderation: ['submission'] },
   { host_trust: ['update'] },
   { audit: ['read'] },
 ] as const;
 
-describe('the seven operations actions the permission table defines', () => {
+describe('the operations actions the permission table defines', () => {
   it('gives an admin every one of them', () => {
     for (const action of [...OPERATOR_ACTIONS, { closeout: ['override'] }])
       expect(roleAllows('admin', action)).toBe(true);
@@ -25,6 +28,12 @@ describe('the seven operations actions the permission table defines', () => {
 
   it('withholds the closeout override from a moderator', () => {
     expect(roleAllows('moderator', { closeout: ['override'] })).toBe(false);
+  });
+
+  it('lets hosts submit their own closeout but not override one', () => {
+    expect(roleAllows('host', { closeout: ['submit'] })).toBe(true);
+    expect(roleAllows('host', { closeout: ['override'] })).toBe(false);
+    expect(roleAllows('member', { closeout: ['submit'] })).toBe(false);
   });
 });
 
@@ -61,6 +70,53 @@ describe('the meetup chat', () => {
   it('keeps a sponsor contact out of every chat', () => {
     expect(roleAllows('sponsor_contact', { chat: ['read'] })).toBe(false);
     expect(roleAllows('sponsor_contact', { chat: ['write'] })).toBe(false);
+  });
+});
+
+const PARTICIPANT_ACTIONS = [
+  { hackathon: ['read'] },
+  { hackathon: ['register'] },
+  { team: ['create'] },
+  { team: ['join'] },
+  { submission: ['create'] },
+  { judging: ['score'] },
+  { hackathon_report: ['create'] },
+] as const;
+
+describe('hackathons', () => {
+  it.each(['member', 'host', 'moderator', 'admin'])(
+    'lets %s try every participant action',
+    (role) => {
+      for (const action of PARTICIPANT_ACTIONS)
+        expect(roleAllows(role, action)).toBe(true);
+    },
+  );
+
+  it('lets a sponsor contact read a hackathon and take part in nothing', () => {
+    expect(roleAllows('sponsor_contact', { hackathon: ['read'] })).toBe(true);
+    for (const action of PARTICIPANT_ACTIONS.slice(1))
+      expect(roleAllows('sponsor_contact', action)).toBe(false);
+  });
+
+  it.each(['member', 'host', 'sponsor_contact'])(
+    'withholds hackathon moderation from %s',
+    (role) => {
+      for (const target of ['organisation', 'hackathon', 'submission'] as const)
+        expect(roleAllows(role, { moderation: [target] })).toBe(false);
+    },
+  );
+});
+
+describe('organisations', () => {
+  it('lets every member who takes part apply for an organisation (B-ORG-04)', () => {
+    for (const role of ['member', 'host', 'moderator', 'admin'])
+      expect(roleAllows(role, { organisation: ['apply'] })).toBe(true);
+  });
+
+  it('keeps a sponsor contact from applying', () => {
+    expect(roleAllows('sponsor_contact', { organisation: ['apply'] })).toBe(
+      false,
+    );
   });
 });
 

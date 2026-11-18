@@ -5,6 +5,7 @@ export type IndexationEnvironment = {
 
 export const PRODUCTION_ORIGIN = 'https://founders.coffee';
 export const NO_INDEX_VALUE = 'noindex, nofollow';
+export const INDEX_VALUE = 'index, follow';
 export const PUBLIC_DOCUMENT_CACHE_CONTROL =
   'public, max-age=0, s-maxage=60, stale-while-revalidate=300';
 export const PRIVATE_DOCUMENT_CACHE_CONTROL = 'private, no-store';
@@ -56,9 +57,15 @@ export const withIndexationHeaders = (
 };
 
 const PRIVATE_SCREEN =
-  /^\/(?:[^/]+\/)?(?:closeout|edit|feedback|login|onboarding|profile|u\/[^/]+)(?:\/|$)/iu;
+  /^\/(?:[^/]+\/)?(?:c\/[^/]+|closeout|edit|feedback|login|onboarding|profile|u\/[^/]+)(?:\/|$)/iu;
 const LEGACY_PRIVATE_ADDRESS = /^\/(?:account|activity|preferences)(?:\/|$)/iu;
 const HOST_WIZARD = /^\/(?:[^/]+\/){1,2}host\/create(?:\/|$)/iu;
+const HACKATHON_SCREEN =
+  /^\/(?:[^/]+\/)?hackathon\/[^/]+\/(?:manage|team|looking|submit|judge|judge_)(?:\/|$)/iu;
+const HACKATHON_INVITATION = /^\/(?:[^/]+\/)?hackathon\/invitation(?:\/|$)/iu;
+const PROJECT_SCREEN = /^\/(?:[^/]+\/)?p\/[^/]+\/[^/]/iu;
+const ORGANISATION_SCREEN =
+  /^\/(?:[^/]+\/)?o\/(?:apply|invitations|[^/]+\/[^/]+)(?:\/|$)/iu;
 
 const tryDecodeURI = (text: string): string | undefined => {
   try {
@@ -106,9 +113,14 @@ export const routedPath = (pathname: string): string =>
  *
  * So the name counts first or second, never deeper: `/en/algeria/e/feedback` is a meetup whose slug
  * happens to name a screen, and it has to stay public. The legacy addresses only ever existed bare,
- * and the host wizard sits under a market. Case is ignored because the router ignores it, so
- * `/en/PROFILE` is the profile screen. The address is read as the router reads it, through
- * {@link routedPath}, so `/en/%70rofile` and `/en//profile` are the profile screen too.
+ * and the host wizard sits under a market. A hackathon's own screens — `manage`, `team`, `looking`,
+ * `submit`, `judge` and `judge_` — sit under `hackathon/{eventId}`, while its public page is the event's. An
+ * organisation's public page is `o/{slug}` and nothing deeper, so `o/apply`, `o/invitations/…` and
+ * every address beneath a slug, such as `o/{slug}/manage`, are private: the domain reserves those
+ * names as slugs. A project's public page is `p/{slug}`, and everything beneath it, such as
+ * `p/{slug}/edit`, is private. Case is ignored because the router ignores it, so `/en/PROFILE` is the profile
+ * screen. The address is read as the router reads it, through {@link routedPath}, so
+ * `/en/%70rofile` and `/en//profile` are the profile screen too.
  *
  * This is the one list of private screens. The Worker's header floor, the service worker's cache and
  * the Early Hints policy all read it, so a screen is private to all three or to none. Each of them
@@ -120,16 +132,36 @@ export const isPrivatePath = (pathname: string): boolean => {
   return (
     PRIVATE_SCREEN.test(path) ||
     LEGACY_PRIVATE_ADDRESS.test(path) ||
-    HOST_WIZARD.test(path)
+    HOST_WIZARD.test(path) ||
+    HACKATHON_SCREEN.test(path) ||
+    HACKATHON_INVITATION.test(path) ||
+    ORGANISATION_SCREEN.test(path) ||
+    PROJECT_SCREEN.test(path)
   );
 };
+
+const PROFILE_PAGE = /^\/[^/]+\/u\/[^/]+$/iu;
+
+/**
+ * Whether a response is a member's profile page as its route rendered it, robots decision and all.
+ *
+ * The profile is the one private screen whose owner decides whether search engines may list it
+ * (B-PRF-04), so the page says `noindex` or not through its own `X-Robots-Tag`. Only a page the
+ * route rendered carries one: a redirect, or the address of a member who cannot be shown, never
+ * does, and neither does `/algeria/u/{id}`, which the `$locale` layout redirects.
+ */
+const isRenderedProfilePage = (response: Response, pathname: string): boolean =>
+  response.status === 200 &&
+  response.headers.has('X-Robots-Tag') &&
+  PROFILE_PAGE.test(routedPath(pathname));
 
 /**
  * Mark a response on the way to a private screen `private, no-store` and `noindex`.
  *
  * A route's own `headers()` reach only a page it renders. TanStack Start returns a redirect before
  * it reads them, so every redirect on the way to a private screen carries what this adds and
- * nothing else.
+ * nothing else. A rendered profile page keeps the robots decision its route made, and is still
+ * never cached, so turning the switch off takes effect on the next request.
  */
 export const withPrivateRouteHeaders = (
   response: Response,
@@ -138,7 +170,10 @@ export const withPrivateRouteHeaders = (
   if (!isPrivatePath(pathname)) return response;
   const headers = new Headers(response.headers);
   headers.set('Cache-Control', PRIVATE_DOCUMENT_CACHE_CONTROL);
-  headers.set('X-Robots-Tag', NO_INDEX_VALUE);
+  if (HACKATHON_INVITATION.test(routedPath(pathname)))
+    headers.set('Referrer-Policy', 'no-referrer');
+  if (!isRenderedProfilePage(response, pathname))
+    headers.set('X-Robots-Tag', NO_INDEX_VALUE);
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,

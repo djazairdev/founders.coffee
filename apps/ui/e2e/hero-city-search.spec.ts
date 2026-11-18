@@ -17,7 +17,7 @@ const overlappedCards = async (page: Page) =>
     if (!list) return null;
     const box = list.getBoundingClientRect();
     const cards = document.querySelectorAll(
-      '[aria-labelledby="market-cities-title"] li',
+      '[aria-labelledby="hackathon-announcement-title"], [aria-labelledby="market-cities-title"] li',
     );
     return [...cards].flatMap((card) => {
       const other = card.getBoundingClientRect();
@@ -91,7 +91,7 @@ const openSuggestions = async (page: Page, query: string) => {
 
 test.describe('Hero city search', () => {
   for (const path of ['/fr/algeria', '/ar/algeria']) {
-    test(`opens its suggestions above the city cards below it (${path})`, async ({
+    test(`opens its suggestions above what sits below it (${path})`, async ({
       page,
     }) => {
       await page.goto(path);
@@ -101,13 +101,13 @@ test.describe('Hero city search', () => {
 
       expect(
         overlaps?.length,
-        'the open list does not reach the city cards, so nothing here is being tested',
+        'the open list does not reach the content below, so nothing here is being tested',
       ).toBeGreaterThan(0);
       expect(
         overlaps
           ?.filter((overlap) => !overlap.isListOnTop)
           .map((overlap) => overlap.card),
-        'these city cards are painted over the open suggestion list',
+        'these are painted over the open suggestion list',
       ).toEqual([]);
     });
   }

@@ -1,4 +1,4 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, sql, or } from 'drizzle-orm';
 
 import type {
   FeedbackEligibilityStatus,
@@ -6,6 +6,10 @@ import type {
 } from '@founders-coffee/core';
 
 import type { Db } from './db.js';
+import {
+  hackathonFeedbackAllowed,
+  hackathonFeedbackStanding,
+} from './operations-hackathon-feedback.js';
 import {
   eventAttendance,
   eventCloseouts,
@@ -100,9 +104,14 @@ export const saveFeedback = async (
           createdAt: sql<number>`unixepoch()`.as('created_at'),
           updatedAt: sql<number>`unixepoch()`.as('updated_at'),
         })
-        .from(eventCloseouts)
-        .innerJoin(events, sql`events.id = event_closeouts.event_id`)
-        .where(feedbackAllowed(input.eventId, input.userId)),
+        .from(events)
+        .leftJoin(eventCloseouts, eq(eventCloseouts.eventId, events.id))
+        .where(
+          or(
+            feedbackAllowed(input.eventId, input.userId),
+            hackathonFeedbackAllowed(input.eventId, input.userId),
+          ),
+        ),
     )
     .onConflictDoUpdate({
       target: [eventFeedback.eventId, eventFeedback.userId],
@@ -159,6 +168,8 @@ const refusalFor = async (
   userId: string,
 ): Promise<FeedbackOutcome> => {
   if (await hostsEvent(db, eventId, userId)) return 'is_host';
+  const hackathon = await hackathonFeedbackStanding(db, { eventId, userId });
+  if (hackathon) return hackathon === 'ready' ? 'not_invited' : hackathon;
   const attended = await db
     .select({ id: eventAttendance.id })
     .from(eventAttendance)
@@ -213,6 +224,8 @@ export const getFeedbackEligibility = async (
   opts: { eventId: string; userId: string; now?: Date },
 ): Promise<FeedbackEligibility> => {
   if (await hostsEvent(db, opts.eventId, opts.userId)) return 'is_host';
+  const hackathon = await hackathonFeedbackStanding(db, opts);
+  if (hackathon) return hackathon;
   const attended = await db
     .select({ id: eventAttendance.id })
     .from(eventAttendance)

@@ -1,30 +1,18 @@
 import { Link } from '@tanstack/react-router';
-import { CalendarDays, MapPin, Users } from 'lucide-react';
+import { CalendarDays, Users } from 'lucide-react';
 
+import { eventLanguages, textLanguage } from '@founders-coffee/core';
 import {
   back_to_city,
   cityInputs,
-  event_cancelled_body,
-  event_cancelled_title,
-  event_details_title,
   event_timezone,
   event_when,
-  event_where,
-  formatDate,
   localizedName,
   going_count,
-  host_time_from,
-  host_time_to,
-  ntf_cancel_reason,
   role_host,
   share_event_action,
   type Locale,
 } from '@founders-coffee/i18n';
-import {
-  IsolatedLines,
-  IsolatedValue,
-  StatusMessage,
-} from '@founders-coffee/ui';
 import type { Market } from '@founders-coffee/db';
 import type {
   EventDetailItem,
@@ -36,11 +24,28 @@ import { eventCityName } from '../../features/events/event-city-name';
 import { eventStreetAddress } from '../../features/events/event-street-address';
 import type { EventPhase } from '../../features/events/live-window';
 import type { UseEventLiveResult } from '../../features/events/useEventLive';
+import type {
+  HackathonPageDetails as Details,
+  HackathonSchedule as Schedule,
+} from '../../features/hackathons/api';
+import { HackathonEventDetail } from '../../features/hackathons/components/HackathonEventDetail';
 import { localizedCity } from '../../lib/locale-routing';
-import { EventHostCard } from './EventHostCard';
+import { EventCancelledNotice } from './EventCancelledNotice';
+import { EventCityBadge } from './EventCityBadge';
+import { EventFormatBadge } from './EventFormatBadge';
+import { EventHostCard, type EventOrganisers } from './EventHostCard';
+import { EventCoHosts } from './EventCoHosts';
+import { eventDetailsTitle } from './event-details-title';
+import { eventDayLabel } from './event-time';
+import { EventKindBadge } from './EventKindBadge';
+import { EventRunByBadge } from './EventRunByBadge';
+import { EventTopics } from './EventTopics';
+import { EventWhere } from './EventWhere';
 import { EventLocationMap } from './EventLocationMap';
 import { EventRsvpBox } from './EventRsvpBox';
+import { EventTimeRange } from './EventTimeRange';
 import { ShareEventButton } from './ShareEventButton';
+import { EventDescription } from './EventDescription';
 
 type EventDetailProps = {
   locale: Locale;
@@ -52,6 +57,10 @@ type EventDetailProps = {
   isWindowOpen: boolean;
   phase: EventPhase;
   mapboxToken: string | null;
+  hackathon?: Schedule | null;
+  details?: Details | null;
+  organisations?: EventOrganisers;
+  canReport?: boolean;
 };
 
 export const EventDetail = ({
@@ -64,88 +73,92 @@ export const EventDetail = ({
   isWindowOpen,
   phase,
   mapboxToken,
+  hackathon = null,
+  details = null,
+  organisations = [],
+  canReport = false,
 }: EventDetailProps) => {
   const hostName = host?.displayName ?? role_host({}, { locale });
-  const on = (value: Date, options: Intl.DateTimeFormatOptions) =>
-    formatDate(value, locale, {
-      timeZone: market.timezone,
-      hour12: false,
-      ...options,
-    });
-  const clock = { hour: '2-digit', minute: '2-digit' } as const;
   const start = new Date(event.startsAt);
   const end = event.endsAt == null ? null : new Date(event.endsAt);
-  const names = locale === 'ar' ? 'long' : 'short';
-  const day = on(start, { weekday: names, day: 'numeric', month: names });
-  const times =
-    end == null
-      ? on(start, clock)
-      : `${on(start, clock)}\u2013${on(end, clock)}`;
-  const timeRange =
-    end == null ? (
-      <bdi dir="ltr">{times}</bdi>
-    ) : locale === 'ar' ? (
-      <span dir="rtl">
-        {host_time_from({}, { locale })} <bdi dir="ltr">{on(start, clock)}</bdi>{' '}
-        {host_time_to({}, { locale })} <bdi dir="ltr">{on(end, clock)}</bdi>
-      </span>
-    ) : (
-      <bdi dir="ltr">{times}</bdi>
-    );
+  const day = eventDayLabel(start, locale, market.timezone);
+  const timeRange = (
+    <EventTimeRange
+      locale={locale}
+      timeZone={market.timezone}
+      start={start}
+      end={end}
+    />
+  );
 
   const cityName = eventCityName(event, locale);
   const streetAddress = eventStreetAddress(event);
   const contentDirection = locale === 'ar' ? 'rtl' : 'ltr';
   const isCancelled = event.status === 'cancelled';
   const isGoing = event.viewerRsvp === 'going';
+  const languages = eventLanguages(event);
   const isChatAvailable = market.featureFlags.meetupChat === true;
-  const hasRsvpBox = isCancelled ? (isHost ? isChatAvailable : isGoing) : true;
+  const hasRsvpBox =
+    event.kind !== 'hackathon' &&
+    (isCancelled ? (isHost ? isChatAvailable : isGoing) : true);
+  if (event.kind === 'hackathon')
+    return (
+      <HackathonEventDetail
+        locale={locale}
+        market={market}
+        event={event}
+        organisations={organisations}
+        isHost={isHost}
+        mapboxToken={mapboxToken}
+        schedule={hackathon}
+        details={details ?? null}
+        canReport={canReport}
+      />
+    );
 
   return (
     <article className="mx-auto max-w-5xl px-4 py-6 sm:py-8 md:px-8 md:py-10">
-      {event.citySlug && (
+      {event.citySlug && cityName ? (
         <Link
           {...localizedCity(locale, market.slug, event.citySlug)}
           className="mb-4 inline-flex min-h-6 items-center text-body-sm font-medium underline decoration-secondary underline-offset-[3px] hover:text-accent"
         >
           {back_to_city(cityInputs(cityName), { locale })}
         </Link>
-      )}
+      ) : null}
 
       {isCancelled && (
-        <StatusMessage variant="error" className="mb-4">
-          <p className="font-display text-h4 font-semibold">
-            {event_cancelled_title({}, { locale })}
-          </p>
-          <p className="mt-1 text-neutral">
-            {event_cancelled_body({}, { locale })}
-          </p>
-          {event.cancellationReason ? (
-            <p className="mt-2 text-base-content">
-              <IsolatedValue
-                value={event.cancellationReason}
-                message={(reason) => ntf_cancel_reason({ reason }, { locale })}
-              />
-            </p>
-          ) : null}
-        </StatusMessage>
+        <EventCancelledNotice
+          reason={event.cancellationReason}
+          locale={locale}
+        />
       )}
 
       <header className="rounded-box bg-base-200 p-5 sm:p-8">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 text-body-sm text-neutral">
-            <MapPin className="size-4 text-secondary" aria-hidden="true" />
-            <span dir="auto">{cityName}</span>
-          </span>
+          <EventKindBadge kind={event.kind} locale={locale} />
+          <EventRunByBadge runBy={event.runBy} locale={locale} />
+          <EventFormatBadge format={event.format} locale={locale} />
+          <EventCityBadge cityName={cityName} />
         </div>
         <h1 className="mt-4 font-display text-h3 font-semibold text-balance md:text-h2">
-          <bdi>{event.title}</bdi>
+          <bdi lang={textLanguage(event.title, languages)}>{event.title}</bdi>
         </h1>
+        <EventCoHosts
+          runBy={event.runBy}
+          locale={locale}
+          isLinked
+          className="mt-3"
+        />
         {event.description ? (
-          <p className="mt-4 max-w-3xl whitespace-pre-line text-body-lg leading-relaxed text-neutral">
-            <IsolatedLines text={event.description} />
-          </p>
+          <EventDescription
+            locale={locale}
+            kind={event.kind}
+            value={event.description}
+            languages={languages}
+          />
         ) : null}
+        <EventTopics locale={locale} tags={event.tags} className="mt-4" />
         <div className="mt-6 flex flex-wrap gap-2.5">
           <span className="inline-flex items-center gap-2 rounded-full bg-base-100 px-3 py-2 text-body-sm font-medium">
             <CalendarDays
@@ -173,7 +186,9 @@ export const EventDetail = ({
         </div>
       </header>
 
-      {event.latitude != null && event.longitude != null ? (
+      {event.venue !== null &&
+      event.latitude != null &&
+      event.longitude != null ? (
         <div className="mt-4 w-full">
           <EventLocationMap
             locale={locale}
@@ -189,64 +204,58 @@ export const EventDetail = ({
         id="event-details-title"
         className="mt-8 font-display text-h4 font-semibold"
       >
-        {event_details_title({}, { locale })}
+        {eventDetailsTitle(event.kind, locale)}
       </h2>
 
       <div
         className={`mt-4 grid gap-8 ${hasRsvpBox ? 'lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.75fr)]' : ''}`}
       >
-        <section
-          aria-labelledby="event-details-title"
-          className="flex flex-col"
-        >
-          <dl className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-box border border-base-300 bg-base-100 p-4">
-              <dt className="eyebrow">{event_when({}, { locale })}</dt>
-              <dd className="mt-1.5 flex items-start gap-2 font-medium">
-                <CalendarDays
-                  className="mt-0.5 size-4 shrink-0 text-secondary"
-                  aria-hidden="true"
-                />
-                <time dateTime={start.toISOString()}>{day}</time>
-              </dd>
-              <dd className="mt-0.5 ms-6 overflow-x-clip text-body-sm text-neutral">
-                <span className="-ms-4 flex flex-wrap">
-                  <span className="ms-4 font-medium text-base-content">
-                    {timeRange}
+        <div className="flex flex-col">
+          <section
+            aria-labelledby="event-details-title"
+            className="flex flex-1 flex-col"
+          >
+            <dl className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-box border border-base-300 bg-base-100 p-4">
+                <dt className="eyebrow">{event_when({}, { locale })}</dt>
+                <dd className="mt-1.5 flex items-start gap-2 font-medium">
+                  <CalendarDays
+                    className="mt-0.5 size-4 shrink-0 text-secondary"
+                    aria-hidden="true"
+                  />
+                  <time dateTime={start.toISOString()}>{day}</time>
+                </dd>
+                <dd className="mt-0.5 ms-6 overflow-x-clip text-body-sm text-neutral">
+                  <span className="-ms-4 flex flex-wrap">
+                    <span className="ms-4 font-medium text-base-content">
+                      {timeRange}
+                    </span>
+                    <span className="relative ms-4 before:absolute before:-start-2.5 before:content-['·']">
+                      {event_timezone(
+                        { market: localizedName(market, locale) },
+                        { locale },
+                      )}
+                    </span>
                   </span>
-                  <span className="relative ms-4 before:absolute before:-start-2.5 before:content-['·']">
-                    {event_timezone(
-                      { market: localizedName(market, locale) },
-                      { locale },
-                    )}
-                  </span>
-                </span>
-              </dd>
-            </div>
-            <div className="rounded-box border border-base-300 bg-base-100 p-4">
-              <dt className="eyebrow">{event_where({}, { locale })}</dt>
-              <dd className="mt-1.5 flex items-start gap-2 font-medium">
-                <MapPin
-                  className="mt-0.5 size-4 shrink-0 text-secondary"
-                  aria-hidden="true"
-                />
-                <span>
-                  <bdi>{event.venue}</bdi>
-                </span>
-              </dd>
-              <dd className="mt-0.5 ps-6 text-body-sm text-neutral">
-                <bdi>{streetAddress ?? cityName}</bdi>
-              </dd>
-            </div>
-          </dl>
+                </dd>
+              </div>
+              <EventWhere
+                locale={locale}
+                event={event}
+                place={streetAddress ?? cityName}
+                isCancelled={isCancelled}
+              />
+            </dl>
 
-          <EventHostCard
-            locale={locale}
-            host={host}
-            cityName={cityName}
-            isHost={isHost}
-          />
-        </section>
+            <EventHostCard
+              locale={locale}
+              host={host}
+              cityName={cityName}
+              isHost={isHost}
+              organisations={organisations}
+            />
+          </section>
+        </div>
 
         {hasRsvpBox ? (
           <EventRsvpBox

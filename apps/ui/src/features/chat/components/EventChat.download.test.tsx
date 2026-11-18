@@ -10,6 +10,8 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { EventChat } from './EventChat';
+
 const CHAT_FAILED = 'The chat could not be loaded.';
 const ROUTE_FAILED = 'The route error page';
 
@@ -30,33 +32,33 @@ vi.mock('../../../lib/app-providers', () => ({
 }));
 vi.mock('./ChatMuteToggle', () => ({ ChatMuteToggle: () => null }));
 
-const lostChunk = new TypeError(
-  'Failed to fetch dynamically imported module: https://founders.coffee/assets/ChatConversation-C4bTq9Lx.js',
+const lostChunk = vi.hoisted(
+  () =>
+    new TypeError(
+      'Failed to fetch dynamically imported module: https://founders.coffee/assets/ChatConversation-C4bTq9Lx.js',
+    ),
 );
+
+vi.mock('./ChatConversation', () => {
+  throw lostChunk;
+});
 
 const RouteError = () => <p>{ROUTE_FAILED}</p>;
 
-const chatWithoutItsConversation = async () => {
-  vi.resetModules();
-  vi.doMock('./ChatConversation', () => {
-    throw lostChunk;
-  });
-  const { EventChat } = await import('./EventChat');
-  await act(async () => {
-    render(
-      <CatchBoundary getResetKey={() => 0} errorComponent={RouteError}>
-        <EventChat
-          locale="en"
-          eventId="evt_1"
-          title="Founders breakfast"
-          isMember
-          isCancelled={false}
-          endsAt={null}
-          timeZone="Africa/Algiers"
-        />
-      </CatchBoundary>,
-    );
-  });
+const chatWithoutItsConversation = () => {
+  render(
+    <CatchBoundary getResetKey={() => 0} errorComponent={RouteError}>
+      <EventChat
+        locale="en"
+        eventId="evt_1"
+        title="Founders breakfast"
+        isMember
+        isCancelled={false}
+        endsAt={null}
+        timeZone="Africa/Algiers"
+      />
+    </CatchBoundary>,
+  );
 };
 
 const panel = () =>
@@ -70,7 +72,6 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
-  vi.doUnmock('./ChatConversation');
   vi.unstubAllGlobals();
   reload.mockReset();
   mocks.close.mockReset();
@@ -79,7 +80,7 @@ afterEach(() => {
 
 describe('the chat panel when the conversation’s own code never arrives', () => {
   it('shows the chat’s failure inside the panel, and the meetup page around it stays', async () => {
-    await chatWithoutItsConversation();
+    chatWithoutItsConversation();
 
     await waitFor(() => {
       expect(
@@ -92,7 +93,7 @@ describe('the chat panel when the conversation’s own code never arrives', () =
   });
 
   it('still closes through the address', async () => {
-    await chatWithoutItsConversation();
+    chatWithoutItsConversation();
     await screen.findByText(CHAT_FAILED);
 
     fireEvent.click(
@@ -103,7 +104,7 @@ describe('the chat panel when the conversation’s own code never arrives', () =
   });
 
   it('loads the page again on Retry, the only way to fetch that code again', async () => {
-    await chatWithoutItsConversation();
+    chatWithoutItsConversation();
     await screen.findByText(CHAT_FAILED);
 
     await act(async () => {
@@ -117,7 +118,7 @@ describe('the chat panel when the conversation’s own code never arrives', () =
   });
 
   it('reports the failure once, as the chat’s', async () => {
-    await chatWithoutItsConversation();
+    chatWithoutItsConversation();
     await screen.findByText(CHAT_FAILED);
 
     expect(mocks.observability.reportError).toHaveBeenCalledExactlyOnceWith(

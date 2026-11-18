@@ -49,6 +49,20 @@ describe('GEO document contract', () => {
     ).toEqual([]);
   });
 
+  it('wants a listed profile to be a ProfilePage named as its heading', () => {
+    const url = 'https://founders.coffee/ar/u/usr_1';
+    const inspect = (type) =>
+      inspectGeoDocument({
+        path: '/ar/u/usr_1',
+        type: 'profile',
+        body: document({ type, name: 'Amina', locale: 'ar', url }),
+        canonical: url,
+      });
+
+    expect(inspect('ProfilePage')).toEqual([]);
+    expect(inspect('Person')).toEqual(['missing ProfilePage JSON-LD entity']);
+  });
+
   it('rejects duplicate entities and private fields in the primary schema', () => {
     const body = `${document({
       type: 'Event',
@@ -135,6 +149,40 @@ const meetupHeldIn = (inLanguage) =>
     body: document({ type: 'Event', name: 'Meetup', url: MEETUP, inLanguage }),
     canonical: MEETUP,
   });
+
+describe("an organisation's page", () => {
+  const organisationPage = (mainEntity) =>
+    `<html lang="en"><head><script type="application/ld+json">${JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'ProfilePage',
+      name: 'Code Club',
+      url: 'https://founders.coffee/en/o/code-club',
+      inLanguage: 'en',
+      ...(mainEntity ? { mainEntity } : {}),
+    })}</script></head><body><h1>Code Club</h1><h2>Upcoming events</h2></body></html>`;
+  const inspect = (body) =>
+    inspectGeoDocument({
+      path: '/en/o/code-club',
+      type: 'organisation',
+      body,
+      canonical: 'https://founders.coffee/en/o/code-club',
+    });
+
+  it('accepts a profile page whose main entity is the organisation', () => {
+    expect(
+      inspect(organisationPage({ '@type': 'Organization', name: 'Code Club' })),
+    ).toEqual([]);
+  });
+
+  it('rejects one that does not describe an organisation', () => {
+    expect(inspect(organisationPage(null))).toContain(
+      'ProfilePage JSON-LD has no Organization main entity',
+    );
+    expect(
+      inspect(organisationPage({ '@type': 'Person', name: 'Code Club' })),
+    ).toContain('ProfilePage JSON-LD has no Organization main entity');
+  });
+});
 
 describe('the languages a meetup is held in', () => {
   it('accepts one language, whether or not the site is written in it', () => {

@@ -101,6 +101,37 @@ export const eventUrlFor = (opts: {
 export const closeoutUrlFor = (locale: Locale, eventId: string): string =>
   `${notificationBaseUrl()}/${locale}/closeout/${eventId}`;
 
+/** The private screen where an invited member accepts or declines (B-ORG-10), on the same terms. */
+export const organisationInvitationUrlFor = (
+  locale: Locale,
+  invitationId: string,
+): string =>
+  `${notificationBaseUrl()}/${locale}/o/invitations/${encodeURIComponent(invitationId)}`;
+
+/** A member's team page in a hackathon (B-TEAM-07), on the same terms as `closeoutUrlFor`. */
+export const hackathonTeamUrlFor = (locale: Locale, eventId: string): string =>
+  `${notificationBaseUrl()}/${locale}/hackathon/${eventId}/team`;
+
+/** A certificate's own page (B-CRT-03), in the language of the message carrying it. */
+export const certificateUrlFor = (locale: Locale, code: string): string =>
+  `${notificationBaseUrl()}/${locale}/c/${encodeURIComponent(code)}`;
+
+/** The team's project in a hackathon (B-SUB-05), on the same terms as `closeoutUrlFor`. */
+export const hackathonSubmitUrlFor = (
+  locale: Locale,
+  eventId: string,
+): string => `${notificationBaseUrl()}/${locale}/hackathon/${eventId}/submit`;
+
+/** The submissions a judge scores in a hackathon (B-JDG-06), on the same terms as `closeoutUrlFor`. */
+export const hackathonJudgeUrlFor = (locale: Locale, eventId: string): string =>
+  `${notificationBaseUrl()}/${locale}/hackathon/${eventId}/judge`;
+
+/** Who is looking for a team in a hackathon (B-TEAM-08), on the same terms as `closeoutUrlFor`. */
+export const hackathonLookingUrlFor = (
+  locale: Locale,
+  eventId: string,
+): string => `${notificationBaseUrl()}/${locale}/hackathon/${eventId}/looking`;
+
 /** The screen where an attendee leaves feedback, on the same terms as `closeoutUrlFor`. */
 export const feedbackUrlFor = (locale: Locale, eventId: string): string =>
   `${notificationBaseUrl()}/${locale}/feedback/${eventId}`;

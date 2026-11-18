@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent } from 'react';
+import { useState, type KeyboardEvent, type ReactNode } from 'react';
 
 import {
   activity_hosted,
@@ -38,9 +38,11 @@ const ACTIVITY_PAGE_SIZE = 10;
 export const ActivityPage = ({
   locale,
   markets,
+  organisations = null,
 }: {
   locale: Locale;
   markets: readonly { code: string; slug: string; timezone: string }[];
+  organisations?: ReactNode;
 }) => {
   const [activeTab, setActiveTab] = useState<ActivityTab>('joined');
   const joined = useMyJoinedEvents({ limit: ACTIVITY_PAGE_SIZE });
@@ -94,6 +96,7 @@ export const ActivityPage = ({
         <p className="mb-6 text-body-sm text-neutral">
           {activity_note({}, { locale })}
         </p>
+        {organisations}
 
         {!userId && !isAuthLoading ? (
           <ProfileAccess

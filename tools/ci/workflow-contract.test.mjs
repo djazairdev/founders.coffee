@@ -19,6 +19,10 @@ const ciWorkflow = workflow('ci.yml');
 const deployWorkflow = workflow('deploy.yml');
 const rollbackWorkflow = workflow('rollback.yml');
 const titleWorkflow = workflow('pull-request-title.yml');
+const verifiedTree = fs.readFileSync(
+  path.join(import.meta.dirname, 'verified-staging-tree.mjs'),
+  'utf8',
+);
 const stagingDrill = fs.readFileSync(
   path.join(import.meta.dirname, '..', 'deploy', 'staging-rollback-drill.mjs'),
   'utf8',
@@ -40,8 +44,54 @@ describe('verified staging tree workflow contract', () => {
     );
   });
 
+  it('requires the separate server tests before verification can succeed', () => {
+    expect(ciWorkflow).toContain('run: npx nx run server-fns:test');
+    expect(ciWorkflow).toContain('--exclude=server-fns');
+    expect(ciWorkflow).toContain(
+      'SERVER_TESTS: ${{ needs.server-tests.result }}',
+    );
+    expect(ciWorkflow).toContain('[ "$SERVER_TESTS" != "success" ]');
+  });
+
+  it('requires the dependency advisory audit in release verification', () => {
+    expect(ciWorkflow).toContain('run: node tools/ci/dependency-audit.mjs');
+    expect(ciWorkflow).toContain(
+      'DEPENDENCY_AUDIT: ${{ needs.dependency-audit.result }}',
+    );
+    expect(ciWorkflow).toContain('[ "$DEPENDENCY_AUDIT" != "success" ]');
+  });
+
+  it('restores the task artifacts and their database from the configured Nx paths', () => {
+    expect(ciWorkflow).toContain('NX_CACHE_DIRECTORY: .nx/cache');
+    expect(ciWorkflow).toContain(
+      'NX_WORKSPACE_DATA_DIRECTORY: .nx/workspace-data',
+    );
+    expect(ciWorkflow).toContain('.nx/workspace-data/*-v*.db');
+    expect(ciWorkflow).toContain('${{ github.job }}');
+  });
+
+  it('reuses exact-tree merged PR checks for staging and passes the push base', () => {
+    expect(ciWorkflow).toContain("github.ref_name == 'develop'");
+    expect(ciWorkflow).toContain('pull-requests: read');
+    expect(verifiedTree).toContain('REQUIRED_PULL_REQUEST_JOBS');
+    expect(deployWorkflow).toContain('base_sha: ${{ github.event.before ||');
+  });
+
+  it('runs affected checks with a full-run fallback and bounded parallelism', () => {
+    expect(ciWorkflow).toContain('Resolve affected range');
+    expect(ciWorkflow).toContain('npx nx affected -t typecheck lint');
+    expect(ciWorkflow).toContain('npx nx affected -t test');
+    expect(ciWorkflow).toContain('npx nx affected -t build');
+    expect(ciWorkflow).toContain('--parallel=2');
+    expect(ciWorkflow).toContain('npx nx run public:build');
+    expect(ciWorkflow).toContain(
+      'npx nx run-many -t typecheck lint --parallel=2',
+    );
+  });
+
   it('grants the reusable workflow only the read access its lookup needs', () => {
     expect(deployWorkflow).toContain('actions: read');
+    expect(deployWorkflow).toContain('pull-requests: read');
     expect(deployWorkflow).toContain('uses: ./.github/workflows/ci.yml');
   });
 });
@@ -156,7 +206,7 @@ describe('pull request gate contract', () => {
   });
 
   it("skips long verification only for this repository's develop into main", () => {
-    expect(ciWorkflow.split(RELEASE_PULL_REQUEST)).toHaveLength(4);
+    expect(ciWorkflow.split(RELEASE_PULL_REQUEST)).toHaveLength(6);
     expect(
       ciWorkflow,
       'a fork can name its branch develop, so a head ref alone must not skip the gates',

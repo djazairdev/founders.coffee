@@ -1,15 +1,17 @@
 import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
 
-import { appErrorCode } from '@founders-coffee/core';
+import { appErrorCode, type EventKind } from '@founders-coffee/core';
 import { localizedName, type Locale } from '@founders-coffee/i18n';
 import { getCityLanding, type MarketCity } from '@founders-coffee/server-fns';
 
 import { CityLanding } from '../components/landing/CityLanding';
 import { localizedCity } from '../lib/locale-routing';
 import {
+  landingCanonicalQuery,
+  landingSearchSchema,
+} from '../lib/event-type-filter';
+import {
   cursorPairOnly,
-  paginationQuery,
-  publicPaginationSearchSchema,
   type PublicPaginationSearch,
 } from '../lib/public-pagination';
 import { canonicalUrl, cityPageHead } from '../lib/seo';
@@ -23,6 +25,7 @@ const CityRoute = () => {
     eventsNextCursor,
     afterStartsAt,
     afterId,
+    type,
   } = Route.useLoaderData();
   return (
     <CityLanding
@@ -33,15 +36,17 @@ const CityRoute = () => {
       afterStartsAt={afterStartsAt}
       afterId={afterId}
       nextCursor={eventsNextCursor}
+      type={type}
     />
   );
 };
 
 export const Route = createFileRoute('/$locale/$market/$city')({
-  validateSearch: publicPaginationSearchSchema,
+  validateSearch: landingSearchSchema,
   loaderDeps: ({ search }) => ({
     afterStartsAt: search.afterStartsAt,
     afterId: search.afterId,
+    type: search.type,
   }),
   component: CityRoute,
   loader: async ({
@@ -54,32 +59,36 @@ export const Route = createFileRoute('/$locale/$market/$city')({
       pagination: PublicPaginationSearch;
       afterStartsAt?: number;
       afterId?: string;
+      type: EventKind | undefined;
     }
   > => {
-    const pagination = cursorPairOnly(deps);
+    const { type, ...cursor } = deps;
+    const pagination = cursorPairOnly(cursor);
     try {
       const data = await getCityLanding({
         data: {
           marketKey: params.market,
           citySlug: params.city,
           ...pagination,
+          kind: type,
         },
       });
       if (params.market !== data.market.slug) {
         throw redirect({
           ...localizedCity(context.locale, data.market.slug, data.city.slug),
-          search: pagination,
+          search: { ...pagination, type },
         });
       }
       if (!data.cursorValid) {
         throw redirect({
           ...localizedCity(context.locale, data.market.slug, data.city.slug),
-          search: {},
+          search: { type },
         });
       }
       return {
         ...data,
         ...pagination,
+        type,
         locale: context.locale,
         pagination,
       };
@@ -113,7 +122,7 @@ export const Route = createFileRoute('/$locale/$market/$city')({
         market: loaderData.market.slug,
         city: loaderData.city.slug,
         locale: loaderData.locale,
-        query: paginationQuery(loaderData.pagination),
+        query: landingCanonicalQuery(loaderData.pagination, loaderData.type),
       },
     });
   },

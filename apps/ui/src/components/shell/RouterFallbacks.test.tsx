@@ -95,7 +95,7 @@ describe('the page a visitor lands on when nothing matched', () => {
     expect(
       screen.getByRole('link').textContent,
       'a 404 on a product about finding meetups should hand the reader the list of them',
-    ).toBe('Explore meetups');
+    ).toBe('Explore events');
   });
 
   it('falls back to the root when no market could be resolved at all', () => {

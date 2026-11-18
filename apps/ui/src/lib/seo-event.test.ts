@@ -21,6 +21,7 @@ const SEARCH_EVENT = {
     createdAt: new Date('2026-09-01T08:30:00Z'),
     timezone: 'Africa/Algiers',
     status: 'published',
+    format: 'in_person',
     venue: 'Café Atlas',
     cityName: 'Alger',
     regionName: 'Alger',
@@ -90,6 +91,21 @@ describe('event page metadata', () => {
     });
   });
 
+  it('keeps non-production event HTML explicitly noindex', () => {
+    const head = runWithContext(
+      {
+        siteOrigin: 'https://staging.founders.coffee',
+        isSearchIndexable: false,
+      },
+      () => eventPageHead(SEARCH_EVENT),
+    );
+
+    expect(head.meta).toContainEqual({
+      name: 'robots',
+      content: 'noindex, nofollow',
+    });
+  });
+
   it('says when and where before anything the host wrote', () => {
     const head = searchHead();
 
@@ -119,6 +135,26 @@ describe('event page metadata', () => {
     );
   });
 
+  it('names only the city of a meetup that has no venue, cancelled or not', () => {
+    const venueless = { ...SEARCH_EVENT.structuredEvent, venue: null };
+
+    expect(
+      content(searchHead({ structuredEvent: venueless }), 'description'),
+    ).toBe(
+      'Le dimanche 20 septembre à 11:00 · Alger. Rencontre Founders Coffee gratuite.',
+    );
+    expect(
+      content(
+        searchHead({
+          structuredEvent: { ...venueless, status: 'cancelled' },
+        }),
+        'description',
+      ),
+    ).toBe(
+      'Annulée. Elle était prévue le dimanche 20 septembre à 11:00 · Alger.',
+    );
+  });
+
   it('says the date in the market timezone, in the language of the page', () => {
     expect(
       content(searchHead({ locale: 'en', cityName: 'Algiers' }), 'description'),
@@ -144,7 +180,7 @@ describe('event page metadata', () => {
   });
 
   it("describes the meetup in its structured data in the host's words", () => {
-    const description = 'Un café entre fondateurs.';
+    const description = 'Un café </script><b>entre fondateurs</b>.';
 
     expect(structuredEvent(searchHead({ description }))).toMatchObject({
       '@type': 'Event',
@@ -189,6 +225,7 @@ const CARD_EVENT = {
     createdAt: new Date('2026-09-01T08:30:00Z'),
     timezone: 'Africa/Algiers',
     status: 'published',
+    format: 'in_person',
     venue: 'مقهى',
     cityName: 'الجزائر العاصمة',
     regionName: 'الجزائر',

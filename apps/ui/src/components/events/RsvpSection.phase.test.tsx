@@ -33,6 +33,9 @@ vi.mock('../../lib/app-providers', () => ({
 }));
 
 vi.mock('./HostEventPanel', () => ({ HostEventPanel: () => null }));
+vi.mock('./OrganiserRepeatLink', () => ({
+  OrganiserRepeatLink: () => <span>organiser repeat</span>,
+}));
 vi.mock('../../features/chat/components/ChatOpenButton', () => ({
   ChatOpenButton: () => null,
 }));
@@ -88,6 +91,30 @@ afterEach(() => {
   cleanup();
   vi.clearAllMocks();
   mocks.isAuthenticated = true;
+});
+
+describe('RsvpSection and the repeat offered to an organiser (B-EVT-21)', () => {
+  const offer = () => screen.queryByText('organiser repeat');
+
+  it('asks only for a signed-in reader of a meetup over', () => {
+    show(event, 'ended');
+    expect(offer()).toBeTruthy();
+    cleanup();
+
+    show(event, 'upcoming');
+    expect(offer()).toBeNull();
+    cleanup();
+
+    mocks.isAuthenticated = false;
+    show(event, 'ended');
+    expect(offer()).toBeNull();
+  });
+
+  it('does not ask for a cancelled meetup', () => {
+    show({ ...event, status: 'cancelled' }, 'ended');
+
+    expect(offer()).toBeNull();
+  });
 });
 
 describe('RsvpSection once the meetup has started', () => {

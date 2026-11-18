@@ -20,7 +20,7 @@ export const HostFace = ({ name, photoAssetId }: HostFaceProps) => (
           className="size-full rounded-full object-cover"
         />
       ) : (
-        firstCharacter(name)
+        <span aria-hidden="true">{firstCharacter(name)}</span>
       )}
     </span>
   </span>

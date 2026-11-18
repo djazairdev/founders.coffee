@@ -181,7 +181,7 @@ describe("where the host's panel sits beside the details", () => {
       details.contains(heading),
       'with the heading inside the details column, a guessed 48px pushed the panel down and it sat 6px below the boxes',
     ).toBe(false);
-    expect(panel?.parentElement).toBe(details.parentElement);
+    expect(panel?.parentElement).toBe(details.parentElement?.parentElement);
   });
 
   it("grows the host card to the panel's height for the host alone", () => {

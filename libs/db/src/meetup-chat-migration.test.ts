@@ -7,8 +7,8 @@ import { idSchema } from '@founders-coffee/core';
 import {
   CHAT_KEPT_AFTER_MEETUP_SECONDS,
   CHAT_OPEN_AFTER_MEETUP_SECONDS,
-  chatExpiresAt,
-  chatReadOnlyAt,
+  meetupChatExpiresAt,
+  meetupChatReadOnlyAt,
 } from './chat-channels.js';
 import { createDb } from './db.js';
 import { atMigration, priorHost } from './migrations.fixtures.js';
@@ -126,8 +126,8 @@ describe('0041 — meetup chat (real D1)', () => {
     const derived = await createDb(env.PRIOR_DB)
       .select({
         eventId: events.id,
-        readOnlyAt: sql<number>`${chatReadOnlyAt()}`,
-        expiresAt: sql<number>`${chatExpiresAt()}`,
+        readOnlyAt: sql<number>`${meetupChatReadOnlyAt()}`,
+        expiresAt: sql<number>`${meetupChatExpiresAt()}`,
       })
       .from(events)
       .where(inArray(events.id, ids));

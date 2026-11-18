@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNotNull, lte, ne } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, lte } from 'drizzle-orm';
 
 import type { CloseoutOutcome } from '@founders-coffee/core';
 
@@ -51,7 +51,7 @@ export const listCloseoutStates = async (
         eq(events.hostId, opts.hostId),
         inArray(events.id, [...opts.eventIds]),
         isNotNull(events.endsAt),
-        ne(events.status, 'cancelled'),
+        eq(events.status, 'published'),
         lte(events.endsAt, opts.now ?? new Date()),
       ),
     );

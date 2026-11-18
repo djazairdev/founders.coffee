@@ -2,6 +2,7 @@ import {
   cancelEvent,
   cancelRsvp,
   createEvent,
+  createOrganisationEvent,
   createRsvp,
   getCity,
   getEvent,
@@ -9,6 +10,7 @@ import {
   getHostMapContext,
   getMyJoinedEvents,
   getMapboxToken,
+  getOptionalMapboxToken,
   getMarket,
   getPublicAuthConfig,
   getRepeatEventTemplate,
@@ -27,6 +29,8 @@ import {
   type RepeatEventTemplate,
   type EventWithAttendance,
   type HostMapContext,
+  type OrganisationEventCreateRequestInput,
+  type OrganisationView,
   type VenueCandidate,
 } from '@founders-coffee/server-fns';
 import type { Event } from '@founders-coffee/db';
@@ -38,6 +42,8 @@ export const eventsApi = {
   getUpcomingEvents,
   createEvent: (input: CreateEventInput) =>
     createEvent({ data: { ...input.data, attribution: browserCampaign() } }),
+  createOrganisationEvent: (input: CreateOrganisationEventInput) =>
+    createOrganisationEvent(input),
   updateEvent,
   getEvent,
   getHostedEvents,
@@ -53,6 +59,7 @@ export const eventsApi = {
   getMarket,
   getCity,
   getMapboxToken,
+  getOptionalMapboxToken,
   getPublicAuthConfig,
   getRepeatEventTemplate,
 };
@@ -68,9 +75,13 @@ export type {
   RepeatEventTemplate,
   EventWithAttendance,
   HostMapContext,
+  OrganisationView,
   VenueCandidate,
 };
 export type CreateEventInput = { data: EventCreateRequestInput };
+export type CreateOrganisationEventInput = {
+  data: OrganisationEventCreateRequestInput;
+};
 export type CreatedEvent = Event;
 export type RsvpInput = { data: { eventId: string } };
 export type CancelEventInput = { data: EventCancelRequestInput };

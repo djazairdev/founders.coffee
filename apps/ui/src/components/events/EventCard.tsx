@@ -4,7 +4,6 @@ import { ArrowUpRight, MapPin } from 'lucide-react';
 import { eventLanguages } from '@founders-coffee/core';
 import {
   direction,
-  event_details_title,
   event_host,
   formatDate,
   going_count,
@@ -16,6 +15,13 @@ import type { EventFeedItem } from '@founders-coffee/server-fns';
 import { eventCityName } from '../../features/events/event-city-name';
 import { localizedEvent } from '../../lib/locale-routing';
 import { AvatarGroup } from './AvatarGroup';
+import { EventCoHosts } from './EventCoHosts';
+import { eventDetailsTitle } from './event-details-title';
+import { endsOnAnotherDay } from './event-time';
+import { EventTimeRange } from './EventTimeRange';
+import { EventFormatBadge } from './EventFormatBadge';
+import { EventKindBadge } from './EventKindBadge';
+import { EventRunByBadge } from './EventRunByBadge';
 import { HostFace } from './HostFace';
 
 type EventCardProps = {
@@ -43,8 +49,20 @@ export const EventCard = ({
     });
   const at = (options: Intl.DateTimeFormatOptions) => on(start, options);
   const clock = { hour: '2-digit', minute: '2-digit' } as const;
+  const isOneDay = end == null || !endsOnAnotherDay(start, end, timezone);
   const timeRange =
-    end == null ? at(clock) : `${at(clock)}\u2013${on(end, clock)}`;
+    end == null ? (
+      at(clock)
+    ) : !isOneDay ? (
+      <EventTimeRange
+        locale={locale}
+        timeZone={timezone}
+        start={start}
+        end={end}
+      />
+    ) : (
+      `${at(clock)}\u2013${on(end, clock)}`
+    );
   const cityName = eventCityName(event, locale);
   const isGoing = event.viewerRsvp === 'going';
   const hasHost = event.hostName != null && event.hostName.length > 0;
@@ -75,7 +93,12 @@ export const EventCard = ({
         </time>
 
         <span className="flex min-w-0 flex-1 flex-col gap-1">
-          <header>
+          <header className="flex flex-col items-start gap-1">
+            <span className="flex flex-wrap items-center gap-1.5">
+              <EventKindBadge kind={event.kind} locale={locale} />
+              <EventRunByBadge runBy={event.runBy} locale={locale} />
+              <EventFormatBadge format={event.format} locale={locale} />
+            </span>
             <h3
               dir="auto"
               className="font-display text-body font-semibold leading-snug"
@@ -83,6 +106,7 @@ export const EventCard = ({
               {event.title}
             </h3>
           </header>
+          <EventCoHosts runBy={event.runBy} locale={locale} />
           {event.description?.trim() ? (
             <p dir="auto" className="line-clamp-1 text-body-sm text-neutral">
               {event.description}
@@ -91,18 +115,22 @@ export const EventCard = ({
           <p className="flex flex-wrap items-start gap-x-2 gap-y-1 text-body-sm text-neutral">
             <span
               dir={direction(locale)}
-              className="whitespace-nowrap tabular-nums"
+              className={`tabular-nums${isOneDay ? ' whitespace-nowrap' : ''}`}
             >
               {timeRange}
             </span>
-            <span aria-hidden="true">·</span>
-            <span className="inline-flex items-start gap-1 rounded-full bg-secondary/10 px-2 py-0.5 font-medium text-secondary">
-              <MapPin
-                className="mt-0.5 size-4 shrink-0 text-secondary"
-                aria-hidden="true"
-              />
-              <span dir="auto">{event.venue}</span>
-            </span>
+            {event.venue !== null ? (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="inline-flex items-start gap-1 rounded-full bg-secondary/10 px-2 py-0.5 font-medium text-secondary">
+                  <MapPin
+                    className="mt-0.5 size-4 shrink-0 text-secondary"
+                    aria-hidden="true"
+                  />
+                  <span dir="auto">{event.venue}</span>
+                </span>
+              </>
+            ) : null}
             {trailing === 'language' ? (
               <span className="hidden sm:inline">
                 ·{' '}
@@ -110,11 +138,16 @@ export const EventCard = ({
                   .map((language) => language.toUpperCase())
                   .join('/')}
               </span>
-            ) : (
-              <span dir="auto" className="text-secondary">
-                {locale === 'ar' ? '،' : ','} {cityName}
-              </span>
-            )}
+            ) : cityName ? (
+              <>
+                <span aria-hidden="true">·</span>
+                <span dir="auto" className="text-secondary">
+                  {event.venue === null
+                    ? cityName
+                    : `${locale === 'ar' ? '،' : ','} ${cityName}`}
+                </span>
+              </>
+            ) : null}
           </p>
 
           <footer className="mt-auto flex flex-wrap items-center gap-2 pt-1.5">
@@ -169,7 +202,7 @@ export const EventCard = ({
         {...detailsHref}
         className="btn btn-outline btn-xs sm:btn-sm md:btn-md w-full shrink-0 self-center whitespace-nowrap sm:w-auto"
       >
-        <span>{event_details_title({}, { locale })}</span>
+        <span>{eventDetailsTitle(event.kind, locale)}</span>
         <ArrowUpRight className="size-4 rtl:rotate-180" aria-hidden="true" />
       </Link>
     </article>

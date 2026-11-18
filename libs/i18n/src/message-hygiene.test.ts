@@ -14,6 +14,7 @@ const LOCALE_FILES = { ar, en, fr } as Record<
 >;
 
 const MARKDOWN_LINK = /\[[^\]]+\]\(\/[^)]+\)/g;
+const EDITABLE_TEMPLATES = new Set(['hackathon_desc_template']);
 
 /** Every string a reader can end up seeing, with a message's plural variants flattened out. */
 const textsIn = (message: Message): string[] =>
@@ -41,6 +42,7 @@ describe('message catalogue hygiene', () => {
 
   it('ships no unresolved bracket placeholder', () => {
     for (const [locale, key, text] of everyText()) {
+      if (EDITABLE_TEMPLATES.has(key)) continue;
       expect(
         text.replace(MARKDOWN_LINK, ''),
         `${locale}:${key} still carries a bracket placeholder`,

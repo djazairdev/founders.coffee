@@ -13,8 +13,12 @@ export {
   type EventCreateInput,
   type EventUpdateInput,
 } from './events/schemas.js';
+export type { EventOrganiserSummary, EventRunBy } from './events/run-by.js';
 export * as notifications from './notifications/index.js';
 export * as venues from './venues/index.js';
 export * as profile from './profile/index.js';
 export * as operations from './operations/index.js';
 export * as chat from './chat/index.js';
+export * as hackathons from './hackathons/index.js';
+export * as organisations from './organisations/index.js';
+export * as projects from './projects/index.js';

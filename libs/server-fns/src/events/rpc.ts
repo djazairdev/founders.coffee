@@ -3,7 +3,11 @@ import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
 
-import { appValidator, handleResult } from '@founders-coffee/core';
+import {
+  appValidator,
+  eventKindSchema,
+  handleResult,
+} from '@founders-coffee/core';
 import { reportError } from '@founders-coffee/observability';
 
 import { requireAuth } from '../authz.js';
@@ -135,8 +139,8 @@ export const getEvent = createServerFn({ strict: false })
   .handler(async ({ data }) => {
     privateNoStore();
     const db = getDb();
-    const event = await handleResult(resolveEvent(db, data));
     const session = await resolveSession(getRequest().headers);
+    const event = await handleResult(resolveEvent(db, data, session?.user?.id));
     return eventDetail(db, event, session?.user?.id);
   });
 
@@ -175,18 +179,23 @@ export const getEventCardData = createServerFn({ strict: false })
  * A meetup as a calendar entry: its `.ics` file, a redirect to Google Calendar's form, or, for a
  * cancelled meetup, a redirect to the page that says so.
  *
- * Public and sessionless, like the social card. What fetches it is a calendar app or a download,
- * which carries no cookie, so it answers the same for everyone; the entry links back on the origin
- * that served it.
+ * Public, and the same for everyone except in one field: a reader the meeting link is for, signed
+ * in when they follow Add to calendar from the page, gets the link in their entry (B-EVT-12). A
+ * calendar app or a download that carries no cookie gets the entry without it. Nothing here is
+ * cached, so one reader's entry is never another's. The entry links back on the origin that
+ * served it.
  */
 export const getEventCalendarAnswer = createServerFn({ strict: false })
   .validator(appValidator(eventCalendarRequestSchema))
-  .handler(({ data }) =>
-    answerEventCalendar(getDb(), {
+  .handler(async ({ data }) => {
+    const request = getRequest();
+    const session = await resolveSession(request.headers);
+    return answerEventCalendar(getDb(), {
       ...data,
-      origin: new URL(getRequest().url).origin,
-    }),
-  );
+      origin: new URL(request.url).origin,
+      viewerId: session?.user?.id,
+    });
+  });
 
 /**
  * List upcoming published events (composite cursor). Public. Pass `afterStartsAt` (a startsAt epoch
@@ -202,6 +211,7 @@ export const getUpcomingEvents = createServerFn({ strict: false })
       marketCode: z.string().optional(),
       cityCode: z.string().optional(),
       hostId: z.string().max(64).optional(),
+      kind: eventKindSchema.optional(),
       afterStartsAt: z.number().optional(),
       afterId: z.string().optional(),
       limit: z.number().int().min(1).max(100).default(20),

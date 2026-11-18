@@ -75,6 +75,7 @@ export default [
       'no-restricted-properties': ['error', SESSION_STORE_READ],
       'local/no-server-fns-in-components': 'error',
       'local/no-bare-status-role': 'error',
+      'local/json-ld-script-text': 'error',
       'local/section-citation': 'error',
       'no-console': 'error',
       'max-lines': [

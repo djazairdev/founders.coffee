@@ -13,7 +13,7 @@ import {
 } from '@founders-coffee/db';
 
 import { cancelEventResolver } from './cancel.js';
-import { createEventResolver } from './resolver.js';
+import { createEventResolver } from './create-resolver.js';
 import {
   createInput,
   setupDb,

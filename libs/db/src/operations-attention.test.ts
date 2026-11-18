@@ -80,6 +80,21 @@ describe('attention queries', () => {
     expect(overdue.map((row) => row.id)).not.toContain(eventId);
   });
 
+  it('never lists a draft as overdue', async () => {
+    const eventId = await pastEvent(db, {
+      endedHoursAgo: 30,
+      status: 'draft',
+    });
+
+    const overdue = await listOverdueCloseouts(db, {
+      marketCode: 'DZ',
+      now: new Date(),
+      limit: 10,
+    });
+
+    expect(overdue.map((row) => row.id)).not.toContain(eventId);
+  });
+
   it('separates events with no end time into their own attention list', async () => {
     const legacyId = await pastEvent(db, { withEndsAt: false });
     const normalId = await pastEvent(db, { endedHoursAgo: 30 });

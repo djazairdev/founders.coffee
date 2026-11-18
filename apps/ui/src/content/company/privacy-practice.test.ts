@@ -14,6 +14,24 @@ const SHARING = 'من يطّلع على بياناتك';
 const TRANSFERS = 'نقل البيانات خارج بلدك';
 const RETENTION = 'مدّة الاحتفاظ';
 
+const HACKATHON_WORDS: Record<Locale, readonly string[]> = {
+  ar: ['الرعاة', 'محركات البحث', 'روابط دعوة الفرق', 'الشهادات', 'المنظمات'],
+  en: [
+    'Sponsors',
+    'Search engines',
+    'Team invite links',
+    'Certificates',
+    'Organisations',
+  ],
+  fr: [
+    'sponsors',
+    'moteurs de recherche',
+    'Liens d’invitation',
+    'Attestations',
+    'Organisations',
+  ],
+};
+
 const CHAT_MESSAGES_ROW: Record<Locale, string> = {
   ar: 'رسائل محادثة اللقاء',
   en: 'Gathering chat messages',
@@ -175,4 +193,14 @@ describe('the privacy policy, held to what the platform does', () => {
       ).toContain(`${CHAT_REPORT_KEPT_MONTHS}`);
     }
   });
+
+  it.each([...LOCALES])(
+    'says what hackathons collect, who sees it and how long it stays, in %s',
+    (locale) => {
+      const body = JSON.stringify(companyPageContent('privacy', locale));
+
+      for (const word of HACKATHON_WORDS[locale])
+        expect(body, word).toContain(word);
+    },
+  );
 });

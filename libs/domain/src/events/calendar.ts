@@ -5,7 +5,7 @@ export type CalendarEvent = {
   readonly title: string;
   readonly description: string;
   readonly language: Locale;
-  readonly venue: string;
+  readonly venue: string | null;
   readonly venueAddress: string | null;
   readonly latitude: number | null;
   readonly longitude: number | null;
@@ -15,6 +15,7 @@ export type CalendarEvent = {
   readonly updatedAt: Date;
   readonly timezone: string;
   readonly url: string;
+  readonly meetingLink?: string | null;
 };
 
 const GOOGLE_CALENDAR = 'https://calendar.google.com/calendar/render';
@@ -75,11 +76,23 @@ const fold = (line: string): string => {
   return [...parts, current].join('\r\n ');
 };
 
-const locationOf = (event: CalendarEvent): string =>
-  event.venueAddress ? `${event.venue}, ${event.venueAddress}` : event.venue;
+/**
+ * Where the entry says the meetup is: its venue, or for an online one the meeting link it was given
+ * to this reader, which is where a calendar shows a link it can open. Nobody else's entry has one.
+ */
+const locationOf = (event: CalendarEvent): string | null => {
+  if (event.venue === null) return event.meetingLink ?? null;
+  return event.venueAddress
+    ? `${event.venue}, ${event.venueAddress}`
+    : event.venue;
+};
 
-const detailsOf = (description: string, url: string): string =>
-  `${description}\n\n${url}`;
+const detailsOf = (
+  description: string,
+  url: string,
+  meetingLink: string | null | undefined,
+): string =>
+  [description, ...(meetingLink ? [meetingLink] : []), url].join('\n\n');
 
 const shortened = (text: string, limit: number): string => {
   const characters = Array.from(text);
@@ -105,6 +118,7 @@ export const icsFor = (event: CalendarEvent): string => {
   const text = (name: string, value: string): string =>
     `${name};LANGUAGE=${event.language}:${escapeText(value)}`;
   const { latitude, longitude } = event;
+  const location = locationOf(event);
   const point =
     latitude !== null && longitude !== null
       ? [`GEO:${latitude.toFixed(6)};${longitude.toFixed(6)}`]
@@ -124,8 +138,11 @@ export const icsFor = (event: CalendarEvent): string => {
     `SEQUENCE:${event.version}`,
     'STATUS:CONFIRMED',
     text('SUMMARY', event.title),
-    text('DESCRIPTION', detailsOf(event.description, event.url)),
-    `LOCATION:${escapeText(locationOf(event))}`,
+    text(
+      'DESCRIPTION',
+      detailsOf(event.description, event.url, event.meetingLink),
+    ),
+    ...(location === null ? [] : [`LOCATION:${escapeText(location)}`]),
     ...point,
     `URL:${event.url}`,
     'BEGIN:VALARM',
@@ -150,6 +167,7 @@ export const icsFor = (event: CalendarEvent): string => {
  */
 export const googleCalendarUrlFor = (event: CalendarEvent): string => {
   const dates = `${utcStamp(event.startsAt)}/${utcStamp(event.endsAt ?? event.startsAt)}`;
+  const location = locationOf(event);
   const params: ReadonlyArray<readonly [string, string]> = [
     ['action', 'TEMPLATE'],
     ['text', event.title],
@@ -158,9 +176,10 @@ export const googleCalendarUrlFor = (event: CalendarEvent): string => {
       detailsOf(
         shortened(event.description, GOOGLE_DESCRIPTION_MAX),
         event.url,
+        event.meetingLink,
       ),
     ],
-    ['location', locationOf(event)],
+    ...(location === null ? [] : [['location', location] as const]),
     ['ctz', event.timezone],
   ];
   const query = params

@@ -14,8 +14,23 @@ export const PRIVATE_SCREENS = [
   'algeria/host/create',
 ];
 
+export const LOCALE_ONLY_PRIVATE_SCREENS = [
+  'hackathon/evt_1/manage',
+  'hackathon/evt_1/team',
+  'hackathon/evt_1/looking',
+  'hackathon/evt_1/submit',
+  'hackathon/evt_1/judge',
+  'hackathon/evt_1/judge_/sub_1',
+  'o/apply',
+  'o/invitations/inv_1',
+  'o/acme/manage',
+  'p/ledger/edit',
+];
+
 export const PRIVATE_SCREENS_IN_EVERY_LANGUAGE = LOCALES.flatMap((locale) =>
-  PRIVATE_SCREENS.map((screen) => `/${locale}/${screen}`),
+  [...PRIVATE_SCREENS, ...LOCALE_ONLY_PRIVATE_SCREENS].map(
+    (screen) => `/${locale}/${screen}`,
+  ),
 );
 
 export const PRIVATE_SCREEN_STUBS = [
@@ -47,6 +62,13 @@ export const PRIVATE_SCREEN_VARIANTS = [
   '//en/profile',
   '/en//profile',
   '/en/login%20',
+  '/algeria/hackathon/evt_1/judge',
+  '/en/hackathon/evt_1/judge_/sub_1',
+  '/en/HACKATHON/evt_1/Submit',
+  '/fr/hackathon/evt_1/%6Danage',
+  '/algeria/o/acme/manage',
+  '/en/O/Apply',
+  '/ar/o/%61pply',
 ];
 
 export const PUBLIC_PAGES_NAMING_A_SCREEN = [
@@ -61,4 +83,9 @@ export const PUBLIC_PAGES_NAMING_A_SCREEN = [
   '/fr/algeria/e/%6Cogin',
   '/ar/algeria/%70rofile',
   '/en/e/%66eedback',
+  '/en/o/acme',
+  '/en/p/ledger-ab12',
+  '/ar/o/apply-club',
+  '/fr/algeria/e/hackathon',
+  '/en/e/o',
 ];

@@ -91,6 +91,9 @@ const event: EventFeedItem = {
   longitude: null,
   venueAddress: null,
   status: 'published',
+  kind: 'meetup',
+  tags: [],
+  format: 'in_person',
   version: 1,
   createdAt: new Date(0),
   updatedAt: new Date(0),
@@ -103,6 +106,7 @@ const event: EventFeedItem = {
   goingCount: 2,
   hostName: 'Host Name',
   hostPhotoAssetId: null,
+  runBy: { kind: 'community' },
 };
 
 afterEach(cleanup);

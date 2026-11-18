@@ -6,6 +6,8 @@ import {
   prefs_event_updates_note,
   prefs_follow_up,
   prefs_follow_up_note,
+  prefs_hackathons,
+  prefs_hackathons_note,
   prefs_host_rsvp_cancelled,
   prefs_host_rsvp_received,
   prefs_host_rsvp_note,
@@ -34,14 +36,16 @@ type EnabledField =
   | 'hostRsvpReceived'
   | 'hostRsvpCancelled'
   | 'followUpPrompts'
-  | 'meetupChat';
+  | 'meetupChat'
+  | 'hackathons';
 type ChannelsField =
   | 'eventUpdatesChannels'
   | 'eventRemindersChannels'
   | 'hostRsvpReceivedChannels'
   | 'hostRsvpCancelledChannels'
   | 'followUpPromptsChannels'
-  | 'meetupChatChannels';
+  | 'meetupChatChannels'
+  | 'hackathonsChannels';
 
 type CategoryDefinition = {
   readonly enabledField: EnabledField;
@@ -96,6 +100,13 @@ const CATEGORIES: readonly CategoryDefinition[] = [
     label: (locale) => prefs_meetup_chat({}, { locale }),
     note: (locale) => prefs_meetup_chat_note({}, { locale }),
   },
+  {
+    enabledField: 'hackathons',
+    channelsField: 'hackathonsChannels',
+    channels: CHANNELS,
+    label: (locale) => prefs_hackathons({}, { locale }),
+    note: (locale) => prefs_hackathons_note({}, { locale }),
+  },
 ];
 
 const PUSH_EXPLANATION: Partial<Record<PushState, (locale: Locale) => string>> =
@@ -139,9 +150,11 @@ const isOffered = (
   category: CategoryDefinition,
   showPush: boolean,
   isChatAvailable: boolean,
+  isHackathonsAvailable: boolean,
 ): boolean =>
   (showPush || category.channels.includes('email')) &&
-  (category.enabledField !== 'meetupChat' || isChatAvailable);
+  (category.enabledField !== 'meetupChat' || isChatAvailable) &&
+  (category.enabledField !== 'hackathons' || isHackathonsAvailable);
 
 const selectedChannels = (
   draft: NotificationDraft,
@@ -178,6 +191,7 @@ export const NotificationChannelGrid = ({
   pushState,
   isEnabling,
   isChatAvailable,
+  isHackathonsAvailable,
   onEnablePush,
   onChange,
 }: {
@@ -186,6 +200,7 @@ export const NotificationChannelGrid = ({
   pushState: PushState;
   isEnabling: boolean;
   isChatAvailable: boolean;
+  isHackathonsAvailable: boolean;
   onEnablePush: () => Promise<boolean>;
   onChange: (changes: Partial<NotificationDraft>) => void;
 }) => {
@@ -216,7 +231,7 @@ export const NotificationChannelGrid = ({
         <span className="text-center">{email_label({}, { locale })}</span>
       </div>
       {CATEGORIES.filter((category) =>
-        isOffered(category, showPush, isChatAvailable),
+        isOffered(category, showPush, isChatAvailable, isHackathonsAvailable),
       ).map((category) => {
         const selected = selectedChannels(draft, category, showPush);
         return (

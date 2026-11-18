@@ -5,7 +5,11 @@ import { id } from '@founders-coffee/core';
 
 import type { Db } from './db.js';
 import { createEvent } from './events.js';
-import { listCitiesWithUpcomingEvents } from './events-sitemap.js';
+import {
+  listCitiesWithUpcomingEvents,
+  listPublicEventSitemapRows,
+} from './events-sitemap.js';
+import { createHackathon, hackathonEventRow } from './hackathons.fixtures.js';
 import { user } from './schema.js';
 import { HOST_ID, setupDb } from './operations.fixtures.js';
 
@@ -106,5 +110,24 @@ describe('the cities the sitemap is allowed to advertise', () => {
       rows.filter((row) => row.marketCode === 'DZ'),
       'an empty answer is what collapses the sitemap from the atlas to the events',
     ).toEqual([]);
+  });
+});
+
+describe('hackathons in the sitemap (B-HKN-24)', () => {
+  it('lists a hackathon once it is approved and published, and never its draft', async () => {
+    const db = await setupDb();
+    const published = { ...hackathonEventRow(), hostId: HOST_ID };
+    const draft = {
+      ...hackathonEventRow(),
+      hostId: HOST_ID,
+      status: 'draft' as const,
+    };
+    await createHackathon(db, published);
+    await createHackathon(db, draft);
+
+    const slugs = (await listPublicEventSitemapRows(db)).map((row) => row.slug);
+
+    expect(slugs).toContain(published.slug);
+    expect(slugs).not.toContain(draft.slug);
   });
 });

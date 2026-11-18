@@ -8,6 +8,9 @@ import { AppError } from '@founders-coffee/core';
 import {
   account,
   createDb,
+  invitation,
+  member,
+  organization,
   session,
   user,
   verification,
@@ -19,13 +22,18 @@ import { captchaEndpointsFor } from './captcha.js';
 import { codeSendLimit, type CodeSendLimit } from './code-send-limit.js';
 import { nameForNewAccount, nameUnnamedMember } from './member-name.js';
 import {
+  organisationHttpPaths,
+  organisationPlugin,
+  type OrganisationInvitationSender,
+} from './organisations.js';
+import {
   forgetProviderTokens,
   withoutProviderPicture,
 } from './provider-data.js';
 import type { EmailProvider } from './providers/email.js';
 import { DevEmailProvider } from './providers/email.js';
 import type { SmsProvider } from './providers/sms.js';
-import { DevSmsProvider, TwilioVerifySmsProvider } from './providers/sms.js';
+import { smsProviderFromEnv } from './providers/sms-from-env.js';
 import { ac, roles } from './rbac.js';
 import { SOCIAL_PROVIDERS, socialCredentials } from './social-providers.js';
 
@@ -49,23 +57,8 @@ export interface AuthDeps {
   smsProvider?: SmsProvider;
   captchaBypassed?: boolean;
   codeSendLimit?: CodeSendLimit;
+  sendInvitationEmail?: OrganisationInvitationSender;
 }
-
-/**
- * Build an SmsProvider from auth env vars. Returns `DevSmsProvider` when Twilio
- * env vars are absent (dev + tests) or `TwilioVerifySmsProvider` when all three
- * vars are present.
- */
-export const smsProviderFromEnv = (env: AuthEnv): SmsProvider => {
-  if (env.TWILIO_SID && env.TWILIO_AID && env.TWILIO_SEC) {
-    return new TwilioVerifySmsProvider({
-      TWILIO_SID: env.TWILIO_SID,
-      TWILIO_AID: env.TWILIO_AID,
-      TWILIO_SEC: env.TWILIO_SEC,
-    });
-  }
-  return new DevSmsProvider();
-};
 
 const GUARDED_ACCOUNT_PATHS = [
   '/unlink-account',
@@ -142,11 +135,20 @@ export const createAuth = (env: AuthEnv, deps: AuthDeps = {}) => {
   const db = createDb(env.DB);
   const google = socialCredentials(env, 'google');
   const github = socialCredentials(env, 'github');
+  const organisations = organisationPlugin(deps.sendInvitationEmail);
 
   const auth = betterAuth({
     database: drizzleAdapter(db, {
       provider: 'sqlite',
-      schema: { user, session, account, verification },
+      schema: {
+        user,
+        session,
+        account,
+        verification,
+        organization,
+        member,
+        invitation,
+      },
     }),
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.APP_URL,
@@ -154,6 +156,7 @@ export const createAuth = (env: AuthEnv, deps: AuthDeps = {}) => {
     logger: { log: libraryLog('better-auth') },
     onAPIError: { onError: reportAuthFailure },
     emailAndPassword: { enabled: false },
+    disabledPaths: organisationHttpPaths(organisations),
     hooks: {
       before: createAuthMiddleware(async (context) => {
         if (context.path === '/update-user') {
@@ -281,6 +284,7 @@ export const createAuth = (env: AuthEnv, deps: AuthDeps = {}) => {
         allowedAttempts: 3,
       }),
       admin({ ac, roles, defaultRole: 'member', adminRoles: ['admin'] }),
+      organisations,
       tanstackStartCookies(),
     ],
   });

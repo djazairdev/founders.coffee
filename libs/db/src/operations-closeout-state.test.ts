@@ -70,6 +70,12 @@ describe('what the host may still close out', () => {
     expect(await idsFrom(db, [eventId])).toEqual([]);
   });
 
+  it('omits a draft', async () => {
+    const eventId = await pastEvent(db, { status: 'draft' });
+
+    expect(await idsFrom(db, [eventId])).toEqual([]);
+  });
+
   it('omits a gathering with no recorded end, which can never be closed out', async () => {
     const eventId = await pastEvent(db, { withEndsAt: false });
 

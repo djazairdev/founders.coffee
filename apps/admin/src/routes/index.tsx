@@ -3,7 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 
 import { title } from '@founders-coffee/i18n';
 
-import { LocaleToggle } from '../features/shell/LocaleToggle';
+import { AdminPage } from '../components/AdminPage';
+import { OperationsNav } from '../features/shell/OperationsNav';
 import { getOperatorStatus } from '../features/status/api';
 import { OperatorStatus } from '../features/status/OperatorStatus';
 
@@ -16,17 +17,14 @@ const Operations = () => {
   });
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-h3">{title({}, { locale })}</h1>
-        <LocaleToggle active={locale} />
-      </header>
+    <AdminPage heading={title({}, { locale })} isHome locale={locale}>
+      <OperationsNav locale={locale} />
       <OperatorStatus
         locale={locale}
         status={status.data}
         isError={status.isError}
       />
-    </main>
+    </AdminPage>
   );
 };
 

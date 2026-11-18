@@ -30,6 +30,7 @@ describe('FeedbackForm', () => {
     render(
       <FeedbackForm
         locale="en"
+        isHackathon={false}
         draft={draft}
         onChange={(changes) => {
           draft = { ...draft, ...changes };
@@ -51,6 +52,7 @@ const markupWith = (rating: FeedbackRating, option: string): string => {
   const { container } = render(
     <FeedbackForm
       locale="en"
+      isHackathon={false}
       draft={{ ...initial, rating }}
       onChange={() => undefined}
     />,
@@ -76,5 +78,32 @@ describe('the rating a reader has chosen', () => {
     expect(chosen).not.toEqual(
       markupWith('not_valuable', inEnglish(feedback_okay)),
     );
+  });
+
+  it('asks about the hackathon, not a meetup, when it is one', () => {
+    render(
+      <FeedbackForm
+        locale="en"
+        isHackathon
+        draft={{
+          rating: null,
+          wouldReturn: null,
+          comment: '',
+          commentLanguage: 'en',
+        }}
+        onChange={() => undefined}
+      />,
+    );
+
+    expect(
+      screen.getByRole('group', {
+        name: 'How useful was the hackathon for you?',
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole('group', {
+        name: 'Would you take part in a similar hackathon?',
+      }),
+    ).toBeTruthy();
   });
 });

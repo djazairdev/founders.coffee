@@ -2,6 +2,8 @@ import { eventLanguages, hasVenueMoved } from '@founders-coffee/core';
 import { events } from '@founders-coffee/domain';
 import type { EventDetailItem } from '@founders-coffee/server-fns';
 
+import { profile_link_invalid, type Locale } from '@founders-coffee/i18n';
+
 import type { MeetupLanguage, VenueSelection } from './types';
 
 const MAX_ADDRESS_LENGTH = 500;
@@ -16,6 +18,7 @@ export type EventEditDraft = {
   startsAt: number | null;
   endsAt: number | null;
   languages: MeetupLanguage[];
+  meetingUrl: string;
 };
 
 export type EventLocationPatch = {
@@ -37,7 +40,7 @@ export type EventLocationPatch = {
  * built from an unmoved pin is discarded before it reaches the wire.
  */
 export const storedPin = (event: EventDetailItem): VenueSelection | null =>
-  event.latitude !== null && event.longitude !== null
+  event.venue !== null && event.latitude !== null && event.longitude !== null
     ? {
         providerId: `event:${event.id}`,
         kind: 'address',
@@ -58,12 +61,13 @@ const storedLanguages = (event: EventDetailItem): MeetupLanguage[] => {
 export const draftFromEvent = (event: EventDetailItem): EventEditDraft => ({
   title: event.title,
   description: event.description,
-  venueName: event.venue,
+  venueName: event.venue ?? '',
   venue: storedPin(event),
   venueSearch: '',
   startsAt: new Date(event.startsAt).getTime(),
   endsAt: event.endsAt ? new Date(event.endsAt).getTime() : null,
   languages: storedLanguages(event),
+  meetingUrl: event.meetingLink ?? '',
 });
 
 /**
@@ -129,3 +133,42 @@ export const locationPatch = (
       : {}),
   };
 };
+
+export const editsVenue = (
+  event: EventDetailItem,
+): event is EventDetailItem & { cityCode: string } =>
+  events.hasVenue(event.format) && event.cityCode !== null;
+
+export const editsMeetingLink = (event: EventDetailItem): boolean =>
+  events.hasMeetingLink(event.format);
+
+/**
+ * What the meeting link field says is wrong, or null when the event has no link or its link is fine.
+ *
+ * The link was given when the event was published and the edit starts from it, so an empty field
+ * is a link the host deleted, and it is refused like any other link that does not work.
+ */
+export const meetingUrlProblem = (
+  event: EventDetailItem,
+  draft: EventEditDraft,
+  locale: Locale,
+): string | null =>
+  editsMeetingLink(event) &&
+  !events.eventMeetingUrlSchema.safeParse(draft.meetingUrl).success
+    ? profile_link_invalid({}, { locale })
+    : null;
+
+/**
+ * The place fields a save carries for the event's format: the venue's name and any move of its
+ * pin when it has a venue, and its meeting link when it has one. An online event sends no venue
+ * name at all, because the server refuses one on an event that takes place nowhere.
+ */
+export const placePatch = (event: EventDetailItem, draft: EventEditDraft) => ({
+  ...(editsVenue(event)
+    ? {
+        venueName: draft.venueName.trim(),
+        ...(locationPatch(event, draft) ?? {}),
+      }
+    : {}),
+  ...(editsMeetingLink(event) ? { meetingUrl: draft.meetingUrl.trim() } : {}),
+});

@@ -17,7 +17,9 @@ import {
   CSP_REPORT_PATH,
   handleCspReportRequest,
 } from '@founders-coffee/server-fns/csp-report-http';
+import { handleOrganisationLogoRequest } from '@founders-coffee/server-fns/organisation-logo-http';
 import { handleProfilePhotoRequest } from '@founders-coffee/server-fns/profile-photo-http';
+import { handleSubmissionScreenshotRequest } from '@founders-coffee/server-fns/submission-screenshot-http';
 import { allowSignInCode } from '@founders-coffee/server-fns/sign-in-code-limit';
 import type { ResponseLinkHeaderEntry } from '@tanstack/react-start/server';
 export { EventChatDO } from '@founders-coffee/server-fns/chat-room';
@@ -26,6 +28,7 @@ export { RateLimiterDO } from '@founders-coffee/server-fns/rate-limiter-do';
 import { createOtpEmailProvider } from './lib/auth-email.js';
 import {
   PRIVATE_DOCUMENT_CACHE_CONTROL,
+  isIndexableEnvironment,
   robotsBody,
   siteOriginFromEnv,
   withPrivateRouteHeaders,
@@ -204,14 +207,20 @@ export default {
     const clientLogs = handleClientLogsRequest(request, url);
     if (clientLogs) return secure(await clientLogs);
 
+    const logo = handleOrganisationLogoRequest(request, url);
+    if (logo) return logo;
     const photo = handleProfilePhotoRequest(request, url);
     if (photo) return secure(await photo);
+
+    const screenshot = handleSubmissionScreenshotRequest(request, url);
+    if (screenshot) return secure(await screenshot);
 
     if (url.pathname.startsWith('/api/auth/'))
       return secure(await authHandler(env)(request));
     return runWithContext(
       {
         cspNonce: nonce,
+        isSearchIndexable: isIndexableEnvironment(env),
         requestPath: url.pathname,
         siteOrigin: siteOriginFromEnv(env, url.origin),
       },
@@ -228,11 +237,9 @@ export default {
           request,
           await handler.fetch(request, requestOptions),
         );
-        return secure(
-          withPrivateRouteHeaders(
-            removeEarlyHintsFromResponse(response),
-            url.pathname,
-          ),
+        return withPrivateRouteHeaders(
+          secure(removeEarlyHintsFromResponse(response)),
+          url.pathname,
         );
       },
     );

@@ -87,16 +87,18 @@ export const Route = createFileRoute('/$locale/$market/host/create')({
     repeat: search.repeat,
   }),
   component: HostCreateRoute,
-  loader: async ({ params, deps, context }): Promise<HostCreateLoaderData> => {
+  beforeLoad: ({ params, search: { city, state, repeat }, context }) => {
     const byCode = context.markets.find(
       (listed) => listed.code === params.market.toUpperCase(),
     );
     if (byCode && byCode.slug !== params.market) {
       throw redirect({
         ...localizedHostCreate(context.locale, byCode.slug),
-        search: deps,
+        search: { city, state, repeat },
       });
     }
+  },
+  loader: async ({ params, deps }): Promise<HostCreateLoaderData> => {
     let market: Market;
     try {
       market = await eventsApi.getMarket({ data: { slug: params.market } });

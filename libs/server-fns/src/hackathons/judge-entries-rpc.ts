@@ -1,0 +1,121 @@
+import { createServerFn } from '@tanstack/react-start';
+
+import { appValidator, handleResult } from '@founders-coffee/core';
+import { hackathons } from '@founders-coffee/domain';
+
+import { requirePermission } from '../auth-middleware.js';
+import { requireAuth } from '../authz.js';
+import { getDb } from '../db.js';
+import { RATE_BUDGETS } from '../rate-budgets.js';
+import { rateLimit } from '../rate-limit.js';
+import { privateNoStore } from '../response-cache.js';
+import {
+  listJudgeEntriesResolver,
+  recuseFromEntryResolver,
+} from './judge-entries.js';
+import { judgeEntryPageResolver, judgePageResolver } from './judge-page.js';
+import { saveJudgeScoresResolver } from './judge-scores.js';
+
+const { hackathonRecusal, hackathonScoreSave } = RATE_BUDGETS.edit;
+
+/**
+ * The entries the signed-in judge reads (B-JDG-04). `judging:score` is every member's; whether
+ * they judge this hackathon is the resolver's to decide.
+ */
+export const getHackathonJudgeEntries = createServerFn({ strict: false })
+  .middleware([requirePermission('judging', 'score')])
+  .validator(appValidator(hackathons.judgeEntriesSchema))
+  .handler(({ context, data }) => {
+    privateNoStore();
+    return handleResult(
+      listJudgeEntriesResolver(getDb(), {
+        eventId: data.eventId,
+        userId: requireAuth(context.session).user.id,
+      }),
+    );
+  });
+
+/**
+ * The signed-in member's judge page for a hackathon (B-JDG-06): their entries and progress when
+ * they judge it and judging is open, and where judging stands otherwise.
+ */
+export const getHackathonJudgePage = createServerFn({ strict: false })
+  .middleware([requirePermission('judging', 'score')])
+  .validator(appValidator(hackathons.judgeEntriesSchema))
+  .handler(({ context, data }) => {
+    privateNoStore();
+    return handleResult(
+      judgePageResolver(getDb(), {
+        eventId: data.eventId,
+        userId: requireAuth(context.session).user.id,
+      }),
+    );
+  });
+
+/** One submission as the signed-in judge scores it (B-JDG-07). */
+export const getHackathonJudgeEntryPage = createServerFn({ strict: false })
+  .middleware([requirePermission('judging', 'score')])
+  .validator(appValidator(hackathons.judgeEntrySchema))
+  .handler(({ context, data }) => {
+    privateNoStore();
+    return handleResult(
+      judgeEntryPageResolver(getDb(), {
+        ...data,
+        userId: requireAuth(context.session).user.id,
+      }),
+    );
+  });
+
+/**
+ * Recuse the signed-in judge from an entry with a reason (B-JDG-04), within a budget of its own.
+ * Authenticated, so no Turnstile.
+ */
+export const recuseFromHackathonEntry = createServerFn({
+  method: 'POST',
+  strict: false,
+})
+  .middleware([
+    requirePermission('judging', 'score'),
+    rateLimit(
+      hackathonRecusal.action,
+      hackathonRecusal.limit,
+      hackathonRecusal.windowMs,
+    ),
+  ])
+  .validator(appValidator(hackathons.recusalSchema))
+  .handler(({ context, data }) => {
+    privateNoStore();
+    return handleResult(
+      recuseFromEntryResolver(getDb(), {
+        ...data,
+        userId: requireAuth(context.session).user.id,
+      }),
+    );
+  });
+
+/**
+ * Save the signed-in judge's scores for one entry (B-JDG-05), within a budget of its own. Saving
+ * again changes them, until the results are published. Authenticated, so no Turnstile.
+ */
+export const saveHackathonScores = createServerFn({
+  method: 'POST',
+  strict: false,
+})
+  .middleware([
+    requirePermission('judging', 'score'),
+    rateLimit(
+      hackathonScoreSave.action,
+      hackathonScoreSave.limit,
+      hackathonScoreSave.windowMs,
+    ),
+  ])
+  .validator(appValidator(hackathons.judgeScoresSchema))
+  .handler(({ context, data }) => {
+    privateNoStore();
+    return handleResult(
+      saveJudgeScoresResolver(getDb(), {
+        ...data,
+        userId: requireAuth(context.session).user.id,
+      }),
+    );
+  });

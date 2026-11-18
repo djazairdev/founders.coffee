@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
+import type { EventFormat, Topic } from '@founders-coffee/core';
 import type { Locale } from '@founders-coffee/i18n';
 
 import {
@@ -10,7 +11,7 @@ import {
 import { repeatDraftFrom } from './host-create-repeat';
 import { restoredDraftStep } from './host-create-validation';
 import type { RepeatEventTemplate } from './api';
-import type { MeetupLanguage, VenueSelection } from './types';
+import type { HostEventKind, MeetupLanguage, VenueSelection } from './types';
 
 /**
  * The half-written meetup itself: every field the wizard collects, restored on arrival and saved
@@ -30,10 +31,12 @@ import type { MeetupLanguage, VenueSelection } from './types';
 export const useHostCreateDraftState = ({
   locale,
   marketCode,
+  cityCode,
   repeatTemplate,
 }: {
   locale: Locale;
   marketCode: string;
+  cityCode?: string;
   repeatTemplate?: RepeatEventTemplate | null;
 }) => {
   const [step, setStep] = useState(1);
@@ -44,13 +47,20 @@ export const useHostCreateDraftState = ({
   const [endsAt, setEndsAt] = useState<number | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [kind, setKind] = useState<HostEventKind>('meetup');
   const [chosenLanguages, setChosenLanguages] = useState<
     MeetupLanguage[] | null
   >(null);
+  const [hostAs, setHostAs] = useState<string | null>(null);
+  const [tags, setTags] = useState<Topic[]>([]);
+  const [format, setFormat] = useState<EventFormat>('in_person');
+  const [meetingUrl, setMeetingUrl] = useState('');
   const [hasRestoredDraft, setHasRestoredDraft] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
   const repeat =
     repeatTemplate?.marketCode === marketCode ? repeatTemplate : null;
+  const cityCodeRef = useRef(cityCode);
+  cityCodeRef.current = cityCode;
 
   const draft: HostCreateDraft = {
     step,
@@ -61,7 +71,12 @@ export const useHostCreateDraftState = ({
     endsAt,
     title,
     description,
+    kind,
     chosenLanguages,
+    hostAs,
+    tags,
+    format,
+    meetingUrl,
   };
 
   useEffect(() => {
@@ -73,14 +88,19 @@ export const useHostCreateDraftState = ({
       setEndsAt(next.endsAt);
       setTitle(next.title);
       setDescription(next.description);
+      setKind(next.kind);
       setChosenLanguages(next.chosenLanguages);
+      setHostAs(next.hostAs);
+      setTags(next.tags);
+      setFormat(next.format);
+      setMeetingUrl(next.meetingUrl);
     };
     setIsRepeat(repeat !== null);
     const restored = repeat
       ? readHostCreateDraft(marketCode, repeat.sourceEventId)
       : readHostCreateDraft(marketCode);
     if (restored) {
-      setStep(restoredDraftStep(restored, locale));
+      setStep(restoredDraftStep(restored, cityCodeRef.current, locale));
       apply(restored);
     } else if (repeat) {
       const repeated = repeatDraftFrom(repeat);
@@ -103,7 +123,12 @@ export const useHostCreateDraftState = ({
         endsAt,
         title,
         description,
+        kind,
         chosenLanguages,
+        hostAs,
+        tags,
+        format,
+        meetingUrl,
       },
       repeat?.sourceEventId,
     );
@@ -119,7 +144,12 @@ export const useHostCreateDraftState = ({
     endsAt,
     title,
     description,
+    kind,
     chosenLanguages,
+    hostAs,
+    tags,
+    format,
+    meetingUrl,
   ]);
 
   return {
@@ -133,6 +163,11 @@ export const useHostCreateDraftState = ({
     setEndsAt,
     setTitle,
     setDescription,
+    setKind,
     setChosenLanguages,
+    setHostAs,
+    setTags,
+    setFormat,
+    setMeetingUrl,
   };
 };

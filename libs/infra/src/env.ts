@@ -11,6 +11,7 @@ export interface WorkerEnv {
   readonly EMAIL?: unknown;
   readonly ANALYTICS?: AnalyticsEngineDataset;
   readonly PROFILE_ASSETS?: R2Bucket;
+  readonly SUBMISSION_ASSETS?: R2Bucket;
   readonly IMAGES?: ImagesBinding;
 
   readonly APP_URL?: string;

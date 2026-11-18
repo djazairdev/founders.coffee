@@ -28,8 +28,24 @@ type EventRouteData = EventPage & {
 };
 
 const EventRoute = () => {
-  const { locale, market, event, host, viewerId, mapboxToken } =
-    Route.useLoaderData();
+  const {
+    locale,
+    market,
+    event,
+    host,
+    viewerId,
+    mapboxToken,
+    hackathon,
+    tracks,
+    prizes,
+    rules,
+    judges,
+    mentors,
+    workshops,
+    results,
+    registration,
+    organisations,
+  } = Route.useLoaderData();
   useReloadOnMemberChange();
   const isHost = viewerId === event.hostId;
   const isWindowOpen =
@@ -53,6 +69,23 @@ const EventRoute = () => {
         isWindowOpen={isWindowOpen}
         phase={phase}
         mapboxToken={mapboxToken}
+        hackathon={hackathon}
+        organisations={organisations}
+        canReport={viewerId !== null}
+        details={
+          rules
+            ? {
+                tracks,
+                prizes,
+                rules,
+                judges,
+                mentors,
+                workshops,
+                results,
+                registration,
+              }
+            : null
+        }
       />
       {viewerId && isWindowOpen && isAttending && !live.notAttending && (
         <LiveDashboard live={live} currentUserId={viewerId} locale={locale} />
@@ -66,7 +99,7 @@ export const Route = createFileRoute('/$locale/$market/e/$slug')({
     chat: z.literal(true).optional().catch(undefined),
   }),
   component: EventRoute,
-  loader: async ({ params, context }): Promise<EventRouteData> => {
+  beforeLoad: ({ params, context }) => {
     const market = context.markets.find(
       (listed) => listed.slug === params.market,
     );
@@ -77,10 +110,13 @@ export const Route = createFileRoute('/$locale/$market/e/$slug')({
       if (!byCode) throw notFound();
       throw redirect(localizedEvent(context.locale, byCode.slug, params.slug));
     }
+    return { eventMarket: market };
+  },
+  loader: async ({ params, context }): Promise<EventRouteData> => {
     try {
       const [page, mapboxToken] = await Promise.all([
         getEventPage({
-          data: { marketCode: market.code, slug: params.slug },
+          data: { marketCode: context.eventMarket.code, slug: params.slug },
         }),
         getMapboxToken().catch(() => null),
       ]);
@@ -105,7 +141,7 @@ export const Route = createFileRoute('/$locale/$market/e/$slug')({
       slug: loaderData.event.slug,
       locale: loaderData.locale,
     });
-    const citySlug = loaderData.event.citySlug ?? loaderData.event.cityCode;
+    const citySlug = loaderData.event.citySlug;
     const marketName = localizedName(loaderData.market, loaderData.locale);
     const head = eventPageHead({
       locale: loaderData.locale,
@@ -113,7 +149,8 @@ export const Route = createFileRoute('/$locale/$market/e/$slug')({
       eventId: loaderData.event.id,
       version: loaderData.event.version,
       title: loaderData.event.title,
-      cityName,
+      kind: loaderData.event.kind,
+      cityName: cityName ?? marketName,
       description: loaderData.event.description,
       route: {
         type: 'event',
@@ -129,6 +166,7 @@ export const Route = createFileRoute('/$locale/$market/e/$slug')({
         createdAt: loaderData.event.createdAt,
         timezone: loaderData.market.timezone,
         status: loaderData.event.status,
+        format: loaderData.event.format,
         venue: loaderData.event.venue,
         cityName,
         regionName: eventRegionName(loaderData.event, loaderData.locale),
@@ -145,6 +183,20 @@ export const Route = createFileRoute('/$locale/$market/e/$slug')({
               url: `${getSiteOrigin()}/${loaderData.locale}/u/${encodeURIComponent(loaderData.host.userId)}`,
             }
           : null,
+        organisations: loaderData.organisations.map(({ name, slug }) => ({
+          name,
+          url: canonicalUrl({
+            type: 'organisation',
+            slug,
+            locale: loaderData.locale,
+          }),
+        })),
+        registration: loaderData.hackathon
+          ? {
+              opensAt: new Date(loaderData.hackathon.registrationOpensAt),
+              closesAt: new Date(loaderData.hackathon.registrationClosesAt),
+            }
+          : null,
       },
       breadcrumbs: [
         {
@@ -155,15 +207,19 @@ export const Route = createFileRoute('/$locale/$market/e/$slug')({
             locale: loaderData.locale,
           }),
         },
-        {
-          name: cityName,
-          url: canonicalUrl({
-            type: 'city',
-            market: loaderData.market.slug,
-            city: citySlug,
-            locale: loaderData.locale,
-          }),
-        },
+        ...(cityName && citySlug
+          ? [
+              {
+                name: cityName,
+                url: canonicalUrl({
+                  type: 'city' as const,
+                  market: loaderData.market.slug,
+                  city: citySlug,
+                  locale: loaderData.locale,
+                }),
+              },
+            ]
+          : []),
         { name: loaderData.event.title, url: eventUrl },
       ],
     });

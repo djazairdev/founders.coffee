@@ -19,15 +19,18 @@ const landing = (
   options: {
     readonly markets?: readonly MarketReference[];
     readonly query?: string;
+    readonly hackathonsEnabled?: boolean;
+    readonly marketName?: string;
   } = {},
 ) =>
   runWithContext({ siteOrigin: ORIGIN }, () =>
     marketPageHead({
       locale,
-      marketName: market.slug,
+      marketName: options.marketName ?? market.slug,
       marketCode: market.code,
       markets: options.markets ?? MARKETS,
       defaultMarket: 'algeria',
+      hackathonsEnabled: options.hackathonsEnabled,
       route: {
         type: 'market',
         market: market.slug,
@@ -82,6 +85,7 @@ describe('market landing page metadata', () => {
           property: 'og:image',
           content: 'https://founders.coffee/social/founders-coffee-default.png',
         },
+        { property: 'og:image:type', content: 'image/png' },
         { property: 'og:image:width', content: '1200' },
         { property: 'og:image:height', content: '630' },
         {
@@ -100,6 +104,93 @@ describe('market landing page metadata', () => {
       mainEntity: {
         itemListElement: [{ name: 'Founders breakfast', position: 1 }],
       },
+    });
+  });
+
+  it('uses the Arabic hackathon discovery title and description when enabled', () => {
+    const head = landing(ALGERIA, 'ar', {
+      hackathonsEnabled: true,
+      marketName: 'الجزائر',
+    });
+
+    expect(head.meta).toContainEqual({
+      title: 'هاكاثونات وفعاليات تقنية في الجزائر | Founders Coffee',
+    });
+    expect(head.meta).toContainEqual({
+      name: 'description',
+      content:
+        'اكتشف هاكاثونات ولقاءات تجمع الطلاب والمطورين ورواد الأعمال في الجزائر. نظّم فعاليات ناديك الطلابي، انشرها وأدر التسجيل والمشاركة مجانًا.',
+    });
+    expect(head.meta).toContainEqual({
+      property: 'og:title',
+      content: 'هاكاثونات وفعاليات تقنية في الجزائر | Founders Coffee',
+    });
+    expect(head.meta).toContainEqual({
+      name: 'twitter:description',
+      content:
+        'اكتشف هاكاثونات ولقاءات تجمع الطلاب والمطورين ورواد الأعمال في الجزائر. نظّم فعاليات ناديك الطلابي، انشرها وأدر التسجيل والمشاركة مجانًا.',
+    });
+    expect(head.meta).toContainEqual({
+      name: 'robots',
+      content: 'index,follow, max-image-preview:large',
+    });
+    expect(head.links).toContainEqual({
+      rel: 'canonical',
+      href: 'https://founders.coffee/ar/algeria',
+    });
+    expect(JSON.parse(head.scripts[0]?.children ?? '{}')).toMatchObject({
+      '@type': 'CollectionPage',
+      name: 'هاكاثونات وفعاليات تقنية في الجزائر | Founders Coffee',
+      description:
+        'اكتشف هاكاثونات ولقاءات تجمع الطلاب والمطورين ورواد الأعمال في الجزائر. نظّم فعاليات ناديك الطلابي، انشرها وأدر التسجيل والمشاركة مجانًا.',
+    });
+    expect(JSON.stringify(head)).not.toContain('2026-09-30');
+  });
+
+  it.each([
+    ['en', 'Algeria'],
+    ['fr', 'Algérie'],
+  ] as const)(
+    'keeps the %s hackathon description complete within the search snippet limit',
+    (locale, marketName) => {
+      const head = landing(ALGERIA, locale, {
+        hackathonsEnabled: true,
+        marketName,
+      });
+      const description = head.meta.find(
+        (item) => 'name' in item && item.name === 'description',
+      );
+
+      expect(description && 'content' in description).toBe(true);
+      if (!description || !('content' in description) || !description.content)
+        return;
+      expect(Array.from(description.content).length).toBeLessThanOrEqual(160);
+      expect(description.content).not.toContain('…');
+    },
+  );
+
+  it('keeps the new image preview directive while preserving staging noindex', () => {
+    const head = runWithContext(
+      { siteOrigin: 'https://staging.founders.coffee' },
+      () =>
+        marketPageHead({
+          locale: 'ar',
+          marketName: 'الجزائر',
+          marketCode: 'DZ',
+          markets: MARKETS,
+          defaultMarket: 'algeria',
+          hackathonsEnabled: true,
+          route: { type: 'market', market: 'algeria', locale: 'ar' },
+        }),
+    );
+
+    expect(head.meta).toContainEqual({
+      name: 'robots',
+      content: 'noindex, nofollow, max-image-preview:large',
+    });
+    expect(head.links).toContainEqual({
+      rel: 'canonical',
+      href: 'https://staging.founders.coffee/ar/algeria',
     });
   });
 

@@ -10,6 +10,7 @@ const PREVIEW_ORIGIN =
   'https://founders-coffee-ui-staging.yagoub-2-amine.workers.dev';
 
 const data: SitemapData = {
+  projects: [],
   markets: [{ slug: 'algeria' }],
   cities: [{ market: 'algeria', city: 'algiers' }],
   events: [
@@ -19,6 +20,8 @@ const data: SitemapData = {
       updatedAt: new Date('2026-09-13T08:00:00.000Z'),
     },
   ],
+  organisations: [],
+  profiles: [{ userId: 'usr_listed' }],
 };
 
 describe('llms discovery guide', () => {

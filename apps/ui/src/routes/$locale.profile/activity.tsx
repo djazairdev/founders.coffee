@@ -3,13 +3,20 @@ import { createFileRoute } from '@tanstack/react-router';
 import { activity } from '@founders-coffee/i18n';
 
 import { ActivityPage } from '../../features/events/components/ActivityPage';
+import { MyOrganisationsLinks } from '../../features/organisations/components/MyOrganisationsLinks';
 import { NO_INDEX_VALUE } from '../../lib/indexation';
 import { requireSession } from '../../features/auth/require-session';
 import { privatePageHead } from '../../lib/seo-private';
 
 const ActivityRoute = () => {
   const { locale, markets } = Route.useRouteContext();
-  return <ActivityPage locale={locale} markets={markets} />;
+  return (
+    <ActivityPage
+      locale={locale}
+      markets={markets}
+      organisations={<MyOrganisationsLinks locale={locale} />}
+    />
+  );
 };
 
 export const Route = createFileRoute('/$locale/profile/activity')({

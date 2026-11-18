@@ -5,6 +5,9 @@
   "prefix": "founders-coffee",
   "tags": ["type:app", "domain:dashboard", "layer:app-ui"],
   "targets": {
+    "build": {
+      "outputs": ["{projectRoot}/dist"]
+    },
     "typecheck": {
       "executor": "nx:run-commands",
       "dependsOn": [

@@ -1,7 +1,5 @@
-import { eq } from 'drizzle-orm';
-
 import type { Db } from './db.js';
-import { markets } from './schema.js';
+import { marketFlagEnabled } from './market-flags.js';
 
 /**
  * Whether community operations are switched on for this market.
@@ -19,14 +17,7 @@ import { markets } from './schema.js';
  * the feature they oversee is switched off, because the reason to switch it off may be the reason
  * they are needed.
  */
-export const communityOperationsEnabled = async (
+export const communityOperationsEnabled = (
   db: Db,
   marketCode: string,
-): Promise<boolean> => {
-  const rows = await db
-    .select({ flags: markets.featureFlags })
-    .from(markets)
-    .where(eq(markets.code, marketCode))
-    .limit(1);
-  return rows[0]?.flags?.communityOperations === true;
-};
+): Promise<boolean> => marketFlagEnabled(db, marketCode, 'communityOperations');

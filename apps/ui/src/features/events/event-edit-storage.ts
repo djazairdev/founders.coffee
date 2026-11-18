@@ -5,7 +5,7 @@ import { profile } from '@founders-coffee/domain';
 
 import type { EventEditDraft } from './event-edit-draft';
 
-const KEPT_EDIT_VERSION = 1;
+const KEPT_EDIT_VERSION = 2;
 const KEPT_EDIT_MAX_AGE_MS = 24 * 60 * 60_000;
 
 const keptVenueSchema = z.object({
@@ -32,6 +32,7 @@ const keptEditSchema = z.object({
   languages: z
     .array(profile.spokenLanguageSchema)
     .max(profile.SPOKEN_LANGUAGES.length),
+  meetingUrl: z.string().max(2048),
 });
 
 const keptEditKey = (eventId: string): string => `fc:event-edit:${eventId}`;
@@ -74,6 +75,7 @@ export const readEventEditDraft = (
       startsAt: parsed.data.startsAt,
       endsAt: parsed.data.endsAt,
       languages: parsed.data.languages,
+      meetingUrl: parsed.data.meetingUrl,
     };
   } catch {
     return null;

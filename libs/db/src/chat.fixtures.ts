@@ -8,7 +8,7 @@ import {
   type ChatUnreadNotice,
 } from './chat-unread.js';
 import type { Db } from './db.js';
-import { createEventIfRouteAvailable } from './events.js';
+import { createEventIfRouteAvailable } from './events-publish.js';
 import { initializeMemberProfile } from './member-profiles.js';
 import { createRsvp } from './rsvps.js';
 import { HOST_ID } from './rsvps.fixtures.js';

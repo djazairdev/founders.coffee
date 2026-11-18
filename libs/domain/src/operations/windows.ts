@@ -11,6 +11,8 @@ export const CLOSEOUT_PROMPT_BACKFILL_WINDOW_MS = 14 * DAY_MS;
 export const DID_NOT_HAPPEN_BACKFILL_WINDOW_MS = 3 * DAY_MS;
 export const FEEDBACK_INVITE_WITHIN_MS = 7 * DAY_MS;
 export const FEEDBACK_CLOSES_AFTER_MS = 14 * DAY_MS;
+export const FOLLOW_UP_WEEK_AFTER_RESULTS_MS = 7 * DAY_MS;
+export const FOLLOW_UP_MONTH_AFTER_RESULTS_MS = 30 * DAY_MS;
 
 export type EventTiming = {
   readonly endsAt: number | null;
@@ -25,12 +27,12 @@ export type EventTiming = {
  * admin attention state instead. Inferring a duration from `startsAt` would manufacture the exact
  * evidence this plan exists to stop manufacturing.
  *
- * A cancelled event is never closed out. Its outcome is already recorded in its publication status,
+ * Only a published event is closed out: a draft never took place, and a cancelled one is never closed out. Its outcome is already recorded in its publication status,
  * and a `did_not_happen` closeout on top of it would double-count the same fact in reliability
  * reporting.
  */
 export const canCloseOut = (event: EventTiming, now: number): boolean =>
-  event.endsAt !== null && event.status !== 'cancelled' && now >= event.endsAt;
+  event.endsAt !== null && event.status === 'published' && now >= event.endsAt;
 
 /**
  * Whether an event should be nagging someone.
@@ -46,7 +48,7 @@ export const isCloseoutOverdue = (
 ): boolean =>
   !hasCloseout &&
   event.endsAt !== null &&
-  event.status !== 'cancelled' &&
+  event.status === 'published' &&
   now - event.endsAt > CLOSEOUT_OVERDUE_AFTER_MS;
 
 /**

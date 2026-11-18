@@ -34,6 +34,7 @@ import { localizedLogin } from '../../lib/locale-routing';
 import { AttendeeLiveActions } from './AttendeeLiveActions';
 import { CalendarChatActions } from './CalendarChatActions';
 import { HostEventPanel } from './HostEventPanel';
+import { OrganiserRepeatLink } from './OrganiserRepeatLink';
 import { RsvpCancelDialog } from './RsvpCancelDialog';
 
 export type RsvpSectionProps = {
@@ -229,6 +230,18 @@ export const RsvpSection = ({
           isOver={isCancelled || phase === 'ended'}
           isCalendarOffered={isOpen}
           isChatAvailable={isChatAvailable}
+        />
+      ) : null}
+
+      {isAuthenticated &&
+      !isCancelled &&
+      phase === 'ended' &&
+      event.cityCode ? (
+        <OrganiserRepeatLink
+          eventId={event.id}
+          cityCode={event.cityCode}
+          marketSlug={marketSlug}
+          locale={locale}
         />
       ) : null}
 

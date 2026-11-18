@@ -16,6 +16,8 @@ export const CREATED_EVENT = {
 
 const hostCreateMocks = vi.hoisted(() => ({
   mutateAsync: vi.fn(),
+  organisationMutateAsync: vi.fn(),
+  myOrganisations: [] as unknown[],
   navigate: vi.fn(),
   routerInvalidate: vi.fn(),
   invalidateCreatedEvent: vi.fn(),
@@ -54,6 +56,7 @@ export const getHostCreateMocks = () => hostCreateMocks;
  */
 const applyDefaultHostCreateMocks = () => {
   hostCreateMocks.mutateAsync.mockResolvedValue(CREATED_EVENT);
+  hostCreateMocks.organisationMutateAsync.mockResolvedValue(CREATED_EVENT);
   hostCreateMocks.sendVerificationOtp.mockResolvedValue({ error: null });
   hostCreateMocks.signInEmailOtp.mockResolvedValue({ error: null });
   hostCreateMocks.invalidateCreatedEvent.mockResolvedValue(undefined);
@@ -129,6 +132,9 @@ vi.mock('../../features/auth/hooks', () => ({
 
 vi.mock('../../features/events/hooks', () => ({
   useCreateEvent: () => ({ mutateAsync: hostCreateMocks.mutateAsync }),
+  useCreateOrganisationEvent: () => ({
+    mutateAsync: hostCreateMocks.organisationMutateAsync,
+  }),
   useInvalidateCreatedEvent: () => hostCreateMocks.invalidateCreatedEvent,
   useHostMapContext: () => hostCreateMocks.mapContext,
   useIsLocatingVenue: () => hostCreateMocks.isLocatingVenue,
@@ -143,6 +149,10 @@ vi.mock('../../features/events/hooks', () => ({
     isFetching: false,
     refetch: vi.fn(),
   }),
+}));
+
+vi.mock('../../features/organisations/hooks', () => ({
+  useMyOrganisations: () => ({ data: hostCreateMocks.myOrganisations }),
 }));
 
 vi.mock('../../features/geo/hooks', () => ({
@@ -244,6 +254,7 @@ export const resetHostCreateFixtures = () => {
   window.history.replaceState({}, '', '/');
   hostCreateMocks.isAuthenticated = true;
   hostCreateMocks.isLoading = false;
+  hostCreateMocks.myOrganisations = [];
   vi.clearAllMocks();
   applyDefaultHostCreateMocks();
 };

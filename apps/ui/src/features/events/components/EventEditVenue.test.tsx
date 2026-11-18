@@ -68,6 +68,9 @@ const event = {
   venueAddress: '12 Rue des Entrepreneurs, Alger',
   slug: 'founders-breakfast',
   status: 'published',
+  kind: 'meetup',
+  tags: [],
+  format: 'in_person',
   version: 3,
   createdAt: new Date('2026-09-01T00:00:00Z'),
   updatedAt: new Date('2026-09-01T00:00:00Z'),
@@ -82,9 +85,14 @@ const event = {
   stateName: 'Alger',
   stateNameAr: 'الجزائر',
   stateNameFr: 'Alger',
+  meetingLink: null,
+  runBy: { kind: 'community' },
 } satisfies EventDetailItem;
 
-const show = (locale: Locale = 'en', item: EventDetailItem = event) =>
+const show = (
+  locale: Locale = 'en',
+  item: EventDetailItem & { cityCode: string } = event,
+) =>
   render(
     <EventEditVenue
       locale={locale}

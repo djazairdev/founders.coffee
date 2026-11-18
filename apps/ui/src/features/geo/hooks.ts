@@ -50,3 +50,22 @@ export const useCitySuggestions = (
     placeholderData: keepPreviousData,
     staleTime: 60_000,
   });
+
+/** A market's states, for a form that asks for a state and then one of its cities. */
+export const useMarketStates = (marketCode: string) =>
+  useQuery<readonly geo.GeoState[]>({
+    queryKey: ['geo', 'states', marketCode],
+    queryFn: () => geoApi.getStates({ data: { country: marketCode } }),
+    enabled: marketCode.length > 0,
+    staleTime: Infinity,
+  });
+
+/** The cities of one state, asked for once a state is chosen. */
+export const useStateCities = (marketCode: string, stateCode: string) =>
+  useQuery<readonly geo.GeoCity[]>({
+    queryKey: ['geo', 'cities', marketCode, stateCode],
+    queryFn: () =>
+      geoApi.getCities({ data: { country: marketCode, state: stateCode } }),
+    enabled: marketCode.length > 0 && stateCode.length > 0,
+    staleTime: Infinity,
+  });

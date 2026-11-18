@@ -1,3 +1,4 @@
+import { privacyHackathonsEnglish } from './legal-en-privacy-hackathons';
 import {
   list,
   section,
@@ -37,9 +38,9 @@ export const privacyEnglish: CompanyPageContent = translatedPage(
       ),
       subheading('Profile'),
       ...text(
-        'Your profile can include an introduction about you, what you are building and its stage, your interests, your languages, your professional link, and your photo.',
-        'Your name, photo, introduction, the month you joined, and the number of gatherings you hosted appear on your public profile. What you are building and its stage, your interests, languages, professional link, and the number of gatherings you attended appear only if you publish them.',
-        'Each optional field has its own visibility switch and starts hidden. You can delete your photo and introduction at any time. Your public profile is open to anyone with its link, and profile pages ask search engines not to index them.',
+        'Your profile can include an introduction about you, what you are building and its stage, your interests, your languages, your skills, your links (GitHub, LinkedIn, and a website), the opportunities you are open to (jobs, internships, co-founding), and your photo.',
+        'Your name, photo, introduction, the month you joined, and the number of gatherings you hosted appear on your public profile. What you are building and its stage, your interests, languages, skills, links, the opportunities you are open to, and the number of gatherings you attended appear only if you publish them.',
+        'Each optional field has its own visibility switch and starts hidden. You can delete your photo and introduction at any time. Your public profile is open to anyone with its link. Profile pages ask search engines not to index them unless you turn on the search engines switch, which also starts off. While it is on, your profile page is listed in our sitemap and search engines may show it in their results, with only what you published on it. If you turn it off, the page asks them again not to index it and leaves the sitemap; a search engine may take a few days to drop a copy it already holds.',
       ),
       subheading('Gatherings and RSVPs'),
       ...text(
@@ -67,16 +68,16 @@ export const privacyEnglish: CompanyPageContent = translatedPage(
       ...text(
         'For each login session we store your **IP address**, browser description, and session expiry. We also keep technical logs of requests to our server.',
         'The purpose is limited to three things: keeping you signed in, detecting unauthorised sign-in attempts and abuse, and diagnosing faults.',
-        'We also use a human-verification service when you sign in and when you join a city waitlist; it receives your IP address for that purpose only.',
+        'We also use a human-verification service when you sign in, when you join a city waitlist, and when you ask to be told when hackathon registration opens; it receives your IP address for that purpose only.',
         'Every page also runs a Cloudflare script that detects automated programs: it examines technical characteristics of your browser and sets a security cookie, as detailed in the [Cookie policy](/cookies).',
         'We measure platform use with aggregate server counters (number of requests, gatherings published, failure rates), which are not attributed to anyone.',
         'We also use **Cloudflare Web Analytics** to measure visits: every page loads a script that sends Cloudflare the page address, the address of the page you came from, and load-speed measurements, along with your IP address and a description of your browser and device, as with any connection. We only see aggregate figures from it; it sets no cookie and does not recognise you from one visit to the next. **We do not use advertising trackers, and we do not sell data to anyone.**',
       ),
       subheading('Maps and place search'),
       ...text(
-        'The platform shows maps through **Mapbox** when you create a gathering or edit its venue, and on the page of a gathering with a venue. Your browser loads the map directly from Mapbox, which therefore receives your IP address, a description of your browser, and the area the map shows. The page of a gathering shows the map as a picture and does not load the map library. When you create a gathering or edit its venue, the map library also stores a random identifier in your browser and sends it to Mapbox with technical usage data that Mapbox uses to count use of its service; Mapbox processes that data under its own privacy policy.',
+        'The platform shows maps through **Mapbox** when you create a gathering or a hackathon or edit a gathering’s venue, and on the page of a gathering with a venue. Your browser loads the map directly from Mapbox, which therefore receives your IP address, a description of your browser, and the area the map shows. The page of a gathering shows the map as a picture and does not load the map library. When you create a gathering or a hackathon, or edit a gathering’s venue, the map library also stores a random identifier in your browser and sends it to Mapbox with technical usage data that Mapbox uses to count use of its service; Mapbox processes that data under its own privacy policy.',
         'When you search for a venue or pick a point on the map, our server sends your search text or the point’s position, with the area being shown, to Mapbox to find matching places. We do not send your name or email with it.',
-        'If you press “Locate me” on the map where you choose a gathering’s venue, your browser gives the page your location, if you allow it to, and the map moves there. Your browser then loads the map of that area from Mapbox and sends the map’s centre to our server so we can show you the places near it, as happens when you move the map yourself. We ask for your location only when you press the button, and we do not save it to your account.',
+        'If you press “Locate me” on the map where you choose the venue of a gathering or a hackathon, your browser gives the page your location, if you allow it to, and the map moves there. Your browser then loads the map of that area from Mapbox and sends the map’s centre to our server so we can show you the places near it, as happens when you move the map yourself. We ask for your location only when you press the button, and we do not save it to your account.',
       ),
       ...text(
         'We also count landing, city and gathering views, hosting and RSVP actions, and use of sharing buttons. These first-party action records contain only action type, market, city code, language and validated campaign codes. They contain no account or visitor identifier, IP address, full URL or message text, and use no tracking cookies or browser storage. We suppress these reports when your browser sends Do Not Track or Global Privacy Control. Successful hosting and RSVP actions are counted after they are saved. Sharing-button use does not prove someone received the link. Community health reports use existing private attendance and closeout records and expose aggregates only.',
@@ -90,12 +91,18 @@ export const privacyEnglish: CompanyPageContent = translatedPage(
         'If you search for a city that has no upcoming gatherings, you can leave your email so we can tell you when its next gathering is published. We store the email, city, language, and request date, and do not require an account.',
         'This email is used for that purpose only: one notice when the city’s next gathering is published. It is not added to a marketing list or used for anything you did not ask for.',
       ),
+      subheading('Hackathon registration alert'),
+      ...text(
+        'If you ask to be told when registration opens for the first founders.coffee hackathon, we store your email, the country page you asked from, your language, and the request date. You do not need an account.',
+        'This email is used for that purpose only: one message when registration opens. It is not added to a marketing list or used for anything you did not ask for.',
+      ),
     ]),
+    privacyHackathonsEnglish,
     section('Legal basis for processing', [
       ...text('Each processing activity relies on a basis the law recognises:'),
       list([
         '**Performance of our contract:** your account, your public profile (your name, your photo and introduction if you add them, the month you joined, and the number of gatherings you hosted), publishing gatherings, RSVPs, the gathering chat, and reminders and alerts about a gathering you joined. These are not extra services but the core of what you signed up for.',
-        '**Your explicit consent:** publishing the optional profile fields that each have a visibility switch, enabling push or SMS notifications, and joining a city waitlist. You can withdraw consent at any time; withdrawal does not affect the lawfulness of what was done before.',
+        '**Your explicit consent:** publishing the optional profile fields that each have a visibility switch, enabling push or SMS notifications, joining a city waitlist, and asking to be told when hackathon registration opens. You can withdraw consent at any time; withdrawal does not affect the lawfulness of what was done before.',
         '**Legitimate interest:** platform security, abuse prevention and the review of reports, measuring platform use with aggregate figures not attributed to anyone, and attendance records as a way to protect the community from fake gatherings. We have balanced this interest against your rights, which is why we do not show attendance records publicly and let you correct them.',
         '**Legal obligation:** when a law requires us to retain or provide data.',
       ]),
@@ -161,6 +168,34 @@ export const privacyEnglish: CompanyPageContent = translatedPage(
           [
             'City waitlist email',
             'Until the notice is sent, then **12 months**, or immediately on request',
+          ],
+          [
+            'Hackathon registration alert email',
+            'Until registration opens and the message is sent, then **12 months**, or immediately on request',
+          ],
+          [
+            'Hackathon registrations and places on teams or as a mentor',
+            'While the account exists, then deleted within **30 days** of closure',
+          ],
+          [
+            'Skills entered when registering for a hackathon',
+            'Cleared **12 months** after the hackathon ends',
+          ],
+          [
+            'Team invite links and requests to join',
+            'Deleted **30 days** after the hackathon ends',
+          ],
+          [
+            'Submissions, scores and published results',
+            'Part of the hackathon’s record, under the team’s name; your name leaves them when your account closes',
+          ],
+          [
+            'Certificates',
+            'While the account exists, then deleted within **30 days** of closure',
+          ],
+          [
+            'Projects and organisations',
+            'While they exist; your name leaves them when your account closes',
           ],
           [
             'Messages and moderation reports',
@@ -234,5 +269,5 @@ export const privacyEnglish: CompanyPageContent = translatedPage(
       ),
     ),
   ],
-  '12 October 2026',
+  '5 November 2026',
 );

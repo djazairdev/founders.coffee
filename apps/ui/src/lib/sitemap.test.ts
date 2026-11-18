@@ -14,6 +14,11 @@ const data: SitemapData = {
       updatedAt: new Date('2026-09-13T08:00:00.000Z'),
     },
   ],
+  organisations: [{ slug: 'code-club' }],
+  projects: [
+    { slug: 'ledger-ab12', updatedAt: new Date('2099-01-02T00:00:00Z') },
+  ],
+  profiles: [{ userId: 'usr_listed' }],
 };
 
 describe('sitemap', () => {
@@ -21,7 +26,7 @@ describe('sitemap', () => {
     const items = sitemapItems(data);
     const paths = items.map(({ path }) => path);
 
-    expect(paths).toHaveLength(36);
+    expect(paths).toHaveLength(45);
     expect(paths).toContain('/ar/community');
     expect(paths).toContain('/ar/faq');
     expect(paths).toContain('/fr/faq');
@@ -29,12 +34,21 @@ describe('sitemap', () => {
     expect(paths).toContain('/ar/algeria');
     expect(paths).toContain('/fr/algeria/algiers');
     expect(paths).toContain('/en/algeria/e/coffee-and-code');
+    expect(paths).toContain('/ar/o/code-club');
+    expect(paths).toContain('/fr/o/code-club');
+    expect(paths).toContain('/en/o/code-club');
+    expect(paths).toContain('/fr/p/ledger-ab12');
+    for (const locale of ['ar', 'fr', 'en'])
+      expect(paths).toContain(`/${locale}/u/usr_listed`);
     expect(new Set(paths).size).toBe(paths.length);
   });
 
   it('renders escaped absolute XML locations and event last-modified values', () => {
     const xml = sitemapXml('https://founders.coffee/', sitemapItems(data));
 
+    expect(xml).toContain(
+      '<url><loc>https://founders.coffee/en/o/code-club</loc></url>',
+    );
     expect(xml).toContain(
       '<loc>https://founders.coffee/en/algeria/e/coffee-and-code</loc>',
     );
@@ -43,6 +57,19 @@ describe('sitemap', () => {
     expect(xml).toContain(
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     );
+  });
+
+  it('lists a profile its member chose to show in search engines, with no last-modified date', () => {
+    const xml = sitemapXml('https://founders.coffee', sitemapItems(data));
+
+    expect(xml).toContain(
+      '<url><loc>https://founders.coffee/ar/u/usr_listed</loc></url>',
+    );
+    expect(
+      sitemapItems({ ...data, profiles: [] }).some(({ path }) =>
+        path.includes('/u/'),
+      ),
+    ).toBe(false);
   });
 
   it('returns an empty valid sitemap for non-production origins', () => {

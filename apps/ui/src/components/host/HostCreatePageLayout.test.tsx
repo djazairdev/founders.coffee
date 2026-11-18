@@ -56,7 +56,7 @@ describe('the host wizard on a phone', () => {
     expect(
       title.className,
       'scrolled to the top edge on a step change, the title left the search box under the sticky steps bar',
-    ).toContain('max-lg:scroll-mt-20');
+    ).toContain('max-lg:scroll-mt-2');
     expect(
       title.parentElement?.querySelectorAll('p'),
       'the subtitle said what the search box already says (#121)',

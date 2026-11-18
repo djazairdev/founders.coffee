@@ -6,6 +6,8 @@ import { describe, expect, it } from 'vitest';
 const src = () => path.resolve(import.meta.dirname, '..');
 
 const COVERED_BY = {
+  'features/hackathons/components/HackathonJudgeCriterionField.tsx':
+    'features/hackathons/components/HackathonJudgeCriterionField.test.tsx',
   'features/operations/components/FeedbackForm.tsx':
     'features/operations/components/FeedbackForm.test.tsx',
 };

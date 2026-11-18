@@ -23,7 +23,7 @@ export const EventEditVenue = ({
   onVenueInvalidate,
 }: {
   locale: Locale;
-  event: EventDetailItem;
+  event: EventDetailItem & { cityCode: string };
   mapboxToken: string;
   venue: VenueSelection | null;
   searchValue: string;
@@ -66,13 +66,13 @@ export const EventEditVenue = ({
       </p>
       <HostVenueStep
         locale={locale}
-        area={{ kind: 'city', name: cityName }}
+        area={{ kind: 'city', name: cityName ?? event.cityCode }}
         cityCode={event.cityCode}
         marketCode={event.marketCode}
         center={listCenter}
         searchValue={searchValue}
         venue={venue}
-        venueName={event.venue}
+        venueName={event.venue ?? ''}
         hideNameField
         boundedList
         isDisabled={!mapContext.data}

@@ -16,24 +16,28 @@ export const EventLanguagesField = ({
   locale,
   value,
   error,
+  label,
+  hint,
   onChange,
 }: {
   id: string;
   locale: Locale;
   value: readonly MeetupLanguage[];
   error?: string;
+  label?: string;
+  hint?: string;
   onChange: (next: MeetupLanguage[]) => void;
 }) => (
   <div className="flex flex-col">
     <span className="mb-1 block text-body-sm text-neutral">
-      {host_languages_label({}, { locale })}
+      {label ?? host_languages_label({}, { locale })}
     </span>
     <ChipGroup
       id={id}
       options={SPOKEN_LOCALE_OPTIONS}
       selected={value}
       max={SPOKEN_LOCALE_OPTIONS.length}
-      groupLabel={host_languages_label({}, { locale })}
+      groupLabel={label ?? host_languages_label({}, { locale })}
       describedBy={`${id}-hint ${id}-error`}
       labelFor={(language) => localeLabel(language, locale)}
       onToggle={(language) =>
@@ -41,7 +45,7 @@ export const EventLanguagesField = ({
       }
     />
     <span id={`${id}-hint`} className="mt-2 text-caption text-neutral">
-      {host_languages_hint({}, { locale })}
+      {hint ?? host_languages_hint({}, { locale })}
     </span>
     {error && (
       <span id={`${id}-error`} className="mt-1 text-body-sm text-error">

@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import type { Plugin } from 'vite';
 
-import { CLIENT_OUT_DIR } from './vite-service-worker';
+import { CLIENT_OUT_DIR } from './vite-service-worker.ts';
 
 const ASSETS_IGNORE = '.assetsignore';
 

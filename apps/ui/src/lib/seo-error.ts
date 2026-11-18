@@ -13,18 +13,14 @@ export type ErrorPageKind = 'error' | 'notFound';
 
 type MatchState = {
   readonly status: string;
-  readonly globalNotFound?: boolean;
+  readonly _notFound?: boolean;
 };
 
 /**
  * Which error page this render is, if it is one, read from the root match as well as the list.
  *
- * The root route's `head` and `headers` are handed the matches as they stood when loading began,
- * and router-core records a `notFound()` on its boundary match only after that, so the list never
- * shows one: every 404 went out with no `<title>` and no robots tag (#117). The root match they are
- * handed alongside the list is read fresh, which is why the root declares the `notFoundComponent`
- * and is the boundary for every route. Left to the router's default, the route that threw became
- * its own boundary, where no root head could see it.
+ * Router Core represents a root-boundary 404 as a successful layout match with
+ * `_notFound`. A nested boundary reports its `notFound` status directly.
  */
 export const errorPageKind = (
   root: MatchState,
@@ -33,7 +29,7 @@ export const errorPageKind = (
   const states = [root, ...matches];
   if (
     states.some(
-      (match) => match.status === 'notFound' || match.globalNotFound === true,
+      (match) => match.status === 'notFound' || match._notFound === true,
     )
   )
     return 'notFound';

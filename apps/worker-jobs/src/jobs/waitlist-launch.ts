@@ -1,6 +1,7 @@
 import {
   AppError,
   err,
+  hasVenue,
   ok,
   type Result,
   type WaitlistLaunchDueMessage,
@@ -24,6 +25,7 @@ import {
   type CityWaitlistNotificationRow,
   type Db,
   type Event,
+  type VenuedEvent,
 } from '@founders-coffee/db';
 import type { EmailProvider } from '@founders-coffee/email';
 import type { Locale } from '@founders-coffee/i18n';
@@ -49,8 +51,12 @@ type LaunchEmails = ReturnType<typeof waitlistLaunchEmails>;
  * Whether a round's meetup can still be announced: published, and not yet started. A waitlist is
  * promised a meetup it can go to, so a cancelled or past one withdraws the round instead.
  */
-const isAnnounceable = (event: Event | undefined, now: Date): event is Event =>
+const isAnnounceable = (
+  event: Event | undefined,
+  now: Date,
+): event is VenuedEvent =>
   event !== undefined &&
+  hasVenue(event) &&
   event.status === 'published' &&
   event.startsAt.getTime() > now.getTime();
 

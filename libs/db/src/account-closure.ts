@@ -3,6 +3,7 @@ import {
   eq,
   gt,
   inArray,
+  isNull,
   lte,
   ne,
   or,
@@ -13,6 +14,8 @@ import {
 
 import { batch } from './atomic.js';
 import type { Db } from './db.js';
+import { hackathonErasure } from './account-closure-hackathons.js';
+import { projectErasure } from './account-closure-projects.js';
 import { ASSUMED_DURATION_SECONDS } from './events.js';
 import {
   account,
@@ -20,10 +23,14 @@ import {
   chatMembers,
   chatMessages,
   cityWaitlist,
+  hackathonInterest,
   eventFeedback,
   eventRsvps,
   events,
+  invitation,
+  member,
   memberProfiles,
+  organization,
   profileAssets,
   pushSessionLinks,
   pushSubscriptions,
@@ -76,6 +83,16 @@ export const listClosingAccounts = (
     )
     .orderBy(user.closedAt)
     .limit(opts.limit);
+
+const holdsOwnerRole = (role: SQL | AnyColumn): SQL =>
+  sql`(',' || ${role} || ',') like '%,owner,%'`;
+
+/**
+ * The organisations this member owns that no one else owns: a member's role may list several, so an
+ * owner is any member whose list includes `owner`, as Better Auth reads it.
+ */
+const lastOwnerLeaving = (userId: string): SQL =>
+  sql`${organization.id} in (select ${member.organizationId} from ${member} where ${member.userId} = ${userId} and ${holdsOwnerRole(member.role)}) and not exists (select 1 from ${member} as other where other.organization_id = ${organization.id} and other.user_id <> ${userId} and ${holdsOwnerRole(sql`other.role`)})`;
 
 /** The published meetups a member hosts that have not ended yet, soonest first. */
 export const listUnfinishedHostedEvents = (
@@ -136,11 +153,15 @@ export const listProfileAssetPrefixes = async (
  * detached, as the city's record. RSVPs and attendance stay for the twenty-four months the policy
  * gives them, attributed to nobody. Feedback ratings stay without their comment. Host trust,
  * audit and review rows stay under their own retention, and so do meetup chat reports, the ones
- * they filed and the ones about their messages, pointing at the tombstone.
+ * they filed and the ones about their messages, pointing at the tombstone. An invitation they sent
+ * stays with its organisation, from the tombstone. An organisation they were the last owner of is
+ * stamped `owner_left_at`, before their membership goes, so an operator can name a new owner.
  *
  * Everything that is the member's own goes: profile, photo rows, preferences, devices, queued
- * notices, meetup chat messages and chat settings, sessions, sign-in links with
- * Google or GitHub, codes still waiting for their address or phone, and the city waitlist entries
+ * notices, meetup chat messages and chat settings, organisation memberships, their teams, team
+ * requests and hackathon registrations ({@link hackathonErasure}), their places on projects
+ * ({@link projectErasure}), sessions, sign-in links with Google or GitHub, codes still waiting for
+ * their address or phone, and the city waitlist, hackathon interest and organisation invitations
  * under their address. Photo bytes are the caller's to delete first, from
  * {@link listProfileAssetPrefixes}, since a deleted row is the only record of where they are.
  *
@@ -178,6 +199,19 @@ export const eraseClosedAccount = async (
       .where(owned(eventFeedback.userId)),
     db.delete(chatMessages).where(owned(chatMessages.authorId)),
     db.delete(chatMembers).where(owned(chatMembers.userId)),
+    db
+      .update(organization)
+      .set({ ownerLeftAt: now })
+      .where(
+        and(
+          lastOwnerLeaving(userId),
+          isNull(organization.ownerLeftAt),
+          stillClosing,
+        ),
+      ),
+    ...hackathonErasure(db, userId, stillClosing),
+    ...projectErasure(db, userId, stillClosing),
+    db.delete(member).where(owned(member.userId)),
     db.delete(session).where(owned(session.userId)),
     db.delete(account).where(owned(account.userId)),
     db
@@ -194,6 +228,12 @@ export const eraseClosedAccount = async (
     db
       .delete(cityWaitlist)
       .where(and(eq(cityWaitlist.email, closing.email), stillClosing)),
+    db
+      .delete(hackathonInterest)
+      .where(and(eq(hackathonInterest.email, closing.email), stillClosing)),
+    db
+      .delete(invitation)
+      .where(and(eq(invitation.email, closing.email), stillClosing)),
     db
       .update(user)
       .set({

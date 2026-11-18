@@ -11,7 +11,7 @@ export const recordRsvpCreated = (
   try {
     metrics?.trackEvent('rsvps_created', {
       market: event.marketCode,
-      city: event.cityCode,
+      city: event.cityCode ?? undefined,
       locale: event.language,
       ...(attribution ? { attribution } : {}),
     });

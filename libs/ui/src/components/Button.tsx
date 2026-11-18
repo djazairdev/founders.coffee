@@ -25,14 +25,33 @@ export const buttonVariants = cva('btn btn-xs sm:btn-sm md:btn-md', {
 export interface ButtonProps
   extends
     ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {}
+    VariantProps<typeof buttonVariants> {
+  isBusy?: boolean;
+}
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, isFullWidth, type = 'button', ...props }, ref) => (
+  (
+    {
+      className,
+      variant,
+      isFullWidth,
+      isBusy,
+      type = 'button',
+      onClick,
+      ...props
+    },
+    ref,
+  ) => (
     <button
       ref={ref}
       type={type}
-      className={cn(buttonVariants({ variant, isFullWidth }), className)}
+      className={cn(
+        buttonVariants({ variant, isFullWidth }),
+        isBusy && 'btn-disabled',
+        className,
+      )}
+      onClick={isBusy ? (event) => event.preventDefault() : onClick}
+      {...(isBusy ? { 'aria-disabled': true } : {})}
       {...props}
     />
   ),

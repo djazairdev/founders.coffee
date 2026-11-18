@@ -1,4 +1,4 @@
-import { hasVenueMoved } from '@founders-coffee/core';
+import { hasVenue, hasVenueMoved } from '@founders-coffee/core';
 import {
   cancelNotificationsByTemplate,
   listGoingAttendees,
@@ -12,7 +12,9 @@ import {
   relocatedNotice,
   rescheduledNotice,
 } from '../chat/notices.js';
+import { moveHackathonReminders } from '../notifications/hackathon-reminders.js';
 import { enqueueRsvpNotifications } from '../notifications/producer.js';
+import { meetingLinkFor } from './meeting-link.js';
 import {
   enqueueEventChangeNotices,
   type EventChangeTemplateKey,
@@ -62,14 +64,16 @@ export const noticeFor = (
  * quiet edit less quiet than it looks — correcting a misspelt café still leaves two messages queued
  * against the old spelling, and they go out days later contradicting the page they link to.
  *
- * Three fields reach a reminder's text, and the start also decides when it is sent, so any of them
- * changing means the queue has to be written again. Nothing else here does: the description is not
+ * Four fields reach a reminder's text, and the start also decides when it is sent, so any of them
+ * changing means the queue has to be written again: the start, the title, the venue, and the meeting
+ * link an online or hybrid meetup's reminders carry. Nothing else here does: the description is not
  * in a reminder, and neither is the address.
  */
 const remindersWouldLie = (before: Event, after: Event): boolean =>
   scheduleMoved(before, after) ||
   before.title !== after.title ||
-  before.venue !== after.venue;
+  before.venue !== after.venue ||
+  before.meetingUrl !== after.meetingUrl;
 
 /**
  * Write the reminders again from what the meetup now says.
@@ -98,6 +102,10 @@ const rearmReminders = async (db: Db, event: Event): Promise<void> => {
       marketCode: event.marketCode,
       startsAt: event.startsAt,
       venue: event.venue,
+      meetingLink: await meetingLinkFor(db, event, {
+        id: attendee.userId,
+        isGoing: true,
+      }),
       phoneNumber: attendee.phoneNumber,
       email: attendee.email,
       locale: attendee.localePref,
@@ -114,10 +122,14 @@ const announceToChat = async (
   db: Db,
   opts: { after: Event; notice: EventChangeTemplateKey | null },
 ): Promise<void> => {
+  const event = opts.after;
+  const cityCode = event.cityCode;
+  if (!hasVenue(event) || !cityCode) return;
+  const venueEvent = { ...event, cityCode };
   if (opts.notice === 'event_rescheduled')
-    await postChatNotice(db, opts.after.id, rescheduledNotice(opts.after));
+    await postChatNotice(db, event.id, rescheduledNotice(venueEvent));
   else if (opts.notice === 'event_relocated')
-    await postChatNotice(db, opts.after.id, relocatedNotice(opts.after));
+    await postChatNotice(db, event.id, relocatedNotice(venueEvent));
 };
 
 /**
@@ -144,6 +156,11 @@ export const announceUpdate = async (
   },
 ): Promise<number> => {
   await announceToChat(db, opts);
+  if (
+    opts.after.kind === 'hackathon' &&
+    opts.before.startsAt.getTime() !== opts.after.startsAt.getTime()
+  )
+    await moveHackathonReminders(db, opts.after.id);
   const rewrite = remindersWouldLie(opts.before, opts.after);
   if (!rewrite && !opts.notice) return 0;
 

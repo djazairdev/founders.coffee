@@ -1,6 +1,6 @@
 export interface CreatedEventKeys {
   readonly marketCode: string;
-  readonly cityCode: string;
+  readonly cityCode: string | null;
   readonly hostId: string;
   readonly slug: string;
 }
@@ -24,6 +24,8 @@ export const createdEventQueryKeys = (
   ['events', 'upcoming'],
   ['event', event.slug],
   ['markets', 'landing', event.marketCode],
-  ['markets', 'city', event.marketCode, event.cityCode],
+  ...(event.cityCode
+    ? [['markets', 'city', event.marketCode, event.cityCode]]
+    : []),
   ['profile', 'public', event.hostId],
 ];

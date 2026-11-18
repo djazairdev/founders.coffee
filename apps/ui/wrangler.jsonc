@@ -48,6 +48,10 @@
       "binding": "PROFILE_ASSETS",
       "bucket_name": "founders-coffee-assets-dev",
     },
+    {
+      "binding": "SUBMISSION_ASSETS",
+      "bucket_name": "founders-coffee-submissions-dev",
+    },
   ],
   "images": { "binding": "IMAGES" },
   "durable_objects": {
@@ -114,6 +118,10 @@
           "binding": "PROFILE_ASSETS",
           "bucket_name": "founders-coffee-assets-staging",
         },
+        {
+          "binding": "SUBMISSION_ASSETS",
+          "bucket_name": "founders-coffee-submissions-staging",
+        },
       ],
       "images": { "binding": "IMAGES" },
       "durable_objects": {
@@ -164,6 +172,10 @@
         {
           "binding": "PROFILE_ASSETS",
           "bucket_name": "founders-coffee-assets-production",
+        },
+        {
+          "binding": "SUBMISSION_ASSETS",
+          "bucket_name": "founders-coffee-submissions-production",
         },
       ],
       "images": { "binding": "IMAGES" },

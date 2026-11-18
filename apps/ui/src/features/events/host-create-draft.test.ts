@@ -24,7 +24,12 @@ const draft: HostCreateDraft = {
   endsAt: new Date('2099-01-15T19:00:00Z').getTime(),
   title: 'Founder meetup',
   description: 'A complete founder meetup description.',
+  kind: 'workshop',
   chosenLanguages: ['ar', 'fr'],
+  hostAs: null,
+  tags: [],
+  format: 'in_person',
+  meetingUrl: '',
 };
 
 describe('host create draft', () => {
@@ -46,6 +51,64 @@ describe('host create draft', () => {
     expect(readHostCreateDraft('DZ')?.chosenLanguages).toEqual([]);
   });
 
+  it('keeps the organisation the event is hosted as, and none in an older draft', () => {
+    writeHostCreateDraft('DZ', { ...draft, hostAs: 'org_codeclub' });
+    expect(readHostCreateDraft('DZ')?.hostAs).toBe('org_codeclub');
+
+    window.sessionStorage.setItem(
+      'fc:event-draft:DZ',
+      JSON.stringify({
+        version: 6,
+        savedAt: Date.now(),
+        marketCode: 'DZ',
+        ...draft,
+        hostAs: undefined,
+      }),
+    );
+    expect(readHostCreateDraft('DZ')?.hostAs).toBeNull();
+  });
+
+  it('keeps the topics chosen, and writes only what it can read back', () => {
+    writeHostCreateDraft('DZ', { ...draft, tags: ['design', 'investing'] });
+    expect(readHostCreateDraft('DZ')?.tags).toEqual(['design', 'investing']);
+
+    writeHostCreateDraft('DZ', {
+      ...draft,
+      tags: [
+        'design',
+        'design',
+        'product',
+        'community',
+        'investing',
+        'partnerships',
+        'cofounders',
+      ],
+    });
+    expect(readHostCreateDraft('DZ')?.tags).toEqual([
+      'design',
+      'product',
+      'community',
+      'investing',
+      'partnerships',
+    ]);
+  });
+
+  it('drops unreadable topics rather than the whole draft, and reads none from an older one', () => {
+    for (const tags of [['karaoke'], 'design', undefined]) {
+      window.sessionStorage.setItem(
+        'fc:event-draft:DZ',
+        JSON.stringify({
+          ...draft,
+          tags,
+          version: 6,
+          savedAt: Date.now(),
+          marketCode: 'DZ',
+        }),
+      );
+      expect(readHostCreateDraft('DZ')).toEqual({ ...draft, tags: [] });
+    }
+  });
+
   it('restores a draft saved before a meetup could have several languages', () => {
     window.sessionStorage.setItem(
       'fc:event-draft:DZ',
@@ -54,6 +117,7 @@ describe('host create draft', () => {
         savedAt: Date.now(),
         marketCode: 'DZ',
         ...draft,
+        kind: undefined,
         chosenLanguages: undefined,
         language: 'en',
       }),
@@ -61,7 +125,35 @@ describe('host create draft', () => {
     expect(
       readHostCreateDraft('DZ'),
       'a host half way through a meetup when this shipped would have lost it, title and all',
-    ).toEqual({ ...draft, chosenLanguages: null });
+    ).toEqual({ ...draft, kind: 'meetup', chosenLanguages: null });
+  });
+
+  it('restores a draft saved before the type could be chosen, as a meetup', () => {
+    window.sessionStorage.setItem(
+      'fc:event-draft:DZ',
+      JSON.stringify({
+        version: 5,
+        savedAt: Date.now(),
+        marketCode: 'DZ',
+        ...draft,
+        kind: undefined,
+      }),
+    );
+    expect(readHostCreateDraft('DZ')).toEqual({ ...draft, kind: 'meetup' });
+  });
+
+  it('drops a draft naming a type the wizard does not offer', () => {
+    window.sessionStorage.setItem(
+      'fc:event-draft:DZ',
+      JSON.stringify({
+        version: 6,
+        savedAt: Date.now(),
+        marketCode: 'DZ',
+        ...draft,
+        kind: 'hackathon',
+      }),
+    );
+    expect(readHostCreateDraft('DZ')).toBeNull();
   });
 
   it('drops a draft naming a language nobody can choose', () => {
@@ -130,7 +222,12 @@ describe('AR: a draft this module wrote is always readable', () => {
     endsAt: new Date('2099-01-15T19:00:00Z').getTime(),
     title: 'Protected meetup',
     description: 'A complete protected meetup for founders.',
+    kind: 'meetup' as const,
     chosenLanguages: null,
+    hostAs: null,
+    tags: [],
+    format: 'in_person' as const,
+    meetingUrl: '',
   };
 
   it('survives a venue search value longer than the schema allows', () => {

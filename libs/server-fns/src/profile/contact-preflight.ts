@@ -102,8 +102,8 @@ const phoneCode =
       ? smsProvider.verifyOtp({ phoneNumber, code: submittedCode })
       : submittedCode === storedCode;
 
-const emailIdentifier = (type: string, email: string): string =>
-  `${type}-otp-${email.toLowerCase()}`;
+const emailIdentifier = (type: string, target: string): string =>
+  `${type}-otp-${target}`;
 
 /**
  * Check contact failures that would otherwise surface as Better Auth orphan rejections.
@@ -126,7 +126,7 @@ export const preflightContactFailure = async (
     return (
       await checkVerification(
         db,
-        emailIdentifier('email-verification', currentUser.email),
+        emailIdentifier('email-verification', currentUser.email.toLowerCase()),
         emailCode(String(body.otp ?? '')),
       )
     ).failure;
@@ -137,7 +137,7 @@ export const preflightContactFailure = async (
       db,
       emailIdentifier(
         'change-email',
-        `${currentUser.email}-${String(body.newEmail ?? '').toLowerCase()}`,
+        `${userId}:${String(body.newEmail ?? '').toLowerCase()}`,
       ),
       emailCode(String(body.otp ?? '')),
     );
@@ -154,7 +154,7 @@ export const preflightContactFailure = async (
     const phoneNumber = String(body.phoneNumber ?? '');
     const check = await checkVerification(
       db,
-      phoneNumber,
+      `phone-number-otp-${phoneNumber}`,
       phoneCode(smsProvider, phoneNumber, String(body.code ?? '')),
     );
     if (check.failure) return check.failure;

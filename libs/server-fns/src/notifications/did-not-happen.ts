@@ -9,7 +9,7 @@ import {
 import { channelPlanFor } from './channel-plan.js';
 import { resolveNotificationContext } from './context.js';
 import { armNotificationSchedule } from './schedule.js';
-import { pushPayloadFor } from './templates.js';
+import { placeValues, pushPayloadFor } from './templates.js';
 import { emailPayloadFor } from './email-templates.js';
 import { validPayload } from './producer.js';
 
@@ -18,7 +18,7 @@ export interface DidNotHappenEvent {
   readonly hostId: string;
   readonly marketCode: string;
   readonly title: string;
-  readonly venue: string;
+  readonly venue: string | null;
   readonly slug: string;
   readonly startsAt: Date;
   readonly endsAt: Date | null;
@@ -79,8 +79,8 @@ export const enqueueDidNotHappenNotices = async (
 
     const values = {
       title: event.title,
-      venue: event.venue,
-      address: event.venue,
+      ...placeValues(event.venue, context.locale),
+      address: event.venue ?? '',
       date: formatDate(event.startsAt, context.locale, {
         timeZone: context.timeZone,
         weekday: 'long',
@@ -103,7 +103,7 @@ export const enqueueDidNotHappenNotices = async (
       eventSlug: event.slug,
       marketCode: event.marketCode,
       startsAt: event.startsAt.toISOString(),
-      venue: event.venue,
+      ...(event.venue ? { venue: event.venue } : {}),
       locale: context.locale,
       ...push,
       ...(await emailPayloadFor(

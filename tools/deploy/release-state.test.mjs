@@ -167,7 +167,7 @@ describe('release state validation', () => {
       latestMigration(
         fileURLToPath(new URL('../../libs/db/migrations', import.meta.url)),
       ),
-    ).toBe('0044_retire_telegram_groups');
+    ).toBe('0085_hackathon_consent_optional');
   });
 });
 

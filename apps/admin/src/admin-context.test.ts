@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  authRequestIsForSelf,
-  needsAdminSession,
-  resolveAdminContext,
-} from './admin-context.js';
+import { needsAdminSession, resolveAdminContext } from './admin-context.js';
 
 const ACCESS_EMAIL = 'founder@founders.coffee';
 
@@ -22,6 +18,11 @@ const envWith = (overrides: Record<string, unknown> = {}): Env =>
 const env = envWith();
 
 const request = () => new Request('https://admin-staging.founders.coffee/');
+
+const navigateTo = (path: string) =>
+  new Request(new URL(path, request().url), {
+    headers: { accept: 'text/html,application/xhtml+xml' },
+  });
 
 const withSession = (user: unknown) => ({
   resolveSession: async () => (user === null ? null : { user }),
@@ -97,6 +98,48 @@ describe('every way in that must fail closed', () => {
     expect(result.ok).toBe(false);
     if (!result.ok)
       expect(await reasonOf(result.response)).toMatch(/No admin session/);
+  });
+
+  it('sends the admin home browser visit to sign-in after Access verifies it', async () => {
+    const result = await resolveAdminContext(
+      navigateTo('/'),
+      env,
+      withSession(null),
+    );
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.response.status).toBe(303);
+      expect(result.response.headers.get('location')).toBe('/login');
+      expect(result.response.headers.get('cache-control')).toBe('no-store');
+    }
+  });
+
+  it('still denies unverified home visits and requests for protected endpoints', async () => {
+    const results = await Promise.all([
+      resolveAdminContext(
+        navigateTo('/'),
+        envWith({ CF_ACCESS_DISABLED: 'false' }),
+        withSession(null),
+      ),
+      resolveAdminContext(
+        navigateTo('/_serverFn/query'),
+        env,
+        withSession(null),
+      ),
+      resolveAdminContext(
+        navigateTo('/'),
+        env,
+        withSession({ ...operator, role: 'member' }),
+      ),
+    ]);
+    for (const result of results) {
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.response.status).toBe(403);
+        expect(result.response.headers.has('location')).toBe(false);
+      }
+    }
   });
 
   it('refuses a valid Access identity paired with somebody else’s session', async () => {
@@ -193,74 +236,5 @@ describe('what may be reached before signing in', () => {
     expect(needsAdminSession('/logins')).toBe(true);
     expect(needsAdminSession('/events/login')).toBe(true);
     expect(needsAdminSession('/api/authz/escalate')).toBe(true);
-  });
-});
-
-const post = (body: unknown) =>
-  new Request(
-    'https://admin-staging.founders.coffee/api/auth/sign-in/email-otp',
-    {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-    },
-  );
-
-describe('an operator may only begin signing in as themselves', () => {
-  it('allows a code for the address Access verified', async () => {
-    expect(
-      await authRequestIsForSelf(post({ email: ACCESS_EMAIL }), ACCESS_EMAIL),
-    ).toBe(true);
-  });
-
-  it('refuses a code aimed at somebody else’s mailbox', async () => {
-    expect(
-      await authRequestIsForSelf(
-        post({ email: 'victim@example.com' }),
-        ACCESS_EMAIL,
-      ),
-    ).toBe(false);
-  });
-
-  it('ignores the capitalisation the operator typed', async () => {
-    expect(
-      await authRequestIsForSelf(
-        post({ email: 'FOUNDER@FOUNDERS.COFFEE' }),
-        ACCESS_EMAIL,
-      ),
-    ).toBe(true);
-  });
-
-  it('leaves a body with no email alone, so sign-out still works', async () => {
-    expect(await authRequestIsForSelf(post({}), ACCESS_EMAIL)).toBe(true);
-  });
-
-  it('leaves GET requests alone', async () => {
-    expect(
-      await authRequestIsForSelf(
-        new Request(
-          'https://admin-staging.founders.coffee/api/auth/get-session',
-        ),
-        ACCESS_EMAIL,
-      ),
-    ).toBe(true);
-  });
-
-  it('leaves an unparseable body to the handler rather than guessing', async () => {
-    expect(
-      await authRequestIsForSelf(
-        new Request('https://admin-staging.founders.coffee/api/auth/x', {
-          method: 'POST',
-          body: 'not json',
-        }),
-        ACCESS_EMAIL,
-      ),
-    ).toBe(true);
-  });
-
-  it('does not consume the body it inspected', async () => {
-    const request = post({ email: ACCESS_EMAIL });
-    await authRequestIsForSelf(request, ACCESS_EMAIL);
-    expect(await request.json()).toEqual({ email: ACCESS_EMAIL });
   });
 });

@@ -143,7 +143,7 @@ export const HostEventPanel = ({
         isChatAvailable={isChatAvailable}
       />
 
-      {repeat.data ? (
+      {repeat.data && event.cityCode ? (
         <RepeatHostLink
           locale={locale}
           marketSlug={marketSlug}

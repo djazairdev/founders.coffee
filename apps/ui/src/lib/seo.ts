@@ -8,11 +8,12 @@ import {
 } from '@founders-coffee/i18n';
 import { getRequestContext } from '@founders-coffee/observability/context';
 
-import { PRODUCTION_ORIGIN } from './indexation';
+import { NO_INDEX_VALUE, PRODUCTION_ORIGIN } from './indexation';
 import { openGraphLocale, xDefaultLocale } from './seo-alternates';
 import {
   breadcrumbJsonLd,
   collectionPageJsonLd,
+  jsonLdText,
   type StructuredListItem,
 } from './seo-structured-data';
 
@@ -20,39 +21,38 @@ export const SITE_ORIGIN = PRODUCTION_ORIGIN;
 export const SITE_NAME = 'Founders Coffee';
 export const DEFAULT_SOCIAL_IMAGE_PATH = '/social/founders-coffee-default.png';
 
-export type CanonicalRoute =
-  | {
-      readonly type: 'market';
-      readonly market: string;
-      readonly locale?: Locale;
-      readonly query?: string;
-    }
-  | {
-      readonly type: 'city';
-      readonly market: string;
-      readonly city: string;
-      readonly locale?: Locale;
-      readonly query?: string;
-    }
-  | {
-      readonly type: 'event';
-      readonly market: string;
-      readonly slug: string;
-      readonly locale?: Locale;
-      readonly query?: string;
-    }
-  | {
-      readonly type: 'company';
-      readonly path: string;
-      readonly locale?: Locale;
-      readonly query?: string;
-    };
+type RouteVariant = {
+  readonly locale?: Locale;
+  readonly query?: string;
+};
+
+export type CanonicalRoute = RouteVariant &
+  (
+    | { readonly type: 'market'; readonly market: string }
+    | {
+        readonly type: 'city';
+        readonly market: string;
+        readonly city: string;
+      }
+    | {
+        readonly type: 'event';
+        readonly market: string;
+        readonly slug: string;
+      }
+    | { readonly type: 'organisation'; readonly slug: string }
+    | { readonly type: 'project'; readonly slug: string }
+    | { readonly type: 'profile'; readonly userId: string }
+    | { readonly type: 'company'; readonly path: string }
+  );
 
 const canonicalSegments = (route: CanonicalRoute): string[] => {
   const locale = route.locale ? [route.locale] : [];
   if (route.type === 'market') return [...locale, route.market];
   if (route.type === 'city') return [...locale, route.market, route.city];
   if (route.type === 'event') return [...locale, route.market, 'e', route.slug];
+  if (route.type === 'organisation') return [...locale, 'o', route.slug];
+  if (route.type === 'project') return [...locale, 'p', route.slug];
+  if (route.type === 'profile') return [...locale, 'u', route.userId];
   return [...locale, ...route.path.split(/[?#]/u, 1)[0].split('/')];
 };
 
@@ -97,6 +97,15 @@ export const getSiteOrigin = (): string => {
   if (requestOrigin) return requestOrigin;
   if (typeof window !== 'undefined') return window.location.origin;
   return SITE_ORIGIN;
+};
+
+export const defaultRobotsDirective = (): string => {
+  const { isSearchIndexable } = getRequestContext();
+  if (isSearchIndexable !== undefined)
+    return isSearchIndexable ? 'index,follow' : NO_INDEX_VALUE;
+  return getSiteOrigin() === PRODUCTION_ORIGIN
+    ? 'index,follow'
+    : NO_INDEX_VALUE;
 };
 
 export const getRequestPath = (): string => {
@@ -166,7 +175,7 @@ export const buildTitledPageMetadata = ({
   socialTitle,
   description,
   route,
-  robots = 'index,follow',
+  robots = defaultRobotsDirective(),
   alternateLocales = LOCALES,
   alternates = localeAlternates(route, alternateLocales),
   marketCode,
@@ -192,6 +201,7 @@ export const buildTitledPageMetadata = ({
       { property: 'og:url', content: url },
       { property: 'og:locale', content: openGraphLocale(locale, marketCode) },
       { property: 'og:image', content: socialImage },
+      { property: 'og:image:type', content: 'image/png' },
       { property: 'og:image:width', content: '1200' },
       { property: 'og:image:height', content: '630' },
       { property: 'og:image:alt', content: socialImageAlt },
@@ -261,7 +271,7 @@ export const cityPageHead = ({
     scripts: [
       {
         type: 'application/ld+json',
-        children: JSON.stringify(
+        children: jsonLdText(
           collectionPageJsonLd({
             name: `${cityName} · ${marketName}`,
             description,
@@ -273,7 +283,7 @@ export const cityPageHead = ({
       },
       {
         type: 'application/ld+json',
-        children: JSON.stringify(breadcrumbJsonLd(breadcrumbs)),
+        children: jsonLdText(breadcrumbJsonLd(breadcrumbs)),
       },
     ],
   };

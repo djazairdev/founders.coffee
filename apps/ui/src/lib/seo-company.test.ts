@@ -43,18 +43,14 @@ const metaValue = (
 
 describe('organization structured data', () => {
   it('omits empty authority signals', () => {
-    const organization = JSON.parse(organizationJsonLd('en')) as Record<
-      string,
-      unknown
-    >;
+    const organization = organizationJsonLd('en');
 
     expect(organization).not.toHaveProperty('sameAs');
   });
 
   it('describes the organization in the language of the page it is on', () => {
     const description = (locale: 'ar' | 'fr' | 'en') =>
-      (JSON.parse(organizationJsonLd(locale)) as { description: string })
-        .description;
+      (organizationJsonLd(locale) as { description: string }).description;
 
     expect(description('ar')).toContain('رواد الأعمال');
     expect(description('fr')).toContain('entrepreneurs');
@@ -70,7 +66,7 @@ describe('site name structured data', () => {
   it('names the site as Google should print it, at the root of the domain', () => {
     const website = runWithContext(
       { siteOrigin: 'https://founders.coffee' },
-      () => JSON.parse(websiteJsonLd()) as Record<string, unknown>,
+      () => websiteJsonLd(),
     );
 
     expect(website).toEqual({

@@ -22,6 +22,7 @@
   ],
   "r2_buckets": [
     { "binding": "PROFILE_ASSETS", "bucket_name": "profile-assets-test" },
+    { "binding": "SUBMISSION_ASSETS", "bucket_name": "submission-assets-test" },
   ],
   "images": { "binding": "IMAGES" },
   "queues": {

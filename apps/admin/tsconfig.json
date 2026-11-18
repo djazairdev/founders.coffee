@@ -28,16 +28,16 @@
   },
   "references": [
     {
-      "path": "../../libs/core"
-    },
-    {
-      "path": "../../libs/server-fns"
-    },
-    {
       "path": "../../libs/observability"
     },
     {
       "path": "../../libs/email"
+    },
+    {
+      "path": "../../libs/domain"
+    },
+    {
+      "path": "../../libs/server-fns"
     },
     {
       "path": "../../libs/ui"
@@ -47,6 +47,9 @@
     },
     {
       "path": "../../libs/auth"
+    },
+    {
+      "path": "../../libs/core"
     }
   ]
 }

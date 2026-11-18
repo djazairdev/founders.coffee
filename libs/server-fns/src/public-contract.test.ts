@@ -12,89 +12,17 @@ import { attachAttendance } from './events/attendance.js';
 import { attachCityNames } from './events/resolver.js';
 import { groupCityHosts } from './markets/city-hosts.js';
 import { ownerProfileProjection } from './profile/projection.js';
-
-const PUBLIC_PROFILE_FIELDS = [
-  'displayName',
-  'headline',
-  'interests',
-  'introduction',
-  'memberSince',
-  'photoAssetId',
-  'professionalLink',
-  'spokenLanguages',
-  'stage',
-  'userId',
-] as const;
-
-const OWNER_PROFILE_FIELDS = [
-  ...PUBLIC_PROFILE_FIELDS,
-  'revision',
-  'visibility',
-] as const;
-
-const MEETUP_RECORD_FIELDS = ['attendedCount', 'hostedCount'] as const;
-
-const EVENT_COLUMNS = [
-  'cancellationReason',
-  'cancelledAt',
-  'cityCode',
-  'createdAt',
-  'description',
-  'endsAt',
-  'hostId',
-  'id',
-  'language',
-  'languages',
-  'latitude',
-  'longitude',
-  'marketCode',
-  'rsvps',
-  'slug',
-  'startsAt',
-  'stateCode',
-  'status',
-  'title',
-  'updatedAt',
-  'venue',
-  'venueAddress',
-  'version',
-] as const;
-
-const PUBLIC_EVENT_FIELDS = [
-  ...EVENT_COLUMNS,
-  'cityName',
-  'cityNameAr',
-  'cityNameFr',
-  'citySlug',
-  'goingCount',
-  'hostName',
-  'hostPhotoAssetId',
-  'viewerRsvp',
-] as const;
-
-const PUBLIC_CITY_HOST_FIELDS = ['name', 'photoAssetId'] as const;
-
-const PUBLIC_MARKET_FIELDS = [
-  'brandOverrides',
-  'code',
-  'createdAt',
-  'defaultCurrency',
-  'defaultLocale',
-  'direction',
-  'featureFlags',
-  'name',
-  'nameAr',
-  'nameFr',
-  'slug',
-  'state',
-  'timezone',
-] as const;
-
-const GENERIC_IDENTITY_COLUMNS = ['createdAt', 'id', 'name', 'updatedAt'];
-
-const IDENTITY_COLUMNS_NEVER_PUBLISHED = Object.keys(
-  getTableColumns(user),
-).filter((column) => !GENERIC_IDENTITY_COLUMNS.includes(column));
+import {
+  PUBLIC_PROFILE_FIELDS,
+  OWNER_PROFILE_FIELDS,
+  MEETUP_RECORD_FIELDS,
+  HACKATHON_FIELDS,
+  EVENT_COLUMNS,
+  PUBLIC_EVENT_FIELDS,
+  PUBLIC_CITY_HOST_FIELDS,
+  PUBLIC_MARKET_FIELDS,
+  IDENTITY_COLUMNS_NEVER_PUBLISHED,
+} from './public-contract.fixtures.js';
 
 const sorted = (keys: readonly string[]) => [...keys].sort();
 
@@ -107,7 +35,13 @@ describe('public response contract', () => {
   it('publishes exactly the profile fields the contract names', () => {
     expect(
       sorted(Object.keys(profile.publicMemberProfileSchema.shape)),
-    ).toEqual(sorted([...PUBLIC_PROFILE_FIELDS, ...MEETUP_RECORD_FIELDS]));
+    ).toEqual(
+      sorted([
+        ...PUBLIC_PROFILE_FIELDS,
+        ...MEETUP_RECORD_FIELDS,
+        ...HACKATHON_FIELDS,
+      ]),
+    );
   });
 
   it('keeps the owner projection to the published fields, less the meetup record, plus its own controls', () => {
@@ -122,9 +56,12 @@ describe('public response contract', () => {
     expect(sorted(Object.keys(owner.visibility))).toEqual(
       sorted([
         'attendedCount',
+        'hackathonRecord',
         'headline',
         'interests',
-        'professionalLink',
+        'links',
+        'openTo',
+        'skills',
         'spokenLanguages',
         'stage',
       ]),
@@ -142,7 +79,9 @@ describe('public response contract', () => {
         introduction: 'Secret',
         interests: ['bootstrapping'],
         spokenLanguages: ['ar'],
-        professionalLink: 'https://example.dz',
+        skills: ['marketing'],
+        links: ['https://www.linkedin.com/in/contract'],
+        openTo: ['jobs'],
         photoAssetId: 'ast_0123456789abcdef0123456789abcdef',
       } as never,
     );
@@ -152,7 +91,11 @@ describe('public response contract', () => {
     });
 
     expect(sorted(Object.keys(published))).toEqual(
-      sorted([...PUBLIC_PROFILE_FIELDS, ...MEETUP_RECORD_FIELDS]),
+      sorted([
+        ...PUBLIC_PROFILE_FIELDS,
+        ...MEETUP_RECORD_FIELDS,
+        ...HACKATHON_FIELDS,
+      ]),
     );
     expect(published).toMatchObject({
       memberSince: '2026-03',
@@ -161,10 +104,15 @@ describe('public response contract', () => {
       headline: null,
       stage: null,
       introduction: 'Secret',
-      professionalLink: null,
+      skills: [],
+      links: [],
+      openTo: [],
+      indexable: false,
       photoAssetId: owner.photoAssetId,
       interests: [],
       spokenLanguages: [],
+      hackathonRecord: [],
+      projects: [],
     });
   });
 

@@ -45,6 +45,19 @@ beforeAll(async () => {
 });
 
 describe('a signed-out visitor at a screen a notification links at', () => {
+  it('preserves an invitation across sign-in and keeps the redirect private', async () => {
+    const path = `/fr/hackathon/invitation?role=judge&token=${'a'.repeat(43)}`;
+    const response = await fetchDocument(path);
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get('location')).toBe(
+      `/fr/login?redirect=${encodeURIComponent(path)}`,
+    );
+    expect(response.headers.get('Cache-Control')).toBe('private, no-store');
+    expect(response.headers.get('X-Robots-Tag')).toBe('noindex, nofollow');
+    expect(response.headers.get('Referrer-Policy')).toBe('no-referrer');
+  });
+
   it.each(SCREENS)(
     'is sent from /%s to sign in before the screen renders anything',
     async (screen) => {

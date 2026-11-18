@@ -1,6 +1,12 @@
 # Local development env for apps/admin.
 # Copy to `.dev.vars` (gitignored) and fill in. NEVER commit real values.
 
+# Generate a local auth secret with `openssl rand -hex 32`.
+BETTER_AUTH_SECRET=change-me-to-a-long-random-string-of-at-least-32-chars
+
+# Local OTP rehearsal uses the development mail log and no external challenge.
+TURNSTILE_DISABLED=true
+
 # Bypass Cloudflare Access JWT verification in local dev (no Access on localhost).
 # It bypasses the JWT check ONLY. The request still needs a Better Auth session on this
 # origin, that account still needs an `admin` or `moderator` role, and its email still has

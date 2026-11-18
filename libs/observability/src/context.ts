@@ -7,6 +7,7 @@ export interface RequestContext {
   readonly requestId?: string;
   readonly cspNonce?: string;
   readonly siteOrigin?: string;
+  readonly isSearchIndexable?: boolean;
   readonly requestPath?: string;
 }
 

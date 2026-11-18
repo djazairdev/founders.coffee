@@ -38,6 +38,8 @@ describe('per-category notification channels', () => {
       followUpPromptsChannels: [],
       meetupChat: true,
       meetupChatChannels: ['push'],
+      hackathons: true,
+      hackathonsChannels: ['push', 'email'],
       smsFallbackEnabled: false,
       expectedRevision: 0,
     });

@@ -40,10 +40,7 @@ describe('which error page a render is', () => {
 
   it('reads a not-found the root caught off the root match itself', () => {
     expect(
-      errorPageKind({ status: 'success', globalNotFound: true }, [
-        loaded,
-        loaded,
-      ]),
+      errorPageKind({ status: 'success', _notFound: true }, [loaded, loaded]),
       'the list handed to head() still read success on a 404, so the page went out with no title and no robots tag',
     ).toBe('notFound');
   });
@@ -57,7 +54,7 @@ describe('which error page a render is', () => {
 
   it('calls a page that is both missing and failing missing', () => {
     expect(
-      errorPageKind({ status: 'success', globalNotFound: true }, [
+      errorPageKind({ status: 'success', _notFound: true }, [
         { status: 'error' },
       ]),
     ).toBe('notFound');

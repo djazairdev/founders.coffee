@@ -28,6 +28,8 @@ const DEFAULTS = {
   followUpPromptsChannels: ['email'] as ('push' | 'email')[],
   meetupChat: true,
   meetupChatChannels: ['push'] as 'push'[],
+  hackathons: true,
+  hackathonsChannels: ['push', 'email'] as ('push' | 'email')[],
   smsFallbackEnabled: false,
 };
 

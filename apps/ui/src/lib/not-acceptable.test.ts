@@ -11,7 +11,7 @@ const requestAccepting = (accept?: string): Request =>
 const startRefusal = (): Response =>
   Response.json(
     { error: 'Only HTML requests are supported here' },
-    { status: 500 },
+    { status: 406 },
   );
 
 describe('withNotAcceptableForPages', () => {
@@ -56,9 +56,9 @@ describe('withNotAcceptableForPages', () => {
     expect(await response.json()).toEqual({ error: 'internal' });
   });
 
-  it('passes a server error that is not JSON through', async () => {
+  it('passes an unrelated plain-text 406 through', async () => {
     const failure = new Response('Only HTML requests are supported here', {
-      status: 500,
+      status: 406,
     });
 
     expect(
@@ -69,7 +69,7 @@ describe('withNotAcceptableForPages', () => {
     ).toBe(failure);
   });
 
-  it('leaves every answer that is not a server error alone', async () => {
+  it('leaves successful JSON responses alone', async () => {
     const page = Response.json({ items: [] }, { status: 200 });
 
     expect(

@@ -6,8 +6,7 @@ import type { EventDetailItem } from '@founders-coffee/server-fns';
 
 import type { EventPhase } from '../../features/events/live-window';
 import { event, market } from './EventDetail.fixtures';
-
-const { EventDetail } = await import('./EventDetail');
+import { EventDetail } from './EventDetail';
 
 afterEach(() => cleanup());
 
@@ -86,6 +85,18 @@ describe('EventDetail once the host has called the meetup off', () => {
     expect(
       screen.getByRole('heading', { name: 'Your attendance' }),
     ).toBeTruthy();
+  });
+});
+
+describe('EventDetail for a hackathon', () => {
+  it('offers no RSVP, since a hackathon is joined by registering', () => {
+    show(event);
+    expect(screen.getByText('Save your place')).toBeTruthy();
+    cleanup();
+
+    show({ ...event, kind: 'hackathon' });
+    expect(screen.queryByText('Save your place')).toBeNull();
+    expect(screen.queryByRole('complementary')).toBeNull();
   });
 });
 

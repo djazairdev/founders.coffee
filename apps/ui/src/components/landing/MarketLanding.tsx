@@ -1,3 +1,4 @@
+import type { EventKind } from '@founders-coffee/core';
 import type { Market } from '@founders-coffee/db';
 import type { geo } from '@founders-coffee/domain';
 import { type Locale } from '@founders-coffee/i18n';
@@ -7,8 +8,11 @@ import type {
   TrendingSection,
 } from '@founders-coffee/server-fns';
 
+import { HackathonOrganisers } from '../../features/hackathons/components/HackathonOrganisers';
+
 import { DiscoverFeed } from './DiscoverFeed';
 import { HowItWorks } from './HowItWorks';
+import { InnovationInsight } from './InnovationInsight';
 import { MarketHero } from './MarketHero';
 import { TrendingStates } from './TrendingStates';
 
@@ -21,6 +25,7 @@ type MarketLandingProps = {
   afterStartsAt?: number;
   afterId?: string;
   nextCursor?: EventFeedPage['nextCursor'];
+  type?: EventKind;
   trending: TrendingSection;
 };
 
@@ -32,6 +37,7 @@ export const MarketLanding = ({
   afterStartsAt,
   afterId,
   nextCursor,
+  type,
   trending,
 }: MarketLandingProps) => (
   <>
@@ -48,7 +54,15 @@ export const MarketLanding = ({
       afterStartsAt={afterStartsAt}
       afterId={afterId}
       nextCursor={nextCursor}
+      type={type}
     />
     <HowItWorks locale={locale} marketSlug={market.slug} />
+    {market.featureFlags.hackathons ? (
+      <InnovationInsight locale={locale} />
+    ) : null}
+    <HackathonOrganisers
+      locale={locale}
+      isEnabled={market.featureFlags.hackathons}
+    />
   </>
 );

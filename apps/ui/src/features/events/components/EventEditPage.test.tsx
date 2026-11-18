@@ -82,6 +82,9 @@ const base = {
   venueAddress: null,
   slug: 'founders-breakfast',
   status: 'published',
+  kind: 'meetup',
+  tags: [],
+  format: 'in_person',
   version: 1,
   createdAt: new Date('2026-09-01T00:00:00Z'),
   updatedAt: new Date('2026-09-01T00:00:00Z'),
@@ -96,6 +99,8 @@ const base = {
   stateName: 'Alger',
   stateNameAr: 'الجزائر',
   stateNameFr: 'Alger',
+  meetingLink: null,
+  runBy: { kind: 'community' },
 } satisfies EventDetailItem;
 
 const show = (event: EventDetailItem) => {

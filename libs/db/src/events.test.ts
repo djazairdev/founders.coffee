@@ -1,11 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  createEvent,
-  createEventIfRouteAvailable,
-  getEvent,
-  getEventBySlug,
-} from './events.js';
+import { createEvent, getEvent, getEventBySlug } from './events.js';
+import { createEventIfRouteAvailable } from './events-publish.js';
 import { baseEvent, nextId, nextSlug, setupDb } from './events.fixtures.js';
 
 describe('events queries (real D1)', () => {

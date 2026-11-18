@@ -1,0 +1,96 @@
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
+
+import type { Locale } from '@founders-coffee/i18n';
+
+import type { HackathonDraftView } from '../api';
+import { draftView } from '../hackathon-details-form.fixtures';
+import { HackathonReviewBanner } from './HackathonReviewBanner';
+
+const review = (
+  changes: Partial<HackathonDraftView['review']>,
+): HackathonDraftView['review'] => ({
+  status: 'draft',
+  note: null,
+  ...changes,
+});
+
+const renderBanner = (draft: HackathonDraftView, locale: Locale = 'en') =>
+  render(<HackathonReviewBanner draft={draft} locale={locale} />);
+
+afterEach(cleanup);
+
+describe('HackathonReviewBanner (B-HKN-16)', () => {
+  it('does not show a banner for an editable draft', () => {
+    renderBanner(draftView());
+
+    expect(document.body.textContent).toBe('');
+  });
+
+  it('says a hackathon with the reviewers is waiting for their decision', () => {
+    renderBanner(draftView({ review: review({ status: 'submitted' }) }));
+
+    expect(screen.getByText(/^Sent for review\./u)).toBeTruthy();
+  });
+
+  it('shows the reviewers’ note on one they sent back', () => {
+    renderBanner(
+      draftView({
+        review: review({
+          status: 'rejected',
+          note: 'Name your judges.\nAnd how teams form.',
+        }),
+      }),
+    );
+
+    expect(
+      screen.getByText(
+        'The review team returned this hackathon with a note. Update it accordingly and it will automatically return to the review queue.',
+      ),
+    ).toBeTruthy();
+    expect(screen.getByText('Their note')).toBeTruthy();
+    expect(screen.getByText(/^Name your judges\./u)).toBeTruthy();
+  });
+
+  it('says an approved hackathon is published', () => {
+    renderBanner(
+      draftView(
+        { review: review({ status: 'approved' }), isEditable: false },
+        { status: 'published' },
+      ),
+    );
+
+    expect(
+      screen.getByText('Approved and published. Anyone can find it now.'),
+    ).toBeTruthy();
+  });
+
+  it('says nothing for a cancelled hackathon, or a draft that can no longer change', () => {
+    const cancelled = renderBanner(
+      draftView(
+        { review: review({ status: 'approved' }) },
+        { status: 'cancelled' },
+      ),
+    );
+    expect(cancelled.container.innerHTML).toBe('');
+    cleanup();
+
+    const locked = renderBanner(draftView({ isEditable: false }));
+    expect(locked.container.innerHTML).toBe('');
+  });
+
+  it('reads in Arabic and French', () => {
+    renderBanner(draftView(), 'ar');
+    expect(document.body.textContent).toBe('');
+    cleanup();
+
+    renderBanner(
+      draftView(
+        { review: review({ status: 'approved' }) },
+        { status: 'published' },
+      ),
+      'fr',
+    );
+    expect(screen.getByText(/^Approuvé et publié\./u)).toBeTruthy();
+  });
+});

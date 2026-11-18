@@ -3,14 +3,13 @@ import { and, eq, inArray, ne, notExists, sql, type SQL } from 'drizzle-orm';
 
 import { DEFAULT_LOCALE, LOCALES, type Locale } from '@founders-coffee/core';
 
-import { isChatMember } from './chat-membership.js';
+import { isChatMemberCandidate, isChatMember } from './chat-membership.js';
 import type { Db } from './db.js';
 import {
   accountPreferences,
   chatChannels,
   chatMembers,
   chatMessages,
-  eventRsvps,
   events,
   markets,
   scheduledNotifications,
@@ -127,14 +126,7 @@ export const queueChatUnread = (
       .innerJoin(chatChannels, eq(chatChannels.id, chatMessages.channelId))
       .innerJoin(events, eq(events.id, chatChannels.eventId))
       .innerJoin(markets, eq(markets.code, events.marketCode))
-      .innerJoin(
-        recipient,
-        sql`${recipient.id} in (
-          select ${events.hostId}
-          union select ${eventRsvps.userId} from ${eventRsvps}
-            where ${eventRsvps.eventId} = ${events.id} and ${eventRsvps.status} = 'going'
-        )`,
-      )
+      .innerJoin(recipient, isChatMemberCandidate(sql`${recipient.id}`))
       .leftJoin(accountPreferences, eq(accountPreferences.userId, recipient.id))
       .leftJoin(
         chatMembers,

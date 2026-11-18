@@ -152,7 +152,7 @@ export const CompanyPage = ({
 
         <div className="space-y-12">
           {sections.map((section) => (
-            <section key={section.id} id={section.id} className="scroll-mt-24">
+            <section key={section.id} id={section.id} className="scroll-mt-6">
               <h2 className="font-display text-h4 font-semibold text-base-content md:text-h3">
                 {section.heading}
               </h2>

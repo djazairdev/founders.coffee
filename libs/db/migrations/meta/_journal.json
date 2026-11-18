@@ -316,6 +316,293 @@
       "when": 1790842523764,
       "tag": "0044_retire_telegram_groups",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "6",
+      "when": 1792577877393,
+      "tag": "0045_hackathon_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "6",
+      "when": 1792583080244,
+      "tag": "0046_event_kind",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "6",
+      "when": 1792583706869,
+      "tag": "0047_hackathon_interest",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "6",
+      "when": 1792584299589,
+      "tag": "0048_portfolio_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "6",
+      "when": 1792585380366,
+      "tag": "0049_organization_plugin",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "6",
+      "when": 1792588915240,
+      "tag": "0050_event_organisers",
+      "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "6",
+      "when": 1792590035705,
+      "tag": "0051_platform_organisation",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "6",
+      "when": 1792590212590,
+      "tag": "0052_organisation_owner_left",
+      "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "6",
+      "when": 1792592885941,
+      "tag": "0053_online_hybrid_events",
+      "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "6",
+      "when": 1792600878267,
+      "tag": "0054_event_tags",
+      "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "6",
+      "when": 1792601468164,
+      "tag": "0055_hackathons",
+      "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "6",
+      "when": 1792619785890,
+      "tag": "0056_hackathon_tracks",
+      "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "6",
+      "when": 1792620047865,
+      "tag": "0057_hackathon_criteria",
+      "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "6",
+      "when": 1792621953039,
+      "tag": "0058_organisation_review",
+      "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "6",
+      "when": 1792631343925,
+      "tag": "0059_hackathon_registrations",
+      "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "6",
+      "when": 1792632446470,
+      "tag": "0060_hackathon_prizes",
+      "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "6",
+      "when": 1792634719459,
+      "tag": "0061_hackathon_teams",
+      "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "6",
+      "when": 1792657157440,
+      "tag": "0062_hackathon_submissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "6",
+      "when": 1792663569764,
+      "tag": "0063_hackathon_judging",
+      "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "6",
+      "when": 1792665496381,
+      "tag": "0064_projects",
+      "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "6",
+      "when": 1792669553515,
+      "tag": "0065_hackathon_mentors",
+      "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "6",
+      "when": 1792674812367,
+      "tag": "0066_hackathon_interest_launch",
+      "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "6",
+      "when": 1792681567506,
+      "tag": "0067_hackathon_pull_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "6",
+      "when": 1792682410648,
+      "tag": "0068_hackathon_reports",
+      "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "6",
+      "when": 1792683903769,
+      "tag": "0069_hackathon_report_decisions",
+      "breakpoints": true
+    },
+    {
+      "idx": 70,
+      "version": "6",
+      "when": 1793811982480,
+      "tag": "0070_hackathon_results",
+      "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "6",
+      "when": 1793814662566,
+      "tag": "0071_hackathon_certificates",
+      "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "6",
+      "when": 1793815292126,
+      "tag": "0072_hackathon_results_disqualified",
+      "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "6",
+      "when": 1793815643139,
+      "tag": "0073_hackathon_retention_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "6",
+      "when": 1793815752727,
+      "tag": "0074_hackathon_prize_awards",
+      "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "6",
+      "when": 1793818246917,
+      "tag": "0075_member_profiles_hackathon_record",
+      "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "6",
+      "when": 1793875008559,
+      "tag": "0076_profile_indexable",
+      "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "6",
+      "when": 1793875602904,
+      "tag": "0077_hackathon_submission_screenshots",
+      "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "6",
+      "when": 1794497353460,
+      "tag": "0078_organiser_registration",
+      "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "6",
+      "when": 1794565009146,
+      "tag": "0079_thankful_rogue",
+      "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "6",
+      "when": 1794666701877,
+      "tag": "0080_clean_randall_flagg",
+      "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "6",
+      "when": 1794745829481,
+      "tag": "0081_chemical_power_pack",
+      "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "6",
+      "when": 1794749719442,
+      "tag": "0082_ai_policy_semantics",
+      "breakpoints": true
+    },
+    {
+      "idx": 83,
+      "version": "6",
+      "when": 1794752170269,
+      "tag": "0083_large_ego",
+      "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "6",
+      "when": 1794811445219,
+      "tag": "0084_optional_event_location",
+      "breakpoints": true
+    },
+    {
+      "idx": 85,
+      "version": "6",
+      "when": 1794915759539,
+      "tag": "0085_hackathon_consent_optional",
+      "breakpoints": true
     }
   ]
 }

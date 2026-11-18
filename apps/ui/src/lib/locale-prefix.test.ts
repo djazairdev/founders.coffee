@@ -54,6 +54,17 @@ describe('answering an address that does not open on a language', () => {
     });
   });
 
+  it('drops a market in front of a hackathon or organisation screen', () => {
+    expect(at('/algeria/hackathon/evt_1/manage')).toEqual({
+      kind: 'elsewhere',
+      href: '/fr/hackathon/evt_1/manage',
+    });
+    expect(at('/algeria/o/acme')).toEqual({
+      kind: 'elsewhere',
+      href: '/fr/o/acme',
+    });
+  });
+
   it('keeps a meetup under its market, which is the one segment that is in both', () => {
     expect(
       at('/algeria/e/coffee'),
@@ -92,6 +103,18 @@ describe('the set of segments that follow a language directly', () => {
         isLocaleDirect(segment),
         `/{locale}/${segment} is a route, so a market in front of it is noise${underMarket.has(segment) ? ' — unless it is also a child of $market, as this one is' : ''}`,
       ).toBe(!underMarket.has(segment));
+  });
+
+  it('registers the hackathon and organisation screens ahead of their pages, and never under a market', () => {
+    const underMarket = staticChildAt('/$locale/$market', 2);
+
+    for (const segment of ['hackathon', 'o']) {
+      expect(isLocaleDirect(segment)).toBe(true);
+      expect(
+        underMarket.has(segment),
+        `${segment} is also a child of $market, so a market in front of it is part of the address`,
+      ).toBe(false);
+    }
   });
 
   it('claims nothing the tree does not have', () => {

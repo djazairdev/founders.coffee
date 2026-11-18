@@ -1,5 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 
+import type { EventKind } from '@founders-coffee/core';
+
 import type { Db } from './db.js';
 import { events } from './schema.js';
 import { upcomingScope } from './events.js';
@@ -26,6 +28,7 @@ export const feedCursorAnchorExists = async (
     marketCode?: string;
     cityCode?: string;
     hostId?: string;
+    kind?: EventKind;
     now?: Date;
   },
 ): Promise<boolean> => {
@@ -41,6 +44,7 @@ export const feedCursorAnchorExists = async (
         opts.marketCode ? eq(events.marketCode, opts.marketCode) : undefined,
         opts.cityCode ? eq(events.cityCode, opts.cityCode) : undefined,
         opts.hostId ? eq(events.hostId, opts.hostId) : undefined,
+        opts.kind ? eq(events.kind, opts.kind) : undefined,
       ),
     )
     .limit(1);

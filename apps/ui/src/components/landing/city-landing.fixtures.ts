@@ -60,6 +60,9 @@ export const meetup = (
   longitude: null,
   venueAddress: null,
   status: 'published',
+  kind: 'meetup',
+  tags: [],
+  format: 'in_person',
   version: 1,
   createdAt: new Date(0),
   updatedAt: new Date(0),
@@ -72,6 +75,7 @@ export const meetup = (
   goingCount: 2,
   hostName: 'Host Name',
   hostPhotoAssetId: null,
+  runBy: { kind: 'community' },
   ...overrides,
   languages: overrides.languages ?? [overrides.language ?? 'en'],
 });

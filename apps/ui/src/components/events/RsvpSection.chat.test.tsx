@@ -18,6 +18,7 @@ vi.mock('../../lib/app-providers', () => ({
   useAuth: () => ({ isAuthenticated: true }),
 }));
 vi.mock('./HostEventPanel', () => ({ HostEventPanel: () => null }));
+vi.mock('./OrganiserRepeatLink', () => ({ OrganiserRepeatLink: () => null }));
 vi.mock('../../features/chat/useChatAddress', () => ({
   useChatAddress: () => ({ isOpen: false, open: vi.fn(), close: vi.fn() }),
 }));

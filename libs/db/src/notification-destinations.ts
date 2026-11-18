@@ -26,6 +26,8 @@ export interface NotificationContact {
   readonly followUpPromptsChannels: number;
   readonly meetupChat: boolean;
   readonly meetupChatChannels: number;
+  readonly hackathons: boolean;
+  readonly hackathonsChannels: number;
   readonly localePref: string | null;
   readonly pushEnabled: boolean;
   readonly smsFallbackEnabled: boolean;
@@ -73,6 +75,8 @@ export const getNotificationContact = async (
       followUpPrompts: sql<number>`case when coalesce(${accountPreferences.followUpPromptsChannels}, 4) != 0 then 1 else 0 end`,
       meetupChatChannels: sql<number>`coalesce(${accountPreferences.meetupChatChannels}, 1)`,
       meetupChat: sql<number>`case when coalesce(${accountPreferences.meetupChatChannels}, 1) != 0 then 1 else 0 end`,
+      hackathonsChannels: sql<number>`coalesce(${accountPreferences.hackathonsChannels}, 5)`,
+      hackathons: sql<number>`case when coalesce(${accountPreferences.hackathonsChannels}, 5) != 0 then 1 else 0 end`,
       pushEnabled: sql<number>`coalesce(${accountPreferences.pushEnabled}, 0)`,
       smsFallbackEnabled: sql<number>`coalesce(${accountPreferences.smsFallbackEnabled}, 0)`,
     })
@@ -100,6 +104,8 @@ export const getNotificationContact = async (
     followUpPromptsChannels: row.followUpPromptsChannels,
     meetupChat: row.meetupChat === 1,
     meetupChatChannels: row.meetupChatChannels,
+    hackathons: row.hackathons === 1,
+    hackathonsChannels: row.hackathonsChannels,
     pushEnabled: row.pushEnabled === 1,
     smsFallbackEnabled: row.smsFallbackEnabled === 1,
   };

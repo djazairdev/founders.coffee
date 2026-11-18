@@ -13,6 +13,7 @@ export interface NormalizedPhoto {
 export interface PhotoNormalizer {
   describe(bytes: Uint8Array): Promise<PhotoDescription | null>;
   square(bytes: Uint8Array, pixels: number): Promise<NormalizedPhoto>;
+  scaledDown(bytes: Uint8Array, width: number): Promise<NormalizedPhoto>;
 }
 
 const stream = (bytes: Uint8Array): ReadableStream<Uint8Array> =>
@@ -69,6 +70,24 @@ export class CloudflareImagesNormalizer implements PhotoNormalizer {
         fit: 'cover',
         gravity: 'auto',
       })
+      .output({ format: this.outputFormat, quality: 82 });
+    return {
+      bytes: await new Response(result.image()).arrayBuffer(),
+      contentType: result.contentType(),
+    };
+  };
+
+  /**
+   * The whole image, no wider than `width`, re-encoded like {@link square}, so it keeps its shape
+   * and loses its metadata. A screenshot has to be read, so nothing is cropped away.
+   */
+  scaledDown = async (
+    bytes: Uint8Array,
+    width: number,
+  ): Promise<NormalizedPhoto> => {
+    const result = await this.images
+      .input(stream(bytes))
+      .transform({ width, fit: 'scale-down' })
       .output({ format: this.outputFormat, quality: 82 });
     return {
       bytes: await new Response(result.image()).arrayBuffer(),

@@ -5,6 +5,7 @@ import {
   campaignSchema,
   localeSchema,
   marketCodeSchema,
+  organisationIdSchema,
 } from '@founders-coffee/core';
 import { eventCreateSchema, eventUpdateSchema } from '@founders-coffee/domain';
 
@@ -13,6 +14,14 @@ export const eventCreateRequestSchema = z
   .strict();
 
 export type EventCreateRequestInput = z.infer<typeof eventCreateRequestSchema>;
+
+export const organisationEventCreateRequestSchema = z
+  .object({ organisationId: organisationIdSchema, event: eventCreateSchema })
+  .strict();
+
+export type OrganisationEventCreateRequestInput = z.infer<
+  typeof organisationEventCreateRequestSchema
+>;
 
 export const eventUpdateRequestSchema = z
   .object({

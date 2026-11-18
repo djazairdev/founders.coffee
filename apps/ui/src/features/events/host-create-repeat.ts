@@ -1,3 +1,4 @@
+import type { Topic } from '@founders-coffee/core';
 import { events } from '@founders-coffee/domain';
 
 import type { RepeatEventTemplate } from './api';
@@ -38,6 +39,11 @@ const languagesFrom = (
   return languages.success ? languages.data : null;
 };
 
+const tagsFrom = (template: RepeatEventTemplate): Topic[] => {
+  const tags = events.eventTagsSchema.safeParse(template.tags);
+  return tags.success ? tags.data : [];
+};
+
 export const repeatDraftFrom = (
   template: RepeatEventTemplate,
 ): HostCreateDraft => {
@@ -51,6 +57,11 @@ export const repeatDraftFrom = (
     endsAt: null,
     title: template.title,
     description: template.description,
+    kind: template.kind,
     chosenLanguages: languagesFrom(template),
+    hostAs: template.organisationId,
+    tags: tagsFrom(template),
+    format: template.format,
+    meetingUrl: template.meetingUrl ?? '',
   };
 };

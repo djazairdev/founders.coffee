@@ -15,5 +15,6 @@ Search the existing discussions and issues first; your answer may already be the
 Please never post phone numbers, email addresses, sign-in codes or anything else personal in a
 public issue or discussion, yours or anyone else's.
 
-The maintainers answer in their own time. This is a community project, so there is no guaranteed
-response time, but questions in the right place get answered sooner.
+Every newcomer's pull request gets a reply within 7 days, as [CONTRIBUTING.md](./CONTRIBUTING.md#review)
+promises. Everything else is answered in the maintainers' own time, and questions in the right place
+get answered sooner.

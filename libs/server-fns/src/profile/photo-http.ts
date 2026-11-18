@@ -7,44 +7,12 @@ import { getDb } from '../db.js';
 import { RATE_BUDGETS } from '../rate-budgets.js';
 import { consumeRateBudget } from '../rate-consume.js';
 import { readBounded } from '../read-bounded.js';
+import { isCrossSite, json, UPLOAD_STATUS } from '../upload-http.js';
 import { acceptPhotoUpload } from './photo.js';
 import { photoServices } from './photo-runtime.js';
 
 export const PHOTO_UPLOAD_PREFIX = '/api/profile/photo/';
 export const PHOTO_DELIVERY_PREFIX = '/media/profile/';
-
-const json = (status: number, code: string) =>
-  new Response(JSON.stringify({ code }), {
-    status,
-    headers: {
-      'content-type': 'application/json',
-      'cache-control': 'no-store',
-    },
-  });
-
-const STATUS_FOR: Record<string, number> = {
-  not_found: 404,
-  photo_reservation_used: 409,
-  photo_reservation_expired: 410,
-  photo_too_large: 413,
-  photo_too_small: 422,
-  photo_unsupported: 415,
-  validation_failed: 422,
-};
-
-/**
- * Refuse a browser upload that another site started.
- *
- * The session cookie is `SameSite=Lax`, so a cross-site `PUT` never carries it and the request
- * would fail as unauthenticated anyway — this is the same check stated where it can be read rather
- * than inferred from a cookie attribute three files away. An absent header is allowed: only
- * browsers send `Sec-Fetch-Site`, and refusing its absence would refuse every non-browser client
- * including the release gate.
- */
-const isCrossSite = (request: Request): boolean => {
-  const site = request.headers.get('sec-fetch-site');
-  return site !== null && site !== 'same-origin' && site !== 'none';
-};
 
 const handleUpload = async (
   request: Request,
@@ -80,7 +48,7 @@ const handleUpload = async (
       assetId,
       code: result.error.code,
     });
-    return json(STATUS_FOR[result.error.code] ?? 400, result.error.code);
+    return json(UPLOAD_STATUS[result.error.code] ?? 400, result.error.code);
   }
   return new Response(JSON.stringify({ assetId: result.data.assetId }), {
     status: 201,

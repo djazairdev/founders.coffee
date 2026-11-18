@@ -10,6 +10,7 @@ import {
   setupDb,
 } from '@founders-coffee/db/operations-fixtures';
 
+import { coOrganise, organisation, signUp } from './organisers.fixtures.js';
 import { readRepeatEventTemplate } from './repeat.js';
 
 const close = async (
@@ -58,6 +59,11 @@ describe('readRepeatEventTemplate', () => {
       latitude: null,
       longitude: null,
       languages: ['fr'],
+      kind: 'meetup',
+      format: 'in_person',
+      meetingUrl: null,
+      tags: [],
+      organisationId: null,
     });
     expect(result.data).not.toHaveProperty('startsAt');
     expect(result.data).not.toHaveProperty('endsAt');
@@ -80,6 +86,112 @@ describe('readRepeatEventTemplate', () => {
     });
 
     expect(result.ok && result.data.languages).toEqual(['ar', 'ber']);
+  });
+
+  it('repeats a workshop as a workshop, and no hackathon through the meetup wizard', async () => {
+    const workshop = await pastEvent(db);
+    const hackathon = await pastEvent(db);
+    await db
+      .update(events)
+      .set({ kind: 'workshop' })
+      .where(eq(events.id, workshop))
+      .run();
+    await db
+      .update(events)
+      .set({ kind: 'hackathon' })
+      .where(eq(events.id, hackathon))
+      .run();
+    await close(db, workshop);
+    await close(db, hackathon);
+
+    const repeated = await readRepeatEventTemplate(db, {
+      eventId: workshop,
+      actorId: HOST_ID,
+    });
+    const refused = await readRepeatEventTemplate(db, {
+      eventId: hackathon,
+      actorId: HOST_ID,
+    });
+
+    expect(repeated.ok && repeated.data.kind).toBe('workshop');
+    expect(refused.ok).toBe(false);
+    if (!refused.ok)
+      expect(refused.error.code).toBe('repeat_event_not_eligible');
+  });
+
+  it('keeps the format, link and tags of an online event, with no venue (B-EVT-21)', async () => {
+    const eventId = await pastEvent(db);
+    await db
+      .update(events)
+      .set({
+        format: 'online',
+        meetingUrl: 'https://meet.example.org/founders',
+        venue: null,
+        tags: ['product', 'design'],
+      })
+      .where(eq(events.id, eventId))
+      .run();
+    await close(db, eventId);
+
+    const result = await readRepeatEventTemplate(db, {
+      eventId,
+      actorId: HOST_ID,
+    });
+
+    expect(result.ok && result.data).toMatchObject({
+      venue: null,
+      format: 'online',
+      meetingUrl: 'https://meet.example.org/founders',
+      tags: ['product', 'design'],
+    });
+  });
+
+  it('lets a member of its lead organisation repeat it, under that organisation', async () => {
+    const eventId = await pastEvent(db);
+    await close(db, eventId);
+    await signUp(db, 'usr_org_member');
+    await organisation(db, 'org_lead', 'usr_org_member');
+    await coOrganise(db, eventId, 'org_lead', 'lead');
+
+    const result = await readRepeatEventTemplate(db, {
+      eventId,
+      actorId: 'usr_org_member',
+    });
+
+    expect(result.ok && result.data.organisationId).toBe('org_lead');
+  });
+
+  it('lets a member of a co-hosting organisation repeat it, naming the lead', async () => {
+    const eventId = await pastEvent(db);
+    await close(db, eventId);
+    await signUp(db, 'usr_lead_member');
+    await signUp(db, 'usr_cohost_member');
+    await organisation(db, 'org_lead', 'usr_lead_member');
+    await organisation(db, 'org_cohost', 'usr_cohost_member');
+    await coOrganise(db, eventId, 'org_lead', 'lead');
+    await coOrganise(db, eventId, 'org_cohost');
+
+    const result = await readRepeatEventTemplate(db, {
+      eventId,
+      actorId: 'usr_cohost_member',
+    });
+
+    expect(result.ok && result.data.organisationId).toBe('org_lead');
+  });
+
+  it('refuses a member of an organisation that does not organise it', async () => {
+    const eventId = await pastEvent(db);
+    await close(db, eventId);
+    await signUp(db, 'usr_elsewhere');
+    await organisation(db, 'org_elsewhere', 'usr_elsewhere');
+
+    const result = await readRepeatEventTemplate(db, {
+      eventId,
+      actorId: 'usr_elsewhere',
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe('repeat_event_not_host');
   });
 
   it('refuses a template for another host', async () => {

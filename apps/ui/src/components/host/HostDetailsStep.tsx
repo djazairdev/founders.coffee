@@ -7,9 +7,11 @@ import {
   host_title_ph,
   type Locale,
 } from '@founders-coffee/i18n';
+import type { Topic } from '@founders-coffee/core';
 import { Input } from '@founders-coffee/ui';
 
 import { EventLanguagesField } from '../events/EventLanguagesField';
+import { EventTagsField } from '../events/EventTagsField';
 import type { HostCreateFieldErrors } from '../../features/events/host-create-validation';
 import type { MeetupLanguage } from '../../features/events/types';
 
@@ -18,16 +20,20 @@ export const HostDetailsStep = ({
   title,
   description,
   languages,
+  tags,
   constraints,
   errors,
   onTitleChange,
   onDescriptionChange,
   onLanguagesChange,
+  onTagsChange,
+  copy,
 }: {
   locale: Locale;
   title: string;
   description: string;
-  languages: readonly MeetupLanguage[];
+  languages?: readonly MeetupLanguage[];
+  tags?: readonly Topic[];
   constraints: {
     titleMin: number;
     titleMax: number;
@@ -37,12 +43,23 @@ export const HostDetailsStep = ({
   errors: HostCreateFieldErrors;
   onTitleChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
-  onLanguagesChange: (value: MeetupLanguage[]) => void;
+  onLanguagesChange?: (value: MeetupLanguage[]) => void;
+  onTagsChange?: (value: Topic[]) => void;
+  copy?: {
+    titleLabel: string;
+    titlePlaceholder: string;
+    descriptionLabel: string;
+    descriptionPlaceholder: string;
+    languagesLabel?: string;
+    languagesHint?: string;
+  };
 }) => (
   <div className="grid gap-5">
     <div className="flex flex-col">
       <span className="mb-1 flex items-center justify-between gap-3 text-body-sm text-neutral">
-        <label htmlFor="host-title">{host_title_label({}, { locale })}</label>
+        <label htmlFor="host-title">
+          {copy?.titleLabel ?? host_title_label({}, { locale })}
+        </label>
         <span aria-hidden="true" className="text-caption text-neutral">
           {host_required({}, { locale })}
         </span>
@@ -51,7 +68,7 @@ export const HostDetailsStep = ({
         id="host-title"
         value={title}
         onChange={(event) => onTitleChange(event.target.value)}
-        placeholder={host_title_ph({}, { locale })}
+        placeholder={copy?.titlePlaceholder ?? host_title_ph({}, { locale })}
         minLength={constraints.titleMin}
         maxLength={constraints.titleMax}
         required
@@ -77,7 +94,7 @@ export const HostDetailsStep = ({
     <div className="flex flex-col">
       <span className="mb-1 flex items-center justify-between gap-3 text-body-sm text-neutral">
         <label htmlFor="host-description">
-          {host_desc_label({}, { locale })}
+          {copy?.descriptionLabel ?? host_desc_label({}, { locale })}
         </label>
         <span aria-hidden="true" className="text-caption text-neutral">
           {host_required({}, { locale })}
@@ -88,7 +105,9 @@ export const HostDetailsStep = ({
         className="textarea textarea-sm md:textarea-md w-full"
         value={description}
         onChange={(event) => onDescriptionChange(event.target.value)}
-        placeholder={host_desc_ph({}, { locale })}
+        placeholder={
+          copy?.descriptionPlaceholder ?? host_desc_ph({}, { locale })
+        }
         minLength={constraints.descriptionMin}
         maxLength={constraints.descriptionMax}
         required
@@ -117,12 +136,25 @@ export const HostDetailsStep = ({
       )}
     </div>
 
-    <EventLanguagesField
-      id="host-languages"
-      locale={locale}
-      value={languages}
-      error={errors.languages}
-      onChange={onLanguagesChange}
-    />
+    {languages && onLanguagesChange ? (
+      <EventLanguagesField
+        id="host-languages"
+        locale={locale}
+        value={languages}
+        error={errors.languages}
+        label={copy?.languagesLabel}
+        hint={copy?.languagesHint}
+        onChange={onLanguagesChange}
+      />
+    ) : null}
+
+    {tags && onTagsChange ? (
+      <EventTagsField
+        id="host-tags"
+        locale={locale}
+        value={tags}
+        onChange={onTagsChange}
+      />
+    ) : null}
   </div>
 );

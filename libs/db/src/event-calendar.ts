@@ -22,7 +22,7 @@ export const getEventCalendar = async (
       title: string;
       description: string;
       language: (typeof events.$inferSelect)['language'];
-      venue: string;
+      venue: string | null;
       venueAddress: string | null;
       latitude: number | null;
       longitude: number | null;

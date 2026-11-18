@@ -1,17 +1,26 @@
 import { z } from 'zod';
 
-import { venueKindSchema } from '@founders-coffee/core';
+import {
+  eventFormatSchema,
+  venueKindSchema,
+  type EventFormat,
+  type Topic,
+} from '@founders-coffee/core';
 import { events, profile } from '@founders-coffee/domain';
 
 import {
   VENUE_SEARCH_MAX_LENGTH,
+  type HostEventKind,
   type MeetupLanguage,
   type VenueSelection,
 } from './types';
 
-const DRAFT_VERSION = 5;
+const DRAFT_VERSION = 7;
+const READABLE_DRAFT_VERSIONS = [5, 6, DRAFT_VERSION] as const;
+const MEETING_URL_MAX_LENGTH = 2048;
 const DRAFT_MAX_AGE_MS = 24 * 60 * 60_000;
 const REPEAT_ID_MAX_LENGTH = 64;
+const HOST_AS_MAX_LENGTH = 64;
 
 const venueSelectionSchema = z.object({
   providerId: z.string().min(1),
@@ -23,7 +32,9 @@ const venueSelectionSchema = z.object({
 });
 
 const hostCreateDraftSchema = z.object({
-  version: z.literal(DRAFT_VERSION),
+  version: z.union(
+    READABLE_DRAFT_VERSIONS.map((version) => z.literal(version)),
+  ),
   savedAt: z.number().int().positive(),
   marketCode: z.string().min(1),
   step: z.number().int().min(1).max(3),
@@ -34,6 +45,7 @@ const hostCreateDraftSchema = z.object({
   endsAt: z.number().int().positive().nullable(),
   title: z.string().max(events.EVENT_TITLE_MAX_LENGTH),
   description: z.string().max(events.EVENT_DESCRIPTION_MAX_LENGTH),
+  kind: events.memberEventKindSchema.default('meetup'),
   chosenLanguages: z
     .array(profile.spokenLanguageSchema)
     .max(profile.SPOKEN_LANGUAGES.length)
@@ -45,6 +57,10 @@ const hostCreateDraftSchema = z.object({
     .max(REPEAT_ID_MAX_LENGTH)
     .nullable()
     .default(null),
+  hostAs: z.string().min(1).max(HOST_AS_MAX_LENGTH).nullable().default(null),
+  tags: events.eventTagsSchema.default([]).catch([]),
+  format: eventFormatSchema.default('in_person'),
+  meetingUrl: z.string().max(MEETING_URL_MAX_LENGTH).default(''),
 });
 
 export type HostCreateDraft = {
@@ -56,7 +72,12 @@ export type HostCreateDraft = {
   endsAt: number | null;
   title: string;
   description: string;
+  kind: HostEventKind;
   chosenLanguages: MeetupLanguage[] | null;
+  hostAs: string | null;
+  tags: Topic[];
+  format: EventFormat;
+  meetingUrl: string;
 };
 
 const draftKey = (marketCode: string): string => `fc:event-draft:${marketCode}`;
@@ -98,7 +119,12 @@ export const readHostCreateDraft = (
       endsAt: parsed.data.endsAt,
       title: parsed.data.title,
       description: parsed.data.description,
+      kind: parsed.data.kind,
       chosenLanguages: parsed.data.chosenLanguages,
+      hostAs: parsed.data.hostAs,
+      tags: parsed.data.tags,
+      format: parsed.data.format,
+      meetingUrl: parsed.data.meetingUrl,
     };
   } catch {
     return null;
@@ -131,6 +157,12 @@ export const writeHostCreateDraft = (
         searchValue: draft.searchValue.slice(0, VENUE_SEARCH_MAX_LENGTH),
         repeatOf:
           repeatOf && repeatOf.length <= REPEAT_ID_MAX_LENGTH ? repeatOf : null,
+        hostAs:
+          draft.hostAs && draft.hostAs.length <= HOST_AS_MAX_LENGTH
+            ? draft.hostAs
+            : null,
+        tags: [...new Set(draft.tags)].slice(0, events.EVENT_TAG_LIMIT),
+        meetingUrl: draft.meetingUrl.slice(0, MEETING_URL_MAX_LENGTH),
       }),
     );
   } catch {

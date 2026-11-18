@@ -4,6 +4,9 @@ import type {
   SitemapData,
   SitemapEvent,
   SitemapMarket,
+  SitemapOrganisation,
+  SitemapProject,
+  SitemapProfile,
 } from '@founders-coffee/server-fns';
 
 import { canonicalPath, type CanonicalRoute } from './seo';
@@ -45,6 +48,33 @@ const eventItems = (events: readonly SitemapEvent[]): SitemapItem[] =>
     })),
   );
 
+const organisationItems = (
+  organisations: readonly SitemapOrganisation[],
+): SitemapItem[] =>
+  organisations.flatMap((organisation) =>
+    LOCALES.map((locale) => ({
+      path: localizedPath(
+        { type: 'organisation', slug: organisation.slug },
+        locale,
+      ),
+    })),
+  );
+
+const projectItems = (projects: readonly SitemapProject[]): SitemapItem[] =>
+  projects.flatMap((project) =>
+    LOCALES.map((locale) => ({
+      path: localizedPath({ type: 'project', slug: project.slug }, locale),
+      lastmod: project.updatedAt.toISOString(),
+    })),
+  );
+
+const profileItems = (profiles: readonly SitemapProfile[]): SitemapItem[] =>
+  profiles.flatMap((profile) =>
+    LOCALES.map((locale) => ({
+      path: localizedPath({ type: 'profile', userId: profile.userId }, locale),
+    })),
+  );
+
 const companyItems = (): SitemapItem[] => sitemapCompanyItems();
 
 export const sitemapItems = (data: SitemapData): SitemapItem[] => {
@@ -52,6 +82,9 @@ export const sitemapItems = (data: SitemapData): SitemapItem[] => {
     ...marketItems(data.markets),
     ...cityItems(data.cities),
     ...eventItems(data.events),
+    ...organisationItems(data.organisations),
+    ...projectItems(data.projects),
+    ...profileItems(data.profiles),
     ...companyItems(),
   ];
   const seen = new Set<string>();

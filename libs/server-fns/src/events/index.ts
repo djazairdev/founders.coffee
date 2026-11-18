@@ -15,13 +15,21 @@ export type {
   EventUpdateInput,
 } from '@founders-coffee/domain';
 export type { EventCalendarAnswer } from './calendar.js';
-export type { EventPage } from './page.js';
+export type {
+  EventPage,
+  PublicHackathonPrizeView,
+  PublicHackathonRules,
+  PublicHackathonTrack,
+} from './page.js';
+export type { HackathonSchedule } from './hackathon-schedule.js';
+export type { HackathonRegistrationView } from './hackathon-registration-view.js';
 export type {
   EventCalendarRequestInput,
   EventCancelRequestInput,
   EventCreateRequestInput,
   EventPageRequestInput,
   EventUpdateRequestInput,
+  OrganisationEventCreateRequestInput,
   PublicEventFeedRequestInput,
   RepeatEventRequestInput,
 } from './schemas.js';
@@ -40,6 +48,7 @@ export {
   getUpcomingEvents,
   updateEvent,
 } from './rpc.js';
+export { createOrganisationEvent } from './organisation-rpc.js';
 export type { HostedEventItem, HostedEventPage } from './hosted.js';
 export type { PublicEventFeedPage } from './public-feed.js';
 export type { RepeatEventTemplate } from './repeat.js';

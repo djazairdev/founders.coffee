@@ -1,9 +1,9 @@
 import { and, desc, eq, gt, lt, or, sql } from 'drizzle-orm';
 
-import { id } from '@founders-coffee/core';
+import type { EventKind } from '@founders-coffee/core';
 
 import { batch } from './atomic.js';
-import { insertChatChannel, syncChatChannel } from './chat-channels.js';
+import { syncChatChannel } from './chat-channels.js';
 import type { Db } from './db.js';
 import { eventEndsAt } from './events-end.js';
 import { visibleIdentity } from './profile-access.js';
@@ -52,28 +52,6 @@ export const createEvent = async (db: Db, row: NewEvent): Promise<Event> => {
   return result[0];
 };
 
-/**
- * Publish a meetup, with its chat, only when its address is free in its market.
- *
- * One batch: the meetup's insert gives way on a taken address, and the chat's insert selects from
- * the meetup's row, so an address that was taken writes neither and a published meetup always has
- * its chat (P1-026).
- */
-export const createEventIfRouteAvailable = async (
-  db: Db,
-  row: NewEvent,
-): Promise<Event | undefined> => {
-  const [created] = await batch(db, [
-    db
-      .insert(events)
-      .values(row)
-      .onConflictDoNothing({ target: [events.marketCode, events.slug] })
-      .returning(),
-    insertChatChannel(db, { id: id('chn'), eventId: row.id }),
-  ]);
-  return (created as Event[])[0];
-};
-
 /** Fetch an event by its primary key. */
 export const getEvent = async (
   db: Db,
@@ -110,6 +88,7 @@ export const listUpcomingEvents = async (
     marketCode?: string;
     cityCode?: string;
     hostId?: string;
+    kind?: EventKind;
     afterStartsAt?: Date;
     afterId?: string;
     limit?: number;
@@ -139,6 +118,7 @@ export const listUpcomingEvents = async (
         opts.marketCode ? eq(events.marketCode, opts.marketCode) : undefined,
         opts.cityCode ? eq(events.cityCode, opts.cityCode) : undefined,
         opts.hostId ? eq(events.hostId, opts.hostId) : undefined,
+        opts.kind ? eq(events.kind, opts.kind) : undefined,
       ),
     )
     .orderBy(events.startsAt, events.id)
@@ -226,7 +206,8 @@ export const countUpcomingByCity = async (
     )
     .groupBy(events.cityCode);
   const counts: Record<string, number> = {};
-  for (const row of rows) counts[row.cityCode] = Number(row.count);
+  for (const row of rows)
+    if (row.cityCode !== null) counts[row.cityCode] = Number(row.count);
   return counts;
 };
 
@@ -247,7 +228,8 @@ export const countUpcomingByState = async (
     )
     .groupBy(events.stateCode);
   const counts: Record<string, number> = {};
-  for (const row of rows) counts[row.stateCode] = Number(row.count);
+  for (const row of rows)
+    if (row.stateCode !== null) counts[row.stateCode] = Number(row.count);
   return counts;
 };
 

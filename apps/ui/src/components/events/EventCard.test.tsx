@@ -168,3 +168,42 @@ describe('what the card calls the city', () => {
     ).toContain(place);
   });
 });
+
+describe('where the card says the event is', () => {
+  it('names the venue beside its pin', () => {
+    expect(show().container.textContent).toContain(event.venue);
+  });
+
+  it('shows no empty pin for an event with no venue', () => {
+    const view = show({ venue: null });
+
+    expect(view.container.querySelector('.bg-secondary\\/10')).toBeNull();
+    expect(view.container.textContent).not.toContain('null');
+  });
+});
+
+describe('how the card says where the meetup happens (B-EVT-12)', () => {
+  it('labels an online meetup Online, with no venue', () => {
+    const view = show({ format: 'online', venue: null, venueAddress: null });
+
+    expect(view.container.textContent).toContain('Online');
+  });
+
+  it('starts the place with the city, not a comma, when there is no venue', () => {
+    const view = show({ format: 'online', venue: null, venueAddress: null });
+
+    expect(view.container.textContent).toContain(`·${event.cityName}`);
+    expect(view.container.textContent).not.toContain(`, ${event.cityName}`);
+  });
+
+  it('labels a hybrid meetup online and in person, beside its venue', () => {
+    const view = show({ format: 'hybrid' });
+
+    expect(view.container.textContent).toContain('Online and in person');
+    expect(view.container.textContent).toContain(event.venue ?? '');
+  });
+
+  it('labels an in-person meetup with nothing new', () => {
+    expect(show().container.textContent).not.toContain('Online');
+  });
+});

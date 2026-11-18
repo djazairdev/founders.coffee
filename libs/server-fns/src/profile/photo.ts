@@ -54,7 +54,7 @@ export const reservePhotoUpload = async (
  * the one format most worth refusing here because it can carry script. Everything that survives
  * both checks is a bitmap the encoder can read.
  */
-const inspect = async (
+export const inspectPhoto = async (
   services: PhotoServices,
   bytes: Uint8Array,
 ): Promise<Result<{ width: number; height: number; sourceMime: string }>> => {
@@ -101,7 +101,7 @@ export const acceptPhotoUpload = async (
   if (asset.expiresAt.getTime() <= Date.now())
     return rejected('photo_reservation_expired', 'Start the upload again');
 
-  const inspected = await inspect(services, input.bytes);
+  const inspected = await inspectPhoto(services, input.bytes);
   if (!inspected.ok) return inspected;
 
   const variants = await Promise.all(

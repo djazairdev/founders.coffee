@@ -18,12 +18,13 @@ export const d1 = <T = Record<string, unknown>>(sql: string): T[] => {
     'd1',
     'execute',
     DATABASE,
-    REMOTE ? '--remote' : '--local',
+    ...(REMOTE
+      ? ['--remote', '--env', 'staging']
+      : ['--local', '--persist-to', '../../.wrangler/state']),
     '--json',
     '--command',
     sql,
   ];
-  if (REMOTE) args.splice(5, 0, '--env', 'staging');
   const raw = execFileSync('npx', args, {
     cwd: new URL('../../', import.meta.url).pathname,
     encoding: 'utf8',
@@ -44,7 +45,7 @@ export interface PersistedEvent {
   readonly slug: string;
   readonly title: string;
   readonly description: string;
-  readonly venue: string;
+  readonly venue: string | null;
   readonly venue_address: string | null;
   readonly latitude: number | null;
   readonly longitude: number | null;
@@ -57,6 +58,8 @@ export interface PersistedEvent {
   readonly city_code: string;
   readonly status: string;
   readonly host_id: string;
+  readonly format: 'in_person' | 'online' | 'hybrid';
+  readonly meeting_url: string | null;
 }
 
 export const findEventByTitle = (title: string): PersistedEvent | undefined =>

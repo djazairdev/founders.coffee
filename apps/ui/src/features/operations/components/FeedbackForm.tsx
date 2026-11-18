@@ -9,6 +9,8 @@ import {
   no,
   yes,
   feedback_valuable,
+  hackathon_feedback_rating,
+  hackathon_feedback_return,
   LOCALES,
   type Locale,
 } from '@founders-coffee/i18n';
@@ -18,17 +20,22 @@ import type { FeedbackDraft, FeedbackRating } from '../feedback-draft';
 const ratings: readonly FeedbackRating[] = ['valuable', 'okay', 'not_valuable'];
 export const FeedbackForm = ({
   locale,
+  isHackathon,
   draft,
   onChange,
 }: {
   locale: Locale;
+  isHackathon: boolean;
   draft: FeedbackDraft;
   onChange: (changes: Partial<FeedbackDraft>) => void;
 }) => (
   <div className="space-y-6">
     <fieldset>
       <legend className="mb-3 font-display text-h4">
-        {feedback_rating({}, { locale })}
+        {(isHackathon ? hackathon_feedback_rating : feedback_rating)(
+          {},
+          { locale },
+        )}
       </legend>
       <div className="grid gap-2 sm:grid-cols-3">
         {ratings.map((rating) => (
@@ -56,7 +63,10 @@ export const FeedbackForm = ({
     </fieldset>
     <fieldset>
       <legend className="mb-3 font-display text-h4">
-        {feedback_return({}, { locale })}
+        {(isHackathon ? hackathon_feedback_return : feedback_return)(
+          {},
+          { locale },
+        )}
       </legend>
       <div className="flex gap-4">
         {([true, false] as const).map((answer) => (

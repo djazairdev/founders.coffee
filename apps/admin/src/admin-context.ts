@@ -53,6 +53,21 @@ const defaultResolveSession = async (
 const sameEmail = (a: string, b: string): boolean =>
   a.trim().toLowerCase() === b.trim().toLowerCase();
 
+export const ADMIN_LOGIN_PATH = '/login';
+
+const missingAdminSessionResponse = (request: Request): Response => {
+  const isHomeNavigation =
+    request.method === 'GET' &&
+    new URL(request.url).pathname === '/' &&
+    request.headers.get('accept')?.includes('text/html');
+  return isHomeNavigation
+    ? new Response(null, {
+        status: 303,
+        headers: { location: ADMIN_LOGIN_PATH, 'cache-control': 'no-store' },
+      })
+    : forbidden('No admin session');
+};
+
 /**
  * Who is making this request, proved twice and the two proofs agreeing.
  *
@@ -84,7 +99,8 @@ export const resolveAdminContext = async (
     request,
     env,
   );
-  if (!session) return { ok: false, response: forbidden('No admin session') };
+  if (!session)
+    return { ok: false, response: missingAdminSessionResponse(request) };
 
   const { email, id, role } = (session.user ?? {}) as {
     email?: string;
@@ -115,8 +131,6 @@ export const resolveAdminContext = async (
     },
   };
 };
-
-export const ADMIN_LOGIN_PATH = '/login';
 
 const SESSION_FREE_PREFIXES = ['/api/auth/'] as const;
 

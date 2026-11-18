@@ -18,6 +18,11 @@ const template: RepeatEventTemplate = {
   latitude: 36.7538,
   longitude: 3.0588,
   languages: ['ar', 'fr'],
+  kind: 'meetup',
+  format: 'in_person',
+  meetingUrl: null,
+  tags: [],
+  organisationId: null,
 };
 
 const hook = (locale: Locale, repeatTemplate?: RepeatEventTemplate | null) =>
@@ -60,6 +65,23 @@ describe('the languages a half-written meetup carries', () => {
       'ar',
       'fr',
     ]);
+  });
+
+  it('starts a repeat with the format, link, tags and organisation it had (B-EVT-21)', () => {
+    const draft = state('en', {
+      ...template,
+      format: 'hybrid',
+      meetingUrl: 'https://meet.example.org/founders',
+      tags: ['product'],
+      organisationId: 'org_lead',
+    }).current.draft;
+
+    expect(draft).toMatchObject({
+      format: 'hybrid',
+      meetingUrl: 'https://meet.example.org/founders',
+      tags: ['product'],
+      hostAs: 'org_lead',
+    });
   });
 
   it('does not take a repeat from another market', () => {

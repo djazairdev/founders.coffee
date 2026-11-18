@@ -1,23 +1,60 @@
 import { z } from 'zod';
 
-import { localeSchema, marketCodeSchema } from '@founders-coffee/core';
+import {
+  eventFormatSchema,
+  hackathonFieldSchema,
+  hackathonTypeTagSchema,
+  localeSchema,
+  marketCodeSchema,
+  topicSchema,
+  type EventKind,
+} from '@founders-coffee/core';
 
+import { eventDurationLimits } from './duration.js';
+import {
+  addFormatIssues,
+  CREATE_VENUE_FIELDS,
+  eventFormatIssues,
+  eventMeetingUrlSchema,
+  UPDATE_VENUE_FIELDS,
+} from './format.js';
 import { eventLanguagesSchema } from './languages.js';
 
 export const EVENT_TITLE_MIN_LENGTH = 3;
 export const EVENT_TITLE_MAX_LENGTH = 120;
 export const EVENT_DESCRIPTION_MIN_LENGTH = 10;
 export const EVENT_DESCRIPTION_MAX_LENGTH = 2000;
+export const EVENT_DESCRIPTION_STORAGE_MAX_LENGTH = 20_000;
 export const EVENT_VENUE_NAME_MIN_LENGTH = 2;
 export const EVENT_VENUE_NAME_MAX_LENGTH = 200;
 export const EVENT_VENUE_ADDRESS_MIN_LENGTH = 2;
 export const EVENT_VENUE_ADDRESS_MAX_LENGTH = 500;
-export const EVENT_DURATION_MINUTES_MIN = 30;
-export const EVENT_DURATION_MINUTES_MAX = 8 * 60;
+
+export const MEMBER_EVENT_KINDS = [
+  'meetup',
+  'workshop',
+] as const satisfies readonly EventKind[];
+export const memberEventKindSchema = z.enum(MEMBER_EVENT_KINDS);
+
+export const EVENT_TAG_LIMIT = 5;
+export const HACKATHON_FIELD_LIMIT = 5;
+export const hackathonFieldsSchema = z
+  .array(hackathonFieldSchema)
+  .max(HACKATHON_FIELD_LIMIT)
+  .refine(
+    (fields) => new Set(fields).size === fields.length,
+    'Each field once',
+  );
+export const hackathonTypeTagsSchema = z
+  .array(hackathonTypeTagSchema)
+  .refine((tags) => new Set(tags).size === tags.length, 'Each tag once');
+export const eventTagsSchema = z
+  .array(topicSchema)
+  .max(EVENT_TAG_LIMIT)
+  .refine((tags) => new Set(tags).size === tags.length, 'Each topic once');
+export type MemberEventKind = z.infer<typeof memberEventKindSchema>;
 
 const MINUTE_MS = 60_000;
-export const EVENT_DURATION_MS_MIN = EVENT_DURATION_MINUTES_MIN * MINUTE_MS;
-export const EVENT_DURATION_MS_MAX = EVENT_DURATION_MINUTES_MAX * MINUTE_MS;
 
 export const eventTitleSchema = z
   .string()
@@ -30,6 +67,12 @@ export const eventDescriptionSchema = z
   .trim()
   .min(EVENT_DESCRIPTION_MIN_LENGTH)
   .max(EVENT_DESCRIPTION_MAX_LENGTH);
+
+export const eventDescriptionStorageSchema = z
+  .string()
+  .trim()
+  .min(EVENT_DESCRIPTION_MIN_LENGTH)
+  .max(EVENT_DESCRIPTION_STORAGE_MAX_LENGTH);
 
 export const eventVenueNameSchema = z
   .string()
@@ -44,7 +87,7 @@ export const eventVenueAddressSchema = z
   .max(EVENT_VENUE_ADDRESS_MAX_LENGTH);
 
 const addScheduleIssues = (
-  input: { startsAt: number; endsAt: number },
+  input: { startsAt: number; endsAt: number; kind?: EventKind },
   context: z.RefinementCtx,
 ) => {
   if (input.startsAt <= Date.now()) {
@@ -64,17 +107,18 @@ const addScheduleIssues = (
     });
     return;
   }
-  if (duration < EVENT_DURATION_MS_MIN) {
+  const limits = eventDurationLimits(input.kind ?? 'meetup');
+  if (duration < limits.minMs) {
     context.addIssue({
       code: 'custom',
-      message: `Event duration must be at least ${EVENT_DURATION_MINUTES_MIN} minutes`,
+      message: `Event duration must be at least ${limits.minMs / MINUTE_MS} minutes`,
       path: ['endsAt'],
     });
   }
-  if (duration > EVENT_DURATION_MS_MAX) {
+  if (duration > limits.maxMs) {
     context.addIssue({
       code: 'custom',
-      message: `Event duration must not exceed ${EVENT_DURATION_MINUTES_MAX} minutes`,
+      message: `Event duration must not exceed ${limits.maxMs / MINUTE_MS} minutes`,
       path: ['endsAt'],
     });
   }
@@ -87,23 +131,81 @@ export const eventScheduleSchema = z
   })
   .superRefine(addScheduleIssues);
 
+const eventCreateFields = {
+  marketCode: marketCodeSchema,
+  cityCode: z.string().trim().min(1).max(32).optional(),
+  title: eventTitleSchema,
+  description: eventDescriptionSchema,
+  venueName: eventVenueNameSchema.optional(),
+  venueAddress: eventVenueAddressSchema.optional(),
+  venueProviderId: z.string().trim().min(1).max(120).optional(),
+  latitude: z.number().finite().min(-90).max(90).optional(),
+  longitude: z.number().finite().min(-180).max(180).optional(),
+  startsAt: z.number().int().positive(),
+  endsAt: z.number().int().positive(),
+  languages: eventLanguagesSchema,
+  tags: eventTagsSchema.default([]),
+  hackathonFields: hackathonFieldsSchema.optional(),
+  hackathonTypeTags: hackathonTypeTagsSchema.optional(),
+  format: eventFormatSchema.default('in_person'),
+  meetingUrl: eventMeetingUrlSchema.optional(),
+};
+
+export const EVENT_CREATE_FIELDS = eventCreateFields;
+
+type EventCreateCheck = z.infer<z.ZodObject<typeof eventCreateFields>> & {
+  readonly kind: EventKind;
+};
+
+/**
+ * Add the rules every new event is held to: its schedule for its type, its venue or link for its
+ * format, and the city an online event names in place of a venue. Online hackathons belong to a
+ * market, so they do not need a city.
+ */
+export const addEventCreateIssues = (
+  input: EventCreateCheck,
+  context: z.RefinementCtx,
+): void => {
+  addScheduleIssues(input, context);
+  if (
+    input.kind !== 'hackathon' &&
+    ((input.hackathonFields?.length ?? 0) > 0 ||
+      (input.hackathonTypeTags?.length ?? 0) > 0)
+  ) {
+    context.addIssue({
+      code: 'custom',
+      message: 'Hackathon classification belongs to hackathons',
+      path: ['hackathonFields'],
+    });
+  }
+  addFormatIssues(
+    eventFormatIssues(
+      input.format,
+      input,
+      CREATE_VENUE_FIELDS,
+      input.kind !== 'hackathon' || input.format !== 'online',
+    ),
+    context,
+  );
+  if (
+    input.format === 'online' &&
+    input.kind !== 'hackathon' &&
+    input.cityCode === undefined
+  )
+    context.addIssue({
+      code: 'custom',
+      message: 'An online event names its city',
+      path: ['cityCode'],
+    });
+};
+
 export const eventCreateSchema = z
   .object({
-    marketCode: marketCodeSchema,
-    cityCode: z.string().trim().min(1).max(32).optional(),
-    title: eventTitleSchema,
-    description: eventDescriptionSchema,
-    venueName: eventVenueNameSchema,
-    venueAddress: eventVenueAddressSchema,
-    venueProviderId: z.string().trim().min(1).max(120).optional(),
-    latitude: z.number().finite().min(-90).max(90),
-    longitude: z.number().finite().min(-180).max(180),
-    startsAt: z.number().int().positive(),
-    endsAt: z.number().int().positive(),
-    languages: eventLanguagesSchema,
+    ...eventCreateFields,
+    kind: memberEventKindSchema.default('meetup'),
   })
   .strict()
-  .superRefine(addScheduleIssues);
+  .superRefine(addEventCreateIssues);
 
 /**
  * Hold an edit to the schedule rules, and to naming a point completely or not at all.
@@ -138,7 +240,7 @@ export const eventUpdateSchema = z
     expectedVersion: z.number().int().nonnegative(),
     title: eventTitleSchema,
     description: eventDescriptionSchema,
-    venueName: eventVenueNameSchema,
+    venueName: eventVenueNameSchema.optional(),
     venueAddress: eventVenueAddressSchema.optional(),
     venueProviderId: z.string().trim().min(1).max(120).optional(),
     latitude: z.number().finite().min(-90).max(90).optional(),
@@ -146,20 +248,32 @@ export const eventUpdateSchema = z
     startsAt: z.number().int().positive(),
     endsAt: z.number().int().positive(),
     languages: eventLanguagesSchema,
+    kind: memberEventKindSchema.optional(),
+    tags: eventTagsSchema.optional(),
+    format: eventFormatSchema.optional(),
+    meetingUrl: eventMeetingUrlSchema.optional(),
   })
   .strict()
-  .superRefine(addUpdateIssues);
+  .superRefine((input, context) => {
+    addUpdateIssues(input, context);
+    if (input.format !== undefined)
+      addFormatIssues(
+        eventFormatIssues(input.format, input, UPDATE_VENUE_FIELDS),
+        context,
+      );
+  });
 
 export type EventUpdateInput = z.infer<typeof eventUpdateSchema>;
 
 export const publicEventDiscoverySchema = z.strictObject({
   market: z.string().trim().min(1).max(80),
-  city: z.string().trim().min(1).max(80),
-  cityName: z.string().trim().min(1).max(160),
+  city: z.string().trim().min(1).max(80).nullable(),
+  cityName: z.string().trim().min(1).max(160).nullable(),
   slug: z.string().trim().min(1).max(80),
   title: eventTitleSchema,
-  description: eventDescriptionSchema,
-  venue: eventVenueNameSchema,
+  description: eventDescriptionStorageSchema,
+  format: eventFormatSchema,
+  venue: eventVenueNameSchema.nullable(),
   venueAddress: eventVenueAddressSchema.nullable(),
   startsAt: z.string().datetime({ offset: true }),
   endsAt: z.string().datetime({ offset: true }).nullable(),

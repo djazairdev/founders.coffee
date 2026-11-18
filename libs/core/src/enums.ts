@@ -22,9 +22,16 @@ export const MARKET_STATES = ['dark', 'open', 'active'] as const;
 export type MarketState = (typeof MARKET_STATES)[number];
 export const marketStateSchema = z.enum(MARKET_STATES);
 
-export const EVENT_STATUSES = ['published', 'cancelled'] as const;
+export const EVENT_STATUSES = ['draft', 'published', 'cancelled'] as const;
 export type EventStatus = (typeof EVENT_STATUSES)[number];
 export const eventStatusSchema = z.enum(EVENT_STATUSES);
+
+export const EVENT_KINDS = ['meetup', 'workshop', 'hackathon'] as const;
+export type EventKind = (typeof EVENT_KINDS)[number];
+export const eventKindSchema = z.enum(EVENT_KINDS);
+
+export const EVENT_ORGANISER_ROLES = ['lead', 'co_host'] as const;
+export type EventOrganiserRole = (typeof EVENT_ORGANISER_ROLES)[number];
 
 export const RSVP_STATUSES = ['going', 'waitlist', 'cancelled'] as const;
 export type RsvpStatus = (typeof RSVP_STATUSES)[number];
@@ -47,38 +54,6 @@ export const ORDER_STATUSES = [
 ] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export const orderStatusSchema = z.enum(ORDER_STATUSES);
-
-export const NOTIFICATION_DELIVERY_CHANNELS = ['sms', 'email', 'push'] as const;
-export type NotificationDeliveryChannel =
-  (typeof NOTIFICATION_DELIVERY_CHANNELS)[number];
-export const notificationDeliveryChannelSchema = z.enum(
-  NOTIFICATION_DELIVERY_CHANNELS,
-);
-
-export const NOTIFICATION_PREFERENCE_CHANNELS = ['push', 'email'] as const;
-export type NotificationPreferenceChannel =
-  (typeof NOTIFICATION_PREFERENCE_CHANNELS)[number];
-export const notificationPreferenceChannelSchema = z.enum(
-  NOTIFICATION_PREFERENCE_CHANNELS,
-);
-
-export const NOTIFICATION_FALLBACK_CHANNELS = ['email', 'sms'] as const;
-export type NotificationFallbackChannel =
-  (typeof NOTIFICATION_FALLBACK_CHANNELS)[number];
-export const notificationFallbackChannelSchema = z.enum(
-  NOTIFICATION_FALLBACK_CHANNELS,
-);
-
-export const NOTIFICATION_STATUSES = [
-  'pending',
-  'processing',
-  'sent',
-  'delivered',
-  'failed',
-  'cancelled',
-] as const;
-export type NotificationStatus = (typeof NOTIFICATION_STATUSES)[number];
-export const notificationStatusSchema = z.enum(NOTIFICATION_STATUSES);
 
 export const CITY_WAITLIST_LAUNCH_STATUSES = [
   'pending',
@@ -103,33 +78,6 @@ export type CityWaitlistNotificationStatus =
 export const cityWaitlistNotificationStatusSchema = z.enum(
   CITY_WAITLIST_NOTIFICATION_STATUSES,
 );
-
-export const NOTIFICATION_TEMPLATE_KEYS = [
-  'rsvp_confirmation',
-  'reminder_72h',
-  'reminder_24h',
-  'event_cancelled',
-  'event_rescheduled',
-  'event_relocated',
-  'rsvp_received',
-  'rsvp_cancelled',
-  'closeout_prompt',
-  'event_did_not_happen',
-  'feedback_invitation',
-  'chat_unread',
-] as const;
-export type NotificationTemplateKey =
-  (typeof NOTIFICATION_TEMPLATE_KEYS)[number];
-export const notificationTemplateKeySchema = z.enum(NOTIFICATION_TEMPLATE_KEYS);
-
-export const RSVP_LIFECYCLE_TEMPLATE_KEYS = [
-  'rsvp_confirmation',
-  'reminder_72h',
-  'reminder_24h',
-  'event_cancelled',
-  'event_rescheduled',
-  'event_relocated',
-] as const satisfies readonly NotificationTemplateKey[];
 
 export const PUSH_PLATFORMS = ['ios', 'android', 'web'] as const;
 export type PushPlatform = (typeof PUSH_PLATFORMS)[number];
@@ -229,6 +177,11 @@ export const AUDIT_TARGETS = [
   'feedback',
   'host_trust',
   'operations_review',
+  'organisation',
+  'hackathon',
+  'submission',
+  'judge',
+  'team',
 ] as const;
 export type AuditTarget = (typeof AUDIT_TARGETS)[number];
 export const auditTargetSchema = z.enum(AUDIT_TARGETS);
@@ -240,6 +193,15 @@ export const AUDIT_ACTIONS = [
   'attendance_corrected',
   'host_trust_updated',
   'review_recorded',
+  'approved',
+  'rejected',
+  'suspended',
+  'recused',
+  'disqualified',
+  'dismissed',
+  'results_published',
+  'co_host_added',
+  'co_host_removed',
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 export const auditActionSchema = z.enum(AUDIT_ACTIONS);

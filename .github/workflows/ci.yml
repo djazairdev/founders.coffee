@@ -6,6 +6,11 @@ name: CI
 on:
   pull_request:
   workflow_call:
+    inputs:
+      base_sha:
+        type: string
+        required: false
+        default: ''
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -14,11 +19,16 @@ concurrency:
 permissions:
   actions: read
   contents: read
+  pull-requests: read
+
+env:
+  NX_CACHE_DIRECTORY: .nx/cache
+  NX_WORKSPACE_DATA_DIRECTORY: .nx/workspace-data
 
 jobs:
   reuse-evidence:
-    name: Reuse verified staging tree
-    if: github.event_name == 'push' && github.ref_name == 'main'
+    name: Reuse exact-tree verification
+    if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'develop')
     runs-on: ubuntu-latest
     outputs:
       reuse: ${{ steps.lookup.outputs.reuse }}
@@ -36,8 +46,21 @@ jobs:
       - id: lookup
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
           TARGET_TREE: ${{ steps.target-tree.outputs.tree }}
         run: node tools/ci/verified-staging-tree.mjs
+
+  dependency-audit:
+    name: Dependency advisory audit
+    if: ${{ !(github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - name: Check dependency advisories
+        run: node tools/ci/dependency-audit.mjs
 
   quality:
     name: Format, sync, typecheck, lint and test
@@ -48,22 +71,26 @@ jobs:
       !(github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - &checkout
+        uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v7
+      - &node
+        uses: actions/setup-node@v7
         id: node
         with:
           node-version-file: .nvmrc
           cache: npm
 
-      - name: Restore Nx cache
+      - &nx-cache
+        name: Restore Nx cache
         uses: actions/cache@v6
         with:
-          path: .nx/cache
-          key: nx-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          path: |
+            .nx/cache
+            .nx/workspace-data/*-v*.db
+          key: nx24-${{ runner.os }}-${{ steps.node.outputs.node-version }}-${{ github.job }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
           restore-keys: |
-            nx-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
-            nx-${{ runner.os }}-
+            nx24-${{ runner.os }}-${{ steps.node.outputs.node-version }}-${{ github.job }}-${{ hashFiles('package-lock.json') }}-
 
       # `node_modules` is about a gigabyte across the root and every workspace, and `npm ci`
       # spends seven minutes on it even with a warm npm cache, because the cost is extraction
@@ -71,7 +98,8 @@ jobs:
       # Keyed on the exact lockfile and the exact Node version, deliberately without
       # `restore-keys`: a near-miss must reinstall rather than half-populate a tree that
       # `npm ci` would then be skipped for.
-      - name: Restore node_modules
+      - &modules
+        name: Restore node_modules
         id: modules
         uses: actions/cache@v6
         with:
@@ -81,9 +109,29 @@ jobs:
             libs/*/node_modules
           key: modules-${{ runner.os }}-node${{ steps.node.outputs.node-version }}-${{ hashFiles('package-lock.json') }}
 
-      - name: Install dependencies
+      - &install
+        name: Install dependencies
         if: steps.modules.outputs.cache-hit != 'true'
         run: npm ci --no-audit --no-fund
+
+      - &nx-range
+        name: Resolve affected range
+        id: nx-range
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || inputs.base_sha }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            echo "full=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git fetch --no-tags --depth=1 origin "$BASE_SHA"; then
+            echo "full=false" >> "$GITHUB_OUTPUT"
+            echo "base=$BASE_SHA" >> "$GITHUB_OUTPUT"
+            echo "head=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          else
+            echo "full=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Check formatting
         run: npm run format:check
@@ -95,8 +143,48 @@ jobs:
 
       # `lint` includes the Nx module-boundary rules that enforce the one-directional
       # data flow (AGENTS.md §4), so a boundary violation fails CI here.
-      - name: Typecheck, lint and test
-        run: npx nx run-many -t typecheck lint test --parallel=1
+      - name: Typecheck and lint
+        env:
+          FULL: ${{ steps.nx-range.outputs.full }}
+          NX_BASE: ${{ steps.nx-range.outputs.base }}
+          NX_HEAD: ${{ steps.nx-range.outputs.head }}
+        run: |
+          if [ "$FULL" = "true" ]; then
+            npx nx run-many -t typecheck lint --parallel=2
+          else
+            npx nx affected -t typecheck lint --base="$NX_BASE" --head="$NX_HEAD" --parallel=2
+          fi
+
+      - name: Test workspace projects
+        env:
+          FULL: ${{ steps.nx-range.outputs.full }}
+          NX_BASE: ${{ steps.nx-range.outputs.base }}
+          NX_HEAD: ${{ steps.nx-range.outputs.head }}
+        run: |
+          if [ "$FULL" = "true" ]; then
+            npx nx run-many -t test --exclude=server-fns --parallel=2
+          else
+            npx nx affected -t test --exclude=server-fns --base="$NX_BASE" --head="$NX_HEAD" --parallel=2
+          fi
+
+  server-tests:
+    name: Server functions tests
+    needs: reuse-evidence
+    if: >-
+      always() &&
+      needs.reuse-evidence.outputs.reuse != 'true' &&
+      !(github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    steps:
+      - *checkout
+      - *node
+      - *nx-cache
+      - *modules
+      - *install
+      - *nx-range
+
+      - name: Test server functions with coverage
+        run: npx nx run server-fns:test
 
   build:
     name: Build and Miniflare SEO gate
@@ -107,53 +195,41 @@ jobs:
       !(github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
-        id: node
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-
-      - name: Restore Nx cache
-        uses: actions/cache@v6
-        with:
-          path: .nx/cache
-          key: nx-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
-          restore-keys: |
-            nx-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
-            nx-${{ runner.os }}-
-
-      - name: Restore node_modules
-        id: modules
-        uses: actions/cache@v6
-        with:
-          path: |
-            node_modules
-            apps/*/node_modules
-            libs/*/node_modules
-          key: modules-${{ runner.os }}-node${{ steps.node.outputs.node-version }}-${{ hashFiles('package-lock.json') }}
-
-      - name: Install dependencies
-        if: steps.modules.outputs.cache-hit != 'true'
-        run: npm ci --no-audit --no-fund
+      - *checkout
+      - *node
+      - *nx-cache
+      - *modules
+      - *install
+      - *nx-range
 
       - name: Build
-        run: npx nx run-many -t build --parallel=1
+        env:
+          FULL: ${{ steps.nx-range.outputs.full }}
+          NX_BASE: ${{ steps.nx-range.outputs.base }}
+          NX_HEAD: ${{ steps.nx-range.outputs.head }}
+        run: |
+          if [ "$FULL" = "true" ]; then
+            npx nx run-many -t build --parallel=2
+          else
+            npx nx affected -t build --base="$NX_BASE" --head="$NX_HEAD" --parallel=2
+            npx nx run public:build
+          fi
 
       - name: Run Miniflare SEO integration gate
         run: npx nx run public:integration-test
 
   verification:
     name: Verification evidence
-    needs: [reuse-evidence, quality, build]
+    needs: [reuse-evidence, dependency-audit, quality, server-tests, build]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Confirm verification evidence
         env:
           BUILD: ${{ needs.build.result }}
+          DEPENDENCY_AUDIT: ${{ needs.dependency-audit.result }}
           QUALITY: ${{ needs.quality.result }}
+          SERVER_TESTS: ${{ needs.server-tests.result }}
           RELEASE_PULL_REQUEST: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository }}
           REUSE_EVIDENCE: ${{ needs.reuse-evidence.result }}
           REUSED: ${{ needs.reuse-evidence.outputs.reuse }}
@@ -161,12 +237,12 @@ jobs:
           SOURCE_TREE: ${{ needs.reuse-evidence.outputs.tree }}
         run: |
           if [ "$REUSED" = "true" ]; then
-            if [ "$REUSE_EVIDENCE" != "success" ] || [ "$QUALITY" != "skipped" ] || [ "$BUILD" != "skipped" ] || [ -z "$SOURCE_RUN_URL" ] || [ -z "$SOURCE_TREE" ]; then
-              echo "::error::Verified-tree reuse evidence is incomplete."
+            if [ "$REUSE_EVIDENCE" != "success" ] || [ "$QUALITY" != "skipped" ] || [ "$SERVER_TESTS" != "skipped" ] || [ "$BUILD" != "skipped" ] || [ "$DEPENDENCY_AUDIT" != "success" ] || [ -z "$SOURCE_RUN_URL" ] || [ -z "$SOURCE_TREE" ]; then
+              echo "::error::Exact-tree reuse evidence is incomplete."
               exit 1
             fi
             {
-              echo "## Reused verified staging tree"
+              echo "## Reused exact-tree verification"
               echo
               echo "Source: $SOURCE_RUN_URL"
               echo "Tree: \`$SOURCE_TREE\`"
@@ -174,13 +250,13 @@ jobs:
             exit 0
           fi
           if [ "$RELEASE_PULL_REQUEST" = "true" ]; then
-            if [ "$QUALITY" != "skipped" ] || [ "$BUILD" != "skipped" ]; then
+            if [ "$QUALITY" != "skipped" ] || [ "$SERVER_TESTS" != "skipped" ] || [ "$BUILD" != "skipped" ] || [ "$DEPENDENCY_AUDIT" != "skipped" ]; then
               echo "::error::The develop release pull request must not run duplicate checks."
               exit 1
             fi
             exit 0
           fi
-          if [ "$QUALITY" != "success" ] || [ "$BUILD" != "success" ]; then
+          if [ "$QUALITY" != "success" ] || [ "$SERVER_TESTS" != "success" ] || [ "$BUILD" != "success" ] || [ "$DEPENDENCY_AUDIT" != "success" ]; then
             echo "::error::Long CI verification did not complete successfully."
             exit 1
           fi

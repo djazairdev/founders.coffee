@@ -1,14 +1,17 @@
+import type { RefObject } from 'react';
+
+import type { ProfileLinkKind } from '@founders-coffee/core';
 import {
   profile_attended_hint,
   profile_attended_label,
+  profile_hackathon_record_hint,
+  profile_hackathon_record_label,
   profile_interests_hint,
   profile_interests_label,
   profile_languages_label,
-  profile_link_label,
-  profile_link_placeholder,
   type Locale,
 } from '@founders-coffee/i18n';
-import { ChipGroup, Input, toggleChip } from '@founders-coffee/ui';
+import { ChipGroup, toggleChip } from '@founders-coffee/ui';
 
 import {
   localeLabel,
@@ -18,17 +21,25 @@ import {
 } from '../profile-labels';
 import type { ProfileDraft } from '../profile-draft';
 import { OptionalChip } from './OptionalChip';
+import { ProfileLinksFields, type LinkInputs } from './ProfileLinksFields';
+import { ProfileOpenToField } from './ProfileOpenToField';
+import { ProfileSearchField } from './ProfileSearchField';
+import { ProfileSkillsField } from './ProfileSkillsField';
 import { PublishToggle } from './PublishToggle';
 
 export const ProfileDetailFields = ({
   locale,
   draft,
   isDisabled,
+  invalidLink,
+  linkInputs,
   onChange,
 }: {
   locale: Locale;
   draft: ProfileDraft;
   isDisabled: boolean;
+  invalidLink: ProfileLinkKind | null;
+  linkInputs: RefObject<LinkInputs>;
   onChange: (patch: Partial<ProfileDraft>) => void;
 }) => {
   return (
@@ -66,6 +77,13 @@ export const ProfileDetailFields = ({
         />
       </div>
 
+      <ProfileSkillsField
+        locale={locale}
+        draft={draft}
+        isDisabled={isDisabled}
+        onChange={onChange}
+      />
+
       <div>
         <div className="mb-2 flex items-center justify-between gap-2">
           <span className="text-label">
@@ -98,38 +116,21 @@ export const ProfileDetailFields = ({
         />
       </div>
 
-      <div>
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <label htmlFor="profile-link" className="text-label">
-            {profile_link_label({}, { locale })}
-          </label>
-          <OptionalChip locale={locale} />
-        </div>
-        <Input
-          id="profile-link"
-          type="url"
-          inputMode="url"
-          dir="ltr"
-          maxLength={2048}
-          value={draft.professionalLink ?? ''}
-          disabled={isDisabled}
-          placeholder={profile_link_placeholder({}, { locale })}
-          onChange={(event) =>
-            onChange({ professionalLink: event.target.value || null })
-          }
-        />
-        <PublishToggle
-          locale={locale}
-          isPublic={draft.visibility.professionalLink}
-          isDisabled={isDisabled || !draft.professionalLink}
-          fieldLabel={profile_link_label({}, { locale })}
-          onChange={(isPublic) =>
-            onChange({
-              visibility: { ...draft.visibility, professionalLink: isPublic },
-            })
-          }
-        />
-      </div>
+      <ProfileOpenToField
+        locale={locale}
+        draft={draft}
+        isDisabled={isDisabled}
+        onChange={onChange}
+      />
+
+      <ProfileLinksFields
+        locale={locale}
+        draft={draft}
+        isDisabled={isDisabled}
+        invalidLink={invalidLink}
+        inputs={linkInputs}
+        onChange={onChange}
+      />
 
       <div>
         <div className="mb-2 flex items-center justify-between gap-2">
@@ -153,6 +154,35 @@ export const ProfileDetailFields = ({
           }
         />
       </div>
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-body-sm font-medium">
+            {profile_hackathon_record_label({}, { locale })}
+          </span>
+          <OptionalChip locale={locale} />
+        </div>
+        <p className="text-body-sm text-neutral">
+          {profile_hackathon_record_hint({}, { locale })}
+        </p>
+        <PublishToggle
+          locale={locale}
+          isPublic={draft.visibility.hackathonRecord}
+          isDisabled={isDisabled}
+          fieldLabel={profile_hackathon_record_label({}, { locale })}
+          onChange={(isPublic) =>
+            onChange({
+              visibility: { ...draft.visibility, hackathonRecord: isPublic },
+            })
+          }
+        />
+      </div>
+
+      <ProfileSearchField
+        locale={locale}
+        draft={draft}
+        isDisabled={isDisabled}
+        onChange={onChange}
+      />
     </div>
   );
 };

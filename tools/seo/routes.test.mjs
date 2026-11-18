@@ -31,9 +31,23 @@ describe('telling one kind of route from another', () => {
     ['/fr/algeria', 'market'],
     ['/fr/algeria/algiers', 'city'],
     ['/fr/algeria/e/coffee-and-code', 'event'],
+    ['/ar/profile/organisations', 'utility'],
+    ['/fr/profile/organisations', 'utility'],
+    ['/en/profile/organisations', 'utility'],
     ['/fr/algeria/host/create', 'utility'],
+    ['/ar/o/apply', 'utility'],
+    ['/fr/o/invitations/inv_1', 'utility'],
+    ['/en/o/code-club', 'organisation'],
+    ['/ar/o/founders-coffee', 'organisation'],
+    ['/en/p/ledger-ab12', 'project'],
+    ['/ar/u/usr_1', 'profile'],
+    ['/en/algeria/u', 'city'],
   ])('reads %s as a %s route', (path, type) => {
     expect(classifyPath(path)).toBe(type);
+  });
+
+  it("leaves an organisation's signed-in pages uncovered", () => {
+    expect(classifyPath('/en/o/code-club/manage')).toBeNull();
   });
 
   it('leaves a path with no locale in front uncovered', () => {

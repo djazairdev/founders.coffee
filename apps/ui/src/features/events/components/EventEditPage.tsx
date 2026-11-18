@@ -20,7 +20,11 @@ import { LoadingStatus, StatusMessage } from '@founders-coffee/ui';
 
 import { localizedEvent } from '../../../lib/locale-routing';
 import { useEventById, useUpdateEvent } from '../hooks';
-import { draftFromEvent, locationPatch } from '../event-edit-draft';
+import {
+  draftFromEvent,
+  meetingUrlProblem,
+  placePatch,
+} from '../event-edit-draft';
 import { useEventEditDraft } from '../useEventEditDraft';
 import { EventEditForm } from './EventEditForm';
 
@@ -73,7 +77,8 @@ export const EventEditPage = ({
       !event ||
       !current ||
       current.startsAt === null ||
-      current.endsAt === null
+      current.endsAt === null ||
+      meetingUrlProblem(event, current, locale) !== null
     )
       return;
     setError(null);
@@ -85,8 +90,7 @@ export const EventEditPage = ({
             expectedVersion: event.version,
             title: current.title.trim(),
             description: current.description.trim(),
-            venueName: current.venueName.trim(),
-            ...(locationPatch(event, current) ?? {}),
+            ...placePatch(event, current),
             startsAt: current.startsAt,
             endsAt: current.endsAt,
             languages: current.languages,

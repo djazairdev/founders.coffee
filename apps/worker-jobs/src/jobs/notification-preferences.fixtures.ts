@@ -19,6 +19,8 @@ export const setPreferences = async (
     followUpPromptsChannels?: number;
     meetupChat?: boolean;
     meetupChatChannels?: number;
+    hackathons?: boolean;
+    hackathonsChannels?: number;
     pushEnabled?: boolean;
     smsFallbackEnabled?: boolean;
   },

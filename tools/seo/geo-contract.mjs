@@ -16,6 +16,9 @@ const PRIMARY_TYPES = {
   city: 'CollectionPage',
   event: 'Event',
   market: 'CollectionPage',
+  organisation: 'ProfilePage',
+  project: 'CreativeWork',
+  profile: 'ProfilePage',
 };
 const PRIVATE_KEYS = new Set(['email', 'phone', 'hostid', 'rsvps']);
 
@@ -38,13 +41,25 @@ const jsonLdScripts = (body) => {
 
 const visibleText = (body) =>
   body
-    .replace(/<script\b[\s\S]*?<\/script>/giu, ' ')
-    .replace(/<style\b[\s\S]*?<\/style>/giu, ' ')
+    .replace(
+      /<script(?=[\t\n\f\r />])[\s\S]*?<\/script(?=[\t\n\f\r />])[^>]*>/giu,
+      ' ',
+    )
+    .replace(
+      /<style(?=[\t\n\f\r />])[\s\S]*?<\/style(?=[\t\n\f\r />])[^>]*>/giu,
+      ' ',
+    )
     .replace(/<[^>]+>/gu, ' ')
-    .replace(/&amp;/gu, '&')
-    .replace(/&quot;/gu, '"')
-    .replace(/&#39;|&apos;/gu, "'")
-    .replace(/&nbsp;/gu, ' ')
+    .replace(/&(amp|quot|#39|apos|nbsp);/giu, (entity) => {
+      const decoded = {
+        '&amp;': '&',
+        '&quot;': '"',
+        '&#39;': "'",
+        '&apos;': "'",
+        '&nbsp;': ' ',
+      };
+      return decoded[entity.toLowerCase()] ?? entity;
+    })
     .replace(/\s+/gu, ' ')
     .trim();
 
@@ -126,6 +141,12 @@ export const inspectGeoDocument = ({ path, type, body, canonical }) => {
     !text.includes(primary.organizer.name)
   )
     failures.push('event organizer is not visible in the document');
+
+  if (
+    type === 'organisation' &&
+    (!primary.mainEntity || primary.mainEntity['@type'] !== 'Organization')
+  )
+    failures.push('ProfilePage JSON-LD has no Organization main entity');
 
   if (hasPrivateKey(primary))
     failures.push('primary JSON-LD contains private fields');

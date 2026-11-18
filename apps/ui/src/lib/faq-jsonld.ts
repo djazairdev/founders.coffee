@@ -1,5 +1,7 @@
 import type { CompanyPageContent } from '../content/company';
 
+import type { JsonLdObject } from './seo-structured-data';
+
 type FaqEntry = {
   readonly question: string;
   answer: string[];
@@ -36,17 +38,19 @@ export const faqEntries = (
 };
 
 /** FAQPage structured data for a question-and-answer company page. */
-export const faqJsonLd = (content: CompanyPageContent, url: string): string =>
-  JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    url,
-    mainEntity: faqEntries(content).map((entry) => ({
-      '@type': 'Question',
-      name: entry.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: entry.answer.join(' '),
-      },
-    })),
-  });
+export const faqJsonLd = (
+  content: CompanyPageContent,
+  url: string,
+): JsonLdObject => ({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  url,
+  mainEntity: faqEntries(content).map((entry) => ({
+    '@type': 'Question',
+    name: entry.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: entry.answer.join(' '),
+    },
+  })),
+});

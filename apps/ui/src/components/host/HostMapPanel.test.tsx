@@ -9,6 +9,8 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { HostMapPanel } from './HostMapPanel';
+
 const MAP_FAILED = 'Could not load the venue map.';
 const ROUTE_FAILED = 'The route error page';
 
@@ -19,39 +21,39 @@ const observability = vi.hoisted(() => ({
 
 vi.mock('@founders-coffee/observability', () => observability);
 
-const lostChunk = new TypeError(
-  'Failed to fetch dynamically imported module: https://founders.coffee/assets/HostMap-Dk3jQ0aB.js',
+const lostChunk = vi.hoisted(
+  () =>
+    new TypeError(
+      'Failed to fetch dynamically imported module: https://founders.coffee/assets/HostMap-Dk3jQ0aB.js',
+    ),
 );
+
+vi.mock('./HostMap', () => {
+  throw lostChunk;
+});
 
 const RouteError = () => <p>{ROUTE_FAILED}</p>;
 
-const panelWithoutItsMap = async () => {
-  vi.resetModules();
-  vi.doMock('./HostMap', () => {
-    throw lostChunk;
-  });
-  const { HostMapPanel } = await import('./HostMapPanel');
-  await act(async () => {
-    render(
-      <CatchBoundary getResetKey={() => 0} errorComponent={RouteError}>
-        <HostMapPanel
-          locale="en"
-          accessToken="test-token"
-          marketCode="DZ"
-          venue={null}
-          viewport={{
-            center: { latitude: 36.7538, longitude: 3.0588 },
-            bounds: [2.9, 36.6, 3.3, 36.9],
-          }}
-          error={null}
-          isInteractive
-          onRetry={vi.fn()}
-          onVenueSelect={vi.fn()}
-          onVenueInvalidate={vi.fn()}
-        />
-      </CatchBoundary>,
-    );
-  });
+const panelWithoutItsMap = () => {
+  render(
+    <CatchBoundary getResetKey={() => 0} errorComponent={RouteError}>
+      <HostMapPanel
+        locale="en"
+        accessToken="test-token"
+        marketCode="DZ"
+        venue={null}
+        viewport={{
+          center: { latitude: 36.7538, longitude: 3.0588 },
+          bounds: [2.9, 36.6, 3.3, 36.9],
+        }}
+        error={null}
+        isInteractive
+        onRetry={vi.fn()}
+        onVenueSelect={vi.fn()}
+        onVenueInvalidate={vi.fn()}
+      />
+    </CatchBoundary>,
+  );
 };
 
 const reload = vi.fn();
@@ -62,7 +64,6 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
-  vi.doUnmock('./HostMap');
   vi.unstubAllGlobals();
   reload.mockReset();
   observability.reportError.mockReset();
@@ -70,7 +71,7 @@ afterEach(() => {
 
 describe('the venue map panel when the map’s own code never arrives', () => {
   it('shows the map’s failure state, and the page around it stays', async () => {
-    await panelWithoutItsMap();
+    panelWithoutItsMap();
 
     await waitFor(() => {
       expect(
@@ -83,7 +84,7 @@ describe('the venue map panel when the map’s own code never arrives', () => {
   });
 
   it('loads the page again on Retry, the only way to fetch that code again', async () => {
-    await panelWithoutItsMap();
+    panelWithoutItsMap();
     await screen.findByText(MAP_FAILED);
 
     await act(async () => {
@@ -97,7 +98,7 @@ describe('the venue map panel when the map’s own code never arrives', () => {
   });
 
   it('reports the failure once, as the host map’s', async () => {
-    await panelWithoutItsMap();
+    panelWithoutItsMap();
     await screen.findByText(MAP_FAILED);
 
     expect(observability.reportError).toHaveBeenCalledExactlyOnceWith(

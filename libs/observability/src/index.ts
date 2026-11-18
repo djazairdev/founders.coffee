@@ -21,6 +21,10 @@ export {
   type MetricDimensions,
   type Metrics,
 } from './metrics.js';
+export {
+  HACKATHON_METRICS,
+  type HackathonMetric,
+} from './hackathon-metrics.js';
 export { ingestClientLogs } from './ingest.js';
 export { ingestCspReport } from './csp-report.js';
 export {

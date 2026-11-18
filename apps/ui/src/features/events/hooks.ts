@@ -19,6 +19,7 @@ import {
   type UpdateEventInput,
   type CreatedEvent,
   type CreateEventInput,
+  type CreateOrganisationEventInput,
   type EventFeedPage,
   type HostedEventPage,
   type HostMapContext,
@@ -165,6 +166,11 @@ export const useCreateEvent = () =>
     mutationFn: (input) => eventsApi.createEvent(input),
   });
 
+export const useCreateOrganisationEvent = () =>
+  useMutation<CreatedEvent, Error, CreateOrganisationEventInput>({
+    mutationFn: (input) => eventsApi.createOrganisationEvent(input),
+  });
+
 /** Refresh every cached view that now has to show the newly created event (EC-08). */
 export const useInvalidateCreatedEvent = () => {
   const queryClient = useQueryClient();
@@ -183,10 +189,14 @@ export const useInvalidateCreatedEvent = () => {
  * so the map moves across to it rather than dropping back to its skeleton, and the search box they
  * are typing in stays enabled. A first load still has nothing to show, and waits.
  */
-export const useHostMapContext = (input: HostMapLocationInput) =>
+export const useHostMapContext = (
+  input: HostMapLocationInput,
+  isEnabled = true,
+) =>
   useQuery<HostMapContext>({
     queryKey: ['events', 'host-map', input],
     queryFn: () => eventsApi.getHostMapContext({ data: input }),
+    enabled: isEnabled,
     placeholderData: keepPreviousData,
     staleTime: 30 * 60_000,
     retry: false,

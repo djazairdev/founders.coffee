@@ -29,7 +29,12 @@ const validDraft: HostCreateDraft = {
   endsAt: startsAt + 60 * 60_000,
   title: 'Founder meetup',
   description: 'A complete founder meetup description.',
+  kind: 'meetup' as const,
   chosenLanguages: null,
+  hostAs: null,
+  tags: [],
+  format: 'in_person',
+  meetingUrl: '',
 };
 
 describe('host create validation', () => {
@@ -57,10 +62,16 @@ describe('host create validation', () => {
   });
 
   it('restores to the first step whose saved projection is invalid', () => {
-    expect(restoredDraftStep(validDraft, 'en')).toBe(3);
-    expect(restoredDraftStep({ ...validDraft, venue: null }, 'en')).toBe(1);
+    expect(restoredDraftStep(validDraft, undefined, 'en')).toBe(3);
     expect(
-      restoredDraftStep({ ...validDraft, endsAt: startsAt + 1 }, 'en'),
+      restoredDraftStep({ ...validDraft, venue: null }, undefined, 'en'),
+    ).toBe(1);
+    expect(
+      restoredDraftStep(
+        { ...validDraft, endsAt: startsAt + 1 },
+        undefined,
+        'en',
+      ),
     ).toBe(2);
   });
 

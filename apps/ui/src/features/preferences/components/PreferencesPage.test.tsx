@@ -50,12 +50,15 @@ const view = (
     followUpPromptsChannels: [],
     meetupChat: true,
     meetupChatChannels: ['push'],
+    hackathons: true,
+    hackathonsChannels: ['push', 'email'],
     pushEnabled: false,
     smsFallbackEnabled: false,
   },
   smsAvailable: false,
   smsConsentAt: null,
   meetupChatAvailable: true,
+  hackathonsAvailable: false,
   ...overrides,
 });
 

@@ -18,6 +18,10 @@ export const getMapboxToken = createServerFn({ strict: false }).handler(
     ),
 );
 
+export const getOptionalMapboxToken = createServerFn({ strict: false }).handler(
+  async () => workerEnv().MAPBOX_TOKEN || null,
+);
+
 /**
  * Public Firebase web config + VAPID key for the PWA push client. All these values are designed to
  * be public (Firebase web config + VAPID application-server key). Returns `null` if Firebase isn't

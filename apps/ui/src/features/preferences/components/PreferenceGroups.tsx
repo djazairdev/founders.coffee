@@ -10,6 +10,7 @@ export const CategoryGroup = ({
   pushState,
   isEnabling,
   isChatAvailable,
+  isHackathonsAvailable,
   onEnablePush,
   onChange,
 }: {
@@ -18,6 +19,7 @@ export const CategoryGroup = ({
   pushState: PushState;
   isEnabling: boolean;
   isChatAvailable: boolean;
+  isHackathonsAvailable: boolean;
   onEnablePush: () => Promise<boolean>;
   onChange: (changes: Partial<NotificationDraft>) => void;
 }) => (
@@ -28,6 +30,7 @@ export const CategoryGroup = ({
       pushState={pushState}
       isEnabling={isEnabling}
       isChatAvailable={isChatAvailable}
+      isHackathonsAvailable={isHackathonsAvailable}
       onEnablePush={onEnablePush}
       onChange={onChange}
     />

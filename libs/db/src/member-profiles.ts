@@ -21,12 +21,18 @@ export type MemberProfileChanges = Pick<
   | 'introduction'
   | 'interests'
   | 'spokenLanguages'
-  | 'professionalLink'
+  | 'skills'
+  | 'links'
+  | 'openTo'
+  | 'profileIndexable'
   | 'publishHeadline'
   | 'publishStage'
   | 'publishInterests'
   | 'publishSpokenLanguages'
-  | 'publishProfessionalLink'
+  | 'publishSkills'
+  | 'publishLinks'
+  | 'publishOpenTo'
+  | 'publishHackathonRecord'
   | 'publishAttendedCount'
 >;
 
@@ -47,6 +53,31 @@ export const getProfileIdentity = async (db: Db, userId: string) => {
   const rows = await profileIdentityQuery(db, userId);
   return rows[0] ?? null;
 };
+
+export type IndexableProfileRow = {
+  readonly userId: string;
+  readonly name: string;
+  readonly email: string;
+};
+
+/**
+ * The members who chose to be listed in search engines and can still be shown, for the sitemap.
+ *
+ * The email is read only so the caller can apply the display-name rule the public profile applies;
+ * it never leaves the server.
+ */
+export const listIndexableProfiles = (db: Db): Promise<IndexableProfileRow[]> =>
+  db
+    .select({ userId: user.id, name: user.name, email: user.email })
+    .from(memberProfiles)
+    .innerJoin(user, eq(user.id, memberProfiles.userId))
+    .where(
+      and(
+        eq(memberProfiles.profileIndexable, true),
+        visibleIdentity(memberProfiles.userId),
+      ),
+    )
+    .orderBy(memberProfiles.userId);
 
 export type PublicEventHost = {
   readonly userId: string;
@@ -189,12 +220,18 @@ export const updateMemberProfile = async (
         introduction: changes.introduction,
         interests: changes.interests,
         spokenLanguages: changes.spokenLanguages,
-        professionalLink: changes.professionalLink,
+        skills: changes.skills,
+        links: changes.links,
+        openTo: changes.openTo,
+        profileIndexable: changes.profileIndexable,
         publishHeadline: changes.publishHeadline,
         publishStage: changes.publishStage,
         publishInterests: changes.publishInterests,
         publishSpokenLanguages: changes.publishSpokenLanguages,
-        publishProfessionalLink: changes.publishProfessionalLink,
+        publishSkills: changes.publishSkills,
+        publishLinks: changes.publishLinks,
+        publishOpenTo: changes.publishOpenTo,
+        publishHackathonRecord: changes.publishHackathonRecord,
         publishAttendedCount: changes.publishAttendedCount,
         revision: sql`${memberProfiles.revision} + 1`,
         updatedAt: now,

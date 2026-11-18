@@ -1,0 +1,110 @@
+import { Link } from '@tanstack/react-router';
+
+import {
+  back_to_city,
+  back_to_hackathons,
+  cityInputs,
+  type Locale,
+} from '@founders-coffee/i18n';
+import type { Market } from '@founders-coffee/db';
+import type { EventDetailItem } from '@founders-coffee/server-fns';
+
+import { EventCancelledNotice } from '../../../components/events/EventCancelledNotice';
+import { EventChat } from '../../chat/components/EventChat';
+import { eventCityName } from '../../events/event-city-name';
+import type { HackathonPageDetails, HackathonSchedule } from '../api';
+import { typeSearch } from '../../../lib/event-type-filter';
+import { localizedCity, localizedLanding } from '../../../lib/locale-routing';
+import { HackathonPublicContent } from './HackathonPublicContent';
+import { HackathonPublicHero } from './HackathonPublicHero';
+
+export const HackathonEventDetail = ({
+  locale,
+  market,
+  event,
+  isHost,
+  mapboxToken,
+  schedule,
+  details,
+  organisations,
+  canReport,
+}: {
+  locale: Locale;
+  market: Market;
+  event: EventDetailItem;
+  isHost: boolean;
+  mapboxToken: string | null;
+  schedule: HackathonSchedule | null;
+  details: HackathonPageDetails | null;
+  organisations?: readonly { readonly name: string; readonly slug: string }[];
+  canReport: boolean;
+}) => {
+  const cityName = eventCityName(event, locale);
+  const isCancelled = event.status === 'cancelled';
+  const isGoing = event.viewerRsvp === 'going';
+  const backLink =
+    event.format === 'online' ? (
+      <Link
+        {...localizedLanding(locale, market.slug)}
+        search={typeSearch('hackathon')}
+        className="mb-4 inline-flex min-h-6 items-center text-body-sm font-medium underline decoration-secondary underline-offset-[3px] hover:text-accent"
+      >
+        {back_to_hackathons({}, { locale })}
+      </Link>
+    ) : event.citySlug && cityName ? (
+      <Link
+        {...localizedCity(locale, market.slug, event.citySlug)}
+        className="mb-4 inline-flex min-h-6 items-center text-body-sm font-medium underline decoration-secondary underline-offset-[3px] hover:text-accent"
+      >
+        {back_to_city(cityInputs(cityName), { locale })}
+      </Link>
+    ) : null;
+
+  return (
+    <article className="mx-auto max-w-5xl px-4 py-6 sm:py-8 md:px-8 md:py-10">
+      {backLink}
+      {isCancelled ? (
+        <EventCancelledNotice
+          reason={event.cancellationReason}
+          locale={locale}
+        />
+      ) : null}
+      <HackathonPublicHero
+        event={event}
+        schedule={schedule}
+        registration={details?.registration ?? null}
+        minimumAge={details?.rules?.minimumAge ?? null}
+        teamSize={
+          details
+            ? { min: details.rules.teamMin, max: details.rules.teamMax }
+            : null
+        }
+        market={market}
+        locale={locale}
+        isCancelled={isCancelled}
+        organisations={organisations}
+      />
+      <HackathonPublicContent
+        event={event}
+        locale={locale}
+        market={market}
+        schedule={schedule}
+        details={details}
+        mapboxToken={mapboxToken}
+        canReport={canReport}
+        isCancelled={isCancelled}
+      />
+      {market.featureFlags.meetupChat === true ? (
+        <EventChat
+          locale={locale}
+          eventId={event.id}
+          title={event.title}
+          isMember={isHost || isGoing}
+          isCancelled={isCancelled}
+          endsAt={event.endsAt}
+          timeZone={market.timezone}
+        />
+      ) : null}
+    </article>
+  );
+};

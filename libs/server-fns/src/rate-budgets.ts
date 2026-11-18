@@ -1,16 +1,59 @@
-export interface RateBudget {
-  readonly action: string;
-  readonly limit: number;
-  readonly windowMs: number;
-}
+import { HACKATHON_RATE_BUDGETS } from './rate-budgets-hackathons.js';
+import { MINUTE_MS, type RateBudget } from './rate-budget.js';
 
-const MINUTE_MS = 60_000;
+export type { RateBudget } from './rate-budget.js';
 
 export const RATE_BUDGETS = {
   edit: {
+    ...HACKATHON_RATE_BUDGETS,
     profileUpdate: {
       action: 'update_profile',
       limit: 10,
+      windowMs: 10 * MINUTE_MS,
+    },
+    organisationApply: {
+      action: 'apply_for_organisation',
+      limit: 3,
+      windowMs: 60 * MINUTE_MS,
+    },
+    organisationUpdate: {
+      action: 'update_organisation',
+      limit: 10,
+      windowMs: 10 * MINUTE_MS,
+    },
+    organisationDelete: {
+      action: 'delete_organisation',
+      limit: 3,
+      windowMs: 60 * MINUTE_MS,
+    },
+    organisationInvite: {
+      action: 'invite_organisation_member',
+      limit: 10,
+      windowMs: 60 * MINUTE_MS,
+    },
+    organisationInvitationCancel: {
+      action: 'cancel_organisation_invitation',
+      limit: 20,
+      windowMs: 10 * MINUTE_MS,
+    },
+    organisationMemberRemove: {
+      action: 'remove_organisation_member',
+      limit: 20,
+      windowMs: 10 * MINUTE_MS,
+    },
+    organisationInvitationAnswer: {
+      action: 'answer_organisation_invitation',
+      limit: 10,
+      windowMs: 10 * MINUTE_MS,
+    },
+    organisationDecision: {
+      action: 'decide_organisation',
+      limit: 60,
+      windowMs: 10 * MINUTE_MS,
+    },
+    eventCoHost: {
+      action: 'change_event_co_host',
+      limit: 60,
       windowMs: 10 * MINUTE_MS,
     },
   },
@@ -52,6 +95,16 @@ export const RATE_BUDGETS = {
     photoUpload: {
       action: 'upload_profile_photo',
       limit: 5,
+      windowMs: 10 * MINUTE_MS,
+    },
+    screenshotReservation: {
+      action: 'reserve_submission_screenshot',
+      limit: 10,
+      windowMs: 10 * MINUTE_MS,
+    },
+    screenshotUpload: {
+      action: 'upload_submission_screenshot',
+      limit: 10,
       windowMs: 10 * MINUTE_MS,
     },
   },
@@ -128,8 +181,11 @@ export type RateBudgetCategory = keyof typeof RATE_BUDGETS;
  * Naming them once fixes both, and the categories say what a budget is *for* rather than only what
  * it permits.
  *
- * `edit` covers cheap owner writes. `read` covers unauthenticated reads that are cheap per call but
- * enumerable in bulk. `otp` holds the two halves of a contact change: sending a code costs an SMS or
+ * `edit` covers cheap owner writes. An organisation application is one of them, held to three an
+ * hour: it lands in an admin's review queue, and a member applies for an organisation rarely. An
+ * operator's decision on one is held to sixty in ten minutes: enough to clear a long queue, too few
+ * for a stolen operator session to flip every organisation at once. `read` covers unauthenticated
+ * reads that are cheap per call but enumerable in bulk. `otp` holds the two halves of a contact change: sending a code costs an SMS or
  * an email and is bounded tightly, while submitting one is cheap but must not become an oracle, so it
  * is bounded loosely. Together they are the reason a stolen session cannot walk a member's contact
  * details out of the account. Better Auth's own limiter is off (see `createAuth`), so these budgets
