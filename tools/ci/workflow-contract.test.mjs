@@ -54,9 +54,7 @@ describe('verified staging tree workflow contract', () => {
   });
 
   it('requires the dependency advisory audit in release verification', () => {
-    expect(ciWorkflow).toContain(
-      'run: npm audit --package-lock-only --audit-level=high',
-    );
+    expect(ciWorkflow).toContain('run: node tools/ci/dependency-audit.mjs');
     expect(ciWorkflow).toContain(
       'DEPENDENCY_AUDIT: ${{ needs.dependency-audit.result }}',
     );

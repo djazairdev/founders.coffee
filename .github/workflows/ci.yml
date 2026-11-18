@@ -52,11 +52,7 @@ jobs:
 
   dependency-audit:
     name: Dependency advisory audit
-    needs: reuse-evidence
-    if: >-
-      always() &&
-      needs.reuse-evidence.outputs.reuse != 'true' &&
-      !(github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository)
+    if: ${{ !(github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -64,7 +60,7 @@ jobs:
         with:
           node-version-file: .nvmrc
       - name: Check dependency advisories
-        run: npm audit --package-lock-only --audit-level=high
+        run: node tools/ci/dependency-audit.mjs
 
   quality:
     name: Format, sync, typecheck, lint and test
@@ -241,7 +237,7 @@ jobs:
           SOURCE_TREE: ${{ needs.reuse-evidence.outputs.tree }}
         run: |
           if [ "$REUSED" = "true" ]; then
-            if [ "$REUSE_EVIDENCE" != "success" ] || [ "$QUALITY" != "skipped" ] || [ "$SERVER_TESTS" != "skipped" ] || [ "$BUILD" != "skipped" ] || [ "$DEPENDENCY_AUDIT" != "skipped" ] || [ -z "$SOURCE_RUN_URL" ] || [ -z "$SOURCE_TREE" ]; then
+            if [ "$REUSE_EVIDENCE" != "success" ] || [ "$QUALITY" != "skipped" ] || [ "$SERVER_TESTS" != "skipped" ] || [ "$BUILD" != "skipped" ] || [ "$DEPENDENCY_AUDIT" != "success" ] || [ -z "$SOURCE_RUN_URL" ] || [ -z "$SOURCE_TREE" ]; then
               echo "::error::Exact-tree reuse evidence is incomplete."
               exit 1
             fi
