@@ -58,7 +58,11 @@ const findClosingHtmlTag = (
   let candidate = lowerSource.indexOf(`</${name}`, start);
   while (candidate >= 0) {
     const delimiter = source[candidate + name.length + 2];
-    if (delimiter === '>' || (delimiter && /\s/u.test(delimiter))) {
+    if (
+      delimiter === '>' ||
+      delimiter === '/' ||
+      (delimiter && /\s/u.test(delimiter))
+    ) {
       const closingTag = readHtmlTag(source, candidate);
       if (closingTag?.closing && closingTag.name === name)
         return closingTag.end;
@@ -69,7 +73,9 @@ const findClosingHtmlTag = (
 };
 
 const stripHtml = (source: string): string => {
-  const lowerSource = source.toLowerCase();
+  const lowerSource = source.replace(/[A-Z]/g, (character) =>
+    character.toLowerCase(),
+  );
   let result = '';
   let cursor = 0;
   while (cursor < source.length) {
@@ -81,7 +87,7 @@ const stripHtml = (source: string): string => {
 
     const tag = readHtmlTag(source, cursor);
     if (!tag) {
-      result += source[cursor];
+      result += '＜';
       cursor += 1;
       continue;
     }
@@ -141,11 +147,10 @@ export const markdownPlainText = (value: string): string => {
       .replace(/^[ \t]{0,3}[-*_]{3,}[ \t]*$/gmu, '')
       .replace(/!\[([^\]]*)\]\([^)]+\)/gu, '$1')
       .replace(/\[([^\]]+)\]\([^)]+\)/gu, '$1')
-      .replace(/<(?=https?:\/\/)[^>]*>/giu, '')
-      .replace(/https?:\/\/\S+/giu, '')
       .replace(/(\*\*|__|~~)(.*?)\1/gu, '$2')
       .replace(/(`|\*|_)(.*?)\1/gu, '$2'),
   )
+    .replace(/https?:\/\/\S+/giu, '')
     .replace(/[ \t]{2,}/gu, ' ')
     .replace(/[ \t]+$/gmu, '')
     .replace(/\n{3,}/gu, '\n\n')

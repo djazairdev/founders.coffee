@@ -84,4 +84,10 @@ describe('markdownPlainText', () => {
       ),
     ).toBe('Visible text and');
   });
+
+  it('keeps ordinary comparisons readable without leaving raw tag openers', () => {
+    expect(markdownPlainText('5 < 6 and <https://example.com> more')).toBe(
+      '5 ＜ 6 and more',
+    );
+  });
 });

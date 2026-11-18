@@ -18,11 +18,11 @@ const document = ({ name, url }) => `
 `;
 
 describe('GEO visible text', () => {
-  it('does not count script text as visible when an end tag has whitespace', () => {
+  it('does not count script text as visible when an end tag has whitespace or attributes', () => {
     const url = 'https://founders.coffee/en/algeria';
     const body = document({ name: 'Hidden name', url })
       .replace('<h1>Hidden name</h1>', '<h1>Visible name</h1>')
-      .replace('</body>', '<script>Hidden name</script ></body>');
+      .replace('</body>', '<script>Hidden name</script\t\n data-test></body>');
 
     expect(
       inspectGeoDocument({

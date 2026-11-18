@@ -41,8 +41,14 @@ const jsonLdScripts = (body) => {
 
 const visibleText = (body) =>
   body
-    .replace(/<script\b[\s\S]*?<\/script\s*>/giu, ' ')
-    .replace(/<style\b[\s\S]*?<\/style\s*>/giu, ' ')
+    .replace(
+      /<script(?=[\t\n\f\r />])[\s\S]*?<\/script(?=[\t\n\f\r />])[^>]*>/giu,
+      ' ',
+    )
+    .replace(
+      /<style(?=[\t\n\f\r />])[\s\S]*?<\/style(?=[\t\n\f\r />])[^>]*>/giu,
+      ' ',
+    )
     .replace(/<[^>]+>/gu, ' ')
     .replace(/&(amp|quot|#39|apos|nbsp);/giu, (entity) => {
       const decoded = {
