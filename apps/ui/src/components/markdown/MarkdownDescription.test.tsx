@@ -76,4 +76,12 @@ describe('markdownPlainText', () => {
       ),
     ).toBe('A hackathon for local builders.\n\nRead the rules before joining.');
   });
+
+  it('removes script and style content, including unclosed raw elements', () => {
+    expect(
+      markdownPlainText(
+        'Visible <script>alert(1)</script > text <style>hidden</style> and <script>unclosed',
+      ),
+    ).toBe('Visible text and');
+  });
 });

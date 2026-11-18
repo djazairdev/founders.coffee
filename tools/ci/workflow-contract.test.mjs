@@ -53,6 +53,14 @@ describe('verified staging tree workflow contract', () => {
     expect(ciWorkflow).toContain('[ "$SERVER_TESTS" != "success" ]');
   });
 
+  it('requires the dependency advisory audit in release verification', () => {
+    expect(ciWorkflow).toContain('run: node tools/ci/dependency-audit.mjs');
+    expect(ciWorkflow).toContain(
+      'DEPENDENCY_AUDIT: ${{ needs.dependency-audit.result }}',
+    );
+    expect(ciWorkflow).toContain('[ "$DEPENDENCY_AUDIT" != "success" ]');
+  });
+
   it('restores the task artifacts and their database from the configured Nx paths', () => {
     expect(ciWorkflow).toContain('NX_CACHE_DIRECTORY: .nx/cache');
     expect(ciWorkflow).toContain(
@@ -198,7 +206,7 @@ describe('pull request gate contract', () => {
   });
 
   it("skips long verification only for this repository's develop into main", () => {
-    expect(ciWorkflow.split(RELEASE_PULL_REQUEST)).toHaveLength(5);
+    expect(ciWorkflow.split(RELEASE_PULL_REQUEST)).toHaveLength(6);
     expect(
       ciWorkflow,
       'a fork can name its branch develop, so a head ref alone must not skip the gates',

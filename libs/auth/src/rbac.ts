@@ -20,7 +20,7 @@ const statements = {
   hackathon_report: ['create'],
   organisation: ['apply'],
   moderation: ['event', 'user', 'organisation', 'hackathon', 'submission'],
-  closeout: ['override'],
+  closeout: ['submit', 'override'],
   host_trust: ['update'],
   audit: ['read'],
 } as const;
@@ -57,6 +57,7 @@ export const roles = {
   host: ac.newRole({
     event: ['create', 'read'],
     rsvp: ['create', 'read', 'update'],
+    closeout: ['submit'],
     chat: ['read', 'write'],
     sponsorship: ['read'],
     profile: ['read', 'update'],
@@ -91,7 +92,7 @@ export const roles = {
     push: ['manage'],
     ...PARTICIPANT,
     ...OPERATOR,
-    closeout: ['override'],
+    closeout: ['submit', 'override'],
   }),
 } as const;
 

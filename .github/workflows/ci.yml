@@ -50,6 +50,18 @@ jobs:
           TARGET_TREE: ${{ steps.target-tree.outputs.tree }}
         run: node tools/ci/verified-staging-tree.mjs
 
+  dependency-audit:
+    name: Dependency advisory audit
+    if: ${{ !(github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - name: Check dependency advisories
+        run: node tools/ci/dependency-audit.mjs
+
   quality:
     name: Format, sync, typecheck, lint and test
     needs: reuse-evidence
@@ -208,13 +220,14 @@ jobs:
 
   verification:
     name: Verification evidence
-    needs: [reuse-evidence, quality, server-tests, build]
+    needs: [reuse-evidence, dependency-audit, quality, server-tests, build]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Confirm verification evidence
         env:
           BUILD: ${{ needs.build.result }}
+          DEPENDENCY_AUDIT: ${{ needs.dependency-audit.result }}
           QUALITY: ${{ needs.quality.result }}
           SERVER_TESTS: ${{ needs.server-tests.result }}
           RELEASE_PULL_REQUEST: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository }}
@@ -224,7 +237,7 @@ jobs:
           SOURCE_TREE: ${{ needs.reuse-evidence.outputs.tree }}
         run: |
           if [ "$REUSED" = "true" ]; then
-            if [ "$REUSE_EVIDENCE" != "success" ] || [ "$QUALITY" != "skipped" ] || [ "$SERVER_TESTS" != "skipped" ] || [ "$BUILD" != "skipped" ] || [ -z "$SOURCE_RUN_URL" ] || [ -z "$SOURCE_TREE" ]; then
+            if [ "$REUSE_EVIDENCE" != "success" ] || [ "$QUALITY" != "skipped" ] || [ "$SERVER_TESTS" != "skipped" ] || [ "$BUILD" != "skipped" ] || [ "$DEPENDENCY_AUDIT" != "success" ] || [ -z "$SOURCE_RUN_URL" ] || [ -z "$SOURCE_TREE" ]; then
               echo "::error::Exact-tree reuse evidence is incomplete."
               exit 1
             fi
@@ -237,13 +250,13 @@ jobs:
             exit 0
           fi
           if [ "$RELEASE_PULL_REQUEST" = "true" ]; then
-            if [ "$QUALITY" != "skipped" ] || [ "$SERVER_TESTS" != "skipped" ] || [ "$BUILD" != "skipped" ]; then
+            if [ "$QUALITY" != "skipped" ] || [ "$SERVER_TESTS" != "skipped" ] || [ "$BUILD" != "skipped" ] || [ "$DEPENDENCY_AUDIT" != "skipped" ]; then
               echo "::error::The develop release pull request must not run duplicate checks."
               exit 1
             fi
             exit 0
           fi
-          if [ "$QUALITY" != "success" ] || [ "$SERVER_TESTS" != "success" ] || [ "$BUILD" != "success" ]; then
+          if [ "$QUALITY" != "success" ] || [ "$SERVER_TESTS" != "success" ] || [ "$BUILD" != "success" ] || [ "$DEPENDENCY_AUDIT" != "success" ]; then
             echo "::error::Long CI verification did not complete successfully."
             exit 1
           fi
