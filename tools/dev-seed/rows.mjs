@@ -251,8 +251,7 @@ export const eventRows = (now) => {
       state_code: '1',
       city_code: '397',
       title: 'قهوة المؤسسين — لقاء القاهرة',
-      description:
-        'لقاء في سوق ثانٍ، للتحقق من أن الاستعلامات لا تعبر الأسواق.',
+      description: 'لقاء في سوق ثانٍ، للتحقق من أن الاستعلامات لا تعبر الأسواق.',
       venue: 'Cairo Coworking, Zamalek',
       starts_at: now + 5 * DAY,
       ends_at: now + 5 * DAY + 2 * HOUR,
