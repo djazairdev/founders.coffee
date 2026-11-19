@@ -119,9 +119,7 @@ describe('Arabic number agreement', () => {
 
   it('keeps 11 through 99 on the singular, which is where it reads wrong', () => {
     for (const count of [11, 22, 47, 99]) {
-      expect(going_count({ count }, { locale: 'ar' })).toBe(
-        `+${count} مشاركًا`,
-      );
+      expect(going_count({ count }, { locale: 'ar' })).toBe(`+${count} مشاركًا`);
       expect(city_loaded_count({ count }, { locale: 'ar' })).toBe(
         `عرض ${count} لقاءً`,
       );

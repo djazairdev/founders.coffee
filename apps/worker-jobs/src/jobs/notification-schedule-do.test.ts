@@ -25,11 +25,11 @@ const armObject = async (name: string, sendAtMs: number): Promise<void> => {
   });
 };
 
-const fireAlarm = async (name: string): Promise<void> => {
-  await runInDurableObject(objectFor(name), async (instance: ScheduleDO) => {
+const fireAlarm = async (name: string): Promise<void> =>
+  runInDurableObject(objectFor(name), async (instance: ScheduleDO, state) => {
+    await state.storage.deleteAlarm();
     await instance.alarm();
   });
-};
 
 describe('NotificationScheduleDO', () => {
   it('arms an alarm at the moment the notification is due', async () => {
