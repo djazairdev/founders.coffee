@@ -163,9 +163,9 @@ jobs:
           NX_HEAD: ${{ steps.nx-range.outputs.head }}
         run: |
           if [ "$FULL" = "true" ]; then
-            npx nx run-many -t test --exclude=server-fns --parallel=2
+            npx nx run-many -t test --exclude=server-fns --parallel=2 --args="--fsModuleCache=false"
           else
-            npx nx affected -t test --exclude=server-fns --base="$NX_BASE" --head="$NX_HEAD" --parallel=2
+            npx nx affected -t test --exclude=server-fns --base="$NX_BASE" --head="$NX_HEAD" --parallel=2 --args="--fsModuleCache=false"
           fi
 
   server-tests:
@@ -185,7 +185,7 @@ jobs:
       - *nx-range
 
       - name: Test server functions with coverage
-        run: npx nx run server-fns:test
+        run: npx nx run server-fns:test --args="--fsModuleCache=false"
 
   build:
     name: Build and Miniflare SEO gate
@@ -217,7 +217,7 @@ jobs:
           fi
 
       - name: Run Miniflare SEO integration gate
-        run: npx nx run public:integration-test
+        run: npx nx run public:integration-test --args="--fsModuleCache=false"
 
   verification:
     name: Verification evidence
