@@ -24,6 +24,7 @@ permissions:
 env:
   NX_CACHE_DIRECTORY: .nx/cache
   NX_WORKSPACE_DATA_DIRECTORY: .nx/workspace-data
+  VITEST_FS_MODULE_CACHE: 'false'
 
 jobs:
   reuse-evidence:
