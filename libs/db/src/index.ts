@@ -56,6 +56,7 @@ export * from './operations-attendance.js';
 export * from './operations-attention.js';
 export * from './operations-audit.js';
 export * from './operations-closeout.js';
+export * from './operations-admin-closeout.js';
 export * from './operations-closeout-state.js';
 export * from './operations-feedback.js';
 export * from './operations-feedback-tally.js';

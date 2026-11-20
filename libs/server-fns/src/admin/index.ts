@@ -50,3 +50,16 @@ export type {
   ReportQueue,
   ReportQueueItem,
 } from './hackathon-reports.js';
+export {
+  createAdminMissingCloseout,
+  listAdminMissingCloseouts,
+} from './closeouts-rpc.js';
+export type {
+  AdminMissingCloseouts,
+  CreateMissingCloseoutRequest,
+  MissingCloseoutsRequest,
+} from './closeouts-rpc.js';
+export type {
+  MissingCloseoutItem,
+  MissingCloseouts,
+} from './closeouts.js';

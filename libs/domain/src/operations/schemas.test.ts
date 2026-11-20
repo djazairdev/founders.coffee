@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { id } from '@founders-coffee/core';
 
 import {
+  createAdminCloseoutSchema,
   correctCloseoutSchema,
   recordReviewSchema,
   submitCloseoutSchema,
@@ -84,6 +85,24 @@ describe('submitCloseoutSchema', () => {
     expect(
       submitCloseoutSchema.safeParse(closeout({ hostFriction: ['weather'] }))
         .success,
+    ).toBe(false);
+  });
+});
+
+describe('createAdminCloseoutSchema', () => {
+  it('accepts either supported outcome and rejects undeclared fields', () => {
+    expect(
+      createAdminCloseoutSchema.safeParse({
+        eventId: EVENT,
+        outcome: 'held',
+      }).success,
+    ).toBe(true);
+    expect(
+      createAdminCloseoutSchema.safeParse({
+        eventId: EVENT,
+        outcome: 'did_not_happen',
+        walkInCount: 1,
+      }).success,
     ).toBe(false);
   });
 });

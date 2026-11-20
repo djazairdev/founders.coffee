@@ -189,6 +189,7 @@ export const auditTargetSchema = z.enum(AUDIT_TARGETS);
 export const AUDIT_ACTIONS = [
   'closeout_submitted',
   'closeout_corrected',
+  'admin_closeout_created',
   'attendance_recorded',
   'attendance_corrected',
   'host_trust_updated',

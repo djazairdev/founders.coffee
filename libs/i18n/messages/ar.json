@@ -2118,5 +2118,20 @@
   "org_profile_delete_body": "سيؤدي حذف «{name}» إلى إزالة المنظمة وأعضائها ودعواتها، ولا يمكن التراجع عن ذلك. لا يمكن حذف منظمة لديها فعاليات مرتبطة بها.",
   "org_profile_delete_confirm": "حذف المنظمة",
   "org_profile_delete_has_events": "لا يمكن حذف هذه المنظمة لارتباطها بفعاليات.",
-  "org_profile_delete_error": "تعذّر حذف المنظمة. حاول مرة أخرى."
+  "org_profile_delete_error": "تعذّر حذف المنظمة. حاول مرة أخرى.",
+  "admin_closeout_nav": "إغلاق اللقاءات",
+  "admin_closeout_heading": "لقاءات بانتظار الإغلاق",
+  "admin_closeout_empty": "لا توجد لقاءات بانتظار الإغلاق.",
+  "admin_closeout_unavailable": "تعذّر تحميل اللقاءات.",
+  "admin_closeout_note": "سجّل ما إذا كان اللقاء قد انعقد. لا يسجّل هذا الإجراء الحضور أو التقييمات.",
+  "admin_closeout_outcome": "نتيجة اللقاء",
+  "admin_closeout_held": "انعقد",
+  "admin_closeout_did_not_happen": "لم ينعقد",
+  "admin_closeout_did_not_happen_notice": "سيُبلَّغ المشاركون الذين أكدوا حضورهم.",
+  "admin_closeout_save": "تسجيل النتيجة",
+  "admin_closeout_saved": "تم تسجيل نتيجة اللقاء.",
+  "admin_closeout_failed": "تعذّر تسجيل النتيجة. حاول مرة أخرى.",
+  "admin_closeout_stale": "تم إغلاق هذا اللقاء بالفعل. القائمة محدّثة الآن.",
+  "admin_closeout_not_eligible": "لا يمكن إغلاق هذا اللقاء. تأكد من أنه انتهى ولم يُلغَ.",
+  "admin_closeout_ended": "انتهى في {date}"
 }

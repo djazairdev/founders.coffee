@@ -56,6 +56,11 @@ export const RATE_BUDGETS = {
       limit: 60,
       windowMs: 10 * MINUTE_MS,
     },
+    adminCloseoutCreation: {
+      action: 'create_admin_closeout',
+      limit: 10,
+      windowMs: 10 * MINUTE_MS,
+    },
   },
   read: {
     publicProfile: {

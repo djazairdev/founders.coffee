@@ -2274,5 +2274,20 @@
   "org_profile_delete_body": "La suppression de {name} effacera définitivement l’organisation, ses membres et ses invitations. Une organisation liée à des événements ne peut pas être supprimée.",
   "org_profile_delete_confirm": "Supprimer l’organisation",
   "org_profile_delete_has_events": "Cette organisation ne peut pas être supprimée tant qu’elle est liée à des événements.",
-  "org_profile_delete_error": "Impossible de supprimer l’organisation. Réessayez."
+  "org_profile_delete_error": "Impossible de supprimer l’organisation. Réessayez.",
+  "admin_closeout_nav": "Clôture des rencontres",
+  "admin_closeout_heading": "Rencontres à clôturer",
+  "admin_closeout_empty": "Aucune rencontre n’attend de clôture.",
+  "admin_closeout_unavailable": "Impossible de charger les rencontres.",
+  "admin_closeout_note": "Enregistrez uniquement si la rencontre a eu lieu. Cette action n’enregistre ni les présences ni les retours.",
+  "admin_closeout_outcome": "Résultat de la rencontre",
+  "admin_closeout_held": "Elle a eu lieu",
+  "admin_closeout_did_not_happen": "Elle n’a pas eu lieu",
+  "admin_closeout_did_not_happen_notice": "Les participants inscrits recevront une notification.",
+  "admin_closeout_save": "Enregistrer le résultat",
+  "admin_closeout_saved": "Le résultat de la rencontre a été enregistré.",
+  "admin_closeout_failed": "Impossible d’enregistrer le résultat. Réessayez.",
+  "admin_closeout_stale": "Cette rencontre a déjà été clôturée. La liste est à jour.",
+  "admin_closeout_not_eligible": "Cette rencontre ne peut pas être clôturée. Vérifiez qu’elle est terminée et n’a pas été annulée.",
+  "admin_closeout_ended": "Terminée le {date}"
 }

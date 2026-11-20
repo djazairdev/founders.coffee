@@ -2051,5 +2051,20 @@
   "org_profile_delete_body": "Deleting {name} permanently removes the organisation, its members and invitations. Organisations with linked events cannot be deleted.",
   "org_profile_delete_confirm": "Delete organisation",
   "org_profile_delete_has_events": "This organisation can’t be deleted while it has linked events.",
-  "org_profile_delete_error": "Could not delete the organisation. Try again."
+  "org_profile_delete_error": "Could not delete the organisation. Try again.",
+  "admin_closeout_nav": "Closeouts",
+  "admin_closeout_heading": "Meetups awaiting closeout",
+  "admin_closeout_empty": "No meetups are waiting for closeout.",
+  "admin_closeout_unavailable": "The meetups could not be loaded.",
+  "admin_closeout_note": "Record only whether the meetup happened. This action does not record attendance or feedback.",
+  "admin_closeout_outcome": "Meetup outcome",
+  "admin_closeout_held": "It happened",
+  "admin_closeout_did_not_happen": "It did not happen",
+  "admin_closeout_did_not_happen_notice": "Participants who RSVP’d will be notified.",
+  "admin_closeout_save": "Record outcome",
+  "admin_closeout_saved": "The meetup outcome was recorded.",
+  "admin_closeout_failed": "The outcome could not be recorded. Try again.",
+  "admin_closeout_stale": "This meetup was already closed out. The list is up to date.",
+  "admin_closeout_not_eligible": "This meetup cannot be closed out. Check that it has ended and was not cancelled.",
+  "admin_closeout_ended": "Ended {date}"
 }
