@@ -105,12 +105,18 @@ const escapeXml = (value: string): string =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&apos;');
 
+const isSitemapPath = (path: unknown): path is string =>
+  typeof path === 'string' &&
+  path.trim() === path &&
+  (path === '/' || (path.startsWith('/') && !path.startsWith('//')));
+
 export const sitemapXml = (
   origin: string,
   items: readonly SitemapItem[],
 ): string => {
-  const normalizedOrigin = origin.replace(/\/$/u, '');
+  const normalizedOrigin = new URL(origin).origin;
   const urls = items
+    .filter((item) => isSitemapPath(item?.path))
     .map(
       ({ path, lastmod }) =>
         `  <url><loc>${escapeXml(`${normalizedOrigin}${path}`)}</loc>${

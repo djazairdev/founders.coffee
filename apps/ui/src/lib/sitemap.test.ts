@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import type { SitemapData } from '@founders-coffee/server-fns';
 
-import { emptySitemapXml, sitemapItems, sitemapXml } from './sitemap';
+import {
+  emptySitemapXml,
+  sitemapItems,
+  sitemapXml,
+  type SitemapItem,
+} from './sitemap';
 
 const data: SitemapData = {
   markets: [{ slug: 'algeria' }],
@@ -56,6 +61,26 @@ describe('sitemap', () => {
     expect(xml).toMatch(/^<\?xml version="1\.0" encoding="UTF-8"\?>/u);
     expect(xml).toContain(
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    );
+  });
+
+  it('omits entries without a valid path so every URL has a nonempty absolute location', () => {
+    const items: SitemapItem[] = [
+      { path: '/ar/algeria' },
+      { path: '' },
+      { path: '   ' },
+      { path: '//external.example/path' },
+      {} as unknown as SitemapItem,
+    ];
+    const xml = sitemapXml('https://founders.coffee/', items);
+    const urls = [...xml.matchAll(/<url>(.*?)<\/url>/gu)].map(
+      ([, entry]) => entry,
+    );
+
+    expect(urls).toHaveLength(1);
+    expect(urls[0]).toBe('<loc>https://founders.coffee/ar/algeria</loc>');
+    expect(urls.every((url) => /<loc>https?:\/\/[^<]+<\/loc>/u.test(url))).toBe(
+      true,
     );
   });
 
