@@ -192,6 +192,7 @@
       }
     }
   ],
+  "hackathon_participants_count": "Participants : {count}",
   "no_events_yet": "Pas encore de rencontres à venir.",
   "city_empty_title": [
     {

@@ -149,6 +149,7 @@
   "upcoming_events": "Upcoming events",
   "market_cities": "Cities",
   "going_count": "+{count} going",
+  "hackathon_participants_count": "Participants: {count}",
   "no_events_yet": "No upcoming meetups yet.",
   "city_empty_title": "Be the first to host an entrepreneur meetup in {city}",
   "city_empty_body": "Help build the entrepreneur community in {city} by hosting the first meetup.",

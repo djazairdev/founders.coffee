@@ -33,4 +33,25 @@ describe('attachCityNames', () => {
 
     expect(meetup).toMatchObject({ cityName: 'Oran', cityNameFr: 'Oran' });
   });
+
+  it('keeps the approved lead organisation available to the hackathon card', () => {
+    const organisers = new Map([
+      [
+        'evt_feed',
+        [
+          {
+            name: 'Code Club Alger',
+            slug: 'code-club-alger',
+            kind: 'club' as const,
+            role: 'lead' as const,
+          },
+        ],
+      ],
+    ]);
+    const [event] = attachCityNames([meetupIn('556')], undefined, organisers);
+
+    expect(event?.organisations).toEqual([
+      { name: 'Code Club Alger', slug: 'code-club-alger' },
+    ]);
+  });
 });

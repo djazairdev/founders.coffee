@@ -166,6 +166,7 @@
       }
     }
   ],
+  "hackathon_participants_count": "المشاركون: {count}",
   "no_events_yet": "لا توجد لقاءات قادمة بعد.",
   "city_empty_title": "كن أول من يستضيف لقاءً لرواد الأعمال في {city}",
   "city_empty_body": "ساعد في بناء مجتمع رواد الأعمال في {city} باستضافة أول لقاء.",

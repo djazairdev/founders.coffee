@@ -2,6 +2,7 @@ import {
   events as eventsDomain,
   geo,
   profile,
+  type EventOrganisationName,
   type EventOrganiserSummary,
   type EventRunBy,
 } from '@founders-coffee/domain';
@@ -22,6 +23,7 @@ export type EventFeedItemBase = PublicEvent & {
   readonly citySlug: string | null;
   readonly hostName: string | null;
   readonly hostPhotoAssetId: string | null;
+  readonly organisations?: readonly EventOrganisationName[];
   readonly runBy: EventRunBy;
 };
 
@@ -57,6 +59,11 @@ export const attachCityNames = (
       ? geo.findCity(event.marketCode, event.cityCode)
       : null;
     const host = hosts.get(event.hostId);
+    const eventOrganisers = organisers.get(event.id) ?? [];
+    const eventOrganisations = [
+      ...eventOrganisers.filter((organiser) => organiser.role === 'lead'),
+      ...eventOrganisers.filter((organiser) => organiser.role !== 'lead'),
+    ].map(({ name, slug }) => ({ name, slug }));
     return {
       ...publicEvent(event),
       cityName: city?.name ?? null,
@@ -65,6 +72,7 @@ export const attachCityNames = (
       citySlug: city?.slug ?? null,
       hostName: host ? profile.safeProfileDisplayName(host.name) || null : null,
       hostPhotoAssetId: host?.photoAssetId ?? null,
-      runBy: eventsDomain.eventRunBy(organisers.get(event.id) ?? []),
+      organisations: eventOrganisations,
+      runBy: eventsDomain.eventRunBy(eventOrganisers),
     };
   });
