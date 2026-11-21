@@ -11,9 +11,11 @@ import type {
 
 export type {
   HackathonReviewCriterion,
+  HackathonReviewIncompleteItem,
   HackathonReviewItem,
   HackathonReviewPrize,
   HackathonReviewQueue,
+  HackathonReviewReadyItem,
   HackathonReviewTrack,
 } from '@founders-coffee/server-fns/admin';
 

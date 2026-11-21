@@ -21,6 +21,7 @@ import {
 
 import type { HackathonReviewItem } from '../api';
 import type { HackathonDecision } from '../decisions';
+import { HackathonIncompleteReviewCard } from './HackathonIncompleteReviewCard';
 import { HackathonDecisionForm } from './HackathonDecisionForm';
 import { HackathonReviewPreview } from './HackathonReviewPreview';
 
@@ -35,6 +36,8 @@ export const HackathonReviewCard = ({
   isDeciding: boolean;
   onDecide: (decision: HackathonDecision, note: string) => void;
 }) => {
+  if (!item.isComplete)
+    return <HackathonIncompleteReviewCard item={item} locale={locale} />;
   const options = { locale };
   const momentOf = (date: Date) =>
     formatDate(new Date(date), locale, {
@@ -65,7 +68,7 @@ export const HackathonReviewCard = ({
           <bdi>{item.marketCode}</bdi>
         </dd>
         <dt className="text-neutral">{admin_hkn_runs({}, options)}</dt>
-        <dd>{range(item.startsAt, item.endsAt ?? item.startsAt)}</dd>
+        <dd>{range(item.startsAt, item.endsAt)}</dd>
         <dt className="text-neutral">{admin_hkn_registration({}, options)}</dt>
         <dd>{range(item.registrationOpensAt, item.registrationClosesAt)}</dd>
         <dt className="text-neutral">{admin_hkn_deadline({}, options)}</dt>

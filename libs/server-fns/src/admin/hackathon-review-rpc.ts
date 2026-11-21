@@ -15,10 +15,8 @@ import { limitedTo } from '../rate-limit.js';
 import { privateNoStore } from '../response-cache.js';
 import { adminAccessSubject } from './access-subject.js';
 import { createHackathonDecisionNotice } from './hackathon-decision-email.js';
-import {
-  decideHackathonReviewResolver,
-  listHackathonReviewQueueResolver,
-} from './hackathon-review.js';
+import { decideHackathonReviewResolver } from './hackathon-review.js';
+import { listHackathonReviewQueueResolver } from './hackathon-review-queue.js';
 
 const reviewQueueSchema = z.strictObject({
   page: z.number().int().min(0).max(1000).default(0),

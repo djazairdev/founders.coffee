@@ -3,13 +3,15 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import type { Locale } from '@founders-coffee/i18n';
 
-import type { HackathonReviewItem } from '../api';
+import type { HackathonReviewReadyItem } from '../api';
 import { HackathonReviewPreview } from './HackathonReviewPreview';
 
 afterEach(() => cleanup());
 
-const item: HackathonReviewItem = {
+const item: HackathonReviewReadyItem = {
+  isComplete: true,
   eventId: 'evt_review',
+  creatorEmail: 'organiser@example.test',
   version: 1,
   title: 'Algiers Builders Hackathon',
   description: 'Two days of building with founders across Algiers.',
@@ -72,7 +74,7 @@ const item: HackathonReviewItem = {
 };
 
 const renderPreview = (
-  overrides: Partial<HackathonReviewItem> = {},
+  overrides: Partial<HackathonReviewReadyItem> = {},
   locale: Locale = 'en',
 ) =>
   render(

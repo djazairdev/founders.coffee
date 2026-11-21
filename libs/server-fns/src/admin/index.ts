@@ -29,14 +29,16 @@ export type {
   HackathonDecisionRequest,
   HackathonReviewQueueRequest,
 } from './hackathon-review-rpc.js';
+export type { HackathonDecided } from './hackathon-review.js';
 export type {
-  HackathonDecided,
+  HackathonReviewIncompleteItem,
   HackathonReviewCriterion,
   HackathonReviewItem,
   HackathonReviewPrize,
   HackathonReviewQueue,
+  HackathonReviewReadyItem,
   HackathonReviewTrack,
-} from './hackathon-review.js';
+} from './hackathon-review-queue.js';
 export {
   decideHackathonReport,
   listHackathonReportQueue,
@@ -59,7 +61,4 @@ export type {
   CreateMissingCloseoutRequest,
   MissingCloseoutsRequest,
 } from './closeouts-rpc.js';
-export type {
-  MissingCloseoutItem,
-  MissingCloseouts,
-} from './closeouts.js';
+export type { MissingCloseoutItem, MissingCloseouts } from './closeouts.js';
