@@ -1,6 +1,6 @@
 import { Button, Section, Text } from '@react-email/components';
 import { type CSSProperties } from 'react';
-import { type Locale } from '@founders-coffee/i18n';
+import { direction, type Locale } from '@founders-coffee/i18n';
 
 import { EmailBase } from './base.js';
 
@@ -70,7 +70,11 @@ export const NotificationEmail = ({
   <EmailBase locale={locale} preview={preview}>
     {bodyHtml ? (
       <div
-        style={bodyHtmlStyle}
+        dir={direction(locale)}
+        style={{
+          ...bodyHtmlStyle,
+          textAlign: direction(locale) === 'rtl' ? 'right' : 'left',
+        }}
         dangerouslySetInnerHTML={{ __html: bodyHtml }}
       />
     ) : (

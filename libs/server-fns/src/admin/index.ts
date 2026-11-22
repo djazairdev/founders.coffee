@@ -25,6 +25,8 @@ export {
   decideHackathonReviewDecision,
   listHackathonReviewQueue,
 } from './hackathon-review-rpc.js';
+export { sendHackathonDraftEmail } from './hackathon-draft-email-rpc.js';
+export type { HackathonDraftEmailRequest } from './hackathon-draft-email-rpc.js';
 export type {
   HackathonDecisionRequest,
   HackathonReviewQueueRequest,

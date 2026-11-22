@@ -1,8 +1,11 @@
+import { useState } from 'react';
+
 import {
   admin_hkn_capacity,
   admin_hkn_complete_before_review,
   admin_hkn_creator_email,
   admin_hkn_deadline,
+  admin_hkn_email_send,
   admin_hkn_judging_ends,
   admin_hkn_incomplete,
   admin_hkn_market,
@@ -22,9 +25,10 @@ import {
   org_hackathon_dates,
   type Locale,
 } from '@founders-coffee/i18n';
-import { Badge } from '@founders-coffee/ui';
+import { Badge, Button } from '@founders-coffee/ui';
 
 import type { HackathonReviewIncompleteItem } from '../api';
+import { HackathonDraftEmailDialog } from './HackathonDraftEmailDialog';
 
 const SECTION_LABELS = {
   basics: admin_hkn_section_basics,
@@ -39,6 +43,7 @@ export const HackathonIncompleteReviewCard = ({
   item: HackathonReviewIncompleteItem;
   locale: Locale;
 }) => {
+  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
   const options = { locale };
   const momentOf = (timestamp: number) =>
     formatDate(new Date(timestamp), locale, {
@@ -61,7 +66,7 @@ export const HackathonIncompleteReviewCard = ({
       ) : null}
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-body-sm">
         <dt className="text-neutral">{admin_hkn_creator_email({}, options)}</dt>
-        <dd>
+        <dd className="flex flex-wrap items-center gap-2">
           <a
             className="link link-hover"
             dir="ltr"
@@ -69,6 +74,9 @@ export const HackathonIncompleteReviewCard = ({
           >
             {item.creatorEmail}
           </a>
+          <Button variant="outline" onClick={() => setIsEmailDialogOpen(true)}>
+            {admin_hkn_email_send({}, options)}
+          </Button>
         </dd>
         {item.organisation ? (
           <>
@@ -175,6 +183,14 @@ export const HackathonIncompleteReviewCard = ({
             ) : null}
           </div>
         </details>
+      ) : null}
+      {isEmailDialogOpen ? (
+        <HackathonDraftEmailDialog
+          eventId={item.eventId}
+          creatorEmail={item.creatorEmail}
+          locale={locale}
+          onClose={() => setIsEmailDialogOpen(false)}
+        />
       ) : null}
     </li>
   );

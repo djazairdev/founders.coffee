@@ -51,6 +51,11 @@ export const RATE_BUDGETS = {
       limit: 60,
       windowMs: 10 * MINUTE_MS,
     },
+    hackathonDraftEmail: {
+      action: 'send_hackathon_draft_email',
+      limit: 10,
+      windowMs: 10 * MINUTE_MS,
+    },
     eventCoHost: {
       action: 'change_event_co_host',
       limit: 60,

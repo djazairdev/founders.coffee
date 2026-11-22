@@ -1,16 +1,19 @@
 import {
   decideHackathonReviewDecision,
   listHackathonReviewQueue,
+  sendHackathonDraftEmail,
 } from '@founders-coffee/server-fns/admin';
 import type {
   HackathonDecided,
   HackathonDecisionRequest,
+  HackathonDraftEmailRequest,
   HackathonReviewQueue,
   HackathonReviewQueueRequest,
 } from '@founders-coffee/server-fns/admin';
 
 export type {
   HackathonReviewCriterion,
+  HackathonDraftEmailRequest,
   HackathonReviewIncompleteItem,
   HackathonReviewItem,
   HackathonReviewPrize,
@@ -24,4 +27,6 @@ export const hackathonReviewApi = {
     listHackathonReviewQueue({ data: request }),
   decide: (request: HackathonDecisionRequest): Promise<HackathonDecided> =>
     decideHackathonReviewDecision({ data: request }),
+  sendDraftEmail: (request: HackathonDraftEmailRequest) =>
+    sendHackathonDraftEmail({ data: request }),
 };

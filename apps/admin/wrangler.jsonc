@@ -20,13 +20,17 @@
   // `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUD` are secrets in the deployed environments.
   "vars": {
     "APP_URL": "http://localhost:3002",
+    "PUBLIC_APP_URL": "http://localhost:3000",
     "MAIL_FROM": "no-reply@founders.coffee",
   },
 
   // Sign-in here is the same email OTP the public app uses, so the admin Worker needs its own
   // send binding. Without it an operator can request a code that is never delivered — the failure
   // Better Auth swallows, answering 200 either way.
-  "send_email": [{ "name": "EMAIL" }],
+  "send_email": [
+    { "name": "EMAIL" },
+    { "name": "OUTREACH_EMAIL", "remote": true },
+  ],
   "durable_objects": {
     "bindings": [{ "name": "RATE_LIMITER", "class_name": "RateLimiterDO" }],
   },
@@ -53,6 +57,7 @@
       ],
       "vars": {
         "APP_URL": "https://admin-staging.founders.coffee",
+        "PUBLIC_APP_URL": "https://staging.founders.coffee",
         "MAIL_FROM": "no-reply@founders.coffee",
       },
       "send_email": [{ "name": "EMAIL" }],
@@ -73,6 +78,7 @@
       "routes": [{ "pattern": "admin.founders.coffee", "custom_domain": true }],
       "vars": {
         "APP_URL": "https://admin.founders.coffee",
+        "PUBLIC_APP_URL": "https://founders.coffee",
         "MAIL_FROM": "no-reply@founders.coffee",
       },
       "send_email": [{ "name": "EMAIL" }],

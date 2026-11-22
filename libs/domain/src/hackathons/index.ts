@@ -132,6 +132,10 @@ export {
   type HackathonBasics,
 } from './basics.js';
 export {
+  hackathonDraftEmailSchema,
+  type HackathonDraftEmailInput,
+} from './draft-email.js';
+export {
   HACKATHON_TRACK_LIMIT,
   HACKATHON_TRACK_SOURCE_LIMIT,
   hackathonTrackSchema,

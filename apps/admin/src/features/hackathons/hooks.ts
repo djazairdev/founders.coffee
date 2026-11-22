@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { hackathonReviewApi } from './api';
+import { hackathonReviewApi, type HackathonDraftEmailRequest } from './api';
 import { decisionRequest, type HackathonDecision } from './decisions';
 
 const QUEUE_KEY = 'hackathon-review';
@@ -38,3 +38,9 @@ export const useDecideHackathon = () => {
     onSettled: () => cache.invalidateQueries({ queryKey: [QUEUE_KEY] }),
   });
 };
+
+export const useSendHackathonDraftEmail = () =>
+  useMutation({
+    mutationFn: (input: HackathonDraftEmailRequest) =>
+      hackathonReviewApi.sendDraftEmail(input),
+  });
