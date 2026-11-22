@@ -101,6 +101,7 @@ export const isChatMember = (userId: string | SQL): SQL => sql`(
   AND EXISTS (SELECT 1 FROM ${user} WHERE ${activeProfileIdentity(userId)})
   AND ${visibleHost(events.hostId)}
   AND ${events.status} <> 'draft'
+  AND ${events.status} <> 'deleted'
 )`;
 
 /**

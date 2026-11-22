@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import {
   formatDate,
   hackathon_manage_error,
@@ -7,6 +9,12 @@ import {
   hackathon_manage_locked,
   hackathon_manage_not_found,
   hackathon_manage_title,
+  hackathon_delete_action,
+  hackathon_delete_cancel,
+  hackathon_delete_confirm_body,
+  hackathon_delete_confirm_title,
+  hackathon_delete_failed,
+  hackathon_delete_success,
   hackathon_prizes_hint,
   org_hackathon_dates,
   org_hackathon_status_in_review,
@@ -16,6 +24,7 @@ import {
 } from '@founders-coffee/i18n';
 import {
   Button,
+  ConfirmDialog,
   LoadingStatus,
   StatusMessage,
   useToast,
@@ -27,7 +36,7 @@ import type { RootMarket } from '../../markets/api';
 import { hackathonStatusLabel } from '../../organisations/hackathon-labels';
 import { isHackathonMissing, isHackathonsDisabled } from '../errors';
 import { isolateBidi, utcOffsetAt } from '../hackathon-timezone';
-import { useHackathonDraft } from '../hooks';
+import { useDeleteOwnedHackathon, useHackathonDraft } from '../hooks';
 import { HackathonDashboard } from './HackathonDashboard';
 import { HackathonDetailsForm } from './HackathonDetailsForm';
 import { HackathonJudgingProgress } from './HackathonJudgingProgress';
@@ -61,6 +70,10 @@ export const HackathonManagePage = ({
 }) => {
   const availableMarkets = markets ?? [];
   const query = useHackathonDraft(eventId);
+  const deletion = useDeleteOwnedHackathon();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
+  const [hasDeleteError, setHasDeleteError] = useState(false);
   const feedback = useToast();
   const draft = query.data;
   const market = availableMarkets.find(
@@ -73,6 +86,18 @@ export const HackathonManagePage = ({
       : locale === 'fr'
         ? (market?.nameFr ?? market?.name ?? timeZone)
         : (market?.name ?? timeZone);
+
+  if (isDeleted)
+    return (
+      <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:py-12">
+        <h1 className="font-display text-h3">
+          {hackathon_manage_title({}, { locale })}
+        </h1>
+        <StatusMessage variant="success" className="mt-6">
+          {hackathon_delete_success({}, { locale })}
+        </StatusMessage>
+      </div>
+    );
 
   if (!draft)
     return (
@@ -138,15 +163,27 @@ export const HackathonManagePage = ({
           { locale },
         )}
       </p>
-      {draft.event.status === 'published' ? (
-        <div className="mt-4 flex">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        {draft.event.status === 'published' ? (
           <ShareEventButton
             locale={locale}
             eventId={draft.event.id}
             title={draft.event.title}
             label={share_event_action({}, { locale })}
           />
-        </div>
+        ) : null}
+        <Button
+          variant="outline"
+          className="btn-error"
+          onClick={() => setIsDeleteDialogOpen(true)}
+        >
+          {hackathon_delete_action({}, { locale })}
+        </Button>
+      </div>
+      {hasDeleteError ? (
+        <StatusMessage variant="error" className="mt-4">
+          {hackathon_delete_failed({}, { locale })}
+        </StatusMessage>
       ) : null}
       <HackathonReviewBanner draft={draft} locale={locale} />
       <HackathonDashboard draft={draft} locale={locale} />
@@ -198,6 +235,28 @@ export const HackathonManagePage = ({
         locale={locale}
         notification={feedback.notification}
         onDismiss={feedback.clear}
+      />
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        title={hackathon_delete_confirm_title(
+          { title: draft.event.title },
+          { locale },
+        )}
+        description={hackathon_delete_confirm_body({}, { locale })}
+        confirmLabel={hackathon_delete_action({}, { locale })}
+        cancelLabel={hackathon_delete_cancel({}, { locale })}
+        isPending={deletion.isPending}
+        onCancel={() => setIsDeleteDialogOpen(false)}
+        onConfirm={() => {
+          setHasDeleteError(false);
+          deletion.mutate(draft.event.id, {
+            onSuccess: () => {
+              setIsDeleteDialogOpen(false);
+              setIsDeleted(true);
+            },
+            onError: () => setHasDeleteError(true),
+          });
+        }}
       />
     </div>
   );

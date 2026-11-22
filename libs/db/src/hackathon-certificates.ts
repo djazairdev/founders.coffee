@@ -171,7 +171,12 @@ export const readCertificatePage = async (db: Db, code: string) => {
     .innerJoin(user, eq(user.id, hackathonCertificates.userId))
     .innerJoin(events, eq(events.id, hackathonCertificates.eventId))
     .innerJoin(markets, eq(markets.code, events.marketCode))
-    .where(eq(hackathonCertificates.verificationCode, code))
+    .where(
+      and(
+        eq(hackathonCertificates.verificationCode, code),
+        ne(events.status, 'deleted'),
+      ),
+    )
     .limit(1);
   if (!row) return null;
   const organisers = await db

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull, ne, or, sql } from 'drizzle-orm';
 
 import type { ProjectStage } from '@founders-coffee/core';
 
@@ -99,7 +99,13 @@ export const readPublicProject = async (
         isNull(hackathonResults.disqualifiedAt),
       ),
     )
-    .where(and(eq(projects.slug, slug), eq(projects.status, 'published')))
+    .where(
+      and(
+        eq(projects.slug, slug),
+        eq(projects.status, 'published'),
+        or(isNull(projects.sourceSubmissionId), ne(events.status, 'deleted')),
+      ),
+    )
     .limit(1);
   return row ?? null;
 };
@@ -139,10 +145,16 @@ export const listIndexableProjects = (
     })
     .from(projects)
     .innerJoin(markets, eq(markets.code, projects.marketCode))
+    .leftJoin(
+      hackathonSubmissions,
+      eq(hackathonSubmissions.id, projects.sourceSubmissionId),
+    )
+    .leftJoin(events, eq(events.id, hackathonSubmissions.eventId))
     .where(
       and(
         eq(projects.status, 'published'),
         eq(projects.isSearchIndexable, true),
+        or(isNull(projects.sourceSubmissionId), ne(events.status, 'deleted')),
         inArray(markets.state, [...marketStates]),
       ),
     )
@@ -185,6 +197,7 @@ export const listProfileProjects = (db: Db, userId: string) =>
         eq(projectMembers.userId, userId),
         eq(projectMembers.isListed, true),
         eq(projects.status, 'published'),
+        or(isNull(projects.sourceSubmissionId), ne(events.status, 'deleted')),
       ),
     )
     .orderBy(desc(projects.createdAt), desc(projects.id))

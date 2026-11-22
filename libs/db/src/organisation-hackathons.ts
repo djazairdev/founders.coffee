@@ -1,4 +1,4 @@
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, ne } from 'drizzle-orm';
 
 import type { EventStatus } from '@founders-coffee/core';
 
@@ -41,6 +41,7 @@ export const listOrganisationHackathons = (
         eq(eventOrganisers.organisationId, organisationId),
         eq(eventOrganisers.role, 'lead'),
         eq(events.kind, 'hackathon'),
+        ne(events.status, 'deleted'),
       ),
     )
     .orderBy(desc(events.createdAt), desc(events.id))

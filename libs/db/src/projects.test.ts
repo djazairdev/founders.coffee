@@ -9,7 +9,9 @@ import type { Db } from './db.js';
 import { setupDb } from './events.fixtures.js';
 import { newTeam } from './hackathon-teams.fixtures.js';
 import { createHackathon, hackathonEventRow } from './hackathons.fixtures.js';
+import { listIndexableProjects, readPublicProject } from './project-page.js';
 import {
+  events,
   hackathonSubmissions,
   projectMembers,
   projects,
@@ -68,7 +70,7 @@ const entry = async () => {
     teamId: await newTeam(db, row.id, 'Byte Club'),
     title: 'Ledger',
   });
-  return submissionId;
+  return { eventId: row.id, submissionId };
 };
 
 describe('projects (B-PRJ-01, real D1)', () => {
@@ -113,7 +115,7 @@ describe('projects (B-PRJ-01, real D1)', () => {
   });
 
   it('makes one project per entry, and keeps it when the entry goes', async () => {
-    const submissionId = await entry();
+    const { submissionId } = await entry();
     const projectId = await newProject({ sourceSubmissionId: submissionId });
     await expect(
       newProject({ sourceSubmissionId: submissionId }),
@@ -128,6 +130,39 @@ describe('projects (B-PRJ-01, real D1)', () => {
       .from(projects)
       .where(eq(projects.id, projectId));
     expect(row?.sourceSubmissionId).toBeNull();
+  });
+
+  it('hides projects publicly and from the sitemap when their hackathon is deleted', async () => {
+    const { eventId, submissionId } = await entry();
+    const projectId = await newProject({
+      sourceSubmissionId: submissionId,
+      status: 'published',
+      isSearchIndexable: true,
+    });
+    const [project] = await db
+      .select({ slug: projects.slug })
+      .from(projects)
+      .where(eq(projects.id, projectId));
+    const slug = project?.slug ?? '';
+
+    expect(await readPublicProject(db, slug)).not.toBeNull();
+    expect(
+      (await listIndexableProjects(db, ['active'])).some(
+        (item) => item.slug === slug,
+      ),
+    ).toBe(true);
+
+    await db
+      .update(events)
+      .set({ status: 'deleted' })
+      .where(eq(events.id, eventId));
+
+    expect(await readPublicProject(db, slug)).toBeNull();
+    expect(
+      (await listIndexableProjects(db, ['active'])).some(
+        (item) => item.slug === slug,
+      ),
+    ).toBe(false);
   });
 
   it('lists a member once per project, unlisted until they confirm', async () => {

@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { id } from '@founders-coffee/core';
@@ -6,6 +7,7 @@ import type { Db } from './db.js';
 import { getEventCalendar } from './event-calendar.js';
 import { createEvent } from './events.js';
 import { HOST_ID, setupDb } from './operations.fixtures.js';
+import { events } from './schema.js';
 
 const HOUR = 60 * 60 * 1000;
 
@@ -61,6 +63,16 @@ describe('getEventCalendar', () => {
 
   it('answers with nothing for an id no event has', async () => {
     expect(await getEventCalendar(db, id('evt'))).toBeUndefined();
+  });
+
+  it('does not return a calendar entry for a deleted event', async () => {
+    const eventId = await calendarEvent(db);
+    await db
+      .update(events)
+      .set({ status: 'deleted' })
+      .where(eq(events.id, eventId));
+
+    expect(await getEventCalendar(db, eventId)).toBeUndefined();
   });
 
   it('selects columns rather than the row, so nothing private can ride along', async () => {

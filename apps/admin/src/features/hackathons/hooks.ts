@@ -44,3 +44,22 @@ export const useSendHackathonDraftEmail = () =>
     mutationFn: (input: HackathonDraftEmailRequest) =>
       hackathonReviewApi.sendDraftEmail(input),
   });
+
+export const useHackathonsForDeletion = (query: string) =>
+  useQuery({
+    queryKey: ['hackathon-delete-search', query],
+    queryFn: () => hackathonReviewApi.findForDeletion({ query }),
+    enabled: query.trim().length >= 2,
+  });
+
+export const useDeleteAnyHackathon = () => {
+  const cache = useQueryClient();
+  return useMutation({
+    mutationFn: (eventId: string) => hackathonReviewApi.delete({ eventId }),
+    onSuccess: () =>
+      Promise.all([
+        cache.invalidateQueries({ queryKey: [QUEUE_KEY] }),
+        cache.invalidateQueries({ queryKey: ['hackathon-delete-search'] }),
+      ]),
+  });
+};

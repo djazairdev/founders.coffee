@@ -13,6 +13,7 @@ import {
   hackathonSubmissions,
   hackathonSubmissionScreenshots as screenshots,
   hackathonTeamMembers,
+  events,
 } from './schema.js';
 
 export type SubmissionScreenshotView = {
@@ -173,7 +174,7 @@ export const readViewableScreenshot = async (
   input: { readonly id: string; readonly userId: string },
 ) => {
   const isTeamMember = sql`EXISTS (SELECT 1 FROM ${hackathonTeamMembers} WHERE ${hackathonTeamMembers.teamId} = ${screenshots.teamId} AND ${hackathonTeamMembers.userId} = ${input.userId})`;
-  const isJudge = sql`EXISTS (SELECT 1 FROM ${hackathonJudges} JOIN ${hackathons} ON ${hackathons.eventId} = ${hackathonJudges.eventId} JOIN ${hackathonSubmissions} ON ${hackathonSubmissions.id} = ${screenshots.submissionId} WHERE ${hackathonJudges.eventId} = ${screenshots.eventId} AND ${hackathonJudges.userId} = ${input.userId} AND ${hackathonJudges.status} = 'accepted' AND ${hackathonSubmissions.status} = 'submitted' AND ${hackathons.submissionDeadlineAt} <= unixepoch() AND NOT EXISTS (SELECT 1 FROM ${hackathonRecusals} WHERE ${hackathonRecusals.judgeId} = ${hackathonJudges.id} AND ${hackathonRecusals.submissionId} = ${screenshots.submissionId}))`;
+  const isJudge = sql`EXISTS (SELECT 1 FROM ${hackathonJudges} JOIN ${hackathons} ON ${hackathons.eventId} = ${hackathonJudges.eventId} JOIN ${hackathonSubmissions} ON ${hackathonSubmissions.id} = ${screenshots.submissionId} JOIN ${events} ON ${events.id} = ${screenshots.eventId} WHERE ${hackathonJudges.eventId} = ${screenshots.eventId} AND ${events.status} != 'deleted' AND ${hackathonJudges.userId} = ${input.userId} AND ${hackathonJudges.status} = 'accepted' AND ${hackathonSubmissions.status} = 'submitted' AND ${hackathons.submissionDeadlineAt} <= unixepoch() AND NOT EXISTS (SELECT 1 FROM ${hackathonRecusals} WHERE ${hackathonRecusals.judgeId} = ${hackathonJudges.id} AND ${hackathonRecusals.submissionId} = ${screenshots.submissionId}))`;
   const [row] = await db
     .select({ eventId: screenshots.eventId, objectKey: screenshots.objectKey })
     .from(screenshots)
@@ -181,6 +182,7 @@ export const readViewableScreenshot = async (
       and(
         eq(screenshots.id, input.id),
         eq(screenshots.status, 'ready'),
+        sql`EXISTS (SELECT 1 FROM ${events} WHERE ${events.id} = ${screenshots.eventId} AND ${events.status} != 'deleted')`,
         or(isTeamMember, isJudge),
       ),
     );
@@ -201,6 +203,7 @@ export const listCollectableScreenshots = (db: Db, now: Date, limit: number) =>
         eq(screenshots.status, 'removed'),
         sql`${screenshots.status} = 'pending' AND ${screenshots.expiresAt} <= ${Math.floor(now.getTime() / 1000)}`,
         sql`NOT EXISTS (SELECT 1 FROM ${hackathonSubmissions} WHERE ${hackathonSubmissions.id} = ${screenshots.submissionId})`,
+        sql`EXISTS (SELECT 1 FROM ${events} WHERE ${events.id} = ${screenshots.eventId} AND ${events.status} = 'deleted')`,
       ),
     )
     .limit(limit);

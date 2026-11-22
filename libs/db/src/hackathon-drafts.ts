@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 
 import type { CurrencyCode } from '@founders-coffee/core';
 
@@ -42,7 +42,13 @@ export const readHackathonLeadOrganisation = async (
     .select({ organisationId: eventOrganisers.organisationId })
     .from(events)
     .innerJoin(eventOrganisers, leadOf)
-    .where(and(eq(events.id, eventId), eq(events.kind, 'hackathon')))
+    .where(
+      and(
+        eq(events.id, eventId),
+        eq(events.kind, 'hackathon'),
+        sql`${events.status} != 'deleted'`,
+      ),
+    )
     .limit(1);
   return row?.organisationId ?? null;
 };
@@ -80,7 +86,13 @@ export const readHackathonDraft = async (
       hackathonSectionDrafts,
       eq(hackathonSectionDrafts.eventId, events.id),
     )
-    .where(and(eq(events.id, eventId), eq(events.kind, 'hackathon')))
+    .where(
+      and(
+        eq(events.id, eventId),
+        eq(events.kind, 'hackathon'),
+        sql`${events.status} != 'deleted'`,
+      ),
+    )
     .limit(1);
   return row ?? null;
 };

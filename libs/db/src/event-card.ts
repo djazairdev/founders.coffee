@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, ne } from 'drizzle-orm';
 
 import type { Db } from './db.js';
 import { visibleHost } from './profile-access.js';
@@ -49,7 +49,13 @@ export const getEventCard = async (
     .from(events)
     .innerJoin(user, eq(events.hostId, user.id))
     .innerJoin(markets, eq(events.marketCode, markets.code))
-    .where(and(eq(events.id, id), visibleHost(events.hostId)))
+    .where(
+      and(
+        eq(events.id, id),
+        ne(events.status, 'deleted'),
+        visibleHost(events.hostId),
+      ),
+    )
     .limit(1);
   return rows[0];
 };

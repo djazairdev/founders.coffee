@@ -55,6 +55,18 @@ export const useHackathonDraft = (eventId: string) =>
       query.state.data?.event.status === 'draft' ? 'always' : false,
   });
 
+export const useDeleteOwnedHackathon = () => {
+  const cache = useQueryClient();
+  return useMutation({
+    mutationFn: (eventId: string) => hackathonsApi.delete({ eventId }),
+    onSuccess: ({ eventId }) =>
+      Promise.all([
+        cache.removeQueries({ queryKey: [...DRAFT, eventId] }),
+        cache.invalidateQueries({ queryKey: ['organisations', 'mine'] }),
+      ]),
+  });
+};
+
 /** Who registered for a hackathon, for its organisers (B-REG-08). */
 export const useHackathonParticipants = (eventId: string) =>
   useQuery<HackathonParticipantsView>({

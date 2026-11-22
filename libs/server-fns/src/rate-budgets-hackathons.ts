@@ -91,6 +91,11 @@ export const HACKATHON_RATE_BUDGETS = {
     limit: 30,
     windowMs: 10 * MINUTE_MS,
   },
+  hackathonDelete: {
+    action: 'delete_hackathon',
+    limit: 3,
+    windowMs: 60 * MINUTE_MS,
+  },
   hackathonDecision: {
     action: 'decide_hackathon',
     limit: 60,

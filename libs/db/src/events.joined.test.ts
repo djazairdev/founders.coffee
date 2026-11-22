@@ -58,6 +58,16 @@ describe('listJoinedEvents', () => {
     ).toEqual(['cancelled']);
   });
 
+  it('hides a deleted event from a member’s joined list', async () => {
+    const eventId = await futureEvent(db, { attendees: [MEMBER_ID] });
+    await db.run(
+      sql`UPDATE events SET status = 'deleted' WHERE id = ${eventId}`,
+    );
+
+    expect(await listJoinedEvents(db, { userId: MEMBER_ID })).toEqual([]);
+    expect(await countJoinedEvents(db, { userId: MEMBER_ID })).toBe(0);
+  });
+
   it('hides a gathering whose host is no longer a visible identity', async () => {
     await futureEvent(db, { attendees: [MEMBER_ID] });
     await db

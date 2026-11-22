@@ -15,6 +15,8 @@ import { eventRsvps, events, type Event } from './schema.js';
  * Cancelled *events* are kept, unlike the hosted scope. A host looking back at their history does
  * not need a meetup that never happened; a member looking at their own list does, because they may
  * still have it in their calendar and the cancellation is the thing they need to see.
+ * Deleted events are removed from this list because their page and participation flow no longer
+ * exist.
  *
  * A draft is in nobody's list, its host's included, until it is published.
  *
@@ -26,6 +28,7 @@ const joinedEventScope = (userId: string, marketCode?: string) =>
     eq(eventRsvps.userId, userId),
     eq(eventRsvps.status, 'going'),
     ne(events.status, 'draft'),
+    ne(events.status, 'deleted'),
     visibleHost(events.hostId),
     marketCode ? eq(events.marketCode, marketCode) : undefined,
   );

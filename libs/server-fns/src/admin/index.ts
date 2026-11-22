@@ -25,6 +25,16 @@ export {
   decideHackathonReviewDecision,
   listHackathonReviewQueue,
 } from './hackathon-review-rpc.js';
+export {
+  deleteAnyHackathon,
+  findHackathonsForDeletion,
+} from './hackathon-deletion-rpc.js';
+export type {
+  AdminDeleteHackathonRequest,
+  SearchHackathonsForDeletionRequest,
+} from './hackathon-deletion-rpc.js';
+export type { HackathonDeletionCandidate } from '@founders-coffee/db';
+export type { HackathonDeleted } from '../hackathons/deletion.js';
 export { sendHackathonDraftEmail } from './hackathon-draft-email-rpc.js';
 export type { HackathonDraftEmailRequest } from './hackathon-draft-email-rpc.js';
 export type {

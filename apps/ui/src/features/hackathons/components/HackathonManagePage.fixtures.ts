@@ -60,6 +60,18 @@ const mocks = vi.hoisted(() => ({
     isError: false,
     error: null as unknown,
   },
+  deletion: {
+    mutate: vi.fn(
+      (
+        _eventId: string,
+        _options?: {
+          onSuccess?: () => void;
+          onError?: (error: unknown) => void;
+        },
+      ) => undefined,
+    ),
+    isPending: false,
+  },
 }));
 
 export const getManagePageMocks = () => mocks;
@@ -113,6 +125,7 @@ vi.mock('../hooks', () => ({
   useChangeHackathonPrize: () => mocks.saveTracks,
   useRemoveHackathonPrize: () => mocks.saveTracks,
   useConfirmHackathonPrize: () => mocks.saveTracks,
+  useDeleteOwnedHackathon: () => mocks.deletion,
 }));
 
 const markets = [
@@ -149,4 +162,5 @@ export const resetManagePage = () => {
       isError: false,
       error: null,
     });
+  Object.assign(mocks.deletion, { isPending: false });
 };

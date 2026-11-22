@@ -22,6 +22,7 @@ import type { HackathonDecision } from '../decisions';
 import { useDecideHackathon, useHackathonReviewQueue } from '../hooks';
 import type { HackathonReviewSearch } from '../search';
 import { HackathonReviewCard } from './HackathonReviewCard';
+import { HackathonDeletePanel } from './HackathonDeletePanel';
 
 type Notice = 'decided' | 'stale' | 'failed';
 
@@ -67,6 +68,7 @@ export const HackathonReviewPage = ({
 
   return (
     <AdminPage heading={admin_hkn_heading({}, { locale })} locale={locale}>
+      <HackathonDeletePanel locale={locale} />
       <ReviewQueue
         emptyLabel={admin_hkn_empty({}, { locale })}
         errorLabel={admin_hkn_unavailable({}, { locale })}

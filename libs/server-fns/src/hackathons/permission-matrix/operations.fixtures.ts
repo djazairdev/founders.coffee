@@ -1,4 +1,5 @@
 import { JUDGING_OPERATIONS } from './judging.fixtures.js';
+import { ADMIN_DELETION_OPERATIONS } from './admin-deletion.fixtures.js';
 import type { Operations } from './matrix.fixtures.js';
 import { ORGANISER_OPERATIONS } from './organiser.fixtures.js';
 import { RESULTS_OPERATIONS } from './results.fixtures.js';
@@ -7,6 +8,7 @@ import { TEAM_OPERATIONS } from './teams.fixtures.js';
 
 export const OPERATIONS: Operations = {
   ...TEAM_OPERATIONS,
+  ...ADMIN_DELETION_OPERATIONS,
   ...SUBMISSION_OPERATIONS,
   ...JUDGING_OPERATIONS,
   ...ORGANISER_OPERATIONS,
