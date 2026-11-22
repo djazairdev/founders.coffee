@@ -1,8 +1,22 @@
 import { cleanup, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { HackathonReviewIncompleteItem } from '../api';
 import { HackathonIncompleteReviewCard } from './HackathonIncompleteReviewCard';
+
+const mocks = vi.hoisted(() => ({
+  email: {
+    mutate: vi.fn(),
+    isPending: false,
+    isError: false,
+    isSuccess: false,
+    error: null,
+  },
+}));
+
+vi.mock('../hooks', () => ({
+  useSendHackathonDraftEmail: () => mocks.email,
+}));
 
 afterEach(() => cleanup());
 
