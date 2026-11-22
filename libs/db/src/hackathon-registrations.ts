@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, count, eq, inArray, sql } from 'drizzle-orm';
 
 import type {
   AttendanceMode,
@@ -35,6 +35,29 @@ export type RegistrationWrite =
   | { readonly outcome: 'registration_closed' };
 
 const seconds = (date: Date): number => Math.floor(date.getTime() / 1000);
+
+/** Count only participants who hold a confirmed place in each hackathon. */
+export const countRegisteredHackathonParticipants = async (
+  db: Db,
+  eventIds: readonly string[],
+): Promise<ReadonlyMap<string, number>> => {
+  const uniqueEventIds = [...new Set(eventIds)];
+  if (uniqueEventIds.length === 0) return new Map();
+  const rows = await db
+    .select({
+      eventId: hackathonRegistrations.eventId,
+      count: count(),
+    })
+    .from(hackathonRegistrations)
+    .where(
+      and(
+        inArray(hackathonRegistrations.eventId, uniqueEventIds),
+        eq(hackathonRegistrations.status, 'registered'),
+      ),
+    )
+    .groupBy(hackathonRegistrations.eventId);
+  return new Map(rows.map(({ eventId, count: total }) => [eventId, total]));
+};
 
 /**
  * Register a member for a hackathon in one atomic batch (B-REG-03, AGENTS.md §11).

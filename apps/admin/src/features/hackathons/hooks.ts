@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { hackathonReviewApi } from './api';
+import { hackathonReviewApi, type HackathonDraftEmailRequest } from './api';
 import { decisionRequest, type HackathonDecision } from './decisions';
 
 const QUEUE_KEY = 'hackathon-review';
@@ -36,5 +36,30 @@ export const useDecideHackathon = () => {
       return hackathonReviewApi.decide(request);
     },
     onSettled: () => cache.invalidateQueries({ queryKey: [QUEUE_KEY] }),
+  });
+};
+
+export const useSendHackathonDraftEmail = () =>
+  useMutation({
+    mutationFn: (input: HackathonDraftEmailRequest) =>
+      hackathonReviewApi.sendDraftEmail(input),
+  });
+
+export const useHackathonsForDeletion = (query: string) =>
+  useQuery({
+    queryKey: ['hackathon-delete-search', query],
+    queryFn: () => hackathonReviewApi.findForDeletion({ query }),
+    enabled: query.trim().length >= 2,
+  });
+
+export const useDeleteAnyHackathon = () => {
+  const cache = useQueryClient();
+  return useMutation({
+    mutationFn: (eventId: string) => hackathonReviewApi.delete({ eventId }),
+    onSuccess: () =>
+      Promise.all([
+        cache.invalidateQueries({ queryKey: [QUEUE_KEY] }),
+        cache.invalidateQueries({ queryKey: ['hackathon-delete-search'] }),
+      ]),
   });
 };

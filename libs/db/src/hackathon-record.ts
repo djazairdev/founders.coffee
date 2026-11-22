@@ -1,4 +1,4 @@
-import { and, eq, isNotNull, isNull, sql } from 'drizzle-orm';
+import { and, eq, isNotNull, isNull, ne, sql } from 'drizzle-orm';
 
 import type { Db } from './db.js';
 import {
@@ -55,11 +55,13 @@ export const listHackathonRecordProjects = (db: Db, userId: string) =>
       hackathonSubmissions,
       eq(hackathonSubmissions.id, projects.sourceSubmissionId),
     )
+    .innerJoin(events, eq(events.id, hackathonSubmissions.eventId))
     .where(
       and(
         eq(projectMembers.userId, userId),
         eq(projectMembers.isListed, true),
         eq(projects.status, 'published'),
+        ne(events.status, 'deleted'),
       ),
     );
 

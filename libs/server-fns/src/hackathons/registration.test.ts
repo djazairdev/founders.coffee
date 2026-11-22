@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   and,
+  createRsvp,
   eq,
   getEvent,
   hackathonRegistrations,
@@ -11,7 +12,13 @@ import {
 import type { Metrics } from '@founders-coffee/observability';
 
 import { meetingLinkFor } from '../events/meeting-link.js';
-import { members, seedEvent, setupDb } from '../rsvps/resolver.fixtures.js';
+import { attachAttendance } from '../events/attendance.js';
+import {
+  HOST_ID,
+  members,
+  seedEvent,
+  setupDb,
+} from '../rsvps/resolver.fixtures.js';
 import { openHackathon, setHackathons } from './registration.fixtures.js';
 import {
   registerForHackathonResolver,
@@ -98,6 +105,37 @@ describe('registering for a hackathon (B-REG-03, real D1)', () => {
       market: 'DZ',
       hackathon: eventId,
     });
+  });
+
+  it('counts confirmed registrations, not organizer RSVPs or waitlisted members, on public events', async () => {
+    const eventId = await openHackathon(db, { capacity: 1 });
+    await createRsvp(db, {
+      id: 'rsv_legacy_host',
+      eventId,
+      userId: HOST_ID,
+    });
+    const eventBeforeRegistration = await getEvent(db, eventId);
+    if (!eventBeforeRegistration) throw new Error('no event');
+    const [unregisteredHost] = await attachAttendance(
+      db,
+      [eventBeforeRegistration],
+      HOST_ID,
+    );
+
+    expect(unregisteredHost).toMatchObject({ goingCount: 0, viewerRsvp: null });
+
+    await register(eventId, HOST_ID);
+    const waitlisted = await register(eventId, members[0].id);
+    const eventAfterRegistration = await getEvent(db, eventId);
+    if (!eventAfterRegistration) throw new Error('no event');
+    const [registeredHost] = await attachAttendance(
+      db,
+      [eventAfterRegistration],
+      HOST_ID,
+    );
+
+    expect(waitlisted.ok && waitlisted.data.status).toBe('waitlisted');
+    expect(registeredHost).toMatchObject({ goingCount: 1, viewerRsvp: null });
   });
 
   it('puts the member on the waitlist once every place is taken, without counting them', async () => {

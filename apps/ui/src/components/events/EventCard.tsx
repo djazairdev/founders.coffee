@@ -6,7 +6,9 @@ import {
   direction,
   event_host,
   formatDate,
+  formatNumber,
   going_count,
+  hackathon_participants_count,
   rsvp_attending,
   type Locale,
 } from '@founders-coffee/i18n';
@@ -65,7 +67,9 @@ export const EventCard = ({
     );
   const cityName = eventCityName(event, locale);
   const isGoing = event.viewerRsvp === 'going';
-  const hasHost = event.hostName != null && event.hostName.length > 0;
+  const isHackathon = event.kind === 'hackathon';
+  const hasHost =
+    !isHackathon && event.hostName != null && event.hostName.length > 0;
   const attendeeCount = event.goingCount ?? 0;
   const additionalAttendeeCount = Math.max(
     0,
@@ -106,7 +110,23 @@ export const EventCard = ({
               {event.title}
             </h3>
           </header>
-          <EventCoHosts runBy={event.runBy} locale={locale} />
+          {isHackathon && !event.organisations?.length && event.hostName ? (
+            <p className="flex items-center gap-2 text-body-sm text-neutral">
+              <HostFace
+                name={event.hostName}
+                photoAssetId={event.hostPhotoAssetId}
+              />
+              <span>
+                {event_host({}, { locale })}: <bdi>{event.hostName}</bdi>
+              </span>
+            </p>
+          ) : (
+            <EventCoHosts
+              runBy={event.runBy}
+              locale={locale}
+              organisations={isHackathon ? event.organisations : undefined}
+            />
+          )}
           {event.description?.trim() ? (
             <p dir="auto" className="line-clamp-1 text-body-sm text-neutral">
               {event.description}
@@ -181,7 +201,12 @@ export const EventCard = ({
 
             {attendeeCount > 0 && !hasHost ? (
               <span className="inline-flex items-center gap-2 text-body-sm text-neutral">
-                {going_count({ count: attendeeCount }, { locale })}
+                {isHackathon
+                  ? hackathon_participants_count(
+                      { count: formatNumber(attendeeCount, locale) },
+                      { locale },
+                    )
+                  : going_count({ count: attendeeCount }, { locale })}
               </span>
             ) : null}
 

@@ -12,6 +12,7 @@ const TRANSITIONS: Record<EventStatus, readonly EventStatus[]> = {
   draft: ['published', 'cancelled'],
   published: ['cancelled'],
   cancelled: ['published'],
+  deleted: [],
 };
 
 export const canTransition = (from: EventStatus, to: EventStatus): boolean =>

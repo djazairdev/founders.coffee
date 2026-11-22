@@ -7,7 +7,7 @@ import type { Db } from './db.js';
 import { createEvent } from './events.js';
 import { getEventCard } from './event-card.js';
 import { HOST_ID, setupDb } from './operations.fixtures.js';
-import { user } from './schema.js';
+import { events, user } from './schema.js';
 
 const HOUR = 60 * 60 * 1000;
 
@@ -72,6 +72,16 @@ describe('getEventCard', () => {
       await cardEvent(db, { status: 'draft' }),
     );
     expect(card?.status).toBe('draft');
+  });
+
+  it('does not return a social card for a deleted event', async () => {
+    const eventId = await cardEvent(db);
+    await db
+      .update(events)
+      .set({ status: 'deleted' })
+      .where(eq(events.id, eventId));
+
+    expect(await getEventCard(db, eventId)).toBeUndefined();
   });
 
   it('answers with nothing for an id no event has', async () => {

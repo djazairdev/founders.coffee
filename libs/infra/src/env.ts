@@ -9,12 +9,14 @@ export interface WorkerEnv {
   readonly NOTIFICATION_SCHEDULE?: DurableObjectNamespace;
   readonly NOTIFICATIONS?: Queue<AppQueueMessage>;
   readonly EMAIL?: unknown;
+  readonly OUTREACH_EMAIL?: unknown;
   readonly ANALYTICS?: AnalyticsEngineDataset;
   readonly PROFILE_ASSETS?: R2Bucket;
   readonly SUBMISSION_ASSETS?: R2Bucket;
   readonly IMAGES?: ImagesBinding;
 
   readonly APP_URL?: string;
+  readonly PUBLIC_APP_URL?: string;
   readonly APP_ENVIRONMENT?: string;
   readonly ACTION_ANALYTICS_ENABLED?: string;
   readonly MAIL_FROM?: string;

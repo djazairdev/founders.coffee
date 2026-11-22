@@ -1,4 +1,5 @@
 export { EmailBase } from './base.js';
+export { renderHackathonOutreachEmail } from './hackathon-outreach.js';
 export { NotificationEmail } from './notification.js';
 export { OtpEmail } from './otp.js';
 export type { EmailBaseProps } from './base.js';

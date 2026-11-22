@@ -1,11 +1,11 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, ne } from 'drizzle-orm';
 
 import type { Db } from './db.js';
 import { events, markets } from './schema.js';
 
 /**
  * What a calendar entry for an event says, with the clock of the market it happens in, in one
- * query.
+ * query. Deleted events have no public calendar entry.
  *
  * The entry is fetched by a calendar app or a download, without a session, so it answers the same
  * for everyone and must never carry a field that depends on who is asking. Naming the columns
@@ -53,7 +53,7 @@ export const getEventCalendar = async (
     })
     .from(events)
     .innerJoin(markets, eq(events.marketCode, markets.code))
-    .where(eq(events.id, id))
+    .where(and(eq(events.id, id), ne(events.status, 'deleted')))
     .limit(1);
   return rows[0];
 };

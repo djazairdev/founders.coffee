@@ -269,6 +269,9 @@ The hackathon itself: its details, timeline, tracks, prizes and rubric, the orga
 | <a id="b-hkn-26"></a>B-HKN-26 ★ | #302  | Hackathon page: mentors and their office hours                                                        | S    | #301, #228                   | First hackathon |
 | <a id="b-hkn-23"></a>B-HKN-23 ★ | #241  | Register the private hackathon routes                                                                 | S    | —                            | First hackathon |
 | <a id="b-hkn-24"></a>B-HKN-24   | #242  | Hackathons in JSON-LD and the sitemap                                                                 | S    | #228, #202                   | First hackathon |
+| <a id="b-hkn-27"></a>B-HKN-27   | #550  | Organisers and admins can delete a hackathon                                                          | M    | #217                         | First hackathon |
+
+Deleting a hackathon is a reversible-data-preserving tombstone, not a cancellation: public pages and artifacts are hidden, pending reminders and interest launches stop, active certificates are revoked, and participant, team, submission, judging, prize and audit records remain stored.
 
 ### Registration
 

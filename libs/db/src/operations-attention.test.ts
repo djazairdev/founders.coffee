@@ -5,6 +5,7 @@ import { id } from '@founders-coffee/core';
 import type { Db } from './db.js';
 import {
   listEventsMissingEndTime,
+  listMissingMeetupCloseouts,
   listOverdueCloseouts,
 } from './operations-attention.js';
 import { submitCloseout } from './operations-closeout.js';
@@ -50,6 +51,18 @@ describe('attention queries', () => {
     });
 
     expect(overdue.map((row) => row.id)).not.toContain(eventId);
+  });
+
+  it('lists every ended meetup that still needs a closeout', async () => {
+    const eventId = await pastEvent(db, { endedHoursAgo: 2 });
+
+    const missing = await listMissingMeetupCloseouts(db, {
+      marketCode: 'DZ',
+      now: new Date(),
+      limit: 10,
+    });
+
+    expect(missing.map((row) => row.id)).toContain(eventId);
   });
 
   it('drops an event from the list once it is closed out', async () => {

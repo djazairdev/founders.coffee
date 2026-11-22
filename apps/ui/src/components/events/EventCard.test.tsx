@@ -77,6 +77,31 @@ describe('how many people the card says are going', () => {
     expect(view.container.textContent).toContain('Host Name');
     expect(view.container.textContent).not.toMatch(/\+\s*\d/);
   });
+
+  it('shows a hackathon creator as an organiser, separate from registered participants', () => {
+    const view = show({
+      kind: 'hackathon',
+      hostName: 'Participant 1',
+      goingCount: 2,
+      rsvps: 1,
+      organisations: [{ name: 'Code Club Alger', slug: 'code-club-alger' }],
+    });
+
+    expect(view.container.textContent).toContain('Code Club Alger');
+    expect(view.container.textContent).toContain('Participants: 2');
+    expect(view.container.textContent).not.toContain('Participant 1');
+    expect(view.container.textContent).not.toContain('+2 going');
+  });
+
+  it('labels the creator as the host when no organisation is listed', () => {
+    const view = show({
+      kind: 'hackathon',
+      hostName: 'Hackathon Creator',
+    });
+
+    expect(view.container.textContent).toContain('Host: Hackathon Creator');
+    expect(view.container.textContent).not.toContain('+1 going');
+  });
 });
 
 describe('the languages the card names', () => {

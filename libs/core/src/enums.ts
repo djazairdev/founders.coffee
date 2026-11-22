@@ -22,7 +22,12 @@ export const MARKET_STATES = ['dark', 'open', 'active'] as const;
 export type MarketState = (typeof MARKET_STATES)[number];
 export const marketStateSchema = z.enum(MARKET_STATES);
 
-export const EVENT_STATUSES = ['draft', 'published', 'cancelled'] as const;
+export const EVENT_STATUSES = [
+  'draft',
+  'published',
+  'cancelled',
+  'deleted',
+] as const;
 export type EventStatus = (typeof EVENT_STATUSES)[number];
 export const eventStatusSchema = z.enum(EVENT_STATUSES);
 
@@ -189,6 +194,7 @@ export const auditTargetSchema = z.enum(AUDIT_TARGETS);
 export const AUDIT_ACTIONS = [
   'closeout_submitted',
   'closeout_corrected',
+  'admin_closeout_created',
   'attendance_recorded',
   'attendance_corrected',
   'host_trust_updated',
@@ -202,6 +208,7 @@ export const AUDIT_ACTIONS = [
   'results_published',
   'co_host_added',
   'co_host_removed',
+  'deleted',
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 export const auditActionSchema = z.enum(AUDIT_ACTIONS);

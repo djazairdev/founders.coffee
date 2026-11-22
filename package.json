@@ -76,7 +76,7 @@
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
     "@types/node": "^26.6.6",
-    "@typescript/native": "npm:typescript@~7.0.2",
+    "@typescript/native": "npm:typescript@7.1.0-dev.20261121.1",
     "@vitest/coverage-istanbul": "5.1.0",
     "@vitest/ui": "5.1.0",
     "daisyui": "^5.8.0",

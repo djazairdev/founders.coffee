@@ -1,6 +1,7 @@
 import type { EventStatus } from '@founders-coffee/core';
 import {
   org_hackathon_status_cancelled,
+  org_hackathon_status_deleted,
   org_hackathon_status_draft,
   org_hackathon_status_published,
   type Locale,
@@ -10,6 +11,7 @@ const STATUS_LABELS = {
   draft: org_hackathon_status_draft,
   published: org_hackathon_status_published,
   cancelled: org_hackathon_status_cancelled,
+  deleted: org_hackathon_status_deleted,
 } as const;
 
 /** What a hackathon's status reads as in the organisation's own list. */

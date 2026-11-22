@@ -68,6 +68,7 @@ export const PUBLIC_EVENT_FIELDS = [
   'goingCount',
   'hostName',
   'hostPhotoAssetId',
+  'organisations',
   'runBy',
   'viewerRsvp',
 ] as const;

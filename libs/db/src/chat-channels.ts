@@ -43,11 +43,11 @@ export const chatNowMs = (): SQL =>
  * last change, which is the cancellation for any meetup cancelled since.
  */
 const overAt = (endedAt: SQL): SQL =>
-  sql`(case when ${events.status} = 'cancelled' then coalesce(${events.cancelledAt}, ${events.updatedAt}) else ${endedAt} end)`;
+  sql`(case when ${events.status} = 'deleted' then ${events.updatedAt} when ${events.status} = 'cancelled' then coalesce(${events.cancelledAt}, ${events.updatedAt}) else ${endedAt} end)`;
 
 /** How long the chat stays open once its event is over: not at all after a cancellation. */
 const openFor = (seconds: number): SQL =>
-  sql`(case when ${events.status} = 'cancelled' then 0 else ${seconds} end)`;
+  sql`(case when ${events.status} in ('cancelled', 'deleted') then 0 else ${seconds} end)`;
 
 /**
  * When the hackathon in the statement's `events` row has its results (B-HKN-22): when they were

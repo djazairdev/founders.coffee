@@ -2,6 +2,7 @@ import { hackathons } from '@founders-coffee/domain';
 
 import { testMapProvider } from '../../events/resolver.fixtures.js';
 import { hackathonDashboardResolver } from '../dashboard.js';
+import { deleteHackathonResolver } from '../deletion.js';
 import {
   hackathonParticipantsResolver,
   hackathonTeamsResolver,
@@ -102,6 +103,18 @@ export const ORGANISER_OPERATIONS: Operations = {
   getHackathonTeams: {
     gate: ORGANISER,
     run: ({ db, world }) => hackathonTeamsResolver(db, world.eventId),
+    cells: organiserOnly('ok'),
+  },
+  deleteOwnedHackathon: {
+    gate: ORGANISER,
+    changesWorld: true,
+    run: ({ db, world, userId }) =>
+      deleteHackathonResolver(db, {
+        eventId: world.eventId,
+        organisationId: world.organisationId,
+        actorUserId: userId,
+        accessSubject: null,
+      }),
     cells: organiserOnly('ok'),
   },
   saveHackathonDeadlines: {

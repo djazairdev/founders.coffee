@@ -1,5 +1,5 @@
-import { cleanup, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { draftView } from '../hackathon-details-form.fixtures';
 import {
@@ -9,6 +9,17 @@ import {
 } from './HackathonManagePage.fixtures';
 
 const mocks = getManagePageMocks();
+
+beforeEach(() => {
+  Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
+    configurable: true,
+    value: () => document.querySelector('dialog')?.setAttribute('open', ''),
+  });
+  Object.defineProperty(HTMLDialogElement.prototype, 'close', {
+    configurable: true,
+    value: () => document.querySelector('dialog')?.removeAttribute('open'),
+  });
+});
 
 afterEach(resetManagePage);
 
@@ -26,6 +37,23 @@ describe('HackathonManagePage (B-HKN-12)', () => {
       ),
     ).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();
+  });
+
+  it('requires confirmation before deleting and explains retained records', () => {
+    mocks.draft.data = draftView();
+    renderPage();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete hackathon' }));
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Delete “Algiers Builders Weekend”?',
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(/Linked records and the audit trail will be retained/),
+    ).toBeTruthy();
+    expect(mocks.deletion.mutate).not.toHaveBeenCalled();
   });
 
   it('offers the results only for a published hackathon', () => {

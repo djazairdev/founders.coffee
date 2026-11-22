@@ -37,6 +37,32 @@ export const listOverdueCloseouts = (
     .orderBy(events.endsAt)
     .limit(opts.limit);
 
+export const listMissingMeetupCloseouts = (
+  db: Db,
+  opts: { marketCode: string; now: Date; limit: number },
+) =>
+  db
+    .select({
+      id: events.id,
+      title: events.title,
+      marketCode: events.marketCode,
+      endsAt: events.endsAt,
+    })
+    .from(events)
+    .leftJoin(eventCloseouts, eq(eventCloseouts.eventId, events.id))
+    .where(
+      and(
+        eq(events.marketCode, opts.marketCode),
+        eq(events.kind, 'meetup'),
+        eq(events.status, 'published'),
+        isNotNull(events.endsAt),
+        lt(events.endsAt, opts.now),
+        isNull(eventCloseouts.eventId),
+      ),
+    )
+    .orderBy(events.endsAt)
+    .limit(opts.limit);
+
 /**
  * The events CO-08 has to show an operator, because nothing else can be done with them.
  *

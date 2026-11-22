@@ -212,7 +212,13 @@ export const getHackathon = async (
     .select({ event: events, hackathon: hackathons })
     .from(hackathons)
     .innerJoin(events, eq(events.id, hackathons.eventId))
-    .where(and(eq(hackathons.eventId, eventId), eq(events.kind, 'hackathon')))
+    .where(
+      and(
+        eq(hackathons.eventId, eventId),
+        eq(events.kind, 'hackathon'),
+        sql`${events.status} != 'deleted'`,
+      ),
+    )
     .limit(1);
   return row ?? null;
 };

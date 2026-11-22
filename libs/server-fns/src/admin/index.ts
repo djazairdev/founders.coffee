@@ -25,18 +25,32 @@ export {
   decideHackathonReviewDecision,
   listHackathonReviewQueue,
 } from './hackathon-review-rpc.js';
+export {
+  deleteAnyHackathon,
+  findHackathonsForDeletion,
+} from './hackathon-deletion-rpc.js';
+export type {
+  AdminDeleteHackathonRequest,
+  SearchHackathonsForDeletionRequest,
+} from './hackathon-deletion-rpc.js';
+export type { HackathonDeletionCandidate } from '@founders-coffee/db';
+export type { HackathonDeleted } from '../hackathons/deletion.js';
+export { sendHackathonDraftEmail } from './hackathon-draft-email-rpc.js';
+export type { HackathonDraftEmailRequest } from './hackathon-draft-email-rpc.js';
 export type {
   HackathonDecisionRequest,
   HackathonReviewQueueRequest,
 } from './hackathon-review-rpc.js';
+export type { HackathonDecided } from './hackathon-review.js';
 export type {
-  HackathonDecided,
+  HackathonReviewIncompleteItem,
   HackathonReviewCriterion,
   HackathonReviewItem,
   HackathonReviewPrize,
   HackathonReviewQueue,
+  HackathonReviewReadyItem,
   HackathonReviewTrack,
-} from './hackathon-review.js';
+} from './hackathon-review-queue.js';
 export {
   decideHackathonReport,
   listHackathonReportQueue,
@@ -50,3 +64,13 @@ export type {
   ReportQueue,
   ReportQueueItem,
 } from './hackathon-reports.js';
+export {
+  createAdminMissingCloseout,
+  listAdminMissingCloseouts,
+} from './closeouts-rpc.js';
+export type {
+  AdminMissingCloseouts,
+  CreateMissingCloseoutRequest,
+  MissingCloseoutsRequest,
+} from './closeouts-rpc.js';
+export type { MissingCloseoutItem, MissingCloseouts } from './closeouts.js';

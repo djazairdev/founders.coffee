@@ -4,10 +4,8 @@ import {
   decideReportResolver,
   listReportQueueResolver,
 } from '../../admin/hackathon-reports.js';
-import {
-  decideHackathonReviewResolver,
-  listHackathonReviewQueueResolver,
-} from '../../admin/hackathon-review.js';
+import { decideHackathonReviewResolver } from '../../admin/hackathon-review.js';
+import { listHackathonReviewQueueResolver } from '../../admin/hackathon-review-queue.js';
 import {
   judgingProgressResolver,
   remindJudgesResolver,

@@ -192,6 +192,17 @@ describe('a hackathon’s chat: who is in it (B-HKN-22, real D1)', () => {
       );
     expect(pushes.map((push) => push.userId)).toEqual([people.mentor]);
   });
+
+  it('closes the chat immediately when the hackathon is deleted', async () => {
+    await db
+      .update(events)
+      .set({ status: 'deleted' })
+      .where(eq(events.id, eventId));
+
+    expect((await send(db, eventId, people.registered)).outcome).toBe(
+      'not_member',
+    );
+  });
 });
 
 describe('a hackathon’s chat: how long it stays open (B-HKN-22, real D1)', () => {

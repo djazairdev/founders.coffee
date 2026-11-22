@@ -11,7 +11,7 @@ import {
   type Locale,
 } from '@founders-coffee/i18n';
 
-import type { HackathonReviewItem } from '../api';
+import type { HackathonReviewReadyItem } from '../api';
 import {
   aiPolicyLabel,
   attendanceLabel,
@@ -27,7 +27,7 @@ export const HackathonReviewPreview = ({
   item,
 }: {
   locale: Locale;
-  item: HackathonReviewItem;
+  item: HackathonReviewReadyItem;
 }) => {
   const options = { locale };
   const notGiven = admin_hkn_not_given({}, options);

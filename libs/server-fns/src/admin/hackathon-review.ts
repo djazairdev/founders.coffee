@@ -1,23 +1,9 @@
-import {
-  AppError,
-  err,
-  eventLanguages,
-  id,
-  ok,
-  type EventFormat,
-  type HackathonAiPolicy,
-  type HackathonCriterionScale,
-  type AttendanceMode,
-  type HackathonTrackKind,
-  type Result,
-} from '@founders-coffee/core';
+import { AppError, err, id, ok, type Result } from '@founders-coffee/core';
 import {
   decideHackathonReview,
+  getEvent,
   getHackathon,
-  listHackathonsForReview,
   type Db,
-  type HackathonForReview,
-  type HackathonReviewPrize,
 } from '@founders-coffee/db';
 import { hackathons } from '@founders-coffee/domain';
 import { logger, type Metrics } from '@founders-coffee/observability';
@@ -27,121 +13,9 @@ import { recordHackathonMetric } from '../hackathons/metrics.js';
 import { scheduleOrganiserReminders } from '../notifications/hackathon-reminders.js';
 import type { HackathonDecisionNotice } from './hackathon-decision-email.js';
 
-export type HackathonReviewItem = {
-  readonly eventId: string;
-  readonly version: number;
-  readonly title: string;
-  readonly description: string;
-  readonly marketCode: string;
-  readonly cityCode: string | null;
-  readonly startsAt: Date;
-  readonly endsAt: Date | null;
-  readonly timeZone: string;
-  readonly organisation: { readonly name: string; readonly slug: string };
-  readonly updatedAt: Date;
-  readonly registrationOpensAt: Date;
-  readonly registrationClosesAt: Date;
-  readonly submissionDeadlineAt: Date;
-  readonly judgingEndsAt: Date;
-  readonly capacity: number | null;
-  readonly minimumAge: number | null;
-  readonly teamMin: number;
-  readonly teamMax: number;
-  readonly rules: string | null;
-  readonly format: EventFormat;
-  readonly venue: string | null;
-  readonly meetingUrl: string | null;
-  readonly languages: readonly string[];
-  readonly attendanceModes: readonly AttendanceMode[];
-  readonly aiPolicy: HackathonAiPolicy;
-  readonly aiPolicyNote: string | null;
-  readonly licenceNote: string | null;
-  readonly tracks: readonly HackathonReviewTrack[];
-  readonly prizes: readonly HackathonReviewPrize[];
-  readonly criteria: readonly HackathonReviewCriterion[];
-};
-
-export type HackathonReviewTrack = {
-  readonly id: string;
-  readonly kind: HackathonTrackKind;
-  readonly title: string;
-  readonly brief: string;
-  readonly partnerName: string | null;
-  readonly sourceUrls: readonly string[];
-};
-
-export type HackathonReviewCriterion = {
-  readonly name: string;
-  readonly description: string;
-  readonly weight: number;
-  readonly scale: HackathonCriterionScale;
-};
-
-export type { HackathonReviewPrize };
-
-export type HackathonReviewQueue = {
-  readonly items: readonly HackathonReviewItem[];
-  readonly hasMore: boolean;
-};
-
 export type HackathonDecided = {
   readonly eventId: string;
   readonly decision: hackathons.HackathonReviewDecision;
-};
-
-const itemOf = (row: HackathonForReview): HackathonReviewItem => ({
-  eventId: row.event.id,
-  version: row.event.version,
-  title: row.event.title,
-  description: row.event.description,
-  marketCode: row.event.marketCode,
-  cityCode: row.event.cityCode,
-  startsAt: row.event.startsAt,
-  endsAt: row.event.endsAt,
-  timeZone: row.timeZone,
-  organisation: row.organisation,
-  updatedAt: row.event.updatedAt,
-  registrationOpensAt: row.details.registrationOpensAt,
-  registrationClosesAt: row.details.registrationClosesAt,
-  submissionDeadlineAt: row.details.submissionDeadlineAt,
-  judgingEndsAt: row.details.judgingEndsAt,
-  capacity: row.details.capacity,
-  minimumAge: row.details.minimumAge,
-  teamMin: row.details.teamMin,
-  teamMax: row.details.teamMax,
-  rules: row.details.rules,
-  format: row.event.format,
-  venue: row.event.venue,
-  meetingUrl: row.event.meetingUrl,
-  languages: eventLanguages(row.event),
-  attendanceModes: row.details.attendanceModes,
-  aiPolicy: row.details.aiPolicy,
-  aiPolicyNote: row.details.aiPolicyNote,
-  licenceNote: row.details.licenceNote,
-  tracks: row.tracks.map((track) => ({
-    id: track.id,
-    kind: track.kind,
-    title: track.title,
-    brief: track.brief,
-    partnerName: track.partnerName,
-    sourceUrls: track.sourceUrls,
-  })),
-  prizes: row.prizes,
-  criteria: row.criteria.map((criterion) => ({
-    name: criterion.name,
-    description: criterion.description,
-    weight: criterion.weight,
-    scale: criterion.scale,
-  })),
-});
-
-/** One page of saved hackathon drafts, for the operator's queue (B-HKN-08). */
-export const listHackathonReviewQueueResolver = async (
-  db: Db,
-  page: number,
-): Promise<Result<HackathonReviewQueue>> => {
-  const queue = await listHackathonsForReview(db, page);
-  return ok({ items: queue.items.map(itemOf), hasMore: queue.hasMore });
 };
 
 /**
@@ -167,7 +41,60 @@ export const decideHackathonReviewResolver = async (
 ): Promise<Result<HackathonDecided>> => {
   const { eventId, decision } = input.decision;
   const found = await getHackathon(db, eventId);
-  if (!found) return err(new AppError('not_found', 'Hackathon not found'));
+  if (!found) {
+    const event = await getEvent(db, eventId);
+    if (
+      decision === 'approve' &&
+      event?.kind === 'hackathon' &&
+      event.status === 'draft'
+    )
+      return err(
+        new AppError(
+          'hackathon_details_required',
+          'Complete the required hackathon details before publishing',
+        ),
+      );
+    return err(new AppError('not_found', 'Hackathon not found'));
+  }
+  if (decision === 'approve') {
+    const { event, hackathon } = found;
+    const frame = event.endsAt
+      ? {
+          startsAt: event.startsAt.getTime(),
+          endsAt: event.endsAt.getTime(),
+          format: event.format,
+        }
+      : null;
+    const valid = frame
+      ? hackathons.hackathonDetailsFor(frame).safeParse({
+          registrationOpensAt: hackathon.registrationOpensAt.getTime(),
+          registrationClosesAt: hackathon.registrationClosesAt.getTime(),
+          submissionDeadlineAt: hackathon.submissionDeadlineAt.getTime(),
+          judgingEndsAt: hackathon.judgingEndsAt.getTime(),
+          attendanceModes: hackathon.attendanceModes,
+          teamMin: hackathon.teamMin,
+          teamMax: hackathon.teamMax,
+          capacity: hackathon.capacity ?? undefined,
+          minimumAge: hackathon.minimumAge ?? undefined,
+          rules: hackathon.rules ?? undefined,
+          aiPolicy: hackathon.aiPolicy,
+          aiPolicyNote: hackathon.aiPolicyNote ?? undefined,
+          licenceNote: hackathon.licenceNote ?? undefined,
+        })
+      : null;
+    if (
+      !frame ||
+      !event.title.trim() ||
+      !event.description.trim() ||
+      !valid?.success
+    )
+      return err(
+        new AppError(
+          'hackathon_details_required',
+          'Complete the required hackathon details before publishing',
+        ),
+      );
+  }
   const rule = hackathons.decideHackathonReview(
     found.hackathon.reviewStatus,
     decision,

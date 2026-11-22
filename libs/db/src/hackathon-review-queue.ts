@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, or } from 'drizzle-orm';
 
 import type { Money } from '@founders-coffee/core';
 
@@ -8,10 +8,12 @@ import {
   events,
   hackathonCriteria,
   hackathonPrizes,
+  hackathonSectionDrafts,
   hackathons,
   hackathonTracks,
   markets,
   organization,
+  user,
   type Event,
   type Hackathon,
   type HackathonCriterion,
@@ -32,6 +34,7 @@ export type HackathonReviewPrize = {
 };
 
 export type HackathonForReview = {
+  readonly creatorEmail: string;
   readonly event: Pick<
     Event,
     | 'id'
@@ -49,8 +52,15 @@ export type HackathonForReview = {
     | 'language'
     | 'languages'
   >;
-  readonly organisation: { readonly name: string; readonly slug: string };
-  readonly details: Hackathon;
+  readonly organisation: {
+    readonly name: string;
+    readonly slug: string;
+  } | null;
+  readonly details: Hackathon | null;
+  readonly sectionDrafts: {
+    readonly deadlines: unknown;
+    readonly settings: unknown;
+  } | null;
   readonly timeZone: string;
   readonly tracks: readonly HackathonTrack[];
   readonly prizes: readonly HackathonReviewPrize[];
@@ -93,10 +103,8 @@ const readChildren = async (db: Db, eventIds: readonly string[]) => {
 };
 
 /**
- * One page of saved hackathon drafts (B-HKN-08), the oldest edit first, each
- * with its lead organisation, its market's time zone, and everything participants will see of it:
- * its format and place, its tracks, its prizes and its rubric (B-HKN-09). Reads one row past the
- * page to say whether another follows.
+ * One page of hackathon draft events, including those without saved details (B-HKN-09), the oldest
+ * edit first. Reads one row past the page to say whether another follows.
  */
 export const listHackathonsForReview = async (
   db: Db,
@@ -104,6 +112,7 @@ export const listHackathonsForReview = async (
 ): Promise<HackathonReviewPage> => {
   const rows = await db
     .select({
+      creatorEmail: user.email,
       event: {
         id: events.id,
         version: events.version,
@@ -122,29 +131,39 @@ export const listHackathonsForReview = async (
       },
       organisation: { name: organization.name, slug: organization.slug },
       details: hackathons,
+      sectionDrafts: {
+        deadlines: hackathonSectionDrafts.deadlines,
+        settings: hackathonSectionDrafts.settings,
+      },
       timeZone: markets.timezone,
     })
-    .from(hackathons)
-    .innerJoin(events, eq(events.id, hackathons.eventId))
-    .innerJoin(
+    .from(events)
+    .innerJoin(user, eq(user.id, events.hostId))
+    .leftJoin(hackathons, eq(hackathons.eventId, events.id))
+    .leftJoin(
       eventOrganisers,
       and(
         eq(eventOrganisers.eventId, events.id),
         eq(eventOrganisers.role, 'lead'),
       ),
     )
-    .innerJoin(
-      organization,
-      eq(organization.id, eventOrganisers.organisationId),
+    .leftJoin(organization, eq(organization.id, eventOrganisers.organisationId))
+    .leftJoin(
+      hackathonSectionDrafts,
+      eq(hackathonSectionDrafts.eventId, events.id),
     )
     .innerJoin(markets, eq(markets.code, events.marketCode))
     .where(
       and(
-        inArray(hackathons.reviewStatus, ['draft', 'submitted']),
+        eq(events.kind, 'hackathon'),
         eq(events.status, 'draft'),
+        or(
+          isNull(hackathons.reviewStatus),
+          inArray(hackathons.reviewStatus, ['draft', 'submitted']),
+        ),
       ),
     )
-    .orderBy(asc(events.updatedAt), asc(hackathons.eventId))
+    .orderBy(asc(events.updatedAt), asc(events.id))
     .limit(HACKATHON_REVIEW_PAGE + 1)
     .offset(page * HACKATHON_REVIEW_PAGE);
   const shown = rows.slice(0, HACKATHON_REVIEW_PAGE);
@@ -160,6 +179,7 @@ export const listHackathonsForReview = async (
   return {
     items: shown.map((row) => ({
       ...row,
+      organisation: row.organisation?.name ? row.organisation : null,
       tracks: of(children.tracks, row.event.id),
       prizes: of(children.prizes, row.event.id).map((prize) => ({
         id: prize.id,

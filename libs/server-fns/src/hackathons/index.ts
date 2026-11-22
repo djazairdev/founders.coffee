@@ -1,6 +1,9 @@
 export { joinHackathonInterest } from './interest-rpc.js';
 export type { JoinHackathonInterestRequest } from './interest-rpc.js';
 export type { JoinHackathonInterestResult } from './interest.js';
+export { deleteOwnedHackathon } from './deletion-rpc.js';
+export type { DeleteHackathonRequest } from './deletion-rpc.js';
+export type { HackathonDeleted } from './deletion.js';
 export { createHackathonDraft } from './draft-rpc.js';
 export type { CreateHackathonDraftRequest } from './draft-rpc.js';
 export type { HackathonDraftCreated } from './draft.js';

@@ -24,6 +24,15 @@ export const WALK_IN_MAX = 500;
 
 export const operationsVersionSchema = z.number().int().nonnegative();
 
+export const createAdminCloseoutSchema = z.strictObject({
+  eventId: idSchema,
+  outcome: closeoutOutcomeSchema,
+});
+
+export type CreateAdminCloseoutInput = z.infer<
+  typeof createAdminCloseoutSchema
+>;
+
 export const walkInCountSchema = z.number().int().min(0).max(WALK_IN_MAX);
 
 /**

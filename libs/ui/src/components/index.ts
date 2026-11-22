@@ -1,4 +1,5 @@
 export { Button, buttonVariants, type ButtonProps } from './Button.js';
+export { ConfirmDialog, type ConfirmDialogProps } from './ConfirmDialog.js';
 export { Card, CardBody, CardTitle } from './Card.js';
 export { ChipGroup } from './ChipGroup.js';
 export { FormField, fieldNoteId } from './FormField.js';

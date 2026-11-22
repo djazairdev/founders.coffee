@@ -1,13 +1,19 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { hackathonPrizes, type Db } from '@founders-coffee/db';
+import { eq, events, hackathonPrizes, type Db } from '@founders-coffee/db';
 
-import { setupHackathonDb } from '../hackathons/edit.fixtures.js';
+import {
+  detailsFor,
+  draftHackathon,
+  ORGANISATION,
+  setupHackathonDb,
+} from '../hackathons/edit.fixtures.js';
 import {
   readyHackathon,
   submittedHackathon,
 } from '../hackathons/review.fixtures.js';
-import { listHackathonReviewQueueResolver } from './hackathon-review.js';
+import { saveHackathonDeadlinesResolver } from '../hackathons/details.js';
+import { listHackathonReviewQueueResolver } from './hackathon-review-queue.js';
 
 let db: Db;
 
@@ -38,8 +44,12 @@ describe('the hackathon review queue (B-HKN-08, B-HKN-09, real D1)', () => {
     expect(queue.data.items.map((item) => item.eventId).sort()).toEqual(
       [eventId, draftId].sort(),
     );
+    expect(reviewed?.isComplete).toBe(true);
+    if (!reviewed?.isComplete)
+      throw new Error('The saved hackathon is incomplete');
     expect(reviewed).toMatchObject({
       title: 'Algiers Builders Hackathon',
+      creatorEmail: 'resolve@test.coffee',
       organisation: { name: 'Algiers Builders', slug: 'algiers-builders' },
       timeZone: 'Africa/Algiers',
       teamMin: 2,
@@ -79,5 +89,56 @@ describe('the hackathon review queue (B-HKN-08, B-HKN-09, real D1)', () => {
       ['Demo', 30],
     ]);
     expect(draftId).not.toBe(eventId);
+  });
+
+  it('includes blank and partially saved drafts without filling in missing values', async () => {
+    const blank = await draftHackathon(db);
+    const partial = await draftHackathon(db);
+    const [partialEvent] = await db
+      .select({ version: events.version })
+      .from(events)
+      .where(eq(events.id, partial.eventId));
+    const deadlines = detailsFor(partial.kickoff);
+    const saved = await saveHackathonDeadlinesResolver(db, {
+      eventId: partial.eventId,
+      version: partialEvent.version,
+      organisationId: ORGANISATION,
+      deadlines: {
+        registrationOpensAt: deadlines.registrationOpensAt,
+        registrationClosesAt: deadlines.registrationClosesAt,
+        submissionDeadlineAt: deadlines.submissionDeadlineAt,
+        judgingEndsAt: deadlines.judgingEndsAt,
+      },
+    });
+    if (!saved.ok) throw saved.error;
+
+    const queue = await listHackathonReviewQueueResolver(db, 0);
+    if (!queue.ok) throw queue.error;
+    const blankItem = queue.data.items.find(
+      (item) => item.eventId === blank.eventId,
+    );
+    const partialItem = queue.data.items.find(
+      (item) => item.eventId === partial.eventId,
+    );
+
+    expect(blankItem).toMatchObject({
+      isComplete: false,
+      creatorEmail: 'resolve@test.coffee',
+      missingSections: ['deadlines', 'settings'],
+      savedDeadlines: null,
+      savedSettings: null,
+    });
+    expect(partialItem).toMatchObject({
+      isComplete: false,
+      missingSections: ['settings'],
+      savedDeadlines: {
+        registrationOpensAt: deadlines.registrationOpensAt,
+        registrationClosesAt: deadlines.registrationClosesAt,
+      },
+      savedSettings: null,
+    });
+    expect(queue.data.items.map((item) => item.eventId)).toEqual(
+      expect.arrayContaining([blank.eventId, partial.eventId]),
+    );
   });
 });
