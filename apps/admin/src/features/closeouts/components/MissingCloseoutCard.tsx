@@ -28,9 +28,8 @@ export const MissingCloseoutCard = ({
   isSaving: boolean;
   onCreate: (request: CreateMissingCloseoutRequest) => void;
 }) => {
-  const [outcome, setOutcome] = useState<
-    CreateMissingCloseoutRequest['outcome']
-  >('held');
+  const [outcome, setOutcome] =
+    useState<CreateMissingCloseoutRequest['outcome']>('held');
   const fieldId = `closeout-outcome-${item.eventId}`;
   return (
     <li className="space-y-3 rounded-box border border-base-300 p-5">
@@ -79,7 +78,9 @@ export const MissingCloseoutCard = ({
               }
               value={outcome}
             >
-              <option value="held">{admin_closeout_held({}, { locale })}</option>
+              <option value="held">
+                {admin_closeout_held({}, { locale })}
+              </option>
               <option value="did_not_happen">
                 {admin_closeout_did_not_happen({}, { locale })}
               </option>

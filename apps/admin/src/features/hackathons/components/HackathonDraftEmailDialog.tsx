@@ -48,10 +48,9 @@ export const HackathonDraftEmailDialog = ({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const [recipient, setRecipient] = useState(creatorEmail);
-  const [template, setTemplate] =
-    useState<HackathonDraftEmailRequest['template']>(
-      'draft-completion-reminder',
-    );
+  const [template, setTemplate] = useState<
+    HackathonDraftEmailRequest['template']
+  >('draft-completion-reminder');
   const [isSent, setIsSent] = useState(false);
   const sendEmail = useSendHackathonDraftEmail();
 

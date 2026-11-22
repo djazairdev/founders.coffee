@@ -1,10 +1,4 @@
-import {
-  AppError,
-  err,
-  id,
-  ok,
-  type Result,
-} from '@founders-coffee/core';
+import { AppError, err, id, ok, type Result } from '@founders-coffee/core';
 import {
   cancelNotificationsByTemplate,
   communityOperationsEnabled,
@@ -110,7 +104,10 @@ export const createMissingCloseoutResolver = async (
   });
   if (created === 'already_closed')
     return err(
-      new AppError('closeout_already_closed', 'This meetup is already closed out'),
+      new AppError(
+        'closeout_already_closed',
+        'This meetup is already closed out',
+      ),
     );
   if (created !== 'created')
     return err(

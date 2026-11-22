@@ -102,7 +102,11 @@ describe('createAdminCloseout', () => {
       ),
     );
 
-    expect(outcomes).toEqual(['already_closed', 'not_eligible', 'not_eligible']);
+    expect(outcomes).toEqual([
+      'already_closed',
+      'not_eligible',
+      'not_eligible',
+    ]);
     expect(await auditRows(db)).toHaveLength(1);
   });
 

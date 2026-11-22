@@ -16,9 +16,7 @@ export interface CreateAdminCloseoutInput {
 }
 
 export type AdminCloseoutCreationOutcome =
-  | 'created'
-  | 'already_closed'
-  | 'not_eligible';
+  'created' | 'already_closed' | 'not_eligible';
 
 const eligibleMeetup = (eventId: string, outcome: CloseoutOutcome) => sql`
   ${events.id} = ${eventId}
@@ -26,13 +24,15 @@ const eligibleMeetup = (eventId: string, outcome: CloseoutOutcome) => sql`
   AND ${events.status} = 'published'
   AND ${events.endsAt} IS NOT NULL
   AND ${events.endsAt} <= unixepoch()
-  ${outcome === 'did_not_happen'
-    ? sql`AND NOT EXISTS (
+  ${
+    outcome === 'did_not_happen'
+      ? sql`AND NOT EXISTS (
         SELECT 1 FROM event_attendance WHERE event_id = ${eventId}
       ) AND NOT EXISTS (
         SELECT 1 FROM event_feedback WHERE event_id = ${eventId}
       )`
-    : sql``}
+      : sql``
+  }
 `;
 
 const eligibleAndOpen = (eventId: string, outcome: CloseoutOutcome) => sql`

@@ -66,13 +66,11 @@ describe('admin hackathon deletion (B-HKN-27)', () => {
       { target: { value: 'University Innovation Weekend' } },
     );
 
+    expect(screen.getByText('University Innovation Weekend')).toBeTruthy();
     expect(
-      screen.getByText('University Innovation Weekend'),
+      screen.getByText(/University Makers Club · Market: DZ/),
     ).toBeTruthy();
-    expect(screen.getByText(/University Makers Club · Market: DZ/)).toBeTruthy();
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Delete hackathon' }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: 'Delete hackathon' }));
     expect(
       screen.getByRole('heading', {
         name: 'Delete “University Innovation Weekend”?',
