@@ -63,7 +63,7 @@
     "@cloudflare/vitest-plugin": "1.8.2",
     "@cloudflare/workers-types": "^5.20260808.1",
     "@eslint/js": "^10.0.1",
-    "@inlang/paraglide-js": "^2.26.0",
+    "@inlang/paraglide-js": "^3.2.2",
     "@nx/eslint": "24.0.6",
     "@nx/eslint-plugin": "24.0.6",
     "@nx/js": "24.0.6",
