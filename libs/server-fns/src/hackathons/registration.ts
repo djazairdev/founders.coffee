@@ -27,6 +27,7 @@ export type RegistrationInput = {
   readonly isAgeAttested: boolean;
   readonly isLookingForTeam: boolean;
   readonly skills: string | null;
+  readonly applicationAnswers?: readonly hackathons.HackathonApplicationAnswer[];
 };
 
 export type RegistrationCreated = {
@@ -59,6 +60,35 @@ export const registerForHackathonResolver = async (
   const { event, hackathon } = found;
   const closed = await requireHackathonsEnabled(db, event.marketCode);
   if (closed) return err(closed);
+  let questions: readonly hackathons.HackathonApplicationQuestion[];
+  try {
+    questions = hackathons.hackathonApplicationQuestionsSchema.parse(
+      JSON.parse(hackathon.applicationQuestionsJson),
+    );
+  } catch {
+    logger.error('hackathon.application_questions_invalid', {
+      eventId: event.id,
+    });
+    return err(
+      new AppError('event_unavailable', 'The application form is unavailable'),
+    );
+  }
+  const answerCheck = hackathons.checkHackathonApplicationAnswers(
+    questions,
+    input.applicationAnswers ?? [],
+    'participant',
+  );
+  if (!answerCheck.ok)
+    return err(
+      new AppError(
+        'validation_failed',
+        'Check the required application answers',
+        {
+          questionId: answerCheck.questionId,
+          reason: answerCheck.reason,
+        },
+      ),
+    );
   const decided = hackathons.decideRegistration({
     timeline: {
       registrationOpensAt: hackathon.registrationOpensAt.getTime(),
@@ -89,6 +119,7 @@ export const registerForHackathonResolver = async (
         : null,
     isLookingForTeam: input.isLookingForTeam,
     skills: input.skills,
+    applicationAnswersJson: JSON.stringify(answerCheck.answers),
   });
   if (written.outcome === 'already_registered')
     return err(

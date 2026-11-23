@@ -40,6 +40,7 @@ import { HackathonTeamPrizes } from './HackathonTeamPrizes';
 import { HackathonTeamProject } from './HackathonTeamProject';
 import { HackathonParticipantQueryStatus } from './HackathonParticipantQueryStatus';
 import { HackathonTeamRequests } from './HackathonTeamRequests';
+import { HackathonApplicationAnswerReview } from './HackathonApplicationAnswerReview';
 
 const standingMessage = ({ registration, canStillRegister }: TeamPageView) => {
   if (registration === 'waitlisted') return hackathon_team_waitlisted;
@@ -88,7 +89,11 @@ const Team = ({
           />
         ) : null}
         {canChange ? (
-          <HackathonTeamCreateForm eventId={eventId} locale={locale} />
+          <HackathonTeamCreateForm
+            eventId={eventId}
+            locale={locale}
+            questions={view.teamQuestions}
+          />
         ) : null}
         <HackathonTeamOwnRequests
           eventId={eventId}
@@ -113,6 +118,15 @@ const Team = ({
           <p className="mt-1 whitespace-pre-line text-body-sm">
             <bdi>{team.description}</bdi>
           </p>
+        ) : null}
+        {view.teamQuestions.length > 0 ? (
+          <div className="mt-3 border-t border-base-300 pt-3">
+            <HackathonApplicationAnswerReview
+              answers={team.applicationAnswers}
+              questions={view.teamQuestions}
+              locale={locale}
+            />
+          </div>
         ) : null}
       </section>
       <HackathonTeamMembers

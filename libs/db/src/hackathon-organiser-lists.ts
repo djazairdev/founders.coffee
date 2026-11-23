@@ -24,6 +24,7 @@ export type HackathonParticipant = {
   readonly attendanceMode: AttendanceMode;
   readonly status: HackathonRegistrationStatus;
   readonly teamName: string | null;
+  readonly applicationAnswersJson: string;
 };
 
 /**
@@ -46,6 +47,7 @@ export const listHackathonParticipants = async (
       attendanceMode: hackathonRegistrations.attendanceMode,
       status: hackathonRegistrations.status,
       teamName: hackathonTeams.name,
+      applicationAnswersJson: hackathonRegistrations.applicationAnswersJson,
     })
     .from(hackathonRegistrations)
     .innerJoin(user, eq(user.id, hackathonRegistrations.userId))
@@ -82,6 +84,7 @@ export type HackathonTeamListing = {
   }[];
   readonly trackTitle: string | null;
   readonly submissionStatus: HackathonSubmissionStatus | null;
+  readonly applicationAnswersJson: string;
 };
 
 /**
@@ -103,6 +106,7 @@ export const listHackathonTeams = async (
         name: hackathonTeams.name,
         trackTitle: hackathonTracks.title,
         submissionStatus: hackathonSubmissions.status,
+        applicationAnswersJson: hackathonTeams.applicationAnswersJson,
       })
       .from(hackathonTeams)
       .leftJoin(

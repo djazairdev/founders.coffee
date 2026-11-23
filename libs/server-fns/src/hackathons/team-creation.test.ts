@@ -1,13 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { id } from '@founders-coffee/core';
 import {
   and,
   eq,
   hackathonTeamMembers,
   hackathonTeamRequests,
   hackathonTeams,
+  hackathons,
   type Db,
 } from '@founders-coffee/db';
+import { hackathons as hackathonDomain } from '@founders-coffee/domain';
 import type { Metrics } from '@founders-coffee/observability';
 
 import { members, setupDb } from '../rsvps/resolver.fixtures.js';
@@ -105,6 +108,38 @@ describe('starting a team (B-TEAM-03, real D1)', () => {
       market: 'DZ',
       hackathon: eventId,
     });
+  });
+
+  it('validates and persists team application answers', async () => {
+    const eventId = await openHackathon(db);
+    const question = {
+      id: id('qst'),
+      scope: 'team' as const,
+      type: 'url' as const,
+      label: 'Project page',
+      isRequired: true,
+      options: [],
+    } satisfies hackathonDomain.HackathonApplicationQuestion;
+    await db
+      .update(hackathons)
+      .set({ applicationQuestionsJson: JSON.stringify([question]) })
+      .where(eq(hackathons.eventId, eventId));
+    await register(eventId, first);
+
+    expect(await codeOf(create(eventId, first))).toBe('validation_failed');
+    const result = await create(eventId, first, {
+      applicationAnswers: [
+        { questionId: question.id, value: 'https://example.org/project' },
+      ],
+    });
+    const [team] = await teamsOf(eventId);
+
+    expect(result.ok).toBe(true);
+    expect(team?.applicationAnswersJson).toBe(
+      JSON.stringify([
+        { questionId: question.id, value: 'https://example.org/project' },
+      ]),
+    );
   });
 
   it('refuses a name another team has, whatever its case', async () => {

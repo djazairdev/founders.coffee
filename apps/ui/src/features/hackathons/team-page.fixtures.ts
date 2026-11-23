@@ -22,6 +22,7 @@ export const teamView = (
   canStillRegister: true,
   teamMin: 2,
   teamMax: 4,
+  teamQuestions: [],
   viewerId: 'usr_captain',
   registration: 'registered',
   team:
@@ -32,6 +33,7 @@ export const teamView = (
           name: 'Byte Club',
           description: 'Payments for corner shops.',
           isLookingForMembers: true,
+          applicationAnswers: [],
           isCaptain: true,
           members: [
             { userId: 'usr_captain', name: 'Amina', isCaptain: true },

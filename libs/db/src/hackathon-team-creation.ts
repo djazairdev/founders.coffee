@@ -19,6 +19,7 @@ export type NewTeam = {
   readonly name: string;
   readonly description: string | null;
   readonly isLookingForMembers: boolean;
+  readonly applicationAnswersJson?: string;
 };
 
 export type TeamCreation =
@@ -62,6 +63,10 @@ export const createHackathonTeam = async (
           eventId: hackathons.eventId,
           name: bound(team.name, 'name'),
           description: bound(team.description, 'description'),
+          applicationAnswersJson: bound(
+            team.applicationAnswersJson ?? '[]',
+            'application_answers_json',
+          ),
           isLookingForMembers: bound(
             team.isLookingForMembers ? 1 : 0,
             'looking_for_members',

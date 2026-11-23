@@ -106,6 +106,7 @@ export type HackathonDraftView = {
   readonly tracks: readonly HackathonTrackView[];
   readonly prizes: readonly HackathonPrizeView[];
   readonly criteria: readonly HackathonCriterionView[];
+  readonly applicationQuestions: readonly hackathons.HackathonApplicationQuestion[];
 };
 
 /**
@@ -131,6 +132,23 @@ export const hackathonDraftResolver = async (
     listHackathonCriteria(db, eventId),
   ]);
   const details = rows.details ? detailsInputOf(rows.details) : null;
+  let applicationQuestions: readonly hackathons.HackathonApplicationQuestion[];
+  try {
+    applicationQuestions = hackathons.hackathonApplicationQuestionsSchema.parse(
+      JSON.parse(rows.details?.applicationQuestionsJson ?? '[]'),
+    );
+  } catch (error) {
+    reportError(error, {
+      operation: 'hackathon_application_questions_invalid',
+      eventId,
+    });
+    return err(
+      new AppError(
+        'hackathon_save_failed',
+        'Saved application questions could not be read',
+      ),
+    );
+  }
   let deadlines = rows.details ? deadlinesInputOf(rows.details) : null;
   let settings = rows.details ? settingsInputOf(rows.details) : null;
   if (
@@ -237,5 +255,6 @@ export const hackathonDraftResolver = async (
       weight: criterion.weight,
       scale: criterion.scale,
     })),
+    applicationQuestions,
   });
 };

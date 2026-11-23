@@ -40,6 +40,7 @@ export const createHackathonTeam = createServerFn({
         name: data.name,
         description: data.description,
         isLookingForMembers: data.isLookingForMembers,
+        applicationAnswers: data.applicationAnswers,
       }),
     );
   });

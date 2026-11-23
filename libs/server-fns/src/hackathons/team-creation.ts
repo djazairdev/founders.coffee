@@ -17,6 +17,7 @@ export type TeamCreateInput = {
   readonly name: string;
   readonly description: string | null;
   readonly isLookingForMembers: boolean;
+  readonly applicationAnswers?: readonly hackathons.HackathonApplicationAnswer[];
 };
 
 export type TeamCreated = { readonly teamId: string };
@@ -38,7 +39,32 @@ export const createHackathonTeamResolver = async (
 ): Promise<Result<TeamCreated>> => {
   const loaded = await loadTeamHackathon(db, input.eventId);
   if (!loaded.ok) return loaded;
-  const { event, timeline } = loaded.data;
+  const { event, timeline, applicationQuestionsJson } = loaded.data;
+  let questions: readonly hackathons.HackathonApplicationQuestion[];
+  try {
+    questions = hackathons.hackathonApplicationQuestionsSchema.parse(
+      JSON.parse(applicationQuestionsJson),
+    );
+  } catch {
+    logger.error('hackathon.application_questions_invalid', {
+      eventId: event.id,
+    });
+    return err(
+      new AppError('event_unavailable', 'The application form is unavailable'),
+    );
+  }
+  const answerCheck = hackathons.checkHackathonApplicationAnswers(
+    questions,
+    input.applicationAnswers ?? [],
+    'team',
+  );
+  if (!answerCheck.ok)
+    return err(
+      new AppError('validation_failed', 'Check the required proposal answers', {
+        questionId: answerCheck.questionId,
+        reason: answerCheck.reason,
+      }),
+    );
   const decide = async () => {
     const standing = await readParticipantStanding(db, input);
     return hackathons.decideCreateTeam({
@@ -51,7 +77,11 @@ export const createHackathonTeamResolver = async (
   const decided = await decide();
   if (!decided.ok) return decided;
   const teamId = id('team');
-  const written = await createHackathonTeam(db, { ...input, id: teamId });
+  const written = await createHackathonTeam(db, {
+    ...input,
+    id: teamId,
+    applicationAnswersJson: JSON.stringify(answerCheck.answers),
+  });
   if (written.outcome === 'name_taken')
     return err(
       new AppError('team_name_taken', 'Another team already has this name'),

@@ -62,6 +62,7 @@ import {
   saveHackathonDeadlines,
   saveHackathonSettings,
   saveHackathonRubric,
+  saveHackathonApplicationQuestions,
   saveHackathonTracks,
   withdrawFromHackathon,
   type AddHackathonPrizeRequest,
@@ -90,6 +91,7 @@ import {
   type SaveHackathonDeadlinesRequest,
   type SaveHackathonSettingsRequest,
   type SaveHackathonRubricRequest,
+  type SaveHackathonApplicationQuestionsRequest,
   type SaveHackathonTracksRequest,
 } from '@founders-coffee/server-fns';
 import type { SubmissionDraftFields } from './submission-draft-fields';
@@ -113,6 +115,9 @@ export const hackathonsApi = {
     saveHackathonTracks({ data: request }),
   saveRubric: (request: SaveHackathonRubricRequest) =>
     saveHackathonRubric({ data: request }),
+  saveApplicationQuestions: (
+    request: SaveHackathonApplicationQuestionsRequest,
+  ) => saveHackathonApplicationQuestions({ data: request }),
   addPrize: (request: AddHackathonPrizeRequest) =>
     addHackathonPrize({ data: request }),
   changePrize: (request: ChangeHackathonPrizeRequest) =>
@@ -153,12 +158,8 @@ export const teamsApi = {
     publishHackathonProject({ data: { projectId } }),
   looking: (eventId: string) =>
     getHackathonLookingForTeam({ data: { eventId } }),
-  create: (request: {
-    readonly eventId: string;
-    readonly name: string;
-    readonly description: string | null;
-    readonly isLookingForMembers: boolean;
-  }) => createHackathonTeam({ data: request }),
+  create: (request: Parameters<typeof createHackathonTeam>[0]['data']) =>
+    createHackathonTeam({ data: request }),
   createInvite: (request: EventScoped) =>
     createHackathonTeamInvite({ data: request }),
   revokeInvite: (request: EventScoped) =>
@@ -273,6 +274,7 @@ export type {
   SaveHackathonDeadlinesRequest,
   SaveHackathonSettingsRequest,
   SaveHackathonRubricRequest,
+  SaveHackathonApplicationQuestionsRequest,
   SaveHackathonTracksRequest,
 };
 export type * from './view-types';

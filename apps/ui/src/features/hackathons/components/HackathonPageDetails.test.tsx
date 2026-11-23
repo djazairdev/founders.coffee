@@ -45,6 +45,7 @@ const details = (changes: Partial<Details> = {}): Details => ({
     aiPolicy: 'conditional',
     aiPolicyNote: 'No generated code in the core logic.',
     licenceNote: 'Teams keep what they build.',
+    applicationQuestions: [],
   },
   judges: [
     { userId: 'usr_amina', name: 'Amina Kaci', photoAssetId: null },

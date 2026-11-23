@@ -96,6 +96,7 @@ const renderCard = ({
         schedule={schedule(phase)}
         registration={registration}
         timeZone="Africa/Algiers"
+        applicationQuestions={[]}
         locale={locale}
       />
     </QueryClientProvider>,
@@ -170,6 +171,7 @@ describe('HackathonRegistrationAction (B-REG-06)', () => {
       eventId: 'evt_builders',
       attendanceMode: 'online',
       isAgeAttested: true,
+      applicationAnswers: [],
     });
     expect(
       screen.queryByRole('checkbox', { name: /code of conduct/u }),
@@ -192,6 +194,7 @@ describe('HackathonRegistrationAction (B-REG-06)', () => {
         eventId: 'evt_builders',
         attendanceMode: 'online',
         isAgeAttested: false,
+        applicationAnswers: [],
       }),
     );
   });

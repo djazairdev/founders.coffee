@@ -53,6 +53,7 @@ const detailsFromEvent = (
     .select({
       eventId: events.id,
       rules: bound(details.rules, 'rules'),
+      applicationQuestionsJson: bound('[]', 'application_questions_json'),
       minimumAge: bound(details.minimumAge, 'minimum_age'),
       attendanceModes: bound(
         JSON.stringify(details.attendanceModes),
@@ -184,6 +185,29 @@ export const hackathonSettingsUpdate = (
       and(
         eq(hackathons.eventId, input.eventId),
         hackathonAtVersion(input.eventId, input.version),
+      ),
+    )
+    .returning({ eventId: hackathons.eventId });
+
+export const hackathonApplicationQuestionsUpdate = (
+  db: Db,
+  input: {
+    readonly eventId: string;
+    readonly version: number;
+    readonly questionsJson: string;
+  },
+) =>
+  db
+    .update(hackathons)
+    .set({
+      applicationQuestionsJson: input.questionsJson,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(hackathons.eventId, input.eventId),
+        hackathonAtVersion(input.eventId, input.version),
+        sql`${hackathons.registrationOpensAt} > unixepoch()`,
       ),
     )
     .returning({ eventId: hackathons.eventId });

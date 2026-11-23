@@ -10,6 +10,7 @@ import {
 
 import { decideJoinTeam, type TeamMembership } from './teams.js';
 import type { HackathonTimeline } from './timeline.js';
+import { hackathonApplicationAnswersSchema } from './application-questions.js';
 
 export const hackathonTeamCreateSchema = z.strictObject({
   eventId: idSchema,
@@ -22,6 +23,7 @@ export const hackathonTeamCreateSchema = z.strictObject({
     .nullable()
     .default(null),
   isLookingForMembers: z.boolean().default(false),
+  applicationAnswers: hackathonApplicationAnswersSchema.default([]),
 });
 
 export type HackathonTeamCreateInput = z.input<

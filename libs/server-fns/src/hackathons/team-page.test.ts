@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { id } from '@founders-coffee/core';
+import { eq, hackathons } from '@founders-coffee/db';
 import type { Db } from '@founders-coffee/db';
+import { hackathons as hackathonDomain } from '@founders-coffee/domain';
 
 import { members, setupDb } from '../rsvps/resolver.fixtures.js';
 import { openHackathon, setHackathons } from './registration.fixtures.js';
@@ -114,6 +117,42 @@ describe('teamPageResolver (B-TEAM-07, real D1)', () => {
       inviteExpiresAt: null,
     });
     expect(view.team?.members).toHaveLength(2);
+  });
+
+  it('shows the shared proposal answers only on a team member page', async () => {
+    const eventId = await openHackathon(db);
+    const question = {
+      id: id('qst'),
+      scope: 'team' as const,
+      type: 'short_text' as const,
+      label: 'What will your team build?',
+      isRequired: true,
+      options: [],
+    } satisfies hackathonDomain.HackathonApplicationQuestion;
+    await db
+      .update(hackathons)
+      .set({ applicationQuestionsJson: JSON.stringify([question]) })
+      .where(eq(hackathons.eventId, eventId));
+    await register(eventId, captain);
+    const created = await createHackathonTeamResolver(db, null, {
+      eventId,
+      userId: captain,
+      name: 'Byte Club',
+      description: null,
+      isLookingForMembers: false,
+      applicationAnswers: [
+        { questionId: question.id, value: 'An offline payments tool' },
+      ],
+    });
+    if (!created.ok) throw created.error;
+
+    const view = await page(eventId, captain);
+
+    expect(view.teamQuestions).toEqual([question]);
+    expect(view.team?.applicationAnswers).toEqual([
+      { questionId: question.id, value: 'An offline payments tool' },
+    ]);
+    expect(JSON.stringify(view)).not.toContain('applicationAnswersJson');
   });
 
   it('gives a member in no team their own requests', async () => {

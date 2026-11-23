@@ -13,6 +13,7 @@ import { useAuth } from '../../../lib/app-providers';
 import { localizedLogin } from '../../../lib/locale-routing';
 import { useFocusAfterChange } from '../../../lib/useFocusAfterChange';
 import type { HackathonRegistrationView, HackathonSchedule } from '../api';
+import type { HackathonApplicationQuestion } from '../application-answers';
 import { phaseSentence } from '../schedule';
 import { HackathonParticipantLinks } from './HackathonParticipantLinks';
 import { HackathonRegistrationForm } from './HackathonRegistrationForm';
@@ -33,6 +34,7 @@ type HackathonRegistrationActionProps = {
   registration: HackathonRegistrationView;
   timeZone: string;
   locale: Locale;
+  applicationQuestions: readonly HackathonApplicationQuestion[];
 };
 
 const Body = ({
@@ -43,6 +45,7 @@ const Body = ({
   registration,
   timeZone,
   locale,
+  applicationQuestions,
 }: HackathonRegistrationActionProps) => {
   const options = { locale };
   const { isAuthenticated } = useAuth();
@@ -85,6 +88,7 @@ const Body = ({
           minimumAge={minimumAge}
           isFull={isFull}
           locale={locale}
+          applicationQuestions={applicationQuestions}
         />
       ) : (
         <div>

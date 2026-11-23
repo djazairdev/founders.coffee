@@ -23,6 +23,7 @@ export type NewRegistration = {
   readonly ageAttestedAt: Date | null;
   readonly isLookingForTeam: boolean;
   readonly skills: string | null;
+  readonly applicationAnswersJson?: string;
 };
 
 export type RegistrationWrite =
@@ -105,6 +106,10 @@ export const createHackathonRegistration = async (
               'looking_for_team',
             ),
             skills: bound(registration.skills, 'skills'),
+            applicationAnswersJson: bound(
+              registration.applicationAnswersJson ?? '[]',
+              'application_answers_json',
+            ),
             createdAt: sql`unixepoch()`.as('created_at'),
             updatedAt: sql`unixepoch()`.as('updated_at'),
           })

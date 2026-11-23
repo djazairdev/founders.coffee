@@ -4,6 +4,10 @@ import {
   hackathon_team_create,
   hackathon_team_create_heading,
   hackathon_team_create_hint,
+  hackathon_application_team_answers_heading,
+  hackathon_application_questions_description,
+  hackathon_application_questions_privacy,
+  hackathon_application_questions_invalid_error,
   hackathon_team_description,
   hackathon_team_looking,
   hackathon_team_name,
@@ -27,6 +31,12 @@ import {
 } from '../team-form';
 import { teamErrorMessage } from '../team-errors';
 import { useCreateTeam } from '../team-hooks';
+import {
+  checkApplicationAnswers,
+  type HackathonApplicationAnswer,
+  type HackathonApplicationQuestion,
+} from '../application-answers';
+import { HackathonApplicationAnswerFields } from './HackathonApplicationAnswerFields';
 
 const NAME_ID = 'hackathon-team-name';
 const DESCRIPTION_ID = 'hackathon-team-description';
@@ -41,22 +51,53 @@ const described = (id: string, error: string | undefined) => ({
 export const HackathonTeamCreateForm = ({
   eventId,
   locale,
+  questions,
 }: {
   eventId: string;
   locale: Locale;
+  questions: readonly HackathonApplicationQuestion[];
 }) => {
   const create = useCreateTeam(eventId);
   const [draft, setDraft] = useState<TeamDraft>({
     name: '',
     description: '',
     isLookingForMembers: true,
+    applicationAnswers: [],
   });
   const [errors, setErrors] = useState<Errors>({});
+  const [applicationError, setApplicationError] = useState<{
+    readonly questionId: string | null;
+    readonly reason: 'required' | 'invalid' | null;
+  } | null>(null);
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (create.isPending) return;
-    const checked = checkTeamDraft(eventId, draft, locale);
+    const checkedAnswers = checkApplicationAnswers(
+      questions,
+      draft.applicationAnswers,
+      'team',
+    );
+    if (!checkedAnswers.ok) {
+      setApplicationError({
+        questionId: checkedAnswers.questionId,
+        reason:
+          checkedAnswers.reason === 'unknown'
+            ? 'invalid'
+            : checkedAnswers.reason,
+      });
+      if (checkedAnswers.questionId)
+        document
+          .getElementById(`application-question-${checkedAnswers.questionId}`)
+          ?.focus();
+      return;
+    }
+    setApplicationError(null);
+    const checked = checkTeamDraft(
+      eventId,
+      { ...draft, applicationAnswers: checkedAnswers.answers },
+      locale,
+    );
     if (!checked.ok) {
       setErrors(checked.errors);
       document
@@ -127,6 +168,36 @@ export const HackathonTeamCreateForm = ({
             {hackathon_team_looking({}, { locale })}
           </span>
         </label>
+        {questions.length > 0 ? (
+          <fieldset className="grid gap-3 border-t border-base-300 pt-4">
+            <legend className="font-display text-h5">
+              {hackathon_application_team_answers_heading({}, { locale })}
+            </legend>
+            <p className="text-body-sm text-neutral">
+              {hackathon_application_questions_description({}, { locale })}
+            </p>
+            <HackathonApplicationAnswerFields
+              questions={questions.filter(
+                (question) => question.scope === 'team',
+              )}
+              answers={draft.applicationAnswers}
+              locale={locale}
+              errorQuestionId={applicationError?.questionId}
+              errorReason={applicationError?.reason}
+              onChange={(
+                applicationAnswers: readonly HackathonApplicationAnswer[],
+              ) => setDraft({ ...draft, applicationAnswers })}
+            />
+            <p className="text-body-xs text-neutral">
+              {hackathon_application_questions_privacy({}, { locale })}
+            </p>
+          </fieldset>
+        ) : null}
+        {applicationError?.questionId === null ? (
+          <StatusMessage variant="error" aria-live="polite">
+            {hackathon_application_questions_invalid_error({}, { locale })}
+          </StatusMessage>
+        ) : null}
         {create.isError ? (
           <StatusMessage variant="error">
             {teamErrorMessage(create.error, locale)}

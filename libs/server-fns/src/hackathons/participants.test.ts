@@ -1,12 +1,15 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { id } from '@founders-coffee/core';
 import {
   eq,
   hackathonRegistrations,
+  hackathons,
   listHackathonParticipants,
   user,
   type Db,
 } from '@founders-coffee/db';
+import { hackathons as hackathonDomain } from '@founders-coffee/domain';
 
 import { members, setupDb } from '../rsvps/resolver.fixtures.js';
 import { hackathonParticipantsResolver } from './participants.js';
@@ -21,7 +24,11 @@ beforeEach(async () => {
   await setHackathons(db, true);
 });
 
-const register = async (eventId: string, userId: string | undefined) => {
+const register = async (
+  eventId: string,
+  userId: string | undefined,
+  applicationAnswers: readonly hackathonDomain.HackathonApplicationAnswer[] = [],
+) => {
   const registered = await registerForHackathonResolver(db, null, {
     eventId,
     userId: userId ?? '',
@@ -29,6 +36,7 @@ const register = async (eventId: string, userId: string | undefined) => {
     isAgeAttested: false,
     isLookingForTeam: false,
     skills: null,
+    applicationAnswers,
   });
   if (!registered.ok) throw registered.error;
 };
@@ -75,6 +83,33 @@ describe('hackathonParticipantsResolver (B-REG-08, real D1)', () => {
     expect(byId.get(third ?? '')?.status).toBe('waitlisted');
   });
 
+  it('returns validated application answers to organisers', async () => {
+    const eventId = await openHackathon(db);
+    const question = {
+      id: id('qst'),
+      scope: 'participant' as const,
+      type: 'short_text' as const,
+      label: 'What interests you?',
+      isRequired: true,
+      options: [],
+    } satisfies hackathonDomain.HackathonApplicationQuestion;
+    await db
+      .update(hackathons)
+      .set({ applicationQuestionsJson: JSON.stringify([question]) })
+      .where(eq(hackathons.eventId, eventId));
+    await register(eventId, first, [
+      { questionId: question.id, value: 'Robotics' },
+    ]);
+
+    const result = await hackathonParticipantsResolver(db, eventId);
+
+    expect(result.ok && result.data.questions).toEqual([question]);
+    expect(
+      result.ok && result.data.participants[0]?.applicationAnswers,
+    ).toEqual([{ questionId: question.id, value: 'Robotics' }]);
+    expect(JSON.stringify(result)).not.toContain('applicationAnswersJson');
+  });
+
   it('gives no contact details', async () => {
     const eventId = await openHackathon(db);
     await register(eventId, first);
@@ -88,7 +123,14 @@ describe('hackathonParticipantsResolver (B-REG-08, real D1)', () => {
     expect(JSON.stringify(result)).not.toContain(row?.email);
     expect(
       result.ok && Object.keys(result.data.participants[0] ?? {}).sort(),
-    ).toEqual(['attendanceMode', 'name', 'status', 'teamName', 'userId']);
+    ).toEqual([
+      'applicationAnswers',
+      'attendanceMode',
+      'name',
+      'status',
+      'teamName',
+      'userId',
+    ]);
   });
 
   it('keeps someone who withdrew, shown as withdrawn', async () => {

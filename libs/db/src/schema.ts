@@ -523,6 +523,9 @@ export const hackathons = sqliteTable(
       .primaryKey()
       .references(() => events.id, { onDelete: 'cascade' }),
     rules: text('rules'),
+    applicationQuestionsJson: text('application_questions_json')
+      .notNull()
+      .default('[]'),
     minimumAge: integer('minimum_age'),
     attendanceModes: text('attendance_modes', { mode: 'json' })
       .$type<AttendanceMode[]>()
@@ -579,6 +582,10 @@ export const hackathons = sqliteTable(
     check(
       'hackathons_dates_check',
       sql`${table.registrationOpensAt} < ${table.registrationClosesAt} AND ${table.submissionDeadlineAt} < ${table.judgingEndsAt}`,
+    ),
+    check(
+      'hackathons_application_questions_json_check',
+      sql`json_valid(${table.applicationQuestionsJson})`,
     ),
   ],
 );
@@ -790,6 +797,9 @@ export const hackathonRegistrations = sqliteTable(
       .notNull()
       .default(false),
     skills: text('skills'),
+    applicationAnswersJson: text('application_answers_json')
+      .notNull()
+      .default('[]'),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),
@@ -815,6 +825,13 @@ export const hackathonRegistrations = sqliteTable(
       'hackathon_registrations_skills_check',
       sql`${table.skills} IS NULL OR length(${table.skills}) <= ${sql.raw(String(HACKATHON_REGISTRATION_SKILLS_MAX))}`,
     ),
+    check(
+      'hackathon_registrations_application_answers_json_check',
+      sql`json_valid(${table.applicationAnswersJson})`,
+    ),
+    index('hackathon_registrations_application_answers_index')
+      .on(table.eventId)
+      .where(sql`${table.applicationAnswersJson} != '[]'`),
   ],
 );
 
@@ -836,6 +853,9 @@ export const hackathonTeams = sqliteTable(
       .references(() => hackathons.eventId, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     description: text('description'),
+    applicationAnswersJson: text('application_answers_json')
+      .notNull()
+      .default('[]'),
     isLookingForMembers: integer('looking_for_members', { mode: 'boolean' })
       .notNull()
       .default(false),
@@ -864,6 +884,13 @@ export const hackathonTeams = sqliteTable(
       'hackathon_teams_description_check',
       sql`${table.description} IS NULL OR length(${table.description}) <= ${sql.raw(String(HACKATHON_TEAM_DESCRIPTION_MAX))}`,
     ),
+    check(
+      'hackathon_teams_application_answers_json_check',
+      sql`json_valid(${table.applicationAnswersJson})`,
+    ),
+    index('hackathon_teams_application_answers_index')
+      .on(table.eventId)
+      .where(sql`${table.applicationAnswersJson} != '[]'`),
   ],
 );
 

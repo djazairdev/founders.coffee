@@ -287,6 +287,7 @@ Registering with eligibility, capacity and a waitlist.
 | <a id="b-reg-06"></a>B-REG-06   | #245  | Registration card on the hackathon page         | M    | #239, #243, #228 | First hackathon |
 | <a id="b-reg-07"></a>B-REG-07 ★ | #246  | Registration notifications                      | S    | #239, #177       | First hackathon |
 | <a id="b-reg-08"></a>B-REG-08   | #248  | Organiser: registrations list                   | S    | #239, #247       | First hackathon |
+| <a id="b-reg-09"></a>B-REG-09   | #549  | Custom registration questions and answer review | M    | #239, #248, #250 | First hackathon |
 
 ### Teams
 

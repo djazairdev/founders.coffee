@@ -34,6 +34,7 @@ const team = (name: string, changes: Partial<Team> = {}): Team => ({
   ],
   trackTitle: null,
   submissionStatus: null,
+  applicationAnswers: [],
   ...changes,
 });
 
@@ -51,6 +52,7 @@ const cells = (rowIndex: number) =>
 describe('HackathonTeamsList (B-OPS-02)', () => {
   it('shows each team with its members, track and where its entry stands', () => {
     show({
+      questions: [],
       teams: [
         team('Byte Club', {
           trackTitle: 'Payments',
@@ -78,6 +80,7 @@ describe('HackathonTeamsList (B-OPS-02)', () => {
 
   it('pages a long list', () => {
     show({
+      questions: [],
       teams: Array.from({ length: 26 }, (_, index) => team(`Team ${index}`)),
       isTruncated: false,
     });
@@ -88,11 +91,11 @@ describe('HackathonTeamsList (B-OPS-02)', () => {
   });
 
   it('says when there are no teams, and when the list stops short', () => {
-    show({ teams: [], isTruncated: false });
+    show({ questions: [], teams: [], isTruncated: false });
     expect(screen.getByText('No teams yet.')).toBeTruthy();
     cleanup();
 
-    show({ teams: [team('Byte Club')], isTruncated: true });
+    show({ questions: [], teams: [team('Byte Club')], isTruncated: true });
     expect(screen.getByText('Only the first 1 are shown.')).toBeTruthy();
   });
 
@@ -108,11 +111,17 @@ describe('HackathonTeamsList (B-OPS-02)', () => {
   });
 
   it('reads in Arabic and French', () => {
-    show({ teams: [team('Byte Club')], isTruncated: false }, 'ar');
+    show(
+      { questions: [], teams: [team('Byte Club')], isTruncated: false },
+      'ar',
+    );
     expect(screen.getByRole('columnheader', { name: 'الأعضاء' })).toBeTruthy();
     cleanup();
 
-    show({ teams: [team('Byte Club')], isTruncated: false }, 'fr');
+    show(
+      { questions: [], teams: [team('Byte Club')], isTruncated: false },
+      'fr',
+    );
     expect(screen.getByRole('columnheader', { name: 'Membres' })).toBeTruthy();
   });
 });

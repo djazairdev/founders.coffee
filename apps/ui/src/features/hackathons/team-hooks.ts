@@ -8,6 +8,7 @@ import {
   type TeamJoined,
   type TeamPageView,
 } from './api';
+import type { HackathonApplicationAnswer } from './application-answers';
 
 const TEAM = ['hackathons', 'team'] as const;
 
@@ -48,6 +49,7 @@ export const useCreateTeam = (eventId: string) =>
       readonly name: string;
       readonly description: string | null;
       readonly isLookingForMembers: boolean;
+      readonly applicationAnswers: readonly HackathonApplicationAnswer[];
     }) => teamsApi.create({ eventId, ...input }),
   );
 

@@ -9,6 +9,8 @@ import {
   type Locale,
 } from '@founders-coffee/i18n';
 
+import type { HackathonApplicationAnswer } from './application-answers';
+
 export const TEAM_NAME_MAX = HACKATHON_TEAM_NAME_MAX;
 export const TEAM_DESCRIPTION_MAX = HACKATHON_TEAM_DESCRIPTION_MAX;
 
@@ -16,6 +18,7 @@ export type TeamDraft = {
   readonly name: string;
   readonly description: string;
   readonly isLookingForMembers: boolean;
+  readonly applicationAnswers: readonly HackathonApplicationAnswer[];
 };
 
 export type TeamCheck =
@@ -25,6 +28,7 @@ export type TeamCheck =
         readonly name: string;
         readonly description: string | null;
         readonly isLookingForMembers: boolean;
+        readonly applicationAnswers: readonly HackathonApplicationAnswer[];
       };
     }
   | {
@@ -43,8 +47,12 @@ export const checkTeamDraft = (
     ...draft,
   });
   if (parsed.success) {
-    const { name, description, isLookingForMembers } = parsed.data;
-    return { ok: true, team: { name, description, isLookingForMembers } };
+    const { name, description, isLookingForMembers, applicationAnswers } =
+      parsed.data;
+    return {
+      ok: true,
+      team: { name, description, isLookingForMembers, applicationAnswers },
+    };
   }
   const failed = new Set(parsed.error.issues.map((issue) => issue.path[0]));
   return {

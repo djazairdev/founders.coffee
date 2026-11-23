@@ -37,6 +37,7 @@ export const draftView = (
   tracks: [],
   prizes: [],
   criteria: [],
+  applicationQuestions: [],
   ...changes,
 });
 

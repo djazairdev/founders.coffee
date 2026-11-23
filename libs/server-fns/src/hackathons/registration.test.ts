@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { id } from '@founders-coffee/core';
 import {
   and,
   createRsvp,
@@ -9,6 +10,7 @@ import {
   hackathons,
   type Db,
 } from '@founders-coffee/db';
+import { hackathons as hackathonDomain } from '@founders-coffee/domain';
 import type { Metrics } from '@founders-coffee/observability';
 
 import { meetingLinkFor } from '../events/meeting-link.js';
@@ -105,6 +107,37 @@ describe('registering for a hackathon (B-REG-03, real D1)', () => {
       market: 'DZ',
       hackathon: eventId,
     });
+  });
+
+  it('validates and persists registration application answers', async () => {
+    const eventId = await openHackathon(db);
+    const question = {
+      id: id('qst'),
+      scope: 'participant' as const,
+      type: 'short_text' as const,
+      label: 'What will you build?',
+      isRequired: true,
+      options: [],
+    } satisfies hackathonDomain.HackathonApplicationQuestion;
+    await db
+      .update(hackathons)
+      .set({ applicationQuestionsJson: JSON.stringify([question]) })
+      .where(eq(hackathons.eventId, eventId));
+
+    expect(await codeOf(register(eventId, members[0].id))).toBe(
+      'validation_failed',
+    );
+    expect(await rowOf(eventId, members[0].id)).toBeUndefined();
+
+    await register(eventId, members[0].id, {
+      applicationAnswers: [
+        { questionId: question.id, value: 'A budget planner' },
+      ],
+    });
+
+    expect((await rowOf(eventId, members[0].id))?.applicationAnswersJson).toBe(
+      JSON.stringify([{ questionId: question.id, value: 'A budget planner' }]),
+    );
   });
 
   it('counts confirmed registrations, not organizer RSVPs or waitlisted members, on public events', async () => {

@@ -41,6 +41,7 @@ export const registerForHackathon = createServerFn({
         isAgeAttested: data.isAgeAttested,
         isLookingForTeam: data.isLookingForTeam,
         skills: data.skills,
+        applicationAnswers: data.applicationAnswers,
       }),
     );
   });

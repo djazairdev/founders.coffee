@@ -83,6 +83,11 @@ export const HackathonEventDetail = ({
         locale={locale}
         isCancelled={isCancelled}
         organisations={organisations}
+        applicationQuestions={
+          details?.rules?.applicationQuestions.filter(
+            (question) => question.scope === 'participant',
+          ) ?? []
+        }
       />
       <HackathonPublicContent
         event={event}

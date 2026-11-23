@@ -34,6 +34,7 @@ const person = (
   attendanceMode: 'in_person',
   status: 'registered',
   teamName: null,
+  applicationAnswers: [],
   ...changes,
 });
 
@@ -54,6 +55,7 @@ const cells = (rowIndex: number) =>
 describe('HackathonParticipantsList (B-REG-08)', () => {
   it('shows name, attendance, status and team, with no address or export', () => {
     show({
+      questions: [],
       participants: [
         person(1, { teamName: 'Byte Club' }),
         person(2, { attendanceMode: 'online', status: 'waitlisted' }),
@@ -85,6 +87,7 @@ describe('HackathonParticipantsList (B-REG-08)', () => {
 
   it('pages a long list and keeps focus on the button at the end', () => {
     show({
+      questions: [],
       participants: Array.from({ length: 30 }, (_, index) => person(index)),
       isTruncated: false,
     });
@@ -105,19 +108,19 @@ describe('HackathonParticipantsList (B-REG-08)', () => {
   });
 
   it('offers no paging for a short list', () => {
-    show({ participants: [person(1)], isTruncated: false });
+    show({ questions: [], participants: [person(1)], isTruncated: false });
 
     expect(screen.queryByRole('button', { name: 'Next' })).toBeNull();
   });
 
   it('says when the list stops short', () => {
-    show({ participants: [person(1)], isTruncated: true });
+    show({ questions: [], participants: [person(1)], isTruncated: true });
 
     expect(screen.getByText('Only the first 1 are shown.')).toBeTruthy();
   });
 
   it('says when nobody has registered', () => {
-    show({ participants: [], isTruncated: false });
+    show({ questions: [], participants: [], isTruncated: false });
 
     expect(screen.getByText('Nobody has registered yet.')).toBeTruthy();
     expect(screen.queryByRole('table')).toBeNull();
@@ -139,12 +142,18 @@ describe('HackathonParticipantsList (B-REG-08)', () => {
   });
 
   it('reads in Arabic and French', () => {
-    show({ participants: [person(1)], isTruncated: false }, 'ar');
+    show(
+      { questions: [], participants: [person(1)], isTruncated: false },
+      'ar',
+    );
     expect(screen.getByRole('heading', { name: 'المشاركون' })).toBeTruthy();
     expect(screen.getByRole('columnheader', { name: 'الفريق' })).toBeTruthy();
     cleanup();
 
-    show({ participants: [person(1)], isTruncated: false }, 'fr');
+    show(
+      { questions: [], participants: [person(1)], isTruncated: false },
+      'fr',
+    );
     expect(screen.getByRole('columnheader', { name: 'Statut' })).toBeTruthy();
   });
 });

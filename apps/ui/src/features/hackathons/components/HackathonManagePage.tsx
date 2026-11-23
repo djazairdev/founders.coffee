@@ -38,6 +38,7 @@ import { isHackathonMissing, isHackathonsDisabled } from '../errors';
 import { isolateBidi, utcOffsetAt } from '../hackathon-timezone';
 import { useDeleteOwnedHackathon, useHackathonDraft } from '../hooks';
 import { HackathonDashboard } from './HackathonDashboard';
+import { HackathonApplicationQuestionsEditor } from './HackathonApplicationQuestionsEditor';
 import { HackathonDetailsForm } from './HackathonDetailsForm';
 import { HackathonJudgingProgress } from './HackathonJudgingProgress';
 import { HackathonManageCollapse } from './HackathonManageCollapse';
@@ -213,6 +214,16 @@ export const HackathonManagePage = ({
             timeZoneName={timeZoneName}
             utcOffset={utcOffset}
             onFeedback={feedback.show}
+          />
+          <HackathonApplicationQuestionsEditor
+            eventId={draft.event.id}
+            version={draft.version}
+            questions={draft.applicationQuestions}
+            canEdit={
+              draft.details !== null &&
+              draft.details.registrationOpensAt > Date.now()
+            }
+            locale={locale}
           />
           <HackathonManageCollapse
             title={hackathon_manage_prizes_group({}, { locale })}

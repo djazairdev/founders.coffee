@@ -17,7 +17,7 @@ import {
   type PublicHackathonPrize,
 } from '@founders-coffee/db';
 import { hackathons } from '@founders-coffee/domain';
-import { reportError } from '@founders-coffee/observability';
+import { logger, reportError } from '@founders-coffee/observability';
 
 import { resolveMarket } from '../markets/resolver.js';
 import { ownerProfileOf, publicProfileOf } from '../profile/projection.js';
@@ -58,6 +58,7 @@ export type PublicHackathonRules = {
   readonly aiPolicy: HackathonAiPolicy;
   readonly aiPolicyNote: string | null;
   readonly licenceNote: string | null;
+  readonly applicationQuestions: readonly hackathons.HackathonApplicationQuestion[];
 };
 
 export type HackathonOrganisation = {
@@ -95,19 +96,34 @@ const organisationsOf = (
 const rulesOf = (
   row: PageRows['hackathon'],
   isHackathon: boolean,
-): PublicHackathonRules | null =>
-  row && isHackathon
-    ? {
-        rules: row.rules,
-        minimumAge: row.minimumAge,
-        attendanceModes: row.attendanceModes,
-        teamMin: row.teamMin,
-        teamMax: row.teamMax,
-        aiPolicy: row.aiPolicy,
-        aiPolicyNote: row.aiPolicyNote,
-        licenceNote: row.licenceNote,
-      }
-    : null;
+): PublicHackathonRules | null => {
+  if (!row || !isHackathon) return null;
+  let applicationQuestions: readonly hackathons.HackathonApplicationQuestion[];
+  try {
+    applicationQuestions = hackathons.hackathonApplicationQuestionsSchema.parse(
+      JSON.parse(row.applicationQuestionsJson),
+    );
+  } catch (error) {
+    logger.error('hackathon.application_questions_invalid', {
+      operation: 'hackathon_application_questions_invalid',
+    });
+    reportError(error, {
+      operation: 'hackathon_application_questions_invalid',
+    });
+    applicationQuestions = [];
+  }
+  return {
+    rules: row.rules,
+    minimumAge: row.minimumAge,
+    attendanceModes: row.attendanceModes,
+    teamMin: row.teamMin,
+    teamMax: row.teamMax,
+    aiPolicy: row.aiPolicy,
+    aiPolicyNote: row.aiPolicyNote,
+    licenceNote: row.licenceNote,
+    applicationQuestions,
+  };
+};
 
 const publicPrizeOf = (
   prize: PublicHackathonPrize,

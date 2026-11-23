@@ -11,6 +11,10 @@ import { rateLimit } from '../rate-limit.js';
 import { privateNoStore } from '../response-cache.js';
 import { hackathonVersionSchema } from './details-rpc.js';
 import {
+  saveHackathonApplicationQuestionsResolver,
+  type SaveHackathonApplicationQuestionsInput,
+} from './application-questions.js';
+import {
   addHackathonPrizeResolver,
   changeHackathonPrizeResolver,
   confirmHackathonPrizeResolver,
@@ -52,6 +56,11 @@ const saveHackathonRubricSchema = z.strictObject({
     .max(hackathons.HACKATHON_CRITERIA_MAX),
 });
 
+const saveHackathonApplicationQuestionsSchema = z.strictObject({
+  ...editOf,
+  questions: hackathons.hackathonApplicationQuestionsSchema,
+});
+
 const addHackathonPrizeSchema = z.strictObject({
   ...editOf,
   prize: hackathons.hackathonPrizeSchema,
@@ -75,6 +84,9 @@ export type SaveHackathonTracksRequest = z.input<
 >;
 export type SaveHackathonRubricRequest = z.input<
   typeof saveHackathonRubricSchema
+>;
+export type SaveHackathonApplicationQuestionsRequest = z.input<
+  typeof saveHackathonApplicationQuestionsSchema
 >;
 export type AddHackathonPrizeRequest = z.input<typeof addHackathonPrizeSchema>;
 export type ChangeHackathonPrizeRequest = z.input<
@@ -123,6 +135,23 @@ export const saveHackathonRubric = createServerFn({
         ...data,
         organisationId: context.organisationId,
       }),
+    );
+  });
+
+export const saveHackathonApplicationQuestions = createServerFn({
+  method: 'POST',
+  strict: false,
+})
+  .middleware([...editMiddleware])
+  .validator(appValidator(saveHackathonApplicationQuestionsSchema))
+  .handler(({ context, data }) => {
+    privateNoStore();
+    const input: SaveHackathonApplicationQuestionsInput = {
+      ...data,
+      organisationId: context.organisationId,
+    };
+    return handleResult(
+      saveHackathonApplicationQuestionsResolver(getDb(), input),
     );
   });
 

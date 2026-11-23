@@ -1,5 +1,7 @@
 import {
+  AppError,
   ok,
+  err,
   type HackathonRegistrationStatus,
   type Result,
 } from '@founders-coffee/core';
@@ -16,6 +18,7 @@ import {
   type TeamPageMember,
 } from '@founders-coffee/db';
 import { hackathons } from '@founders-coffee/domain';
+import { logger, reportError } from '@founders-coffee/observability';
 
 import {
   teamProjectViewOf,
@@ -36,6 +39,7 @@ export type TeamPageView = {
   readonly canStillRegister: boolean;
   readonly teamMin: number;
   readonly teamMax: number;
+  readonly teamQuestions: readonly hackathons.HackathonApplicationQuestion[];
   readonly viewerId: string;
   readonly registration: HackathonRegistrationStatus | null;
   readonly team: {
@@ -43,6 +47,7 @@ export type TeamPageView = {
     readonly name: string;
     readonly description: string | null;
     readonly isLookingForMembers: boolean;
+    readonly applicationAnswers: readonly hackathons.HackathonApplicationAnswer[];
     readonly isCaptain: boolean;
     readonly members: readonly TeamPageMember[];
     readonly requests: readonly {
@@ -87,6 +92,23 @@ export const teamPageResolver = async (
   const loaded = await loadTeamHackathon(db, input.eventId);
   if (!loaded.ok) return loaded;
   const { event, timeline, teamMin, teamMax, resultsPublishedAt } = loaded.data;
+  let questions: readonly hackathons.HackathonApplicationQuestion[];
+  try {
+    questions = hackathons.hackathonApplicationQuestionsSchema.parse(
+      JSON.parse(loaded.data.applicationQuestionsJson),
+    );
+  } catch (error) {
+    logger.error('hackathon.application_questions_invalid', {
+      eventId: input.eventId,
+    });
+    reportError(error, {
+      operation: 'hackathon_application_questions_invalid',
+      eventId: input.eventId,
+    });
+    return err(
+      new AppError('event_unavailable', 'The application form is unavailable'),
+    );
+  }
   const standing = await readParticipantStanding(db, input);
   const membership = standing.membership;
   const results =
@@ -111,6 +133,35 @@ export const teamPageResolver = async (
     resultsPublishedAt ? listOwnCertificates(db, input) : [],
   ]);
   const isCaptain = membership?.isCaptain ?? false;
+  let teamAnswers: readonly hackathons.HackathonApplicationAnswer[] = [];
+  if (team) {
+    try {
+      const checked = hackathons.checkHackathonApplicationAnswers(
+        questions,
+        JSON.parse(team.applicationAnswersJson),
+        'team',
+      );
+      if (!checked.ok)
+        throw new AppError(
+          'event_unavailable',
+          'The team answers are unavailable',
+        );
+      teamAnswers = checked.answers;
+    } catch (error) {
+      logger.error('hackathon.application_answers_invalid', {
+        eventId: input.eventId,
+        scope: 'team',
+      });
+      reportError(error, {
+        operation: 'hackathon_application_answers_invalid',
+        eventId: input.eventId,
+        scope: 'team',
+      });
+      return err(
+        new AppError('event_unavailable', 'The team answers are unavailable'),
+      );
+    }
+  }
   return ok({
     event: {
       id: event.id,
@@ -125,6 +176,7 @@ export const teamPageResolver = async (
     ),
     teamMin,
     teamMax,
+    teamQuestions: questions.filter((question) => question.scope === 'team'),
     viewerId: input.userId,
     registration: standing.status,
     team: team && {
@@ -132,6 +184,7 @@ export const teamPageResolver = async (
       name: team.name,
       description: team.description,
       isLookingForMembers: team.isLookingForMembers,
+      applicationAnswers: teamAnswers,
       isCaptain,
       members: team.members,
       requests: isCaptain

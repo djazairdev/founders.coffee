@@ -15,6 +15,7 @@ import {
 } from '@founders-coffee/core';
 
 import { phaseAt, type HackathonTimeline } from './timeline.js';
+import { hackathonApplicationAnswersSchema } from './application-questions.js';
 
 export type RegistrationRequest = {
   readonly timeline: HackathonTimeline;
@@ -39,6 +40,7 @@ export const hackathonRegistrationSchema = z.strictObject({
     .transform((value) => value || null)
     .nullable()
     .default(null),
+  applicationAnswers: hackathonApplicationAnswersSchema.default([]),
 });
 
 export type HackathonRegistrationInput = z.input<

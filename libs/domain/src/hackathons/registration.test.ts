@@ -131,6 +131,7 @@ describe('the registration request (B-REG-03)', () => {
       isAgeAttested: false,
       isLookingForTeam: false,
       skills: null,
+      applicationAnswers: [],
     });
   });
 

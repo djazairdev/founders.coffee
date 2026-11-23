@@ -168,6 +168,7 @@ describe('HackathonTeamPage (B-TEAM-07)', () => {
       name: 'Byte Club',
       description: null,
       isLookingForMembers: true,
+      applicationAnswers: [],
     });
   });
 

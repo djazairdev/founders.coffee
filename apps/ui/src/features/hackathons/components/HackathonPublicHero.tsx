@@ -36,6 +36,7 @@ import { EventCoHosts } from '../../../components/events/EventCoHosts';
 import { ShareEventButton } from '../../../components/events/ShareEventButton';
 import { eventShortDateLabel } from '../../../components/events/event-time';
 import type { HackathonRegistrationView, HackathonSchedule } from '../api';
+import type { HackathonApplicationQuestion } from '../application-answers';
 import { HackathonRegistrationAction } from './HackathonRegistrationAction';
 
 const MetaItem = ({
@@ -68,6 +69,7 @@ export const HackathonPublicHero = ({
   locale,
   isCancelled,
   organisations,
+  applicationQuestions,
 }: {
   event: EventDetailItem;
   schedule: HackathonSchedule | null;
@@ -78,6 +80,7 @@ export const HackathonPublicHero = ({
   locale: Locale;
   isCancelled: boolean;
   organisations?: readonly { readonly name: string; readonly slug: string }[];
+  applicationQuestions: readonly HackathonApplicationQuestion[];
 }) => {
   const options = { locale };
   const cityName = eventCityName(event, locale);
@@ -134,6 +137,7 @@ export const HackathonPublicHero = ({
             registration={registration}
             timeZone={market.timezone}
             locale={locale}
+            applicationQuestions={applicationQuestions}
           />
         ) : null}
       </div>

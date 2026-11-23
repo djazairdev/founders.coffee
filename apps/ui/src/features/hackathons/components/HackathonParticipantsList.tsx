@@ -3,6 +3,8 @@ import { useMemo } from 'react';
 
 import {
   formatNumber,
+  hackathon_application_answers_export,
+  hackathon_application_answers_heading,
   hackathon_participant_disqualified,
   hackathon_participant_registered,
   hackathon_participant_waitlisted,
@@ -28,6 +30,11 @@ import { ATTENDANCE_LABELS } from '../detail-labels';
 import { useHackathonParticipants } from '../hooks';
 import { ORGANISER_TABLE_FEATURES } from '../organiser-table';
 import { HackathonOrganiserTable } from './HackathonOrganiserTable';
+import { HackathonApplicationAnswerReview } from './HackathonApplicationAnswerReview';
+import {
+  applicationAnswersCsv,
+  downloadApplicationAnswersCsv,
+} from '../application-answers';
 
 type Participant = HackathonParticipantsView['participants'][number];
 
@@ -45,7 +52,10 @@ const helper = createColumnHelper<
   Participant
 >();
 
-const columnsFor = (locale: Locale) => {
+const columnsFor = (
+  locale: Locale,
+  questions: HackathonParticipantsView['questions'],
+) => {
   const options = { locale };
   return helper.columns([
     helper.accessor('name', {
@@ -77,6 +87,20 @@ const columnsFor = (locale: Locale) => {
         );
       },
     }),
+    ...(questions.length > 0
+      ? [
+          helper.accessor('applicationAnswers', {
+            header: () => hackathon_application_answers_heading({}, options),
+            cell: (answers) => (
+              <HackathonApplicationAnswerReview
+                answers={answers.getValue()}
+                questions={questions}
+                locale={locale}
+              />
+            ),
+          }),
+        ]
+      : []),
   ]);
 };
 
@@ -89,13 +113,52 @@ export const HackathonParticipantsList = ({
 }) => {
   const options = { locale };
   const query = useHackathonParticipants(eventId);
-  const columns = useMemo(() => columnsFor(locale), [locale]);
   const view = query.data;
+  const columns = useMemo(
+    () => columnsFor(locale, view?.questions ?? []),
+    [locale, view?.questions],
+  );
   return (
     <section aria-labelledby={HEADING_ID} className="mt-8">
-      <h2 id={HEADING_ID} className="font-display text-h4">
-        {hackathon_participants_heading({}, options)}
-      </h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 id={HEADING_ID} className="font-display text-h4">
+          {hackathon_participants_heading({}, options)}
+        </h2>
+        {view?.questions.length && view.participants.length ? (
+          <Button
+            variant="outline"
+            onClick={() =>
+              downloadApplicationAnswersCsv(
+                applicationAnswersCsv(
+                  [
+                    hackathon_participants_name({}, options),
+                    hackathon_participants_attendance({}, options),
+                    hackathon_participants_status({}, options),
+                    hackathon_participants_team({}, options),
+                  ],
+                  view.questions,
+                  view.participants.map((participant) => ({
+                    fields: [
+                      participant.name,
+                      ATTENDANCE_LABELS[participant.attendanceMode](
+                        {},
+                        options,
+                      ),
+                      STATUS[participant.status]({}, options),
+                      participant.teamName ??
+                        hackathon_participants_no_team({}, options),
+                    ],
+                    answers: participant.applicationAnswers,
+                  })),
+                ),
+                `hackathon-${eventId}-participants.csv`,
+              )
+            }
+          >
+            {hackathon_application_answers_export({}, options)}
+          </Button>
+        ) : null}
+      </div>
       {view ? (
         view.participants.length === 0 ? (
           <p className="mt-2 text-body-sm text-neutral">

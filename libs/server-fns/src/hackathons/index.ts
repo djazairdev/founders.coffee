@@ -29,12 +29,14 @@ export {
   removeHackathonPrize,
   saveHackathonRubric,
   saveHackathonTracks,
+  saveHackathonApplicationQuestions,
   type AddHackathonPrizeRequest,
   type ChangeHackathonPrizeRequest,
   type ConfirmHackathonPrizeRequest,
   type RemoveHackathonPrizeRequest,
   type SaveHackathonRubricRequest,
   type SaveHackathonTracksRequest,
+  type SaveHackathonApplicationQuestionsRequest,
 } from './edits-rpc.js';
 export { registerForHackathon } from './registration-rpc.js';
 export type { RegistrationCreated } from './registration.js';

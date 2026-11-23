@@ -3,6 +3,8 @@ import { useMemo } from 'react';
 
 import {
   formatNumber,
+  hackathon_application_answers_export,
+  hackathon_application_team_answers_heading,
   hackathon_participant_disqualified,
   hackathon_team_unnamed,
   hackathon_teams_list_captain,
@@ -33,6 +35,11 @@ import type { HackathonTeamsView } from '../api';
 import { useHackathonTeams } from '../hooks';
 import { ORGANISER_TABLE_FEATURES } from '../organiser-table';
 import { HackathonOrganiserTable } from './HackathonOrganiserTable';
+import { HackathonApplicationAnswerReview } from './HackathonApplicationAnswerReview';
+import {
+  applicationAnswersCsv,
+  downloadApplicationAnswersCsv,
+} from '../application-answers';
 
 type Team = HackathonTeamsView['teams'][number];
 
@@ -77,7 +84,10 @@ const MemberList = ({
   );
 };
 
-const columnsFor = (locale: Locale) => {
+const columnsFor = (
+  locale: Locale,
+  questions: HackathonTeamsView['questions'],
+) => {
   const options = { locale };
   return helper.columns([
     helper.accessor('name', {
@@ -112,6 +122,21 @@ const columnsFor = (locale: Locale) => {
           : hackathon_teams_list_status_none({}, options);
       },
     }),
+    ...(questions.length > 0
+      ? [
+          helper.accessor('applicationAnswers', {
+            header: () =>
+              hackathon_application_team_answers_heading({}, options),
+            cell: (answers) => (
+              <HackathonApplicationAnswerReview
+                answers={answers.getValue()}
+                questions={questions}
+                locale={locale}
+              />
+            ),
+          }),
+        ]
+      : []),
   ]);
 };
 
@@ -124,13 +149,51 @@ export const HackathonTeamsList = ({
 }) => {
   const options = { locale };
   const query = useHackathonTeams(eventId);
-  const columns = useMemo(() => columnsFor(locale), [locale]);
   const view = query.data;
+  const columns = useMemo(
+    () => columnsFor(locale, view?.questions ?? []),
+    [locale, view?.questions],
+  );
   return (
     <section aria-labelledby={HEADING_ID} className="mt-8">
-      <h2 id={HEADING_ID} className="font-display text-h4">
-        {hackathon_teams_list_heading({}, options)}
-      </h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 id={HEADING_ID} className="font-display text-h4">
+          {hackathon_teams_list_heading({}, options)}
+        </h2>
+        {view?.questions.length && view.teams.length ? (
+          <Button
+            variant="outline"
+            onClick={() =>
+              downloadApplicationAnswersCsv(
+                applicationAnswersCsv(
+                  [
+                    hackathon_teams_list_team({}, options),
+                    hackathon_teams_list_members({}, options),
+                    hackathon_teams_list_track({}, options),
+                    hackathon_teams_list_submission({}, options),
+                  ],
+                  view.questions,
+                  view.teams.map((team) => ({
+                    fields: [
+                      team.name,
+                      team.members.map((member) => member.name).join('; '),
+                      team.trackTitle ??
+                        hackathon_teams_list_no_track({}, options),
+                      team.submissionStatus
+                        ? SUBMISSION[team.submissionStatus]({}, options)
+                        : hackathon_teams_list_status_none({}, options),
+                    ],
+                    answers: team.applicationAnswers,
+                  })),
+                ),
+                `hackathon-${eventId}-teams.csv`,
+              )
+            }
+          >
+            {hackathon_application_answers_export({}, options)}
+          </Button>
+        ) : null}
+      </div>
       {view ? (
         view.teams.length === 0 ? (
           <p className="mt-2 text-body-sm text-neutral">

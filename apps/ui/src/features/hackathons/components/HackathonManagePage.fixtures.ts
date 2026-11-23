@@ -28,6 +28,18 @@ const mocks = vi.hoisted(() => ({
     error: null,
     data: undefined,
   },
+  saveApplicationQuestions: {
+    mutate: vi.fn(
+      (
+        _request: unknown,
+        _options?: {
+          onSuccess?: () => void;
+          onError?: (error: unknown) => void;
+        },
+      ) => undefined,
+    ),
+    isPending: false,
+  },
   saveDeadlines: {
     mutate: vi.fn(
       (
@@ -120,6 +132,7 @@ vi.mock('../hooks', () => ({
   useSaveHackathonDeadlines: () => mocks.saveDeadlines,
   useSaveHackathonSettings: () => mocks.saveSettings,
   useSaveHackathonTracks: () => mocks.saveTracks,
+  useSaveHackathonApplicationQuestions: () => mocks.saveApplicationQuestions,
   useSaveHackathonRubric: () => mocks.saveTracks,
   useAddHackathonPrize: () => mocks.saveTracks,
   useChangeHackathonPrize: () => mocks.saveTracks,
@@ -162,5 +175,6 @@ export const resetManagePage = () => {
       isError: false,
       error: null,
     });
+  Object.assign(mocks.saveApplicationQuestions, { isPending: false });
   Object.assign(mocks.deletion, { isPending: false });
 };

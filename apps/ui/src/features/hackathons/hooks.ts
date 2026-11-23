@@ -22,6 +22,7 @@ import {
   type SaveHackathonDeadlinesRequest,
   type SaveHackathonSettingsRequest,
   type SaveHackathonRubricRequest,
+  type SaveHackathonApplicationQuestionsRequest,
   type SaveHackathonTracksRequest,
 } from './api';
 
@@ -134,6 +135,19 @@ export const useSaveHackathonRubric = () => {
   const cache = useQueryClient();
   return useMutation<HackathonEditSaved, Error, SaveHackathonRubricRequest>({
     mutationFn: (request) => hackathonsApi.saveRubric(request),
+    onSuccess: (saved) => afterEdit(cache, saved),
+  });
+};
+
+/** Save the application form while registration is still closed. */
+export const useSaveHackathonApplicationQuestions = () => {
+  const cache = useQueryClient();
+  return useMutation<
+    HackathonEditSaved,
+    Error,
+    SaveHackathonApplicationQuestionsRequest
+  >({
+    mutationFn: (request) => hackathonsApi.saveApplicationQuestions(request),
     onSuccess: (saved) => afterEdit(cache, saved),
   });
 };

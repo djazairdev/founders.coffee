@@ -61,6 +61,7 @@ describe('starting a team (B-TEAM-03)', () => {
       name: 'Byte Club',
       description: null,
       isLookingForMembers: false,
+      applicationAnswers: [],
     });
     expect(
       hackathonTeamCreateSchema.safeParse({

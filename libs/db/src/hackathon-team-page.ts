@@ -34,6 +34,7 @@ export type TeamPageTeam = {
   readonly name: string;
   readonly description: string | null;
   readonly isLookingForMembers: boolean;
+  readonly applicationAnswersJson: string;
   readonly members: readonly TeamPageMember[];
   readonly requests: readonly TeamPageRequest[];
   readonly inviteExpiresAt: Date | null;
@@ -56,6 +57,7 @@ export const readTeamPageTeam = async (
         name: hackathonTeams.name,
         description: hackathonTeams.description,
         isLookingForMembers: hackathonTeams.isLookingForMembers,
+        applicationAnswersJson: hackathonTeams.applicationAnswersJson,
       })
       .from(hackathonTeams)
       .where(eq(hackathonTeams.id, teamId)),

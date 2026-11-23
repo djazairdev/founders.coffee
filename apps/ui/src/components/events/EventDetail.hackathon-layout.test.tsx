@@ -27,6 +27,7 @@ const details: HackathonPageDetails = {
     aiPolicy: 'disclosed',
     aiPolicyNote: null,
     licenceNote: null,
+    applicationQuestions: [],
   },
   judges: [],
   mentors: [],

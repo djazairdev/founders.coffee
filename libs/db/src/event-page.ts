@@ -104,6 +104,7 @@ export const readEventPageRows = async (
         aiPolicy: hackathons.aiPolicy,
         aiPolicyNote: hackathons.aiPolicyNote,
         licenceNote: hackathons.licenceNote,
+        applicationQuestionsJson: hackathons.applicationQuestionsJson,
         capacity: hackathons.capacity,
         registeredCount: hackathons.registeredCount,
       })

@@ -9,6 +9,10 @@ import {
 import {
   formatNumber,
   hackathon_register_age,
+  hackathon_application_questions_heading,
+  hackathon_application_questions_description,
+  hackathon_application_questions_privacy,
+  hackathon_application_questions_invalid_error,
   hackathon_register_mode,
   hackathon_register_need_age,
   hackathon_register_need_mode,
@@ -22,6 +26,12 @@ import { Button, StatusMessage } from '@founders-coffee/ui';
 import { ATTENDANCE_LABELS } from '../detail-labels';
 import { registrationErrorMessage } from '../registration-errors';
 import { useRegisterForHackathon } from '../registration-hooks';
+import {
+  checkApplicationAnswers,
+  type HackathonApplicationAnswer,
+  type HackathonApplicationQuestion,
+} from '../application-answers';
+import { HackathonApplicationAnswerFields } from './HackathonApplicationAnswerFields';
 
 const MODE_ID = 'hackathon-register-mode';
 const AGE_ID = 'hackathon-register-age';
@@ -32,12 +42,14 @@ export const HackathonRegistrationForm = ({
   minimumAge,
   isFull,
   locale,
+  applicationQuestions,
 }: {
   eventId: string;
   format: EventFormat;
   minimumAge: number | null;
   isFull: boolean;
   locale: Locale;
+  applicationQuestions: readonly HackathonApplicationQuestion[];
 }) => {
   const options = { locale };
   const router = useRouter();
@@ -48,6 +60,13 @@ export const HackathonRegistrationForm = ({
   );
   const [isAgeAttested, setIsAgeAttested] = useState(false);
   const [missing, setMissing] = useState<string | null>(null);
+  const [applicationAnswers, setApplicationAnswers] = useState<
+    readonly HackathonApplicationAnswer[]
+  >([]);
+  const [applicationError, setApplicationError] = useState<{
+    readonly questionId: string | null;
+    readonly reason: 'required' | 'invalid' | null;
+  } | null>(null);
   const modeRef = useRef<HTMLInputElement>(null);
   const ageRef = useRef<HTMLInputElement>(null);
 
@@ -62,12 +81,34 @@ export const HackathonRegistrationForm = ({
       return guide(hackathon_register_need_mode({}, options), modeRef.current);
     if (minimumAge !== null && !isAgeAttested)
       return guide(hackathon_register_need_age({}, options), ageRef.current);
+    const checkedAnswers = checkApplicationAnswers(
+      applicationQuestions,
+      applicationAnswers,
+      'participant',
+    );
+    if (!checkedAnswers.ok) {
+      setApplicationError({
+        questionId: checkedAnswers.questionId,
+        reason:
+          checkedAnswers.reason === 'unknown'
+            ? 'invalid'
+            : checkedAnswers.reason,
+      });
+      setMissing(null);
+      if (checkedAnswers.questionId)
+        document
+          .getElementById(`application-question-${checkedAnswers.questionId}`)
+          ?.focus();
+      return;
+    }
+    setApplicationError(null);
     setMissing(null);
     register.mutate(
       {
         eventId,
         attendanceMode: mode,
         isAgeAttested,
+        applicationAnswers: checkedAnswers.answers,
       },
       { onSuccess: () => void router.invalidate() },
     );
@@ -127,6 +168,34 @@ export const HackathonRegistrationForm = ({
             )}
           </span>
         </label>
+      ) : null}
+      {applicationQuestions.length > 0 ? (
+        <fieldset className="grid gap-3 border-t border-base-300 pt-4">
+          <legend className="font-display text-h5">
+            {hackathon_application_questions_heading({}, options)}
+          </legend>
+          <p className="text-body-sm text-neutral">
+            {hackathon_application_questions_description({}, options)}
+          </p>
+          <HackathonApplicationAnswerFields
+            questions={applicationQuestions.filter(
+              (question) => question.scope === 'participant',
+            )}
+            answers={applicationAnswers}
+            locale={locale}
+            errorQuestionId={applicationError?.questionId}
+            errorReason={applicationError?.reason}
+            onChange={setApplicationAnswers}
+          />
+          <p className="text-body-xs text-neutral">
+            {hackathon_application_questions_privacy({}, options)}
+          </p>
+        </fieldset>
+      ) : null}
+      {applicationError?.questionId === null ? (
+        <StatusMessage variant="error" aria-live="polite">
+          {hackathon_application_questions_invalid_error({}, options)}
+        </StatusMessage>
       ) : null}
       {message ? (
         <StatusMessage variant="error" aria-live="polite">
