@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
 
 import type { EventFormat, HackathonPhase } from '@founders-coffee/core';
@@ -48,10 +49,12 @@ const Body = ({
   applicationQuestions,
 }: HackathonRegistrationActionProps) => {
   const options = { locale };
+  const [isMounted, setIsMounted] = useState(false);
   const { isAuthenticated } = useAuth();
   const pathname = useLocation({ select: (location) => location.pathname });
   const { viewer, isFull } = registration;
   const isOpen = schedule.phase === 'registration_open';
+  useEffect(() => setIsMounted(true), []);
   if (viewer?.status === 'registered' || viewer?.status === 'waitlisted')
     return (
       <HackathonRegistrationStanding
@@ -81,7 +84,7 @@ const Body = ({
           {hackathon_register_full({}, options)}
         </p>
       ) : null}
-      {isAuthenticated ? (
+      {isMounted && isAuthenticated ? (
         <HackathonRegistrationForm
           eventId={eventId}
           format={format}
