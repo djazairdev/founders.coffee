@@ -58,6 +58,7 @@ describe('a hackathon’s tracks, prizes and rules on its page (B-HKN-18, B-HKN-
       aiPolicy: saved?.aiPolicy,
       aiPolicyNote: saved?.aiPolicyNote,
       licenceNote: 'Teams keep what they build.',
+      applicationQuestions: [],
     });
   });
 

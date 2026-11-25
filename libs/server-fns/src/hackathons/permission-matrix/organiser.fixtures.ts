@@ -11,6 +11,7 @@ import {
   saveHackathonDeadlinesResolver,
   saveHackathonSettingsResolver,
 } from '../details.js';
+import { saveHackathonApplicationQuestionsResolver } from '../application-questions.js';
 import { hackathonDraftResolver } from '../draft-view.js';
 import { createHackathonDraftResolver } from '../draft.js';
 import { criterion, founderTrack, prize } from '../edit.fixtures.js';
@@ -166,6 +167,24 @@ export const ORGANISER_OPERATIONS: Operations = {
         ],
       }),
     cells: organiserOnly('ok', NEVER_EDITABLE),
+  },
+  saveHackathonApplicationQuestions: {
+    gate: ORGANISER,
+    changesWorld: true,
+    run: (call) =>
+      saveHackathonApplicationQuestionsResolver(call.db, {
+        ...editOf(call),
+        questions: [],
+      }),
+    cells: organiserOnly('ok', {
+      review: NOT_EDITABLE,
+      open: LOCKED,
+      building: LOCKED,
+      judging: LOCKED,
+      judged: NOT_EDITABLE,
+      results: NOT_EDITABLE,
+      cancelled: NOT_EDITABLE,
+    }),
   },
   saveHackathonRubric: {
     gate: ORGANISER,
